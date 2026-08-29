@@ -129,7 +129,7 @@ jobs:
           if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($repoRoot)) { throw 'Could not resolve repository root.' }
           Set-Location $repoRoot
           foreach ($item in Get-ChildItem -LiteralPath $repoRoot -Force) {
-            if ($item.Name -in @('.git','.github','README.md','CNAME')) { continue }
+            if ($item.Name -in @('.git','.github','README.md','CNAME','.nojekyll')) { continue }
             Remove-Item -LiteralPath $item.FullName -Recurse -Force
           }
           Copy-Item -Path (Join-Path '${{ steps.verify.outputs.site }}' '*') -Destination $repoRoot -Recurse -Force
