@@ -1,4 +1,4 @@
-name: Portfolio GitHub Pages Deployment
+name: Portfolio GitHub Pages Configuration
 
 on:
   push:
@@ -10,26 +10,18 @@ on:
 permissions:
   contents: read
   pages: write
-  id-token: write
 
 concurrency:
   group: portfolio-github-pages
   cancel-in-progress: false
 
 jobs:
-  prepare:
-    name: Verify and upload Pages artifact
+  configure:
+    name: Configure and build temporary GitHub Pages site
     runs-on: [self-hosted, Windows, X64, glass-builder]
-    timeout-minutes: 45
+    timeout-minutes: 20
     env:
       GH_TOKEN: ${{ github.token }}
-    outputs:
-      request_id: ${{ steps.request.outputs.request_id }}
-      custom_domain: ${{ steps.request.outputs.custom_domain }}
-      candidate_sha: ${{ steps.request.outputs.candidate_sha }}
-      tree_sha: ${{ steps.request.outputs.tree_sha }}
-      public_files: ${{ steps.request.outputs.public_files }}
-      public_bytes: ${{ steps.request.outputs.public_bytes }}
 
     steps:
       - name: Check out public repository
@@ -45,124 +37,77 @@ jobs:
           $request = Get-Content '.github/pages-deploy-request.json' -Raw -Encoding UTF8 | ConvertFrom-Json
           $receipt = Get-Content '.github/publication-receipt.json' -Raw -Encoding UTF8 | ConvertFrom-Json
           if ([string]$request.requestId -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$') { throw 'Invalid Pages requestId.' }
-          if ([string]$request.customDomain -notmatch '^[A-Za-z0-9.-]+$') { throw 'Invalid customDomain.' }
           if ([string]$request.customDomain -cne 'preview.dantylersmith.com') { throw 'Initial Pages deployment is restricted to preview.dantylersmith.com.' }
           if ([string]$request.candidateSha256 -cne [string]$receipt.candidateSha256) { throw 'Pages candidate SHA differs from publication receipt.' }
           if ([string]$request.publicTreeSha256 -cne [string]$receipt.publicTreeSha256) { throw 'Pages public-tree SHA differs from publication receipt.' }
           if ([int64]$request.publicFiles -ne [int64]$receipt.publicFiles) { throw 'Pages public-file count differs from publication receipt.' }
           if ([int64]$request.publicBytes -ne [int64]$receipt.publicBytes) { throw 'Pages public-byte count differs from publication receipt.' }
+          if (-not (Test-Path -LiteralPath 'index.html' -PathType Leaf)) { throw 'Published root index.html is missing.' }
           "request_id=$([string]$request.requestId)" >> $env:GITHUB_OUTPUT
           "custom_domain=$([string]$request.customDomain)" >> $env:GITHUB_OUTPUT
-          "candidate_sha=$([string]$request.candidateSha256)" >> $env:GITHUB_OUTPUT
-          "tree_sha=$([string]$request.publicTreeSha256)" >> $env:GITHUB_OUTPUT
-          "public_files=$([int64]$request.publicFiles)" >> $env:GITHUB_OUTPUT
-          "public_bytes=$([int64]$request.publicBytes)" >> $env:GITHUB_OUTPUT
 
       - name: Verify managed Glass runtime
         shell: pwsh
         run: |
           $version = (node --version 2>&1 | Out-String).Trim()
           if ($version -notmatch '^v24\.') { throw "Expected managed Node 24; found '$version'." }
-          if (-not (Get-Command tar.exe -ErrorAction SilentlyContinue)) { throw 'tar.exe is required for the GitHub Pages artifact action.' }
-          node --check '.github/scripts/verify-public-candidate.mjs'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Configure workflow-based GitHub Pages
+      - name: Configure branch-source GitHub Pages preview
+        id: pages
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $repo = $env:GITHUB_REPOSITORY
           $domain = '${{ steps.request.outputs.custom_domain }}'
+          $source = [ordered]@{ branch = 'main'; path = '/' }
 
           $null = & gh api "repos/$repo/pages" 2>$null
           if ($LASTEXITCODE -ne 0) {
-            '{"build_type":"workflow"}' | gh api --method POST "repos/$repo/pages" --input - | Out-Null
-            if ($LASTEXITCODE -ne 0) { throw 'Could not create workflow-based GitHub Pages site.' }
+            $create = [ordered]@{ build_type = 'legacy'; source = $source } | ConvertTo-Json -Compress -Depth 4
+            $create | gh api --method POST "repos/$repo/pages" --input - | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'Could not create branch-source GitHub Pages site.' }
           }
 
-          $payload = [ordered]@{
-            build_type = 'workflow'
-            cname = $domain
-          } | ConvertTo-Json -Compress
-          $payload | gh api --method PUT "repos/$repo/pages" --input - | Out-Null
-          if ($LASTEXITCODE -ne 0) { throw 'Could not configure preview custom domain for GitHub Pages.' }
+          $update = [ordered]@{ build_type = 'legacy'; cname = $domain; source = $source } | ConvertTo-Json -Compress -Depth 4
+          $update | gh api --method PUT "repos/$repo/pages" --input - | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Could not configure branch-source GitHub Pages preview.' }
 
-      - name: Configure Pages metadata
-        uses: actions/configure-pages@v5
+          $state = gh api "repos/$repo/pages" | ConvertFrom-Json
+          if ([string]$state.cname -cne $domain) { throw "GitHub Pages custom domain mismatch: $($state.cname)" }
+          if ([string]$state.source.branch -cne 'main' -or [string]$state.source.path -cne '/') { throw 'GitHub Pages publishing source is not main:/.' }
+          "html_url=$([string]$state.html_url)" >> $env:GITHUB_OUTPUT
 
-      - name: Independently verify Pages artifact source
-        id: verify
+      - name: Request Pages build from current main
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $root = 'C:\actions-runner\portfolio-backend\_work\_portfolio-site-handoff'
-          $expectedFiles = @('portfolio-public-candidate.zip','publish-manifest.json','candidate-release.json','handoff.json')
-          $rootItem = Get-Item -LiteralPath $root -Force -ErrorAction Stop
-          if (-not $rootItem.PSIsContainer -or (($rootItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) { throw 'Fixed handoff root is not a normal directory.' }
-          foreach ($name in $expectedFiles) {
-            $item = Get-Item -LiteralPath (Join-Path $root $name) -Force -ErrorAction Stop
-            if ($item.PSIsContainer -or (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) { throw "Handoff file is not a regular file: $name" }
-          }
+          gh api --method POST "repos/$env:GITHUB_REPOSITORY/pages/builds" | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Could not request GitHub Pages build.' }
 
-          $marker = Get-Content (Join-Path $root 'handoff.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-          if ([int]$marker.schemaVersion -ne 1) { throw 'Unsupported handoff schemaVersion.' }
-          if ([string]$marker.candidateSha256 -cne '${{ steps.request.outputs.candidate_sha }}') { throw 'Handoff candidate SHA differs from Pages request.' }
-          if ([string]$marker.publicTreeSha256 -cne '${{ steps.request.outputs.tree_sha }}') { throw 'Handoff tree SHA differs from Pages request.' }
-          if ([int64]$marker.publicFiles -ne [int64]'${{ steps.request.outputs.public_files }}') { throw 'Handoff file count differs from Pages request.' }
-
-          $work = Join-Path $env:RUNNER_TEMP 'portfolio-pages-candidate'
-          Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
-          $site = Join-Path $work 'site'
-          New-Item -ItemType Directory -Path $site -Force | Out-Null
-          $candidate = Join-Path $root 'portfolio-public-candidate.zip'
-          $actualZip = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($actualZip -cne '${{ steps.request.outputs.candidate_sha }}') { throw "Candidate ZIP hash mismatch before Pages upload: $actualZip" }
-          Expand-Archive -LiteralPath $candidate -DestinationPath $site -Force
-          $verificationReceipt = Join-Path $work 'pages-verification-receipt.json'
-          node '.github/scripts/verify-public-candidate.mjs' `
-            $site `
-            (Join-Path $root 'publish-manifest.json') `
-            (Join-Path $root 'handoff.json') `
-            (Join-Path $root 'candidate-release.json') `
-            $candidate `
-            $verificationReceipt
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $verified = Get-Content $verificationReceipt -Raw -Encoding UTF8 | ConvertFrom-Json
-          if ([string]$verified.publicTreeSha256 -cne '${{ steps.request.outputs.tree_sha }}') { throw 'Pages verification tree SHA differs from request.' }
-          if ([int64]$verified.publicFiles -ne [int64]'${{ steps.request.outputs.public_files }}') { throw 'Pages verification file count differs from request.' }
-          if ([int64]$verified.publicBytes -ne [int64]'${{ steps.request.outputs.public_bytes }}') { throw 'Pages verification byte count differs from request.' }
-          "site=$site" >> $env:GITHUB_OUTPUT
-
-      - name: Upload verified GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: ${{ steps.verify.outputs.site }}
-          retention-days: 1
-
-  deploy:
-    name: Deploy temporary GitHub Pages site
-    needs: prepare
-    runs-on: [self-hosted, Windows, X64, glass-builder]
-    timeout-minutes: 20
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Record deployment URL
+      - name: Wait for Pages build result
         shell: pwsh
         run: |
-          @"
-          ## Portfolio GitHub Pages deployment
+          $ErrorActionPreference = 'Stop'
+          $deadline = (Get-Date).AddMinutes(10)
+          do {
+            Start-Sleep -Seconds 10
+            $build = gh api "repos/$env:GITHUB_REPOSITORY/pages/builds/latest" | ConvertFrom-Json
+            $status = [string]$build.status
+            Write-Host "Latest Pages build status: $status"
+            if ($status -eq 'built') {
+              @"
+          ## Portfolio GitHub Pages preview configured
 
-          - Request: `${{ needs.prepare.outputs.request_id }}`
-          - URL: `${{ steps.deployment.outputs.page_url }}`
-          - Custom domain: `${{ needs.prepare.outputs.custom_domain }}`
+          - Request: `${{ steps.request.outputs.request_id }}`
+          - URL: `${{ steps.pages.outputs.html_url }}`
+          - Custom domain: `${{ steps.request.outputs.custom_domain }}`
+          - Source: `main:/`
+          - Build: `built`
           "@ >> $env:GITHUB_STEP_SUMMARY
+              exit 0
+            }
+            if ($status -eq 'errored') {
+              throw "GitHub Pages build failed: $($build.error.message)"
+            }
+          } while ((Get-Date) -lt $deadline)
+          throw 'Timed out waiting for GitHub Pages build.'
