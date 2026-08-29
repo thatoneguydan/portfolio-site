@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   configure:
-    name: Configure and build temporary GitHub Pages site
+    name: Validate and build temporary GitHub Pages site
     runs-on: [self-hosted, Windows, X64, glass-builder]
     timeout-minutes: 20
     env:
@@ -52,29 +52,18 @@ jobs:
           $version = (node --version 2>&1 | Out-String).Trim()
           if ($version -notmatch '^v24\.') { throw "Expected managed Node 24; found '$version'." }
 
-      - name: Configure branch-source GitHub Pages preview
+      - name: Validate repository Pages settings
         id: pages
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $repo = $env:GITHUB_REPOSITORY
           $domain = '${{ steps.request.outputs.custom_domain }}'
-          $source = [ordered]@{ branch = 'main'; path = '/' }
-
-          $null = & gh api "repos/$repo/pages" 2>$null
-          if ($LASTEXITCODE -ne 0) {
-            $create = [ordered]@{ build_type = 'legacy'; source = $source } | ConvertTo-Json -Compress -Depth 4
-            $create | gh api --method POST "repos/$repo/pages" --input - | Out-Null
-            if ($LASTEXITCODE -ne 0) { throw 'Could not create branch-source GitHub Pages site.' }
-          }
-
-          $update = [ordered]@{ build_type = 'legacy'; cname = $domain; source = $source } | ConvertTo-Json -Compress -Depth 4
-          $update | gh api --method PUT "repos/$repo/pages" --input - | Out-Null
-          if ($LASTEXITCODE -ne 0) { throw 'Could not configure branch-source GitHub Pages preview.' }
-
           $state = gh api "repos/$repo/pages" | ConvertFrom-Json
-          if ([string]$state.cname -cne $domain) { throw "GitHub Pages custom domain mismatch: $($state.cname)" }
-          if ([string]$state.source.branch -cne 'main' -or [string]$state.source.path -cne '/') { throw 'GitHub Pages publishing source is not main:/.' }
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub Pages is not enabled for this repository.' }
+          if ([string]$state.cname -cne $domain) { throw "GitHub Pages custom domain mismatch: '$($state.cname)' != '$domain'." }
+          if ([string]$state.source.branch -cne 'main' -or [string]$state.source.path -cne '/') { throw "GitHub Pages publishing source must be main:/; found '$($state.source.branch):$($state.source.path)'." }
+          if ([string]$state.build_type -cne 'legacy') { throw "GitHub Pages must use branch-source publishing; found build_type '$($state.build_type)'." }
           "html_url=$([string]$state.html_url)" >> $env:GITHUB_OUTPUT
 
       - name: Request Pages build from current main
