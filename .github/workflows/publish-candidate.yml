@@ -1,0 +1,167 @@
+name: Portfolio Site Candidate Publication
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/publish-request.json'
+      - '.github/workflows/publish-candidate.yml'
+      - '.github/scripts/verify-public-candidate.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: portfolio-site-candidate-publication
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    name: Validate or publish verified portfolio candidate
+    runs-on: [self-hosted, Windows, X64, glass-builder]
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out public repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Resolve and validate publication request
+        id: request
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $request = Get-Content '.github/publish-request.json' -Raw -Encoding UTF8 | ConvertFrom-Json
+          if ([string]$request.requestId -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$') { throw 'Invalid publication requestId.' }
+          if ([string]$request.mode -notin @('validate','publish')) { throw 'Publication mode must be validate or publish.' }
+          if ([string]$request.candidateSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid candidate SHA-256.' }
+          if ([string]$request.publicTreeSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid public-tree SHA-256.' }
+          if ([int64]$request.publicFiles -lt 1 -or [int64]$request.publicFiles -gt 10000) { throw 'Public file count is outside the allowed bound.' }
+          if ([int64]$request.publicBytes -lt 1 -or [int64]$request.publicBytes -gt 1073741824) { throw 'Public byte count is outside the 1 GiB publication bound.' }
+          "mode=$([string]$request.mode)" >> $env:GITHUB_OUTPUT
+          "request_id=$([string]$request.requestId)" >> $env:GITHUB_OUTPUT
+          "candidate_sha=$([string]$request.candidateSha256)" >> $env:GITHUB_OUTPUT
+          "tree_sha=$([string]$request.publicTreeSha256)" >> $env:GITHUB_OUTPUT
+          "public_files=$([int64]$request.publicFiles)" >> $env:GITHUB_OUTPUT
+          "public_bytes=$([int64]$request.publicBytes)" >> $env:GITHUB_OUTPUT
+
+      - name: Verify managed Glass runtime
+        shell: pwsh
+        run: |
+          $version = (node --version 2>&1 | Out-String).Trim()
+          if ($version -notmatch '^v24\.') { throw "Expected managed Node 24; found '$version'." }
+          node --check '.github/scripts/verify-public-candidate.mjs'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify fixed same-machine handoff identity
+        id: handoff
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = 'C:\actions-runner\portfolio-backend\_work\_portfolio-site-handoff'
+          $expectedFiles = @('portfolio-public-candidate.zip','publish-manifest.json','candidate-release.json','handoff.json')
+          $rootItem = Get-Item -LiteralPath $root -Force -ErrorAction Stop
+          if (-not $rootItem.PSIsContainer -or (($rootItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) { throw 'Fixed handoff root is not a normal directory.' }
+          foreach ($name in $expectedFiles) {
+            $item = Get-Item -LiteralPath (Join-Path $root $name) -Force -ErrorAction Stop
+            if ($item.PSIsContainer -or (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)) { throw "Handoff file is not a regular file: $name" }
+          }
+          $marker = Get-Content (Join-Path $root 'handoff.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+          if ([int]$marker.schemaVersion -ne 1) { throw 'Unsupported handoff schemaVersion.' }
+          if ([string]$marker.candidateSha256 -cne '${{ steps.request.outputs.candidate_sha }}') { throw 'Handoff candidate SHA differs from publication request.' }
+          if ([string]$marker.publicTreeSha256 -cne '${{ steps.request.outputs.tree_sha }}') { throw 'Handoff tree SHA differs from publication request.' }
+          if ([int64]$marker.publicFiles -ne [int64]'${{ steps.request.outputs.public_files }}') { throw 'Handoff file count differs from publication request.' }
+          "root=$root" >> $env:GITHUB_OUTPUT
+
+      - name: Expand and independently verify public candidate
+        id: verify
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = '${{ steps.handoff.outputs.root }}'
+          $work = Join-Path $env:RUNNER_TEMP 'portfolio-site-candidate'
+          Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
+          $site = Join-Path $work 'site'
+          New-Item -ItemType Directory -Path $site -Force | Out-Null
+          $candidate = Join-Path $root 'portfolio-public-candidate.zip'
+          $actualZip = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualZip -cne '${{ steps.request.outputs.candidate_sha }}') { throw "Candidate ZIP hash mismatch before expansion: $actualZip" }
+          Expand-Archive -LiteralPath $candidate -DestinationPath $site -Force
+          $receipt = Join-Path $work 'verification-receipt.json'
+          node '.github/scripts/verify-public-candidate.mjs' `
+            $site `
+            (Join-Path $root 'publish-manifest.json') `
+            (Join-Path $root 'handoff.json') `
+            (Join-Path $root 'candidate-release.json') `
+            $candidate `
+            $receipt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $verified = Get-Content $receipt -Raw -Encoding UTF8 | ConvertFrom-Json
+          if ([string]$verified.publicTreeSha256 -cne '${{ steps.request.outputs.tree_sha }}') { throw 'Independent verification tree SHA differs from request.' }
+          if ([int64]$verified.publicFiles -ne [int64]'${{ steps.request.outputs.public_files }}') { throw 'Independent verification file count differs from request.' }
+          if ([int64]$verified.publicBytes -ne [int64]'${{ steps.request.outputs.public_bytes }}') { throw 'Independent verification byte count differs from request.' }
+          "site=$site" >> $env:GITHUB_OUTPUT
+          "receipt=$receipt" >> $env:GITHUB_OUTPUT
+
+      - name: Report validation-only success
+        if: ${{ steps.request.outputs.mode == 'validate' }}
+        shell: pwsh
+        run: |
+          @"
+          ## Portfolio candidate validation PASS
+
+          - Request: `${{ steps.request.outputs.request_id }}`
+          - Candidate SHA-256: `${{ steps.request.outputs.candidate_sha }}`
+          - Public tree SHA-256: `${{ steps.request.outputs.tree_sha }}`
+          - Public files: ${{ steps.request.outputs.public_files }}
+          - Public bytes: ${{ steps.request.outputs.public_bytes }}
+          - No site files were written to the repository.
+          "@ >> $env:GITHUB_STEP_SUMMARY
+
+      - name: Replace public static tree
+        if: ${{ steps.request.outputs.mode == 'publish' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repoRoot = (& git rev-parse --show-toplevel).Trim()
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($repoRoot)) { throw 'Could not resolve repository root.' }
+          Set-Location $repoRoot
+          foreach ($item in Get-ChildItem -LiteralPath $repoRoot -Force) {
+            if ($item.Name -in @('.git','.github','README.md','CNAME')) { continue }
+            Remove-Item -LiteralPath $item.FullName -Recurse -Force
+          }
+          Copy-Item -Path (Join-Path '${{ steps.verify.outputs.site }}' '*') -Destination $repoRoot -Recurse -Force
+          Copy-Item -LiteralPath '${{ steps.verify.outputs.receipt }}' -Destination '.github/publication-receipt.json' -Force
+
+      - name: Commit verified public artifact
+        if: ${{ steps.request.outputs.mode == 'publish' }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git config user.name 'portfolio-site-publication-bot'
+          git config user.email 'portfolio-site-publication-bot@users.noreply.github.com'
+          git add -A
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { throw 'Publish mode produced no repository changes.' }
+          if ($LASTEXITCODE -ne 1) { throw 'Could not inspect staged public artifact.' }
+          git commit -m "Publish verified portfolio tree ${{ steps.request.outputs.tree_sha }}"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git push origin HEAD:main
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Report published commit
+        if: ${{ steps.request.outputs.mode == 'publish' }}
+        shell: pwsh
+        run: |
+          @"
+          ## Portfolio public artifact published
+
+          - Request: `${{ steps.request.outputs.request_id }}`
+          - Candidate SHA-256: `${{ steps.request.outputs.candidate_sha }}`
+          - Public tree SHA-256: `${{ steps.request.outputs.tree_sha }}`
+          - Public files: ${{ steps.request.outputs.public_files }}
+          - Public bytes: ${{ steps.request.outputs.public_bytes }}
+          - Repository: `${{ github.repository }}`
+          "@ >> $env:GITHUB_STEP_SUMMARY
