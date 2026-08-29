@@ -61,6 +61,13 @@ jobs:
           $domain = '${{ steps.request.outputs.custom_domain }}'
           $state = gh api "repos/$repo/pages" | ConvertFrom-Json
           if ($LASTEXITCODE -ne 0) { throw 'GitHub Pages is not enabled for this repository.' }
+          Write-Host "Pages status: $([string]$state.status)"
+          Write-Host "Pages html_url: $([string]$state.html_url)"
+          Write-Host "Pages protected_domain_state: $([string]$state.protected_domain_state)"
+          Write-Host "Pages https_enforced: $([bool]$state.https_enforced)"
+          Write-Host "Pages certificate state: $([string]$state.https_certificate.state)"
+          Write-Host "Pages certificate description: $([string]$state.https_certificate.description)"
+          Write-Host "Pages certificate domains: $([string]::Join(',', @($state.https_certificate.domains)))"
           if ([string]$state.cname -cne $domain) { throw "GitHub Pages custom domain mismatch: '$($state.cname)' != '$domain'." }
           if ([string]$state.source.branch -cne 'main' -or [string]$state.source.path -cne '/') { throw "GitHub Pages publishing source must be main:/; found '$($state.source.branch):$($state.source.path)'." }
           if ([string]$state.build_type -cne 'legacy') { throw "GitHub Pages must use branch-source publishing; found build_type '$($state.build_type)'." }
