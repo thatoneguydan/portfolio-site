@@ -23,6 +23,13 @@ jobs:
     timeout-minutes: 45
     env:
       GH_TOKEN: ${{ github.token }}
+    outputs:
+      request_id: ${{ steps.request.outputs.request_id }}
+      custom_domain: ${{ steps.request.outputs.custom_domain }}
+      candidate_sha: ${{ steps.request.outputs.candidate_sha }}
+      tree_sha: ${{ steps.request.outputs.tree_sha }}
+      public_files: ${{ steps.request.outputs.public_files }}
+      public_bytes: ${{ steps.request.outputs.public_bytes }}
 
     steps:
       - name: Check out public repository
@@ -157,5 +164,5 @@ jobs:
 
           - Request: `${{ needs.prepare.outputs.request_id }}`
           - URL: `${{ steps.deployment.outputs.page_url }}`
-          - Custom domain: `preview.dantylersmith.com`
+          - Custom domain: `${{ needs.prepare.outputs.custom_domain }}`
           "@ >> $env:GITHUB_STEP_SUMMARY
