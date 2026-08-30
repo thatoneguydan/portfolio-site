@@ -1,0 +1,93 @@
+name: Actions Artifact Lifecycle
+
+on:
+  pull_request:
+    paths: ['.github/workflows/actions-artifact-lifecycle.yml']
+  push:
+    branches: [main]
+    paths: ['.github/workflows/actions-artifact-lifecycle.yml']
+  schedule:
+    - cron: '23 9 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Inventory only or delete artifacts older than the retention window'
+        required: true
+        default: dry-run
+        type: choice
+        options: [dry-run, apply]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actions-artifact-lifecycle
+  cancel-in-progress: false
+
+env:
+  ARTIFACT_RETENTION_DAYS: '7'
+
+jobs:
+  inventory:
+    if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.repo.owner.login == github.repository_owner) }}
+    runs-on: [self-hosted, Windows, X64, glass-builder]
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Inventory artifact backlog
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $days = [int]$env:ARTIFACT_RETENTION_DAYS; $cutoff = [DateTimeOffset]::UtcNow.AddDays(-$days)
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }
+          $all = [System.Collections.Generic.List[object]]::new()
+          for ($page = 1; ; $page++) { $r = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?per_page=100&page=$page"; $items = @($r.artifacts); foreach ($item in $items) { $all.Add($item) }; if ($items.Count -lt 100) { break } }
+          $old = @($all | Where-Object { [DateTimeOffset]$_.created_at -lt $cutoff })
+          $allBytes = [int64](($all | Measure-Object size_in_bytes -Sum).Sum); $oldBytes = [int64](($old | Measure-Object size_in_bytes -Sum).Sum)
+          $allMiB = [math]::Round($allBytes / 1MB, 2); $oldMiB = [math]::Round($oldBytes / 1MB, 2)
+          Write-Host "Repository: $env:GITHUB_REPOSITORY"
+          Write-Host "Artifacts: $($all.Count), $allMiB MiB"
+          Write-Host "Eligible for deletion: $($old.Count), $oldMiB MiB"
+          @"
+          ## Actions artifact lifecycle inventory
+          - Repository: ``$env:GITHUB_REPOSITORY``
+          - Retention: **$days days**
+          - Current: **$($all.Count)** artifact(s), $allMiB MiB
+          - Eligible: **$($old.Count)** artifact(s), $oldMiB MiB
+          - This job is read-only. Resume-critical evidence must be durable outside Actions artifacts.
+          "@ >> $env:GITHUB_STEP_SUMMARY
+
+  cleanup:
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.mode == 'apply') && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.repo.owner.login == github.repository_owner)) }}
+    runs-on: [self-hosted, Windows, X64, glass-builder]
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Delete expired artifacts
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $days = [int]$env:ARTIFACT_RETENTION_DAYS; $cutoff = [DateTimeOffset]::UtcNow.AddDays(-$days)
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }
+          $all = [System.Collections.Generic.List[object]]::new()
+          for ($page = 1; ; $page++) { $r = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?per_page=100&page=$page"; $items = @($r.artifacts); foreach ($item in $items) { $all.Add($item) }; if ($items.Count -lt 100) { break } }
+          $old = @($all | Where-Object { [DateTimeOffset]$_.created_at -lt $cutoff } | Sort-Object { [DateTimeOffset]$_.created_at })
+          [int64]$bytes = 0; $deleted = 0
+          foreach ($artifact in $old) { Write-Host "Deleting artifact $($artifact.id) '$($artifact.name)' created $($artifact.created_at)"; Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts/$($artifact.id)" | Out-Null; $deleted++; $bytes += [int64]$artifact.size_in_bytes }
+          $mib = [math]::Round($bytes / 1MB, 2); $kept = $all.Count - $deleted
+          Write-Host "Deleted: $deleted artifact(s), $mib MiB; kept: $kept"
+          @"
+          ## Actions artifact lifecycle cleanup
+          - Repository: ``$env:GITHUB_REPOSITORY``
+          - Deleted: **$deleted** artifact(s), about $mib MiB
+          - Kept: **$kept** artifact(s)
+          - Scope: Actions artifacts only; Git/source, runs/logs, branches, PRs/issues, releases, and durable project state are untouched.
+          "@ >> $env:GITHUB_STEP_SUMMARY
