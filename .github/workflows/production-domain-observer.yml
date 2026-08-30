@@ -48,8 +48,11 @@ jobs:
           Write-Host "certificate_domains=$([string]::Join(',', @($state.https_certificate.domains)))"
           Write-Host '=== GITHUB PAGES DNS HEALTH ==='
           $healthRaw = gh api "repos/$env:GITHUB_REPOSITORY/pages/health" 2>&1
+          $healthExit = $LASTEXITCODE
           Write-Host ($healthRaw | Out-String).Trim()
-          Write-Host "health_exit_code=$LASTEXITCODE"
+          Write-Host "health_exit_code=$healthExit"
+          $global:LASTEXITCODE = 0
+          exit 0
 
       - name: Resolve public DNS and HTTP state
         shell: pwsh
@@ -88,6 +91,7 @@ jobs:
               }
             }
           }
+          exit 0
 
       - name: Confirm no mutation
         shell: pwsh
