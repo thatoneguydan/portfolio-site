@@ -1,0 +1,92 @@
+name: Portfolio Production Domain Observer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/production-domain-observer-request.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: read
+
+jobs:
+  observe:
+    name: Observe Pages and public DNS without mutation
+    runs-on: [self-hosted, Windows, X64, glass-builder]
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out public repository
+        uses: actions/checkout@v7
+
+      - name: Validate observation request
+        id: request
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $request = Get-Content '.github/production-domain-observer-request.json' -Raw -Encoding UTF8 | ConvertFrom-Json
+          if ([string]$request.requestId -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$') { throw 'Invalid requestId.' }
+          if ([string]$request.apex -cne 'dantylersmith.com') { throw 'Unexpected apex domain.' }
+          "request_id=$([string]$request.requestId)" >> $env:GITHUB_OUTPUT
+
+      - name: Read GitHub Pages configuration
+        id: pages
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $state = gh api "repos/$env:GITHUB_REPOSITORY/pages" | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not read GitHub Pages state.' }
+          Write-Host '=== GITHUB PAGES ==='
+          Write-Host "html_url=$([string]$state.html_url)"
+          Write-Host "cname=$([string]$state.cname)"
+          Write-Host "status=$([string]$state.status)"
+          Write-Host "build_type=$([string]$state.build_type)"
+          Write-Host "source_branch=$([string]$state.source.branch)"
+          Write-Host "source_path=$([string]$state.source.path)"
+          Write-Host "https_enforced=$([bool]$state.https_enforced)"
+          Write-Host "protected_domain_state=$([string]$state.protected_domain_state)"
+          Write-Host "certificate_state=$([string]$state.https_certificate.state)"
+          Write-Host "certificate_domains=$([string]::Join(',', @($state.https_certificate.domains)))"
+
+      - name: Resolve public DNS and HTTP state
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          foreach ($hostName in @('dantylersmith.com','www.dantylersmith.com','preview.dantylersmith.com')) {
+            Write-Host "=== DNS $hostName ==="
+            foreach ($type in @('A','AAAA','CNAME')) {
+              $records = @(Resolve-DnsName -Name $hostName -Type $type -DnsOnly -ErrorAction SilentlyContinue)
+              if (-not $records.Count) { Write-Host "$type=<none>"; continue }
+              foreach ($record in $records) {
+                $value = if ($record.IPAddress) { [string]$record.IPAddress } elseif ($record.NameHost) { [string]$record.NameHost } else { ($record | Out-String).Trim() }
+                Write-Host "$type=$value"
+              }
+            }
+          }
+          foreach ($url in @('https://dantylersmith.com/','https://www.dantylersmith.com/','https://preview.dantylersmith.com/')) {
+            Write-Host "=== HTTP $url ==="
+            try {
+              $response = Invoke-WebRequest -Uri $url -MaximumRedirection 0 -SkipHttpErrorCheck -TimeoutSec 15
+              Write-Host "status=$([int]$response.StatusCode)"
+              Write-Host "location=$([string]$response.Headers.Location)"
+              Write-Host "server=$([string]$response.Headers.Server)"
+            } catch {
+              if ($_.Exception.Response) {
+                Write-Host "status=$([int]$_.Exception.Response.StatusCode)"
+                Write-Host "location=$([string]$_.Exception.Response.Headers.Location)"
+              } else {
+                Write-Host "error=$($_.Exception.Message)"
+              }
+            }
+          }
+
+      - name: Confirm no mutation
+        shell: pwsh
+        run: |
+          $changes = git status --porcelain
+          if ($changes) { throw "Observation workflow changed repository state:`n$changes" }
+          Write-Host 'mutation=false'
