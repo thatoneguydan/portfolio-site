@@ -1,8 +1,8 @@
 {
-  "requestId": "portfolio-site-publisher-safe-validate-2026-08-29-001",
+  "requestId": "portfolio-site-clean-validate-2026-08-30-001",
   "mode": "validate",
-  "candidateSha256": "95036405e7eb165a6224da59ee6b9a340a2773f89ae4a812ee263b50f989ca93",
-  "publicTreeSha256": "a8471ad404d61869d81bdb82a6f05955b9d7ff4d1e63160412367ec43304df59",
-  "publicFiles": 820,
-  "publicBytes": 704883983
+  "candidateSha256": "703845bc008932dc7fb60a3fd3e2ede405705973ec8afc6eb8c08c6d77f043cc",
+  "publicTreeSha256": "21d41d64ade29a18febfdc135cb4952fe0fff62c2922d7d105c60abf64b8ab15",
+  "publicFiles": 602,
+  "publicBytes": 539155116
 }
