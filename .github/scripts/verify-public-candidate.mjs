@@ -3,6 +3,8 @@ import { lstat, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const ACCEPTED_RELEASE_STORAGE = new Set(['private-github-release', 'same-machine-validated-build']);
+
 function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
 }
@@ -57,7 +59,7 @@ export async function verifyCandidate({ siteRoot, manifestPath, handoffPath, rel
 
   if (handoff.schemaVersion !== 1) throw new Error('Unsupported handoff schemaVersion.');
   if (manifest.schemaVersion !== 1 || manifest.result !== 'PASS') throw new Error('Publish manifest is not an accepted PASS manifest.');
-  if (release.schemaVersion !== 1 || release.storage !== 'private-github-release') throw new Error('Candidate release record is not canonical.');
+  if (release.schemaVersion !== 1 || !ACCEPTED_RELEASE_STORAGE.has(release.storage)) throw new Error('Candidate release record storage is not accepted.');
   if (release.assetName !== 'portfolio-public-candidate.zip') throw new Error('Candidate asset name is not canonical.');
 
   const candidateBytes = await readFile(candidateZipPath);
