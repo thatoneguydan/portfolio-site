@@ -49,6 +49,9 @@ jobs:
           $old = @($all | Where-Object { [DateTimeOffset]$_.created_at -lt $cutoff })
           $allBytes = [int64](($all | Measure-Object size_in_bytes -Sum).Sum); $oldBytes = [int64](($old | Measure-Object size_in_bytes -Sum).Sum)
           $allMiB = [math]::Round($allBytes / 1MB, 2); $oldMiB = [math]::Round($oldBytes / 1MB, 2)
+          Write-Host "Repository: $env:GITHUB_REPOSITORY"
+          Write-Host "Artifacts: $($all.Count), $allMiB MiB"
+          Write-Host "Eligible for deletion: $($old.Count), $oldMiB MiB"
           @"
           ## Actions artifact lifecycle inventory
           - Repository: ``$env:GITHUB_REPOSITORY``
@@ -80,6 +83,7 @@ jobs:
           [int64]$bytes = 0; $deleted = 0
           foreach ($artifact in $old) { Write-Host "Deleting artifact $($artifact.id) '$($artifact.name)' created $($artifact.created_at)"; Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts/$($artifact.id)" | Out-Null; $deleted++; $bytes += [int64]$artifact.size_in_bytes }
           $mib = [math]::Round($bytes / 1MB, 2); $kept = $all.Count - $deleted
+          Write-Host "Deleted: $deleted artifact(s), $mib MiB; kept: $kept"
           @"
           ## Actions artifact lifecycle cleanup
           - Repository: ``$env:GITHUB_REPOSITORY``
