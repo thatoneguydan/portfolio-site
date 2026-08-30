@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "result": "PASS",
-  "requestId": "public-handoff-initial-2026-08-29-001",
-  "candidateSha256": "95036405e7eb165a6224da59ee6b9a340a2773f89ae4a812ee263b50f989ca93",
-  "publicTreeSha256": "a8471ad404d61869d81bdb82a6f05955b9d7ff4d1e63160412367ec43304df59",
-  "publicFiles": 820,
-  "publicBytes": 704883983,
+  "requestId": "portfolio-clean-publication-handoff-2026-08-30-001",
+  "candidateSha256": "703845bc008932dc7fb60a3fd3e2ede405705973ec8afc6eb8c08c6d77f043cc",
+  "publicTreeSha256": "21d41d64ade29a18febfdc135cb4952fe0fff62c2922d7d105c60abf64b8ab15",
+  "publicFiles": 602,
+  "publicBytes": 539155116,
   "sourceRescueSha256": "657ebe87476132fc49f478d5b29fe9823ce59923d7cacf1ddc943e01c769e247",
-  "verifiedAt": "2026-08-29T12:40:14.970Z"
+  "verifiedAt": "2026-08-30T00:46:26.209Z"
 }

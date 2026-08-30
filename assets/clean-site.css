@@ -1,0 +1,292 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000;
+  background: #fff;
+  line-height: normal;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: #fff; color: #000; }
+a { color: inherit; }
+figure { margin: 0; }
+img { display: block; max-width: 100%; height: auto; }
+
+.site-header {
+  width: 80%;
+  height: 87.05px;
+  margin: 0 auto;
+  padding: 15px 8px 15px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.site-logo { display: block; flex: 0 0 auto; line-height: 0; }
+.site-logo img { width: 250px; max-width: none; height: auto; }
+.site-nav { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+.site-nav a {
+  color: #aaa;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: 1px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-nav a[aria-current="page"] { color: #111; text-decoration: none; }
+
+.site-main { width: 80%; margin: 0 auto; padding: 0; }
+.masthead {
+  width: 100%;
+  height: 200px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.masthead::after { content: ''; display: block; flex: 0 0 30px; height: 30px; }
+.masthead h1 {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 0 14px;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 70px;
+  font-weight: 700;
+  line-height: 70px;
+}
+.masthead p {
+  width: 100%;
+  max-width: 800px;
+  margin: 0;
+  color: #999;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.module { margin-left: auto; margin-right: auto; }
+.site-main > .module { width: 98%; }
+.module--text {
+  width: 90%;
+  max-width: 800px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.text-block {
+  margin: 0;
+  padding: 0 0 20px;
+  color: #999;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 28px;
+  white-space: pre-wrap;
+}
+.text-block--title {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  color: #111;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 70px;
+  font-weight: 700;
+  line-height: 70px;
+}
+.text-block--subtitle {
+  padding-top: 30px;
+  padding-bottom: 10px;
+  color: #111;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 34px;
+}
+.text-block--lead { color: #999; font-size: 20px; line-height: 28px; }
+
+.module--image {
+  max-width: 800px;
+  padding-top: 0;
+  padding-bottom: 0;
+  display: flex;
+  justify-content: center;
+}
+.module--image > a, .module--image > img { width: 100%; }
+.module--image img { width: 100%; }
+
+.media-collection { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 0; align-items: start; }
+.media-collection img { width: 100%; }
+.embed-shell { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; }
+.embed-shell iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+.button-row {
+  max-width: 100%;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  text-align: center;
+}
+.portfolio-button {
+  display: inline-block;
+  height: 40px;
+  padding: 0 30px;
+  border: 0;
+  border-radius: 100px;
+  text-decoration: none;
+  background: #222;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 40px;
+  text-align: center;
+  white-space: pre;
+  cursor: pointer;
+}
+
+.column-layout { display: flex; align-items: center; gap: 0; }
+.column {
+  min-width: 1px;
+  flex: 1 1 0%;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+.column:first-child { border-left: 0; }
+.column:last-child { border-right: 0; }
+
+.cover-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; padding-bottom: 50px; }
+.cover-card { position: relative; display: block; aspect-ratio: 100 / 78.21782; overflow: hidden; text-decoration: none; }
+.cover-card img {
+  position: absolute;
+  inset: -1px;
+  width: calc(100% + 2px);
+  max-width: none;
+  height: calc(100% + 2px);
+  object-fit: cover;
+}
+.cover-card h2, .cover-card h3, .cover-card p {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.related-projects { margin-top: 0; }
+
+.site-main > .contact-form {
+  width: 49%;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  display: block;
+  padding-bottom: 4px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.form-field { display: block; }
+.form-field label {
+  display: block;
+  height: 14px;
+  margin: 0 0 10px;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: left;
+}
+.form-field input,
+.form-field textarea {
+  display: block;
+  width: 100%;
+  margin: 0 0 30px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  outline: 0;
+  background: #fff;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  text-align: left;
+}
+.form-field input { height: 42px; padding-top: 1px; padding-bottom: 1px; line-height: 42px; }
+.form-field textarea { height: 132px; min-height: 132px; padding-top: 13px; padding-bottom: 13px; line-height: normal; resize: vertical; }
+.contact-form .portfolio-button {
+  width: auto;
+  height: 40px;
+  padding: 0 30px;
+  border: 1px solid rgba(51, 51, 51, .6);
+  border-radius: 5px;
+  background: transparent;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 40px;
+  text-align: left;
+}
+.form-status { margin: 0; }
+.form-status:empty { display: none; }
+
+@media (max-width: 932px) {
+  .masthead { height: 160px; padding-left: 5%; padding-right: 5%; }
+  .masthead::after { flex-basis: 18px; height: 18px; }
+  .masthead h1 { margin-bottom: 11px; font-size: 30px; line-height: 30px; }
+  .masthead p { font-size: 14px; line-height: 14px; }
+  .site-main > .module { width: 100%; }
+  .module--text { width: 100%; padding: 14px 5%; }
+  .text-block { padding-bottom: 14px; font-size: 17px; line-height: 24px; }
+  .text-block--title { padding-top: 5px; padding-bottom: 5px; font-size: 39px; line-height: 39px; }
+  .text-block--subtitle { padding-top: 18px; padding-bottom: 8px; font-size: 19px; line-height: 25px; }
+  .button-row { padding: 14px 5%; }
+}
+
+@media (max-width: 720px) {
+  .site-header {
+    width: 100%;
+    height: 109.98px;
+    padding: 25px 20.59px;
+    display: block;
+  }
+  .site-logo { width: 262.86px; max-width: calc(100vw - 41.18px); }
+  .site-logo img { width: 100%; max-width: 100%; }
+  .site-nav { display: none; }
+  .site-main { width: 100%; }
+  .module--image { width: 100%; }
+  .column-layout { display: block; }
+  .column { width: 100%; flex: none !important; border-left: 0; border-right: 0; }
+  .cover-grid { grid-template-columns: 1fr; padding-bottom: 21px; }
+}
+
+@media (max-width: 540px) {
+  .masthead { height: 140px; }
+  .masthead::after { flex-basis: 16px; height: 16px; }
+  .masthead h1 { margin-bottom: 10px; font-size: 26px; line-height: 26px; }
+  .masthead p { font-size: 14px; line-height: 20px; }
+  .module--text { padding-top: 13px; padding-bottom: 13px; }
+  .text-block { padding-bottom: 13px; font-size: 14px; line-height: 20px; }
+  .text-block--title { padding-top: 5px; padding-bottom: 5px; font-size: 32px; line-height: 32px; }
+  .text-block--subtitle { padding-top: 16px; padding-bottom: 7px; font-size: 16px; line-height: 21px; }
+  .button-row { padding-top: 13px; padding-bottom: 13px; }
+  .portfolio-button { height: 35px; padding: 0 26px; font-size: 14px; line-height: 35px; }
+  .site-main > .contact-form {
+    width: 86%;
+    margin-top: 18px;
+    margin-bottom: 18px;
+    padding-bottom: 4px;
+  }
+  .contact-form .form-field label { margin-bottom: 7px; }
+  .contact-form .form-field input,
+  .contact-form .form-field textarea { margin-bottom: 16px; }
+  .contact-form .form-field input { height: 35px; line-height: 35px; }
+  .contact-form .form-field textarea { height: 132px; min-height: 132px; }
+  .contact-form .portfolio-button { height: 35px; padding: 0 26px; font-size: 16px; line-height: 35px; }
+}
