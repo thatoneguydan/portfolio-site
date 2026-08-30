@@ -1,0 +1,114 @@
+name: Portfolio Publication Failure Containment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/failure-containment-request.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-publication-failure-containment
+  cancel-in-progress: false
+
+jobs:
+  containment:
+    name: Prove invalid candidate cannot mutate public tree
+    runs-on: [self-hosted, Windows, X64, glass-builder]
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out public repository
+        uses: actions/checkout@v7
+
+      - name: Resolve containment request
+        id: request
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $request = Get-Content '.github/failure-containment-request.json' -Raw -Encoding UTF8 | ConvertFrom-Json
+          if ([string]$request.requestId -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$') { throw 'Invalid requestId.' }
+          if ([string]$request.candidateSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid candidate SHA-256.' }
+          if ([string]$request.publicTreeSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid public-tree SHA-256.' }
+          "candidate_sha=$([string]$request.candidateSha256)" >> $env:GITHUB_OUTPUT
+          "tree_sha=$([string]$request.publicTreeSha256)" >> $env:GITHUB_OUTPUT
+          "request_id=$([string]$request.requestId)" >> $env:GITHUB_OUTPUT
+
+      - name: Copy verified handoff into isolated test area
+        id: handoff
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = 'C:\actions-runner\portfolio-backend\_work\_portfolio-site-handoff'
+          $marker = Get-Content (Join-Path $source 'handoff.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+          if ([string]$marker.candidateSha256 -cne '${{ steps.request.outputs.candidate_sha }}') { throw 'Fixed handoff candidate SHA differs from containment request.' }
+          if ([string]$marker.publicTreeSha256 -cne '${{ steps.request.outputs.tree_sha }}') { throw 'Fixed handoff tree differs from containment request.' }
+          $work = Join-Path $env:RUNNER_TEMP 'portfolio-publication-failure-containment'
+          Remove-Item -LiteralPath $work -Recurse -Force -ErrorAction SilentlyContinue
+          $copy = Join-Path $work 'handoff'
+          $site = Join-Path $work 'site'
+          New-Item -ItemType Directory -Force -Path $copy,$site | Out-Null
+          foreach ($name in @('portfolio-public-candidate.zip','publish-manifest.json','candidate-release.json','handoff.json')) {
+            Copy-Item -LiteralPath (Join-Path $source $name) -Destination (Join-Path $copy $name) -Force
+          }
+          Expand-Archive -LiteralPath (Join-Path $copy 'portfolio-public-candidate.zip') -DestinationPath $site -Force
+          "work=$work" >> $env:GITHUB_OUTPUT
+          "copy=$copy" >> $env:GITHUB_OUTPUT
+          "site=$site" >> $env:GITHUB_OUTPUT
+
+      - name: Verify accepted copy first
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $copy = '${{ steps.handoff.outputs.copy }}'
+          $receipt = Join-Path '${{ steps.handoff.outputs.work }}' 'accepted-receipt.json'
+          node '.github/scripts/verify-public-candidate.mjs' `
+            '${{ steps.handoff.outputs.site }}' `
+            (Join-Path $copy 'publish-manifest.json') `
+            (Join-Path $copy 'handoff.json') `
+            (Join-Path $copy 'candidate-release.json') `
+            (Join-Path $copy 'portfolio-public-candidate.zip') `
+            $receipt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Tamper identity and require rejection
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $copy = '${{ steps.handoff.outputs.copy }}'
+          $handoffPath = Join-Path $copy 'handoff.json'
+          $marker = Get-Content $handoffPath -Raw -Encoding UTF8 | ConvertFrom-Json
+          $marker.candidateSha256 = ('0' * 64)
+          $marker | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $handoffPath -Encoding UTF8
+          & node '.github/scripts/verify-public-candidate.mjs' `
+            '${{ steps.handoff.outputs.site }}' `
+            (Join-Path $copy 'publish-manifest.json') `
+            $handoffPath `
+            (Join-Path $copy 'candidate-release.json') `
+            (Join-Path $copy 'portfolio-public-candidate.zip')
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -eq 0) { throw 'Tampered handoff unexpectedly passed independent public verification.' }
+          Write-Host 'Expected tampered handoff was rejected.'
+          exit 0
+
+      - name: Prove repository remained untouched
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $changes = @(git status --porcelain)
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($changes.Count -ne 0) { throw "Containment proof modified repository files: $($changes -join '; ')" }
+          @"
+          ## Publication failure containment PASS
+
+          - Request: `${{ steps.request.outputs.request_id }}`
+          - Clean candidate SHA-256: `${{ steps.request.outputs.candidate_sha }}`
+          - Clean public tree SHA-256: `${{ steps.request.outputs.tree_sha }}`
+          - Valid isolated copy verified first.
+          - Tampered identity was rejected.
+          - Repository working tree remained unchanged.
+          - Workflow has read-only repository permissions.
+          "@ >> $env:GITHUB_STEP_SUMMARY
