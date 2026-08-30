@@ -1,0 +1,92 @@
+name: Portfolio Production TLS Readiness
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/production-tls-request.json'
+
+permissions:
+  contents: read
+  pages: write
+
+jobs:
+  tls:
+    name: Wait for production certificate and enforce HTTPS
+    runs-on: [self-hosted, Windows, X64, glass-builder]
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out public repository
+        uses: actions/checkout@v7
+
+      - name: Validate production TLS request
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $request = Get-Content '.github/production-tls-request.json' -Raw -Encoding UTF8 | ConvertFrom-Json
+          if ([string]$request.requestId -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]{2,127}$') { throw 'Invalid requestId.' }
+          if ([string]$request.domain -cne 'dantylersmith.com') { throw 'Unexpected production domain.' }
+          if ((Get-Content 'CNAME' -Raw -Encoding UTF8).Trim() -cne 'dantylersmith.com') { throw 'Repository CNAME is not the production apex.' }
+
+      - name: Verify direct DNS records before certificate wait
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $expected4 = @('185.199.108.153','185.199.109.153','185.199.110.153','185.199.111.153') | Sort-Object
+          $expected6 = @('2606:50c0:8000::153','2606:50c0:8001::153','2606:50c0:8002::153','2606:50c0:8003::153') | Sort-Object
+          $actual4 = @(Resolve-DnsName -Name 'dantylersmith.com' -Type A -DnsOnly -ErrorAction Stop | Where-Object IPAddress | ForEach-Object IPAddress) | Sort-Object
+          $actual6 = @(Resolve-DnsName -Name 'dantylersmith.com' -Type AAAA -DnsOnly -ErrorAction Stop | Where-Object IPAddress | ForEach-Object IPAddress) | Sort-Object
+          if (($actual4 -join ',') -cne ($expected4 -join ',')) { throw "Unexpected apex IPv4 records: $($actual4 -join ',')" }
+          if (($actual6 -join ',') -cne ($expected6 -join ',')) { throw "Unexpected apex IPv6 records: $($actual6 -join ',')" }
+          $www = @(Resolve-DnsName -Name 'www.dantylersmith.com' -Type CNAME -DnsOnly -ErrorAction Stop | Where-Object NameHost | ForEach-Object { $_.NameHost.TrimEnd('.') })
+          if ($www.Count -ne 1 -or $www[0] -cne 'thatoneguydan.github.io') { throw "Unexpected www CNAME: $($www -join ',')" }
+          $preview = @(Resolve-DnsName -Name 'preview.dantylersmith.com' -Type CNAME -DnsOnly -ErrorAction SilentlyContinue | Where-Object NameHost)
+          if ($preview.Count) { throw 'preview.dantylersmith.com still has a CNAME.' }
+          Write-Host 'dns_direct_origin=PASS'
+
+      - name: Wait for GitHub Pages certificate
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $deadline = (Get-Date).AddMinutes(10)
+          do {
+            $state = gh api "repos/$env:GITHUB_REPOSITORY/pages" | ConvertFrom-Json
+            if ($LASTEXITCODE -ne 0) { throw 'Could not read GitHub Pages state.' }
+            $certState = [string]$state.https_certificate.state
+            $domains = @($state.https_certificate.domains | ForEach-Object { [string]$_ })
+            Write-Host "pages_status=$([string]$state.status) certificate_state=$certState certificate_domains=$($domains -join ',') https_enforced=$([bool]$state.https_enforced)"
+            if ([string]$state.cname -cne 'dantylersmith.com') { throw 'GitHub Pages custom domain changed unexpectedly.' }
+            if ($certState -ceq 'approved' -and $domains -contains 'dantylersmith.com') { break }
+            Start-Sleep -Seconds 15
+          } while ((Get-Date) -lt $deadline)
+          if ($certState -cne 'approved' -or -not ($domains -contains 'dantylersmith.com')) { throw 'Timed out waiting for GitHub Pages production certificate.' }
+          Write-Host 'certificate_ready=PASS'
+
+      - name: Enforce HTTPS on GitHub Pages
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $before = gh api "repos/$env:GITHUB_REPOSITORY/pages" | ConvertFrom-Json
+          if (-not [bool]$before.https_enforced) {
+            gh api --method PUT "repos/$env:GITHUB_REPOSITORY/pages" -F https_enforced=true | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'Could not enable GitHub Pages HTTPS enforcement.' }
+          }
+          Start-Sleep -Seconds 5
+          $after = gh api "repos/$env:GITHUB_REPOSITORY/pages" | ConvertFrom-Json
+          if (-not [bool]$after.https_enforced) { throw 'GitHub Pages HTTPS enforcement is still disabled.' }
+          Write-Host "https_enforced=$([bool]$after.https_enforced)"
+          Write-Host "certificate_state=$([string]$after.https_certificate.state)"
+          Write-Host "certificate_domains=$([string]::Join(',', @($after.https_certificate.domains)))"
+
+      - name: Verify production HTTPS endpoints
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($url in @('https://dantylersmith.com/','https://www.dantylersmith.com/')) {
+            $response = Invoke-WebRequest -Uri $url -MaximumRedirection 0 -SkipHttpErrorCheck -TimeoutSec 20
+            Write-Host "$url status=$([int]$response.StatusCode) location=$([string]$response.Headers.Location) server=$([string]$response.Headers.Server)"
+            if ([int]$response.StatusCode -lt 200 -or [int]$response.StatusCode -ge 400) { throw "Production HTTPS endpoint failed: $url" }
+          }
