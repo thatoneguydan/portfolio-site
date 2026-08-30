@@ -14,7 +14,7 @@ permissions:
 jobs:
   observe:
     name: Observe Pages and public DNS without mutation
-    runs-on: [self-hosted, Windows, X64, glass-builder]
+    runs-on: windows-latest
     timeout-minutes: 10
     env:
       GH_TOKEN: ${{ github.token }}
@@ -34,7 +34,6 @@ jobs:
           "request_id=$([string]$request.requestId)" >> $env:GITHUB_OUTPUT
 
       - name: Read GitHub Pages configuration
-        id: pages
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -44,22 +43,18 @@ jobs:
           Write-Host "html_url=$([string]$state.html_url)"
           Write-Host "cname=$([string]$state.cname)"
           Write-Host "status=$([string]$state.status)"
-          Write-Host "build_type=$([string]$state.build_type)"
-          Write-Host "source_branch=$([string]$state.source.branch)"
-          Write-Host "source_path=$([string]$state.source.path)"
           Write-Host "https_enforced=$([bool]$state.https_enforced)"
-          Write-Host "protected_domain_state=$([string]$state.protected_domain_state)"
           Write-Host "certificate_state=$([string]$state.https_certificate.state)"
           Write-Host "certificate_domains=$([string]::Join(',', @($state.https_certificate.domains)))"
 
-      - name: Resolve public DNS and HTTP state
+      - name: Resolve public DNS, DNSSEC, CAA, and HTTP state
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Continue'
           foreach ($hostName in @('dantylersmith.com','www.dantylersmith.com','preview.dantylersmith.com')) {
             Write-Host "=== DNS $hostName ==="
-            foreach ($type in @('A','AAAA','CNAME')) {
-              $records = @(Resolve-DnsName -Name $hostName -Type $type -DnsOnly -ErrorAction SilentlyContinue)
+            foreach ($type in @('A','AAAA','CNAME','CAA')) {
+              $records = @(Resolve-DnsName -Name $hostName -Type $type -Server '1.1.1.1' -DnsOnly -ErrorAction SilentlyContinue)
               if (-not $records.Count) { Write-Host "$type=<none>"; continue }
               foreach ($record in $records) {
                 $value = if ($record.IPAddress) { [string]$record.IPAddress } elseif ($record.NameHost) { [string]$record.NameHost } else { ($record | Out-String).Trim() }
@@ -67,7 +62,13 @@ jobs:
               }
             }
           }
-          foreach ($url in @('https://dantylersmith.com/','https://www.dantylersmith.com/','https://preview.dantylersmith.com/')) {
+          foreach ($type in @('DS','DNSKEY')) {
+            Write-Host "=== DNSSEC $type ==="
+            $records = @(Resolve-DnsName -Name 'dantylersmith.com' -Type $type -Server '1.1.1.1' -DnsOnly -ErrorAction SilentlyContinue)
+            Write-Host "count=$($records.Count)"
+            foreach ($record in $records) { Write-Host (($record | Out-String).Trim()) }
+          }
+          foreach ($url in @('http://dantylersmith.com/','http://www.dantylersmith.com/','https://dantylersmith.com/','https://www.dantylersmith.com/')) {
             Write-Host "=== HTTP $url ==="
             try {
               $response = Invoke-WebRequest -Uri $url -MaximumRedirection 0 -SkipHttpErrorCheck -TimeoutSec 15
@@ -75,12 +76,7 @@ jobs:
               Write-Host "location=$([string]$response.Headers.Location)"
               Write-Host "server=$([string]$response.Headers.Server)"
             } catch {
-              if ($_.Exception.Response) {
-                Write-Host "status=$([int]$_.Exception.Response.StatusCode)"
-                Write-Host "location=$([string]$_.Exception.Response.Headers.Location)"
-              } else {
-                Write-Host "error=$($_.Exception.Message)"
-              }
+              Write-Host "error=$($_.Exception.Message)"
             }
           }
 
