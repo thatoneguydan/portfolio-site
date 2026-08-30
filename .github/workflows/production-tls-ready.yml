@@ -13,7 +13,7 @@ permissions:
 jobs:
   tls:
     name: Wait for production certificate and enforce HTTPS
-    runs-on: [self-hosted, Windows, X64, glass-builder]
+    runs-on: windows-latest
     timeout-minutes: 15
     env:
       GH_TOKEN: ${{ github.token }}
