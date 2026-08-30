@@ -1,6 +1,6 @@
 {
-  "requestId": "portfolio-site-protected-contact-validate-2026-08-30-001",
-  "mode": "validate",
+  "requestId": "portfolio-site-protected-contact-publish-2026-08-30-001",
+  "mode": "publish",
   "candidateSha256": "7ed53b7bfd0e8bcfcb7611b7cdecb5d5bc5062d6a35449a4e513e04b6ccd0c90",
   "publicTreeSha256": "d5fa2415a887fd8027363e4551507371328078ee21a1b373088f87b7c0aef2b2",
   "publicFiles": 602,
