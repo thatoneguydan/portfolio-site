@@ -1,8 +1,8 @@
 {
-  "requestId": "portfolio-original-visual-parity-publish-2026-09-08-001",
+  "requestId": "portfolio-live-font-parity-publish-2026-09-08-001",
   "mode": "publish",
-  "candidateSha256": "5e08480fc49d684a42ef758f66589b8b8ac43a3c313a7e149687f12153ef4429",
-  "publicTreeSha256": "06eba0c71b6fc0c98fc110f534404686a951d3d0278b2211d932ddfd7bf27fde",
+  "candidateSha256": "8ee4152ff93eba00b95740494501e5088538a26fd7bb30ac1ca785d0bbf014ac",
+  "publicTreeSha256": "569563fb68fe3df4260b78498ace6f476b1161544a613a4e2c1e1b4345f196bb",
   "publicFiles": 646,
-  "publicBytes": 644107912
+  "publicBytes": 644108012
 }
