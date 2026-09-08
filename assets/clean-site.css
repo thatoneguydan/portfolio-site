@@ -425,3 +425,92 @@ button[data-lightbox-src]:focus-visible {
   .contact-form .form-field textarea { height: 132px; min-height: 132px; }
   .contact-form .portfolio-button { height: 35px; padding: 0 26px; font-size: 16px; line-height: 35px; }
 }
+
+
+@font-face {
+  font-family: gmsj;
+  src: url(https://use.typekit.net/af/06e0fa/000000000000000077359943/31/l?subset_id=2&fvd=n7&v=3) format("woff2"),
+       url(https://use.typekit.net/af/06e0fa/000000000000000077359943/31/d?subset_id=2&fvd=n7&v=3) format("woff"),
+       url(https://use.typekit.net/af/06e0fa/000000000000000077359943/31/a?subset_id=2&fvd=n7&v=3) format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-stretch: normal;
+  font-display: auto;
+}
+@font-face {
+  font-family: vcsm;
+  src: url(https://use.typekit.net/af/d7ff92/00000000000000007735e609/31/l?subset_id=2&fvd=n4&v=3) format("woff2"),
+       url(https://use.typekit.net/af/d7ff92/00000000000000007735e609/31/d?subset_id=2&fvd=n4&v=3) format("woff"),
+       url(https://use.typekit.net/af/d7ff92/00000000000000007735e609/31/a?subset_id=2&fvd=n4&v=3) format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: normal;
+  font-display: auto;
+}
+@font-face {
+  font-family: vcsm;
+  src: url(https://use.typekit.net/af/e37e5a/00000000000000007735e60d/31/l?subset_id=2&fvd=n6&v=3) format("woff2"),
+       url(https://use.typekit.net/af/e37e5a/00000000000000007735e60d/31/d?subset_id=2&fvd=n6&v=3) format("woff"),
+       url(https://use.typekit.net/af/e37e5a/00000000000000007735e60d/31/a?subset_id=2&fvd=n6&v=3) format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-stretch: normal;
+  font-display: auto;
+}
+@font-face {
+  font-family: vcsm;
+  src: url(https://use.typekit.net/af/5be242/00000000000000007735e603/31/l?subset_id=2&fvd=n7&v=3) format("woff2"),
+       url(https://use.typekit.net/af/5be242/00000000000000007735e603/31/d?subset_id=2&fvd=n7&v=3) format("woff"),
+       url(https://use.typekit.net/af/5be242/00000000000000007735e603/31/a?subset_id=2&fvd=n7&v=3) format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-stretch: normal;
+  font-display: auto;
+}
+
+:root,
+body { font-family: vcsm, Arial, Helvetica, sans-serif; }
+
+.site-nav a {
+  font-family: vcsm, Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
+  transition: background .2s ease, color .2s ease;
+}
+.site-nav a:hover,
+.site-nav a:focus-visible,
+.site-nav a[aria-current="page"] { color: #111; }
+
+.masthead h1,
+.text-block--title,
+.text-block--subtitle,
+.cover-card h2,
+.cover-card h3,
+.related-projects > h2 {
+  font-family: gmsj, Georgia, serif;
+}
+.masthead p { font-family: Arial, Helvetica, sans-serif; }
+.text-block,
+.cover-card p,
+.related-projects { font-family: vcsm, Arial, Helvetica, sans-serif; }
+
+.button-row .portfolio-button {
+  font-family: Arial, Helvetica, sans-serif;
+  transition: background .2s ease, color .2s ease;
+}
+.button-row .portfolio-button:hover,
+.button-row .portfolio-button:focus-visible {
+  background: rgba(34, 34, 34, .75);
+  color: #fff;
+}
+.contact-form .portfolio-button {
+  font-family: Arial, Helvetica, sans-serif;
+  transition: border-color .2s ease, color .2s ease;
+}
+.contact-form .portfolio-button:hover,
+.contact-form .portfolio-button:focus-visible {
+  border-color: rgba(51, 51, 51, .3);
+  background: transparent;
+  color: #333;
+}
+
+.portfolio-lightbox { background: rgba(102, 102, 102, .94); }
