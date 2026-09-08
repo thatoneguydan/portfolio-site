@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "result": "PASS",
-  "requestId": "portfolio-gallery-clean-handoff-2026-09-08-001",
-  "candidateSha256": "2092568adcc2e30eeb2a985c655c4acbf17f0cc6b5c5a31078927fd2c68d810b",
-  "publicTreeSha256": "42134d61d72bb4e80fbd1765a433d3119401e9f9934bc3919f0fb077ee6542c6",
+  "requestId": "portfolio-gallery-cache-bust-clean-handoff-2026-09-08-001",
+  "candidateSha256": "b9aef015fea926ac945b77bc71d6e0fcad7b7da1041667fb84c85ad2fb98de27",
+  "publicTreeSha256": "30a53fd66254f83184ff38aee413adf4998de1b9d9d36242537057fe462f5c91",
   "publicFiles": 646,
-  "publicBytes": 644032287,
+  "publicBytes": 644034149,
   "sourceRescueSha256": "657ebe87476132fc49f478d5b29fe9823ce59923d7cacf1ddc943e01c769e247",
-  "verifiedAt": "2026-09-08T13:44:20.167Z"
+  "verifiedAt": "2026-09-08T16:12:38.342Z"
 }
