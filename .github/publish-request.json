@@ -1,8 +1,8 @@
 {
-  "requestId": "portfolio-site-gallery-cache-bust-publish-2026-09-08-001",
+  "requestId": "portfolio-original-visual-parity-publish-2026-09-08-001",
   "mode": "publish",
-  "candidateSha256": "b9aef015fea926ac945b77bc71d6e0fcad7b7da1041667fb84c85ad2fb98de27",
-  "publicTreeSha256": "30a53fd66254f83184ff38aee413adf4998de1b9d9d36242537057fe462f5c91",
+  "candidateSha256": "5e08480fc49d684a42ef758f66589b8b8ac43a3c313a7e149687f12153ef4429",
+  "publicTreeSha256": "06eba0c71b6fc0c98fc110f534404686a951d3d0278b2211d932ddfd7bf27fde",
   "publicFiles": 646,
-  "publicBytes": 644034149
+  "publicBytes": 644107912
 }
