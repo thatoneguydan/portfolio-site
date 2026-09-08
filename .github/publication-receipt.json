@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "result": "PASS",
-  "requestId": "portfolio-live-font-parity-clean-handoff-2026-09-08-001",
-  "candidateSha256": "8ee4152ff93eba00b95740494501e5088538a26fd7bb30ac1ca785d0bbf014ac",
-  "publicTreeSha256": "569563fb68fe3df4260b78498ace6f476b1161544a613a4e2c1e1b4345f196bb",
+  "requestId": "portfolio-contact-worker-clean-handoff-2026-09-08-001",
+  "candidateSha256": "9415612462c5636c7d1860d58bd7f864b4588f3b82873acce46e4e1f36e1f015",
+  "publicTreeSha256": "f42d5d67df5791335c42a1fb096939db0cfed416bfff647a3e85610f9ee60ac4",
   "publicFiles": 646,
-  "publicBytes": 644108012,
+  "publicBytes": 644112218,
   "sourceRescueSha256": "657ebe87476132fc49f478d5b29fe9823ce59923d7cacf1ddc943e01c769e247",
-  "verifiedAt": "2026-09-08T20:25:15.550Z"
+  "verifiedAt": "2026-09-08T22:46:34.178Z"
 }
