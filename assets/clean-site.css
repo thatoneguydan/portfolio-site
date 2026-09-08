@@ -8,6 +8,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 body { background: #fff; color: #000; }
+body.lightbox-open { overflow: hidden; }
 a { color: inherit; }
 figure { margin: 0; }
 img { display: block; max-width: 100%; height: auto; }
@@ -115,11 +116,39 @@ img { display: block; max-width: 100%; height: auto; }
   display: flex;
   justify-content: center;
 }
-.module--image > a, .module--image > img { width: 100%; }
+.module--image > a,
+.module--image > img,
+.module--image > [data-lightbox-src] { width: 100%; }
 .module--image img { width: 100%; }
 
-.media-collection { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 0; align-items: start; }
+button[data-lightbox-src] {
+  display: block;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: zoom-in;
+}
+button[data-lightbox-src] img { width: 100%; }
+button[data-lightbox-src]:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+
+.media-collection {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.media-collection > * { min-width: 0; }
 .media-collection img { width: 100%; }
+
 .embed-shell { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; }
 .embed-shell iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
@@ -158,7 +187,13 @@ img { display: block; max-width: 100%; height: auto; }
 .column:last-child { border-right: 0; }
 
 .cover-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; padding-bottom: 50px; }
-.cover-card { position: relative; display: block; aspect-ratio: 100 / 78.21782; overflow: hidden; text-decoration: none; }
+.cover-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 100 / 78.21782;
+  overflow: hidden;
+  text-decoration: none;
+}
 .cover-card img {
   position: absolute;
   inset: -1px;
@@ -166,19 +201,108 @@ img { display: block; max-width: 100%; height: auto; }
   max-width: none;
   height: calc(100% + 2px);
   object-fit: cover;
+  transition: transform 180ms ease;
 }
-.cover-card h2, .cover-card h3, .cover-card p {
+.cover-card > span {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  inset: 0;
+  z-index: 2;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 9%;
+  background: rgba(0, 0, 0, .68);
+  color: #fff;
+  text-align: center;
+}
+.cover-card:hover > span,
+.cover-card:focus-visible > span { display: flex; }
+.cover-card:hover img,
+.cover-card:focus-visible img { transform: scale(1.015); }
+.cover-card:focus-visible { outline: 2px solid #111; outline-offset: 2px; }
+.cover-card h2,
+.cover-card h3 {
+  margin: 0 0 8px;
   padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.cover-card p {
+  margin: 0;
+  padding: 0;
+  color: rgba(255, 255, 255, .9);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+.cover-card p + p {
+  margin-top: 14px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
 }
 .related-projects { margin-top: 0; }
+
+.portfolio-lightbox[hidden] { display: none; }
+.portfolio-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 88px;
+  background: rgba(0, 0, 0, .94);
+}
+.portfolio-lightbox__image {
+  display: block;
+  max-width: calc(100vw - 176px);
+  max-height: calc(100vh - 64px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
+}
+.portfolio-lightbox__close,
+.portfolio-lightbox__nav {
+  position: absolute;
+  z-index: 2;
+  width: 52px;
+  height: 52px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 300;
+  line-height: 52px;
+  text-align: center;
+  cursor: pointer;
+  opacity: .82;
+}
+.portfolio-lightbox__close:hover,
+.portfolio-lightbox__nav:hover,
+.portfolio-lightbox__close:focus-visible,
+.portfolio-lightbox__nav:focus-visible { opacity: 1; }
+.portfolio-lightbox__close:focus-visible,
+.portfolio-lightbox__nav:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.portfolio-lightbox__close {
+  top: 12px;
+  right: 16px;
+  font-size: 42px;
+}
+.portfolio-lightbox__nav {
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 64px;
+}
+.portfolio-lightbox__nav--prev { left: 18px; }
+.portfolio-lightbox__nav--next { right: 18px; }
 
 .site-main > .contact-form {
   width: 49%;
@@ -263,7 +387,15 @@ img { display: block; max-width: 100%; height: auto; }
   .module--image { width: 100%; }
   .column-layout { display: block; }
   .column { width: 100%; flex: none !important; border-left: 0; border-right: 0; }
+  .media-collection { flex-direction: column; gap: 8px; }
+  .media-collection > * { width: 100%; flex: none !important; }
   .cover-grid { grid-template-columns: 1fr; padding-bottom: 21px; }
+  .portfolio-lightbox { padding: 56px 44px; }
+  .portfolio-lightbox__image { max-width: calc(100vw - 88px); max-height: calc(100vh - 112px); }
+  .portfolio-lightbox__nav { width: 40px; height: 48px; line-height: 48px; font-size: 48px; }
+  .portfolio-lightbox__nav--prev { left: 2px; }
+  .portfolio-lightbox__nav--next { right: 2px; }
+  .portfolio-lightbox__close { top: 4px; right: 6px; }
 }
 
 @media (max-width: 540px) {
@@ -277,6 +409,9 @@ img { display: block; max-width: 100%; height: auto; }
   .text-block--subtitle { padding-top: 16px; padding-bottom: 7px; font-size: 16px; line-height: 21px; }
   .button-row { padding-top: 13px; padding-bottom: 13px; }
   .portfolio-button { height: 35px; padding: 0 26px; font-size: 14px; line-height: 35px; }
+  .cover-card h2,
+  .cover-card h3 { font-size: 18px; }
+  .cover-card p { font-size: 13px; }
   .site-main > .contact-form {
     width: 86%;
     margin-top: 18px;
