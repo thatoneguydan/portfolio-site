@@ -1,8 +1,8 @@
 {
-  "requestId": "portfolio-site-protected-contact-publish-2026-08-30-001",
+  "requestId": "portfolio-site-gallery-parity-publish-2026-09-08-001",
   "mode": "publish",
-  "candidateSha256": "7ed53b7bfd0e8bcfcb7611b7cdecb5d5bc5062d6a35449a4e513e04b6ccd0c90",
-  "publicTreeSha256": "d5fa2415a887fd8027363e4551507371328078ee21a1b373088f87b7c0aef2b2",
-  "publicFiles": 602,
-  "publicBytes": 539155797
+  "candidateSha256": "2092568adcc2e30eeb2a985c655c4acbf17f0cc6b5c5a31078927fd2c68d810b",
+  "publicTreeSha256": "42134d61d72bb4e80fbd1765a433d3119401e9f9934bc3919f0fb077ee6542c6",
+  "publicFiles": 646,
+  "publicBytes": 644032287
 }
