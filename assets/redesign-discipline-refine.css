@@ -24,6 +24,18 @@
   display: block;
 }
 
+/* Photo archive cards use one consistent tile geometry. The old wide-card
+   treatment created alternating landscape and portrait rows on wide screens. */
+.discipline-photo .rdp-project-card,
+.discipline-photo .rdp-project-card--wide {
+  grid-column: span 4;
+}
+
+.discipline-photo .rdp-project-media,
+.discipline-photo .rdp-project-card--wide .rdp-project-media {
+  aspect-ratio: 4 / 5;
+}
+
 /* Image-first archive treatment, based on the original portfolio cover grid. */
 .discipline-redesign .rdp-project-media::after {
   display: none !important;
@@ -163,6 +175,13 @@
 
   .discipline-redesign .rdp-project-note {
     display: none;
+  }
+}
+
+@media (max-width: 1000px) {
+  .discipline-photo .rdp-project-card,
+  .discipline-photo .rdp-project-card--wide {
+    grid-column: span 6;
   }
 }
 
