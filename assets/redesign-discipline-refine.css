@@ -17,6 +17,12 @@
   background: #f5f5f2;
 }
 
+/* Project-card media is a span. It must establish a block crop box so the
+   thumbnail image's hover transform is clipped to the original thumbnail. */
+.discipline-redesign .rdp-project-media {
+  display: block;
+}
+
 .discipline-redesign .rdp-project-meta {
   position: relative;
   z-index: 2;
