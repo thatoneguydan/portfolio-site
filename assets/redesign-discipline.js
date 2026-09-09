@@ -173,6 +173,10 @@
       loading: shelf.querySelector('.rdp-project-loading'),
       observer: null,
       cleanupTimer: 0,
+      scrollRetryTimer: 0,
+      frameReady: false,
+      openSettled: false,
+      autoScrollChecked: false,
     };
 
     findRowEnd(card).insertAdjacentElement('afterend', shelf);
@@ -193,6 +197,7 @@
 
   const removeShelf = (state) => {
     window.clearTimeout(state.cleanupTimer);
+    window.clearTimeout(state.scrollRetryTimer);
     disconnectObserver(state);
     state.iframe.onload = null;
     if (state.iframe.src) state.iframe.src = 'about:blank';
@@ -219,6 +224,84 @@
 
     state.shelf.addEventListener('transitionend', onTransitionEnd);
     state.cleanupTimer = window.setTimeout(finish, 620);
+  };
+
+  const maybeAlignShelfTitle = (state, attempt = 0) => {
+    if (
+      state !== active ||
+      !state.shelf.isConnected ||
+      !state.shelf.classList.contains('is-open') ||
+      state.autoScrollChecked ||
+      !state.frameReady ||
+      !state.openSettled
+    ) return;
+
+    const doc = state.iframe.contentDocument;
+    const title = doc?.querySelector('.rproj-header h1, .rcompat-header h1');
+
+    /* Compatibility pages may inject their project header shortly after the
+       iframe load event. Give that header a brief chance to appear. */
+    if (!title) {
+      if (attempt < 10) {
+        state.scrollRetryTimer = window.setTimeout(() => maybeAlignShelfTitle(state, attempt + 1), 60);
+      } else {
+        state.autoScrollChecked = true;
+      }
+      return;
+    }
+
+    const frameRect = state.iframe.getBoundingClientRect();
+    const titleRect = title.getBoundingClientRect();
+    const titleTop = frameRect.top + titleRect.top;
+    const titleBottom = frameRect.top + titleRect.bottom;
+    const viewportPadding = 12;
+
+    state.autoScrollChecked = true;
+
+    /* Do nothing when the whole title is already visible. Only intervene when
+       expansion would leave some of the title outside the viewport. */
+    if (
+      titleTop >= viewportPadding &&
+      titleBottom <= window.innerHeight - viewportPadding
+    ) return;
+
+    const desiredTop = Math.max(48, Math.min(96, window.innerHeight * 0.1));
+    const delta = titleTop - desiredTop;
+    if (Math.abs(delta) < 1) return;
+
+    window.scrollBy({
+      top: delta,
+      behavior: reducedMotion.matches ? 'auto' : 'smooth',
+    });
+  };
+
+  const watchOpenSettled = (state) => {
+    state.openSettled = false;
+
+    if (reducedMotion.matches) {
+      requestAnimationFrame(() => {
+        if (state !== active || !state.shelf.isConnected) return;
+        state.openSettled = true;
+        maybeAlignShelfTitle(state);
+      });
+      return;
+    }
+
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      state.shelf.removeEventListener('transitionend', onTransitionEnd);
+      window.clearTimeout(fallback);
+      if (state !== active || !state.shelf.isConnected) return;
+      state.openSettled = true;
+      requestAnimationFrame(() => maybeAlignShelfTitle(state));
+    };
+    const onTransitionEnd = (event) => {
+      if (event.target === state.shelf && event.propertyName === 'grid-template-rows') finish();
+    };
+    const fallback = window.setTimeout(finish, 620);
+    state.shelf.addEventListener('transitionend', onTransitionEnd);
   };
 
   const prepareFrameDocument = (state) => {
@@ -264,6 +347,8 @@
       if (!state.shelf.isConnected) return;
       prepareFrameDocument(state);
       state.loading.hidden = true;
+      state.frameReady = true;
+      requestAnimationFrame(() => maybeAlignShelfTitle(state));
     };
 
     state.iframe.src = `${url.pathname}${url.search}`;
@@ -303,6 +388,7 @@
         removeAfterClose(previous);
       }
       setShelfOpen(next, true);
+      watchOpenSettled(next);
     });
 
     if (updateHash) {
