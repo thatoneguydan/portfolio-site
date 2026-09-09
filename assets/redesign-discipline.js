@@ -9,6 +9,7 @@
   const liveShelves = new Set();
   let active = null;
   let resizeTimer = 0;
+  let anchorJob = null;
 
   const setImageHints = () => {
     cards().forEach((card) => {
@@ -177,6 +178,7 @@
       frameReady: false,
       openSettled: false,
       autoScrollChecked: false,
+      transitionAnchoring: false,
     };
 
     findRowEnd(card).insertAdjacentElement('afterend', shelf);
@@ -193,6 +195,62 @@
   const disconnectObserver = (state) => {
     state.observer?.disconnect();
     state.observer = null;
+  };
+
+  const stopTransitionAnchor = () => {
+    if (!anchorJob) return;
+    window.cancelAnimationFrame(anchorJob.raf);
+    anchorJob.shelf?.removeEventListener('transitionend', anchorJob.onTransitionEnd);
+    anchorJob = null;
+  };
+
+  const startTransitionAnchor = (card, shelf, anchorTop, onFinish) => {
+    stopTransitionAnchor();
+
+    const job = {
+      card,
+      shelf,
+      anchorTop,
+      raf: 0,
+      startedAt: performance.now(),
+      onTransitionEnd: null,
+    };
+    anchorJob = job;
+
+    const compensate = () => {
+      if (!card.isConnected) return false;
+      const delta = card.getBoundingClientRect().top - anchorTop;
+      if (Math.abs(delta) > 0.5) window.scrollBy(0, delta);
+      return true;
+    };
+
+    const finish = () => {
+      if (anchorJob !== job) return;
+      compensate();
+      stopTransitionAnchor();
+      onFinish?.();
+    };
+
+    job.onTransitionEnd = (event) => {
+      if (event.target === shelf && event.propertyName === 'grid-template-rows') finish();
+    };
+    shelf.addEventListener('transitionend', job.onTransitionEnd);
+
+    const tick = () => {
+      if (anchorJob !== job) return;
+      if (!compensate()) {
+        stopTransitionAnchor();
+        return;
+      }
+
+      if (performance.now() - job.startedAt >= (reducedMotion.matches ? 80 : 600)) {
+        finish();
+        return;
+      }
+      job.raf = window.requestAnimationFrame(tick);
+    };
+
+    job.raf = window.requestAnimationFrame(tick);
   };
 
   const removeShelf = (state) => {
@@ -233,7 +291,8 @@
       !state.shelf.classList.contains('is-open') ||
       state.autoScrollChecked ||
       !state.frameReady ||
-      !state.openSettled
+      !state.openSettled ||
+      state.transitionAnchoring
     ) return;
 
     const doc = state.iframe.contentDocument;
@@ -363,6 +422,7 @@
 
   const openOnly = (card, updateHash = true) => {
     if (active?.card === card) {
+      stopTransitionAnchor();
       const closing = active;
       active = null;
       closeState(closing);
@@ -373,6 +433,12 @@
     /* Do not wait for the current shelf. This mirrors Video: the outgoing
        panel collapses while the incoming panel expands in the same frame. */
     const previous = active;
+    const cardRectBefore = card.getBoundingClientRect();
+    const shouldAnchor = Boolean(
+      previous?.shelf?.isConnected &&
+      previous.shelf.getBoundingClientRect().bottom <= cardRectBefore.top + 2
+    );
+    const anchorTop = cardRectBefore.top;
     const next = createShelf(card);
     active = next;
 
@@ -383,9 +449,22 @@
 
     requestAnimationFrame(() => {
       if (previous) {
+        if (shouldAnchor) {
+          next.transitionAnchoring = true;
+          startTransitionAnchor(card, previous.shelf, anchorTop, () => {
+            if (next !== active || !next.shelf.isConnected) return;
+            next.transitionAnchoring = false;
+            requestAnimationFrame(() => maybeAlignShelfTitle(next));
+          });
+        } else {
+          stopTransitionAnchor();
+        }
+
         disconnectObserver(previous);
         setShelfOpen(previous, false);
         removeAfterClose(previous);
+      } else {
+        stopTransitionAnchor();
       }
       setShelfOpen(next, true);
       watchOpenSettled(next);
