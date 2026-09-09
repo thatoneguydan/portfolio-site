@@ -72,7 +72,40 @@
 }
 
 .rv-shelf-panel.is-open > .rv-video-grid {
-  padding: 18px 0 clamp(50px, 6vw, 86px);
+  padding: 22px 0 clamp(58px, 6vw, 92px);
+}
+
+/* Let every card establish its own full text height so a lower grid row can
+   never paint over a wrapped title from the row above. */
+.rv-video-grid {
+  grid-auto-flow: row;
+  grid-auto-rows: auto;
+  align-items: start;
+  column-gap: 12px;
+  row-gap: clamp(28px, 3vw, 42px);
+}
+
+.rv-video-card {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  min-width: 0;
+  overflow: visible;
+}
+
+.rv-video-copy {
+  display: block;
+  overflow: visible;
+  padding: 15px 2px 22px;
+}
+
+.rv-video-title {
+  display: block;
+  min-height: 2.4em;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .rv-video-thumb img {
@@ -86,15 +119,22 @@
   top: 50%;
   right: auto;
   bottom: auto;
+  box-sizing: border-box;
   width: 56px;
   min-width: 56px;
   height: 56px;
-  padding: 0 0 0 3px;
+  min-height: 56px;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, .72);
   border-radius: 50%;
   background: rgba(17, 17, 17, .84);
   font-size: 18px;
+  line-height: 1;
   letter-spacing: 0;
+  text-indent: 2px;
   transform: translate(-50%, -50%);
   transition: transform 180ms ease, background 180ms ease;
 }
@@ -106,10 +146,11 @@
 }
 
 .rv-video-dialog {
-  width: min(94vw, 1320px);
+  width: min(96vw, 1460px);
+  max-height: 94vh;
   outline: 0;
   box-shadow: none;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .rv-video-dialog::backdrop {
@@ -129,25 +170,27 @@
   text-transform: uppercase;
 }
 
+/* Video stays full-width; project information sits beneath it instead of
+   consuming horizontal player space. */
 .rv-dialog-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(280px, .7fr);
-  align-items: stretch;
+  display: block;
 }
 
 .rv-dialog-player {
-  align-self: start;
+  width: 100%;
+  align-self: auto;
 }
 
 .rv-dialog-info {
   min-width: 0;
-  padding: clamp(28px, 3vw, 46px);
-  border-left: 1px solid rgba(255, 255, 255, .12);
+  padding: clamp(24px, 3vw, 42px);
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  border-left: 0;
   background: #151515;
 }
 
 .rv-dialog-kicker {
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   color: rgba(255, 255, 255, .58);
   font-size: 10px;
   font-weight: 700;
@@ -156,43 +199,34 @@
 }
 
 .rv-dialog-title {
+  max-width: 1100px;
   margin: 0;
   color: #fff;
-  font-size: clamp(24px, 2.7vw, 38px);
+  font-size: clamp(24px, 2.5vw, 36px);
   font-weight: 700;
   letter-spacing: -.035em;
-  line-height: 1.02;
+  line-height: 1.08;
 }
 
 .rv-dialog-description {
-  max-height: min(52vh, 520px);
-  margin: 22px 0 0;
-  overflow: auto;
+  max-width: 1100px;
+  max-height: none;
+  margin: 16px 0 0;
+  overflow: visible;
   color: rgba(255, 255, 255, .76);
   font-size: 14px;
   line-height: 1.55;
   white-space: pre-line;
 }
 
-@media (max-width: 900px) {
-  .rv-dialog-body {
-    grid-template-columns: 1fr;
-  }
-
-  .rv-dialog-info {
-    border-top: 1px solid rgba(255, 255, 255, .12);
-    border-left: 0;
-  }
-
-  .rv-dialog-description {
-    max-height: none;
-  }
-}
-
 @media (max-width: 760px) {
   .rv-shelf-toggle {
     padding-left: 12px;
     padding-right: 12px;
+  }
+
+  .rv-video-title {
+    min-height: 0;
   }
 }
 
