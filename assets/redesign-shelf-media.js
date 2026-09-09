@@ -87,6 +87,37 @@
     });
   };
 
+  const balanceRowSizes = (count) => {
+    if (count <= 4) return [count];
+    const rowCount = Math.ceil(count / 4);
+    const base = Math.floor(count / rowCount);
+    const remainder = count % rowCount;
+    return Array.from({ length: rowCount }, (_, index) => base + (index < remainder ? 1 : 0));
+  };
+
+  const normalizeLongCompatGalleries = (doc) => {
+    doc.querySelectorAll('.project-compat-redesign .rcompat-gallery').forEach((gallery) => {
+      if (gallery.dataset.rdpShelfRows === 'true') return;
+      const items = Array.from(gallery.children);
+      if (items.length <= 4) return;
+
+      const rowSizes = balanceRowSizes(items.length);
+      const fragment = doc.createDocumentFragment();
+      let offset = 0;
+
+      rowSizes.forEach((size) => {
+        const row = doc.createElement('div');
+        row.className = 'rdp-shelf-gallery-row';
+        items.slice(offset, offset + size).forEach((item) => row.append(item));
+        fragment.append(row);
+        offset += size;
+      });
+
+      gallery.replaceChildren(fragment);
+      gallery.dataset.rdpShelfRows = 'true';
+    });
+  };
+
   const injectShelfMediaStyles = (doc) => {
     doc.getElementById('rdp-shelf-media-style')?.remove();
     const style = doc.createElement('style');
@@ -108,8 +139,6 @@
         line-height: 0 !important;
       }
 
-      /* Match the working thumbnail pattern elsewhere on the site: the image
-         lives inside a dedicated crop viewport, and only the image transforms. */
       .rdp-shelf-image-viewport {
         position: relative !important;
         display: block !important;
@@ -145,8 +174,6 @@
         object-fit: contain !important;
       }
 
-      /* Match the original production media-collection model: one flex row,
-         natural image ratios, equal visual height, no cropping. */
       .rproj-gallery {
         display: flex !important;
         flex-direction: row !important;
@@ -181,11 +208,48 @@
         background: transparent !important;
       }
 
+      .project-compat-redesign .rcompat-gallery[data-rdp-shelf-rows="true"] {
+        display: block !important;
+      }
+
+      .project-compat-redesign .rcompat-gallery[data-rdp-shelf-rows="true"] > .rdp-shelf-gallery-row {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: flex-start !important;
+        width: 100% !important;
+        gap: 8px !important;
+        margin: 0 0 8px !important;
+        padding: 0 !important;
+        overflow: visible !important;
+      }
+
+      .project-compat-redesign .rcompat-gallery[data-rdp-shelf-rows="true"] > .rdp-shelf-gallery-row:last-child {
+        margin-bottom: 0 !important;
+      }
+
+      .project-compat-redesign .rcompat-gallery[data-rdp-shelf-rows="true"] > .rdp-shelf-gallery-row > * {
+        min-width: 0 !important;
+        height: auto !important;
+        overflow: hidden !important;
+        background: transparent !important;
+      }
+
       @media (max-width: 700px) {
         .rproj-gallery { display: block !important; }
         .rproj-gallery-item,
         .rproj-gallery-item--wide,
         .rproj-gallery-item--narrow {
+          width: 100% !important;
+          flex: none !important;
+          margin-bottom: 12px !important;
+        }
+
+        .project-compat-redesign .rcompat-gallery[data-rdp-shelf-rows="true"] > .rdp-shelf-gallery-row {
+          display: block !important;
+          margin-bottom: 0 !important;
+        }
+
+        .project-compat-redesign .rcompat-gallery[data-rdp-shelf-rows="true"] > .rdp-shelf-gallery-row > * {
           width: 100% !important;
           flex: none !important;
           margin-bottom: 12px !important;
@@ -243,6 +307,7 @@
   const applyEnhancements = (iframe) => {
     const doc = iframe.contentDocument;
     if (!doc || doc.readyState === 'loading') return;
+    normalizeLongCompatGalleries(doc);
     wrapShelfImages(doc);
     injectShelfMediaStyles(doc);
     normalizeHandcraftedGallery(doc);
