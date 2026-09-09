@@ -10,52 +10,10 @@
   let activeResizeObserver = null;
   let resizeTimer = 0;
 
-  // The redesign initially pointed Photo cards at the largest migrated source
-  // images (often 5120px wide). Reuse the accepted production renderer's
-  // 1280px derivatives for grid browsing; full-size assets remain available
-  // inside project pages/lightboxes.
-  const photoThumbnailByRoute = new Map([
-    ['/portrait', '328b1fd5f43c91acb8dc436e77bf58c517c5ca14266ff2d2cf3fceb9b3adf1c1.jpg'],
-    ['/graduation-event-photography', '5eca95a92fecb526334f78ca5427b9a8baa8d118fe4ae4e5dc4562cb002e0809.jpg'],
-    ['/photo-set-moms-basement', 'e139299d58e42488f422ad05cf2f0c47941bf87be0a15734bebe905f1c332e5a.jpg'],
-    ['/professional-headshots', 'df3d9a7953fe63571a17e1eea26be14482d2158b49c5a67147d679cd5add6b74.jpg'],
-    ['/glamor-headshot', '7f64119678c032093664ff65b2dbc97b53e76982d4103ff21f73ce96ec8dccbd.jpg'],
-    ['/experimental-photoshoot-3', '725391a43e7480af1e6e3ee77eb48a1f2fcbb7582614a47dd0a24c89785fcbf0.jpg'],
-    ['/headshot', '81d48758c5f4e45556bfd23119876815731a1fb8ae59b590586372efe6159e3b.jpg'],
-    ['/album-art-photoshoot', '014e2ad3c8d952e3d1a04bda4b422a3ebb2ea44be4979336cf864e1a79bd491c.jpg'],
-    ['/experimental-photoshoot', '46f3c202166ad972e59257bd3d4780b81bdbbd94348c177b9720053b6ff2f0ca.jpg'],
-    ['/architectural-photo', 'a0ad2c4c97a16c0d1b1dc1c83c6dc0ee26dd134008192e8d0fbd07500103304a.jpg'],
-    ['/family-conference-photo', 'cd58622eac02c3866a0acba37a21889125a760b54c14ace3b5c2dcf549e5c942.jpg'],
-    ['/experimental-photoshoot-1', 'e567d38d8d486d8c3a063802dec5afa7a603c3113dca9a79c90cd5a8716177aa.jpg'],
-    ['/graduation-photos', 'e9d492614b4f55dfc7b229d28e9ab057560648204f5e3d6cdd0d6c90b881e4a1.jpg'],
-    ['/safari-photoshoot', 'a7ccac3bd40eaaec8cf0c3ce3a4e4653950a4531905a07404011a462ab2fb69d.jpg'],
-    ['/street-photoshoot', 'ce8967a7f8de913e154cc887c415904715ce362bec1b3a07e3fc37a1ba6d93ef.jpg'],
-    ['/experimental-photoshoot-2', 'b189cd8b9fcedaa6cae2637a9ac4c82458af6954c2efcc66520f5e9c0a97c3a1.jpg'],
-    ['/graduation-portraits', '2a083a6187ce701bc41a4c8f5482a4b5f7ac70e29c0ad26c30bcbd3d1d28cb8c.jpg'],
-    ['/90s-stylized-photoshoot', '3ad10f86c8760b5ea03017367cc05884217dee4443e081c93dee24dfd9d1a6e4.jpg'],
-    ['/outdoor-portrait', 'caef9223ef490066e19e9f1c801dae8835426241628447cf4ab71271eb02d615.jpg'],
-    ['/stylized-photoshoot', '0e23bd2f7cc1064688e14bd163b518b06bdb37f70b2bcc79cd709bccc425ca0c.jpg'],
-    ['/engagement-photos', '8fd4442ba452c527d91c54ea941ecbc3331afc84a6e548a6b8d1c50a2d158f2c.jpg'],
-  ]);
-
   const setImageHints = () => {
-    const isPhoto = document.body.classList.contains('discipline-photo');
-
     cards().forEach((card) => {
       const image = card.querySelector('img');
       if (!image) return;
-
-      if (isPhoto) {
-        const route = new URL(card.href, window.location.href).pathname.replace(/\/+$/, '') || '/';
-        const thumbnail = photoThumbnailByRoute.get(route);
-        if (thumbnail) {
-          image.src = `/assets/media/${thumbnail}`;
-          image.removeAttribute('srcset');
-          image.removeAttribute('sizes');
-        }
-      }
-
-      image.loading = 'lazy';
       image.decoding = 'async';
       image.fetchPriority = 'low';
     });
