@@ -75,6 +75,18 @@
     }
   });
 
+  const wrapShelfImages = (doc) => {
+    doc.querySelectorAll('button[data-lightbox-src]').forEach((button) => {
+      const image = button.querySelector(':scope > img');
+      if (!image) return;
+
+      const viewport = doc.createElement('span');
+      viewport.className = 'rdp-shelf-image-viewport';
+      button.insertBefore(viewport, image);
+      viewport.append(image);
+    });
+  };
+
   const injectShelfMediaStyles = (doc) => {
     doc.getElementById('rdp-shelf-media-style')?.remove();
     const style = doc.createElement('style');
@@ -90,22 +102,39 @@
         position: relative !important;
         display: block !important;
         width: 100% !important;
-        overflow: hidden !important;
-        contain: paint;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
         line-height: 0 !important;
       }
 
-      button[data-lightbox-src] img {
+      /* Match the working thumbnail pattern elsewhere on the site: the image
+         lives inside a dedicated crop viewport, and only the image transforms. */
+      .rdp-shelf-image-viewport {
+        position: relative !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        line-height: 0 !important;
+        background: transparent !important;
+      }
+
+      .rdp-shelf-image-viewport > img {
         display: block !important;
         width: 100% !important;
         max-width: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        object-fit: contain !important;
         transform: scale(1) !important;
         transform-origin: 50% 50% !important;
         transition: transform 360ms cubic-bezier(.2,.7,.2,1) !important;
       }
 
-      button[data-lightbox-src]:hover img,
-      button[data-lightbox-src]:focus-visible img {
+      button[data-lightbox-src]:hover .rdp-shelf-image-viewport > img,
+      button[data-lightbox-src]:focus-visible .rdp-shelf-image-viewport > img {
         transform: scale(1.015) !important;
       }
 
@@ -214,6 +243,7 @@
   const applyEnhancements = (iframe) => {
     const doc = iframe.contentDocument;
     if (!doc || doc.readyState === 'loading') return;
+    wrapShelfImages(doc);
     injectShelfMediaStyles(doc);
     normalizeHandcraftedGallery(doc);
     installParentLightboxBridge(doc);
