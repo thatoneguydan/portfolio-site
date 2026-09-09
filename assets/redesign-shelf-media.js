@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const grid = document.querySelector('.rdp-project-grid');
+  const grid = document.querySelector('.rdp-project-grid, .rd-work-grid');
   if (!grid) return;
 
   const LIGHTBOX_DETAIL_MAX_WIDTH = 1920;
