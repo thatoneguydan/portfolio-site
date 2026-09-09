@@ -60,6 +60,11 @@
         margin: 0 auto !important;
         padding: 0 0 58px !important;
       }
+      body.rd-home-inline-frame .site-main,
+      body.rd-home-inline-frame.project-redesign .site-main,
+      body.rd-home-inline-frame.project-compat-redesign .site-main {
+        padding-bottom: 0 !important;
+      }
       .rproj-header,
       .project-compat-redesign .rcompat-header {
         padding-top: 52px !important;
@@ -285,13 +290,12 @@
       if (image.loading !== 'eager') image.loading = 'lazy';
     });
 
+    const main = doc.querySelector('.site-main');
     const resize = () => {
-      if (!state.iframe.isConnected) return;
-      const height = Math.max(
-        doc.documentElement?.scrollHeight || 0,
-        doc.body?.scrollHeight || 0,
-        320,
-      );
+      if (!state.iframe.isConnected || !main || !doc.body) return;
+      const bodyTop = doc.body.getBoundingClientRect().top;
+      const contentBottom = main.getBoundingClientRect().bottom;
+      const height = Math.max(Math.ceil(contentBottom - bodyTop), 320);
       state.iframe.style.height = `${height}px`;
     };
 
@@ -301,9 +305,9 @@
     window.setTimeout(resize, 500);
 
     const FrameResizeObserver = state.iframe.contentWindow?.ResizeObserver;
-    if (FrameResizeObserver && doc.documentElement) {
+    if (FrameResizeObserver && main) {
       state.observer = new FrameResizeObserver(resize);
-      state.observer.observe(doc.documentElement);
+      state.observer.observe(main);
     }
   };
 
