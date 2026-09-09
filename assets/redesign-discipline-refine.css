@@ -1,0 +1,113 @@
+.discipline-redesign .rdp-project-grid {
+  grid-auto-flow: row;
+  row-gap: clamp(28px, 3vw, 44px);
+}
+
+.discipline-redesign .rdp-project-card {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  background: #f5f5f2;
+}
+
+.discipline-redesign .rdp-project-media {
+  z-index: 0;
+  contain: layout paint;
+}
+
+.discipline-redesign .rdp-project-media img {
+  backface-visibility: hidden;
+}
+
+.discipline-redesign .rdp-project-meta {
+  position: relative;
+  z-index: 2;
+  min-height: 92px;
+  background: #f5f5f2;
+}
+
+.discipline-redesign .rdp-project-card.is-active .rdp-project-media::after {
+  content: 'Close';
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@supports (content-visibility: auto) {
+  .discipline-redesign .rdp-project-media {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 420px;
+  }
+}
+
+.rdp-project-shelf {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 0;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(0, 0, 0, .13);
+  border-bottom: 1px solid rgba(0, 0, 0, .13);
+  background: #f5f5f2;
+  opacity: 0;
+  transition:
+    height 480ms cubic-bezier(.2, .72, .2, 1),
+    opacity 220ms ease;
+}
+
+.rdp-project-shelf.is-open {
+  opacity: 1;
+}
+
+.rdp-project-shelf-inner {
+  position: relative;
+  min-height: 88px;
+}
+
+.rdp-project-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  color: #777;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.rdp-project-loading[hidden] {
+  display: none;
+}
+
+.rdp-project-frame {
+  width: 100%;
+  height: 0;
+  display: block;
+  border: 0;
+  background: #f5f5f2;
+}
+
+@media (max-width: 720px) {
+  .discipline-redesign .rdp-project-meta {
+    min-height: 82px;
+  }
+}
+
+@media (max-width: 540px) {
+  .discipline-redesign .rdp-project-card {
+    margin-bottom: 30px;
+  }
+
+  .rdp-project-shelf {
+    margin: -8px 0 34px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rdp-project-shelf,
+  .discipline-redesign .rdp-project-media img {
+    transition: none !important;
+  }
+}
