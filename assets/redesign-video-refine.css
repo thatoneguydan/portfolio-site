@@ -1,0 +1,206 @@
+.rv-shelf-toggle {
+  padding-left: 18px;
+  padding-right: 18px;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.rv-shelf-toggle:hover,
+.rv-shelf-toggle:focus-visible,
+.rv-shelf-toggle[aria-expanded="true"] {
+  background: #111;
+  color: #fff;
+}
+
+.rv-shelf-index,
+.rv-shelf-copy p,
+.rv-shelf-meta {
+  transition: color 180ms ease;
+}
+
+.rv-shelf-toggle:hover .rv-shelf-index,
+.rv-shelf-toggle:focus-visible .rv-shelf-index,
+.rv-shelf-toggle[aria-expanded="true"] .rv-shelf-index,
+.rv-shelf-toggle:hover .rv-shelf-copy p,
+.rv-shelf-toggle:focus-visible .rv-shelf-copy p,
+.rv-shelf-toggle[aria-expanded="true"] .rv-shelf-copy p,
+.rv-shelf-toggle:hover .rv-shelf-meta,
+.rv-shelf-toggle:focus-visible .rv-shelf-meta,
+.rv-shelf-toggle[aria-expanded="true"] .rv-shelf-meta {
+  color: rgba(255, 255, 255, .72);
+}
+
+.rv-shelf-toggle:hover .rv-shelf-icon,
+.rv-shelf-toggle:focus-visible .rv-shelf-icon,
+.rv-shelf-toggle[aria-expanded="true"] .rv-shelf-icon {
+  border-color: rgba(255, 255, 255, .42);
+  background: #fff;
+  color: #111;
+}
+
+.rv-shelf-panel[hidden] {
+  display: grid;
+}
+
+.rv-shelf-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows 520ms cubic-bezier(.2, .72, .2, 1),
+    opacity 260ms ease,
+    visibility 0s linear 520ms;
+}
+
+.rv-shelf-panel > .rv-video-grid {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+  transition: padding 520ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.rv-shelf-panel.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    grid-template-rows 520ms cubic-bezier(.2, .72, .2, 1),
+    opacity 300ms ease,
+    visibility 0s;
+}
+
+.rv-shelf-panel.is-open > .rv-video-grid {
+  padding: 18px 0 clamp(50px, 6vw, 86px);
+}
+
+.rv-video-thumb img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.rv-video-thumb::after {
+  content: '▶';
+  left: 50%;
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  width: 56px;
+  min-width: 56px;
+  height: 56px;
+  padding: 0 0 0 3px;
+  border: 1px solid rgba(255, 255, 255, .72);
+  border-radius: 50%;
+  background: rgba(17, 17, 17, .84);
+  font-size: 18px;
+  letter-spacing: 0;
+  transform: translate(-50%, -50%);
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.rv-video-card:hover .rv-video-thumb::after,
+.rv-video-card:focus-visible .rv-video-thumb::after {
+  background: #111;
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.rv-video-dialog {
+  width: min(94vw, 1320px);
+  outline: 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.rv-video-dialog::backdrop {
+  background: rgba(0, 0, 0, .84);
+  backdrop-filter: none;
+}
+
+.rv-dialog-head {
+  min-height: 56px;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+.rv-dialog-head strong {
+  color: rgba(255, 255, 255, .72);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.rv-dialog-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, .7fr);
+  align-items: stretch;
+}
+
+.rv-dialog-player {
+  align-self: start;
+}
+
+.rv-dialog-info {
+  min-width: 0;
+  padding: clamp(28px, 3vw, 46px);
+  border-left: 1px solid rgba(255, 255, 255, .12);
+  background: #151515;
+}
+
+.rv-dialog-kicker {
+  margin: 0 0 14px;
+  color: rgba(255, 255, 255, .58);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.rv-dialog-title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(24px, 2.7vw, 38px);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1.02;
+}
+
+.rv-dialog-description {
+  max-height: min(52vh, 520px);
+  margin: 22px 0 0;
+  overflow: auto;
+  color: rgba(255, 255, 255, .76);
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+@media (max-width: 900px) {
+  .rv-dialog-body {
+    grid-template-columns: 1fr;
+  }
+
+  .rv-dialog-info {
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    border-left: 0;
+  }
+
+  .rv-dialog-description {
+    max-height: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .rv-shelf-toggle {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv-shelf-panel,
+  .rv-shelf-panel > .rv-video-grid,
+  .rv-video-thumb::after,
+  .rv-shelf-toggle {
+    transition: none !important;
+  }
+}
