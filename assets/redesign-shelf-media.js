@@ -49,6 +49,21 @@
     return chosen?.src || image?.currentSrc || image?.src || fallbackSrc || '';
   };
 
+  const getImageAspectRatio = (image) => {
+    const naturalWidth = Number(image?.naturalWidth) || 0;
+    const naturalHeight = Number(image?.naturalHeight) || 0;
+    if (naturalWidth > 0 && naturalHeight > 0) return naturalWidth / naturalHeight;
+
+    const width = Number(image?.getAttribute('width')) || 0;
+    const height = Number(image?.getAttribute('height')) || 0;
+    if (width > 0 && height > 0) return width / height;
+
+    const rect = image?.getBoundingClientRect?.();
+    if (rect?.width > 0 && rect?.height > 0) return rect.width / rect.height;
+
+    return 1;
+  };
+
   const createLightboxItem = (trigger) => {
     const image = trigger.querySelector('img');
     const fullSrc = String(trigger.dataset.lightboxSrc || '');
@@ -58,8 +73,34 @@
       previewSrc,
       detailSrc,
       fullSrc,
+      aspectRatio: getImageAspectRatio(image),
       alt: image?.alt || '',
     };
+  };
+
+  const getLightboxContentBounds = () => {
+    const style = window.getComputedStyle(lightbox);
+    const horizontalPadding = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
+    const verticalPadding = (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);
+    return {
+      width: Math.max(1, window.innerWidth - horizontalPadding),
+      height: Math.max(1, window.innerHeight - verticalPadding),
+    };
+  };
+
+  const applyLightboxGeometry = (item) => {
+    const ratio = Number(item?.aspectRatio) > 0 ? Number(item.aspectRatio) : 1;
+    const bounds = getLightboxContentBounds();
+    let width = bounds.width;
+    let height = width / ratio;
+
+    if (height > bounds.height) {
+      height = bounds.height;
+      width = height * ratio;
+    }
+
+    lightboxImage.style.width = `${Math.max(1, Math.round(width * 1000) / 1000)}px`;
+    lightboxImage.style.height = `${Math.max(1, Math.round(height * 1000) / 1000)}px`;
   };
 
   const preloadAndDecode = (src) => {
@@ -121,6 +162,7 @@
     const token = ++lightboxRenderToken;
     const previewSrc = item.previewSrc || item.detailSrc || item.fullSrc;
 
+    applyLightboxGeometry(item);
     lightboxImage.alt = item.alt || '';
     if (previewSrc) lightboxImage.src = previewSrc;
     previousButton.hidden = lightboxItems.length < 2;
@@ -145,6 +187,8 @@
     window.clearTimeout(lightboxUpgradeTimer);
     lightbox.hidden = true;
     lightboxImage.removeAttribute('src');
+    lightboxImage.style.removeProperty('width');
+    lightboxImage.style.removeProperty('height');
     document.body.classList.remove('lightbox-open');
     try { returnFocus?.focus?.(); } catch {}
     returnFocus = null;
@@ -157,6 +201,10 @@
   nextButton.addEventListener('click', () => showLightboxItem(lightboxIndex + 1));
   lightbox.addEventListener('click', (event) => {
     if (event.target === lightbox) closeLightbox();
+  });
+  window.addEventListener('resize', () => {
+    if (lightbox.hidden || lightboxIndex < 0) return;
+    applyLightboxGeometry(lightboxItems[lightboxIndex]);
   });
   document.addEventListener('keydown', (event) => {
     if (lightbox.hidden) return;
