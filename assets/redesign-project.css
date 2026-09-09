@@ -74,6 +74,8 @@
   max-height: 82vh;
   display: block;
   object-fit: cover;
+  transform: none;
+  transition: none;
 }
 
 .rproj-story {
@@ -111,22 +113,29 @@
 .rproj-gallery {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: clamp(340px, 34vw, 560px);
+  align-items: stretch;
   gap: 14px;
   padding: clamp(58px, 7vw, 108px) 0;
   border-bottom: 1px solid rgba(0, 0, 0, .1);
 }
 
-.rproj-gallery-item {
-  grid-column: span 6;
-  min-height: 440px;
+.rproj-gallery-item,
+.rproj-gallery-item--wide,
+.rproj-gallery-item--narrow {
+  min-height: 0;
+  height: 100%;
   margin: 0;
   overflow: hidden;
   background: #ddd;
 }
 
+.rproj-gallery-item {
+  grid-column: span 6;
+}
+
 .rproj-gallery-item--wide {
   grid-column: 1 / -1;
-  min-height: 540px;
 }
 
 .rproj-gallery-item--narrow {
@@ -136,17 +145,11 @@
 .rproj-gallery-item img {
   width: 100%;
   height: 100%;
-  min-height: inherit;
+  min-height: 0;
   display: block;
   object-fit: cover;
-  transition: transform 420ms cubic-bezier(.2,.7,.2,1);
-}
-
-.rproj-gallery-item button:hover img,
-.rproj-gallery-item button:focus-visible img,
-.rproj-hero button:hover img,
-.rproj-hero button:focus-visible img {
-  transform: scale(1.012);
+  transform: none;
+  transition: none;
 }
 
 .rproj-gallery-item button:focus-visible,
@@ -266,12 +269,11 @@
   .rproj-gallery-item,
   .rproj-gallery-item--wide,
   .rproj-gallery-item--narrow {
-    min-height: 0;
+    height: auto;
     margin-bottom: 12px;
   }
 
   .rproj-gallery-item img {
-    min-height: 0;
     height: auto;
   }
 
