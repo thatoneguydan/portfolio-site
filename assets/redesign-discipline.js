@@ -6,7 +6,7 @@
 
   if (!document.querySelector('script[data-rdp-shelf-media]')) {
     const shelfMediaScript = document.createElement('script');
-    shelfMediaScript.src = '/assets/redesign-shelf-media.js?v=20260909-a';
+    shelfMediaScript.src = '/assets/redesign-shelf-media.js?v=20260909-b';
     shelfMediaScript.async = false;
     shelfMediaScript.dataset.rdpShelfMedia = '';
     document.head.append(shelfMediaScript);
