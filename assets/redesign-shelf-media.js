@@ -190,6 +190,9 @@
     doc.querySelectorAll('.portfolio-lightbox').forEach((node) => node.remove());
     doc.body?.classList.remove('lightbox-open');
 
+    if (doc.documentElement.dataset.rdpParentLightboxBound === 'true') return;
+    doc.documentElement.dataset.rdpParentLightboxBound = 'true';
+
     doc.addEventListener('click', (event) => {
       const trigger = event.target?.closest?.('[data-lightbox-src]');
       if (!trigger) return;
@@ -208,17 +211,23 @@
     }, true);
   };
 
+  const applyEnhancements = (iframe) => {
+    const doc = iframe.contentDocument;
+    if (!doc || doc.readyState === 'loading') return;
+    injectShelfMediaStyles(doc);
+    normalizeHandcraftedGallery(doc);
+    installParentLightboxBridge(doc);
+  };
+
   const enhanceFrame = (iframe) => {
     if (iframe.dataset.rdpShelfMediaBound === 'true') return;
     iframe.dataset.rdpShelfMediaBound = 'true';
+    iframe.addEventListener('load', () => applyEnhancements(iframe));
 
-    iframe.addEventListener('load', () => {
-      const doc = iframe.contentDocument;
-      if (!doc) return;
-      injectShelfMediaStyles(doc);
-      normalizeHandcraftedGallery(doc);
-      installParentLightboxBridge(doc);
-    });
+    const doc = iframe.contentDocument;
+    if (doc && doc.readyState === 'complete' && iframe.getAttribute('src')) {
+      applyEnhancements(iframe);
+    }
   };
 
   const observer = new MutationObserver((records) => {
