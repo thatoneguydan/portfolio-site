@@ -4,6 +4,10 @@
   const grid = document.querySelector('.rdp-project-grid');
   if (!grid) return;
 
+  const LIGHTBOX_DETAIL_MAX_WIDTH = 1920;
+  const LIGHTBOX_DETAIL_DELAY_MS = 120;
+  const lightboxPreloadCache = new Map();
+
   const lightbox = document.createElement('div');
   lightbox.className = 'portfolio-lightbox rdp-shelf-lightbox';
   lightbox.hidden = true;
@@ -12,7 +16,7 @@
   lightbox.setAttribute('aria-label', 'Image viewer');
   lightbox.innerHTML = '<button type="button" class="portfolio-lightbox__close" aria-label="Close image viewer">×</button>' +
     '<button type="button" class="portfolio-lightbox__nav portfolio-lightbox__nav--prev" aria-label="Previous image">‹</button>' +
-    '<img class="portfolio-lightbox__image" alt="">' +
+    '<img class="portfolio-lightbox__image" alt="" decoding="async">' +
     '<button type="button" class="portfolio-lightbox__nav portfolio-lightbox__nav--next" aria-label="Next image">›</button>';
   document.body.append(lightbox);
 
@@ -22,30 +26,123 @@
   const nextButton = lightbox.querySelector('.portfolio-lightbox__nav--next');
   let lightboxItems = [];
   let lightboxIndex = -1;
+  let lightboxRenderToken = 0;
+  let lightboxUpgradeTimer = 0;
   let returnFocus = null;
+
+  const parseSrcset = (srcset) => String(srcset || '')
+    .split(',')
+    .map((candidate) => {
+      const parts = candidate.trim().split(/\s+/);
+      const width = Number(String(parts[1] || '').replace(/w$/i, ''));
+      return { src: parts[0] || '', width: Number.isFinite(width) ? width : 0 };
+    })
+    .filter((candidate) => candidate.src && candidate.width > 0)
+    .sort((a, b) => a.width - b.width);
+
+  const chooseDetailSrc = (image, fallbackSrc) => {
+    const candidates = parseSrcset(image?.getAttribute('srcset'));
+    if (!candidates.length) return image?.currentSrc || image?.src || fallbackSrc || '';
+
+    const withinCap = candidates.filter((candidate) => candidate.width <= LIGHTBOX_DETAIL_MAX_WIDTH);
+    const chosen = withinCap[withinCap.length - 1] || candidates[0];
+    return chosen?.src || image?.currentSrc || image?.src || fallbackSrc || '';
+  };
+
+  const createLightboxItem = (trigger) => {
+    const image = trigger.querySelector('img');
+    const fullSrc = String(trigger.dataset.lightboxSrc || '');
+    const previewSrc = image?.currentSrc || image?.src || fullSrc;
+    const detailSrc = chooseDetailSrc(image, fullSrc) || previewSrc;
+    return {
+      previewSrc,
+      detailSrc,
+      fullSrc,
+      alt: image?.alt || '',
+    };
+  };
+
+  const preloadAndDecode = (src) => {
+    if (!src) return Promise.resolve();
+    if (lightboxPreloadCache.has(src)) return lightboxPreloadCache.get(src);
+
+    const promise = new Promise((resolve) => {
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = () => {
+        if (typeof image.decode !== 'function') {
+          resolve();
+          return;
+        }
+        image.decode().catch(() => {}).then(resolve);
+      };
+      image.onerror = resolve;
+      image.src = src;
+      if (image.complete) image.onload();
+    });
+
+    lightboxPreloadCache.set(src, promise);
+    return promise;
+  };
+
+  const warmNeighbor = (index) => {
+    if (lightboxItems.length < 2) return;
+    const normalized = (index + lightboxItems.length) % lightboxItems.length;
+    preloadAndDecode(lightboxItems[normalized]?.detailSrc);
+  };
+
+  const scheduleDetailUpgrade = (item, token) => {
+    window.clearTimeout(lightboxUpgradeTimer);
+    lightboxUpgradeTimer = window.setTimeout(() => {
+      const detailSrc = item.detailSrc || item.previewSrc || item.fullSrc;
+      if (!detailSrc) return;
+
+      preloadAndDecode(detailSrc).then(() => {
+        if (
+          token !== lightboxRenderToken ||
+          lightbox.hidden ||
+          lightboxItems[lightboxIndex] !== item
+        ) return;
+
+        if (lightboxImage.src !== new URL(detailSrc, window.location.href).href) {
+          lightboxImage.src = detailSrc;
+        }
+
+        warmNeighbor(lightboxIndex - 1);
+        warmNeighbor(lightboxIndex + 1);
+      });
+    }, LIGHTBOX_DETAIL_DELAY_MS);
+  };
 
   const showLightboxItem = (index) => {
     if (!lightboxItems.length) return;
     lightboxIndex = (index + lightboxItems.length) % lightboxItems.length;
     const item = lightboxItems[lightboxIndex];
-    lightboxImage.src = item.src;
+    const token = ++lightboxRenderToken;
+    const previewSrc = item.previewSrc || item.detailSrc || item.fullSrc;
+
     lightboxImage.alt = item.alt || '';
+    if (previewSrc) lightboxImage.src = previewSrc;
     previousButton.hidden = lightboxItems.length < 2;
     nextButton.hidden = lightboxItems.length < 2;
+
+    scheduleDetailUpgrade(item, token);
   };
 
   const openLightbox = (items, index, trigger) => {
-    lightboxItems = items.filter((item) => item.src);
+    lightboxItems = items.filter((item) => item.previewSrc || item.detailSrc || item.fullSrc);
     if (!lightboxItems.length) return;
     returnFocus = trigger;
-    showLightboxItem(Math.max(0, index));
     lightbox.hidden = false;
     document.body.classList.add('lightbox-open');
+    showLightboxItem(Math.max(0, index));
     closeButton.focus();
   };
 
   const closeLightbox = () => {
     if (lightbox.hidden) return;
+    ++lightboxRenderToken;
+    window.clearTimeout(lightboxUpgradeTimer);
     lightbox.hidden = true;
     lightboxImage.removeAttribute('src');
     document.body.classList.remove('lightbox-open');
@@ -295,10 +392,7 @@
       event.stopImmediatePropagation();
 
       const triggers = Array.from(doc.querySelectorAll('[data-lightbox-src]'));
-      const items = triggers.map((node) => ({
-        src: String(node.dataset.lightboxSrc || ''),
-        alt: node.querySelector('img')?.alt || '',
-      }));
+      const items = triggers.map(createLightboxItem);
       const index = Math.max(0, triggers.indexOf(trigger));
       openLightbox(items, index, trigger);
     }, true);
