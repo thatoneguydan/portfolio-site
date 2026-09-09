@@ -1,0 +1,242 @@
+.project-compat-redesign .site-main {
+  width: min(92%, 1500px);
+  margin: 0 auto;
+  padding-bottom: 0;
+}
+
+.project-compat-redesign .rcompat-header {
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .rcompat-layout {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(30px, 6vw, 92px) !important;
+  align-items: center;
+  margin: 0 !important;
+  padding: clamp(54px, 7vw, 104px) 0 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .rcompat-layout > .column {
+  min-width: 0;
+  flex: none !important;
+}
+
+.project-compat-redesign .rcompat-layout .module,
+.project-compat-redesign .rcompat-layout .column {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.project-compat-redesign .rcompat-image-module {
+  margin: 0;
+}
+
+.project-compat-redesign .rcompat-image-module button,
+.project-compat-redesign .rcompat-gallery button {
+  width: 100%;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.project-compat-redesign .rcompat-image-module img,
+.project-compat-redesign .rcompat-gallery img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.project-compat-redesign .rcompat-text-module {
+  max-width: 760px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.project-compat-redesign .rcompat-text-module .text-block {
+  margin: 0 0 18px !important;
+  color: #333;
+  font-size: clamp(18px, 1.8vw, 27px) !important;
+  line-height: 1.48 !important;
+  letter-spacing: -.014em;
+  text-align: left !important;
+}
+
+.project-compat-redesign .rcompat-text-module .text-block:last-child {
+  margin-bottom: 0 !important;
+}
+
+.project-compat-redesign .rcompat-gallery {
+  display: grid !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 14px !important;
+  margin: 0 !important;
+  padding: clamp(54px, 7vw, 104px) 0 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .rcompat-gallery > * {
+  grid-column: span 6;
+  min-width: 0;
+  flex: none !important;
+}
+
+.project-compat-redesign .rcompat-gallery > :only-child {
+  grid-column: 1 / -1;
+}
+
+.project-compat-redesign .rcompat-gallery > :nth-child(3n + 1):not(:only-child) {
+  grid-column: span 7;
+}
+
+.project-compat-redesign .rcompat-gallery > :nth-child(3n + 2) {
+  grid-column: span 5;
+}
+
+.project-compat-redesign .rcompat-gallery > :nth-child(3n + 3) {
+  grid-column: span 12;
+}
+
+.project-compat-redesign .rcompat-gallery img {
+  min-height: 360px;
+  object-fit: cover;
+  transition: transform 360ms cubic-bezier(.2,.7,.2,1);
+}
+
+.project-compat-redesign .rcompat-gallery button:hover img,
+.project-compat-redesign .rcompat-gallery button:focus-visible img,
+.project-compat-redesign .rcompat-image-module button:hover img,
+.project-compat-redesign .rcompat-image-module button:focus-visible img {
+  transform: scale(1.012);
+}
+
+.project-compat-redesign .rcompat-gallery button:focus-visible,
+.project-compat-redesign .rcompat-image-module button:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: -3px;
+}
+
+.project-compat-redesign .site-main > .rcompat-image-module {
+  padding: clamp(54px, 7vw, 104px) 0;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .site-main > .rcompat-text-module {
+  max-width: 920px;
+  padding: clamp(54px, 7vw, 104px) 0 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .rcompat-old-cta {
+  display: none !important;
+}
+
+.project-compat-redesign .rcompat-related {
+  margin: 0 !important;
+  padding: clamp(62px, 8vw, 118px) 0 !important;
+  border: 0 !important;
+}
+
+.project-compat-redesign .rcompat-related > h2 {
+  margin: 0 0 28px !important;
+  color: #111;
+  font-size: clamp(32px, 4vw, 58px) !important;
+  font-weight: 700;
+  letter-spacing: -.045em;
+  line-height: 1 !important;
+  text-align: left !important;
+}
+
+.project-compat-redesign .rcompat-related-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.project-compat-redesign .rcompat-related-grid .cover-card {
+  width: auto !important;
+  min-width: 0;
+  margin: 0 !important;
+  color: #111;
+  text-decoration: none;
+}
+
+.project-compat-redesign .rcompat-related-grid .cover-card > img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  object-fit: cover;
+}
+
+.project-compat-redesign .rcompat-related-grid .cover-card > span {
+  position: static !important;
+  display: block !important;
+  padding: 12px 2px 0 !important;
+  background: transparent !important;
+  color: #111 !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.project-compat-redesign .rcompat-related-grid .cover-card h3,
+.project-compat-redesign .rcompat-related-grid .cover-card h2 {
+  margin: 0 0 6px !important;
+  font-size: 17px !important;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.2 !important;
+}
+
+.project-compat-redesign .rcompat-related-grid .cover-card p {
+  margin: 0 !important;
+  color: #666 !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.project-compat-redesign .rcompat-related-grid .cover-card p:last-child {
+  display: none;
+}
+
+.project-compat-redesign .rcompat-footer {
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .project-compat-redesign .rcompat-layout {
+    grid-template-columns: 1fr;
+    gap: 26px !important;
+  }
+
+  .project-compat-redesign .rcompat-related-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 650px) {
+  .project-compat-redesign .site-main {
+    width: calc(100% - 32px);
+  }
+
+  .project-compat-redesign .rcompat-gallery {
+    display: block !important;
+  }
+
+  .project-compat-redesign .rcompat-gallery > * {
+    margin-bottom: 12px !important;
+  }
+
+  .project-compat-redesign .rcompat-gallery img {
+    min-height: 0;
+  }
+
+  .project-compat-redesign .rcompat-related-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+}
