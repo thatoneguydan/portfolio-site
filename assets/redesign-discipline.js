@@ -262,10 +262,16 @@
     stopTransitionAnchor();
   };
 
-  window.addEventListener('wheel', cancelAnchorForUserScroll, { passive: true, capture: true });
-  window.addEventListener('touchmove', cancelAnchorForUserScroll, { passive: true, capture: true });
-  window.addEventListener('keydown', cancelAnchorForUserScroll, { capture: true });
-  window.addEventListener('pointerdown', () => stopTransitionAnchor(), { passive: true, capture: true });
+  const installScrollIntentListeners = (targetWindow) => {
+    if (!targetWindow || targetWindow.__rdpShelfScrollIntentBound) return;
+    targetWindow.__rdpShelfScrollIntentBound = true;
+    targetWindow.addEventListener('wheel', cancelAnchorForUserScroll, { passive: true, capture: true });
+    targetWindow.addEventListener('touchmove', cancelAnchorForUserScroll, { passive: true, capture: true });
+    targetWindow.addEventListener('keydown', cancelAnchorForUserScroll, { capture: true });
+    targetWindow.addEventListener('pointerdown', () => stopTransitionAnchor(), { passive: true, capture: true });
+  };
+
+  installScrollIntentListeners(window);
 
   const removeShelf = (state) => {
     window.clearTimeout(state.cleanupTimer);
@@ -303,6 +309,7 @@
 
     disconnectObserver(state);
     injectInlineStyles(doc);
+    installScrollIntentListeners(state.iframe.contentWindow);
     doc.body?.classList.add('rdp-inline-frame');
 
     doc.querySelectorAll('img').forEach((image) => {
