@@ -59,6 +59,7 @@
     document.head.append(link);
   };
 
+  ensureStylesheet('/assets/redesign-production-baseline.css?v=20260909-a');
   ensureStylesheet('/assets/redesign-home.css?v=20260908-production-baseline');
   ensureStylesheet('/assets/redesign-project.css?v=20260909-a');
   ensureStylesheet('/assets/redesign-project-compat.css?v=20260909-a');
