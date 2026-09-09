@@ -15,10 +15,6 @@
   contain: layout paint;
 }
 
-.discipline-redesign .rdp-project-media img {
-  backface-visibility: hidden;
-}
-
 .discipline-redesign .rdp-project-meta {
   position: relative;
   z-index: 2;
@@ -30,6 +26,19 @@
   content: 'Close';
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Photo has many large raster assets. Avoid permanent compositing hints and
+   per-card image transforms while scrolling; the View/Close treatment still
+   provides the hover/focus response. */
+.discipline-photo .rdp-project-media img {
+  backface-visibility: visible;
+  transition: none;
+}
+
+.discipline-photo .rdp-project-card:hover .rdp-project-media img,
+.discipline-photo .rdp-project-card:focus-visible .rdp-project-media img {
+  transform: none;
 }
 
 @supports (content-visibility: auto) {
