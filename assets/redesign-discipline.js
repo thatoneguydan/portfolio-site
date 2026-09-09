@@ -4,14 +4,6 @@
   const grid = document.querySelector('.rdp-project-grid');
   if (!grid) return;
 
-  if (!document.querySelector('script[data-rdp-shelf-media]')) {
-    const shelfMediaScript = document.createElement('script');
-    shelfMediaScript.src = '/assets/redesign-shelf-media.js?v=20260909-b';
-    shelfMediaScript.async = false;
-    shelfMediaScript.dataset.rdpShelfMedia = '';
-    document.head.append(shelfMediaScript);
-  }
-
   const cards = () => Array.from(grid.querySelectorAll(':scope > .rdp-project-card'));
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const liveShelves = new Set();
