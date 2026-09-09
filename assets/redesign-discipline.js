@@ -10,6 +10,7 @@
   let active = null;
   let resizeTimer = 0;
   let anchorJob = null;
+  let suppressAnchorUntil = 0;
 
   const setImageHints = () => {
     cards().forEach((card) => {
@@ -201,6 +202,7 @@
 
   const startTransitionAnchor = (card, shelf, anchorTop) => {
     stopTransitionAnchor();
+    if (performance.now() < suppressAnchorUntil) return;
 
     const job = {
       card,
@@ -246,6 +248,24 @@
 
     job.raf = window.requestAnimationFrame(tick);
   };
+
+  const scrollKeys = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']);
+
+  const cancelAnchorForUserScroll = (event) => {
+    if (event.type === 'keydown') {
+      const target = event.target;
+      if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+      if (!scrollKeys.has(event.key)) return;
+    }
+
+    suppressAnchorUntil = performance.now() + 180;
+    stopTransitionAnchor();
+  };
+
+  window.addEventListener('wheel', cancelAnchorForUserScroll, { passive: true, capture: true });
+  window.addEventListener('touchmove', cancelAnchorForUserScroll, { passive: true, capture: true });
+  window.addEventListener('keydown', cancelAnchorForUserScroll, { capture: true });
+  window.addEventListener('pointerdown', () => stopTransitionAnchor(), { passive: true, capture: true });
 
   const removeShelf = (state) => {
     window.clearTimeout(state.cleanupTimer);
