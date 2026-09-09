@@ -226,7 +226,7 @@
   }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 500px) {
   .contact-redesign .site-main {
     width: calc(100% - 32px);
   }
