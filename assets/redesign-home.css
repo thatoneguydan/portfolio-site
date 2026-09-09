@@ -405,6 +405,10 @@
     transition: color 160ms ease, transform 160ms ease;
   }
 
+  .home-redesign .site-logo[aria-current='page'] {
+    box-shadow: inset 0 -3px 0 #111;
+  }
+
   .home-redesign .site-logo:hover,
   .home-redesign .site-logo:focus-visible {
     background: #111;
@@ -412,7 +416,7 @@
 
   .home-redesign .site-logo:hover img,
   .home-redesign .site-logo:focus-visible img {
-    filter: brightness(0) invert(1);
+    filter: invert(1);
   }
 
   .home-redesign .site-logo:hover::before,
@@ -427,6 +431,11 @@
   .home-redesign .site-nav a:hover::after,
   .home-redesign .site-nav a:focus-visible::after {
     transform: translate(2px, -2px);
+  }
+
+  .home-redesign .site-logo[aria-current='page']:hover,
+  .home-redesign .site-logo[aria-current='page']:focus-visible {
+    box-shadow: none;
   }
 
   .home-redesign .site-nav {
