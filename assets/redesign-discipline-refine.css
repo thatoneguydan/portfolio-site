@@ -124,7 +124,7 @@
 }
 
 .rdp-project-shelf.is-open > .rdp-project-shelf-inner {
-  padding: 24px clamp(12px, 1.5vw, 24px) clamp(54px, 6vw, 90px);
+  padding: 24px clamp(12px, 1.5vw, 24px) 18px;
   border-color: rgba(0, 0, 0, .10);
 }
 
@@ -177,7 +177,7 @@
 
   .rdp-project-shelf.is-open > .rdp-project-shelf-inner {
     padding-top: 16px;
-    padding-bottom: 38px;
+    padding-bottom: 14px;
   }
 }
 
