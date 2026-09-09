@@ -185,6 +185,11 @@
   .rdp-project-card--wide {
     grid-column: span 6;
   }
+
+  .discipline-photo .rdp-project-media,
+  .discipline-photo .rdp-project-card--wide .rdp-project-media {
+    aspect-ratio: 4 / 5;
+  }
 }
 
 @media (max-width: 720px) {
