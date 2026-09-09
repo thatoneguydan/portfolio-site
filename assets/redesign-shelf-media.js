@@ -270,6 +270,44 @@
     style.textContent = `
       .rproj-hero { background: transparent !important; }
 
+      /* Shelves are a compact reading mode, not miniature full project pages.
+         Both project template families inherit generous full-page spacing, so
+         normalize that spacing here in the shared shelf layer. */
+      .site-main,
+      .project-redesign .site-main,
+      .project-compat-redesign .site-main {
+        padding-bottom: 28px !important;
+      }
+
+      .rproj-header,
+      .project-compat-redesign .rcompat-header {
+        padding-top: 32px !important;
+        padding-bottom: 24px !important;
+      }
+
+      .rproj-story {
+        padding-top: 28px !important;
+        padding-bottom: 28px !important;
+      }
+
+      .rproj-gallery {
+        padding-top: 24px !important;
+        padding-bottom: 24px !important;
+      }
+
+      .project-compat-redesign .rcompat-layout,
+      .project-compat-redesign .site-main > .rcompat-image-module,
+      .project-compat-redesign .site-main > .rcompat-text-module,
+      .project-compat-redesign .rcompat-gallery {
+        padding-top: 24px !important;
+        padding-bottom: 24px !important;
+      }
+
+      .project-compat-redesign .rcompat-header + .rcompat-image-module,
+      .project-compat-redesign .rcompat-header + .rcompat-layout {
+        padding-top: 0 !important;
+      }
+
       .rproj-hero button,
       .rproj-gallery button,
       .project-compat-redesign .rcompat-image-module button,
@@ -380,6 +418,26 @@
       }
 
       @media (max-width: 700px) {
+        .rproj-header,
+        .project-compat-redesign .rcompat-header {
+          padding-top: 26px !important;
+          padding-bottom: 20px !important;
+        }
+
+        .rproj-story {
+          padding-top: 22px !important;
+          padding-bottom: 22px !important;
+        }
+
+        .rproj-gallery,
+        .project-compat-redesign .rcompat-layout,
+        .project-compat-redesign .site-main > .rcompat-image-module,
+        .project-compat-redesign .site-main > .rcompat-text-module,
+        .project-compat-redesign .rcompat-gallery {
+          padding-top: 20px !important;
+          padding-bottom: 20px !important;
+        }
+
         .rproj-gallery { display: block !important; }
         .rproj-gallery-item,
         .rproj-gallery-item--wide,
