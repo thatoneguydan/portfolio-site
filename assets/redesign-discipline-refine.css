@@ -3,6 +3,7 @@
   align-items: start;
   column-gap: 14px;
   row-gap: 0;
+  overflow-anchor: none;
 }
 
 .discipline-redesign .rdp-project-card {
