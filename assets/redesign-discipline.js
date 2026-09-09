@@ -8,7 +8,9 @@
   let activeCard = null;
   let activeShelf = null;
   let activeResizeObserver = null;
+  let closingPromise = null;
   let resizeTimer = 0;
+  let actionSequence = 0;
 
   const setImageHints = () => {
     cards().forEach((card) => {
@@ -47,35 +49,37 @@
     activeResizeObserver = null;
   };
 
-  const removeShelfImmediately = () => {
-    disconnectResizeObserver();
-    activeShelf?.remove();
-    activeShelf = null;
-    activeCard?.classList.remove('is-active');
-    activeCard = null;
-  };
+  const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
   const closeShelf = ({ updateHistory = true } = {}) => {
-    if (!activeShelf) return;
+    if (closingPromise) return closingPromise;
+    if (!activeShelf) {
+      if (updateHistory) clearHash();
+      return Promise.resolve();
+    }
 
     const shelf = activeShelf;
     const card = activeCard;
+
     disconnectResizeObserver();
-
-    shelf.style.height = `${shelf.getBoundingClientRect().height}px`;
-    requestAnimationFrame(() => {
-      shelf.classList.remove('is-open');
-      shelf.style.height = '0px';
-    });
-
-    window.setTimeout(() => {
-      if (shelf.isConnected) shelf.remove();
-    }, 520);
-
-    card?.classList.remove('is-active');
     activeShelf = null;
     activeCard = null;
-    if (updateHistory) clearHash();
+    card?.classList.remove('is-active');
+
+    shelf.classList.remove('is-settled');
+    shelf.style.height = `${shelf.getBoundingClientRect().height}px`;
+
+    closingPromise = (async () => {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      shelf.classList.remove('is-open');
+      shelf.style.height = '0px';
+      await wait(430);
+      shelf.remove();
+      closingPromise = null;
+      if (updateHistory) clearHash();
+    })();
+
+    return closingPromise;
   };
 
   const injectInlineStyles = (doc) => {
@@ -124,6 +128,34 @@
         padding-top: clamp(38px, 5vw, 76px) !important;
         padding-bottom: clamp(38px, 5vw, 76px) !important;
       }
+
+      /* Expanded sets use stable, equal-height gallery rows. Crop only the
+         browsing presentation; the existing lightbox still opens the source. */
+      .rproj-gallery,
+      .project-compat-redesign .rcompat-gallery {
+        grid-auto-rows: clamp(340px, 34vw, 560px) !important;
+        align-items: stretch !important;
+      }
+      .rproj-gallery-item,
+      .project-compat-redesign .rcompat-gallery > * {
+        height: 100% !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+      }
+      .rproj-gallery-item button,
+      .project-compat-redesign .rcompat-gallery button {
+        height: 100% !important;
+      }
+      .rproj-gallery-item img,
+      .project-compat-redesign .rcompat-gallery img {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        object-fit: cover !important;
+        transform: none !important;
+        transition: none !important;
+      }
+
       @media (max-width: 700px) {
         .site-main,
         .project-redesign .site-main,
@@ -131,6 +163,14 @@
         .rproj-header,
         .project-compat-redesign .rcompat-header { padding-top: 36px !important; }
         .rproj-hero img { max-height: none !important; }
+        .rproj-gallery,
+        .project-compat-redesign .rcompat-gallery { grid-auto-rows: auto !important; }
+        .rproj-gallery-item,
+        .project-compat-redesign .rcompat-gallery > * { height: auto !important; }
+        .rproj-gallery-item button,
+        .project-compat-redesign .rcompat-gallery button { height: auto !important; }
+        .rproj-gallery-item img,
+        .project-compat-redesign .rcompat-gallery img { height: auto !important; }
       }
     `;
     doc.head.append(style);
@@ -162,7 +202,10 @@
     resize();
     requestAnimationFrame(resize);
     window.setTimeout(resize, 100);
-    window.setTimeout(resize, 450);
+    window.setTimeout(() => {
+      resize();
+      if (shelf === activeShelf) shelf.classList.add('is-settled');
+    }, 470);
 
     const FrameResizeObserver = iframe.contentWindow?.ResizeObserver;
     if (FrameResizeObserver && doc.documentElement) {
@@ -171,14 +214,7 @@
     }
   };
 
-  const openShelf = (card, { updateHistory = true } = {}) => {
-    if (activeCard === card && activeShelf) {
-      closeShelf({ updateHistory });
-      return;
-    }
-
-    removeShelfImmediately();
-
+  const createShelf = (card, { updateHistory = true } = {}) => {
     const rowEnd = findRowEnd(card);
     const shelf = document.createElement('section');
     shelf.className = 'rdp-project-shelf';
@@ -215,6 +251,33 @@
     if (updateHistory) {
       history.replaceState(null, '', `${window.location.pathname}${window.location.search}#project-${shelfSlug(card)}`);
     }
+  };
+
+  const openShelf = async (card, { updateHistory = true } = {}) => {
+    const sequence = ++actionSequence;
+
+    if (activeCard === card && activeShelf) {
+      await closeShelf({ updateHistory });
+      return;
+    }
+
+    const anchorTop = card.getBoundingClientRect().top;
+
+    if (activeShelf) {
+      await closeShelf({ updateHistory: false });
+    } else if (closingPromise) {
+      await closingPromise;
+    }
+
+    if (sequence !== actionSequence) return;
+
+    /* If the collapsing shelf was above the newly selected card, preserve the
+       selected card's viewport position while the document shrinks. */
+    const movedTop = card.getBoundingClientRect().top;
+    const delta = movedTop - anchorTop;
+    if (Math.abs(delta) > 1) window.scrollBy(0, delta);
+
+    createShelf(card, { updateHistory });
   };
 
   setImageHints();
