@@ -10,6 +10,13 @@
     node.textContent = decodeContactToken(node.dataset.contactToken);
   }
 
+  if (!document.body.classList.contains('project-redesign') && !document.querySelector('script[data-redesign-project-compat]')) {
+    const compatibilityScript = document.createElement('script');
+    compatibilityScript.src = '/assets/redesign-project-compat.js?v=20260909-a';
+    compatibilityScript.dataset.redesignProjectCompat = '';
+    document.head.append(compatibilityScript);
+  }
+
   document.addEventListener('submit', (event) => {
     const form = event.target;
     if (!(form instanceof HTMLFormElement) || !form.matches('[data-portfolio-contact]')) return;
