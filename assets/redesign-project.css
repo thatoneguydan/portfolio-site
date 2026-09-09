@@ -26,9 +26,7 @@
 }
 
 .rproj-back:hover,
-.rproj-back:focus-visible {
-  color: #111;
-}
+.rproj-back:focus-visible { color: #111; }
 
 .rproj-header h1 {
   max-width: 930px;
@@ -47,9 +45,7 @@
   line-height: 1.55;
 }
 
-.rproj-summary strong {
-  color: #111;
-}
+.rproj-summary strong { color: #111; }
 
 .rproj-hero {
   width: 100%;
@@ -61,12 +57,12 @@
 .rproj-hero button,
 .rproj-gallery button {
   width: 100%;
-  height: 100%;
   display: block;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: zoom-in;
+  overflow: hidden;
 }
 
 .rproj-hero img {
@@ -74,8 +70,17 @@
   max-height: 82vh;
   display: block;
   object-fit: cover;
-  transform: none;
-  transition: none;
+}
+
+/* Every lightbox-capable image gets the same subtle zoom treatment. */
+.project-redesign button[data-lightbox-src] img {
+  transform: scale(1);
+  transition: transform 360ms cubic-bezier(.2,.7,.2,1);
+}
+
+.project-redesign button[data-lightbox-src]:hover img,
+.project-redesign button[data-lightbox-src]:focus-visible img {
+  transform: scale(1.015);
 }
 
 .rproj-story {
@@ -94,9 +99,7 @@
   text-transform: uppercase;
 }
 
-.rproj-story-copy {
-  max-width: 900px;
-}
+.rproj-story-copy { max-width: 900px; }
 
 .rproj-story-copy p {
   margin: 0 0 18px;
@@ -106,50 +109,72 @@
   letter-spacing: -.015em;
 }
 
-.rproj-story-copy p:last-child {
-  margin-bottom: 0;
-}
+.rproj-story-copy p:last-child { margin-bottom: 0; }
 
+/* Default project gallery remains editorial/grid-based for Design. */
 .rproj-gallery {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-auto-rows: clamp(340px, 34vw, 560px);
-  align-items: stretch;
   gap: 14px;
   padding: clamp(58px, 7vw, 108px) 0;
   border-bottom: 1px solid rgba(0, 0, 0, .1);
 }
 
-.rproj-gallery-item,
-.rproj-gallery-item--wide,
-.rproj-gallery-item--narrow {
-  min-height: 0;
-  height: 100%;
+.rproj-gallery-item {
+  grid-column: span 6;
+  min-height: 440px;
   margin: 0;
   overflow: hidden;
   background: #ddd;
 }
 
-.rproj-gallery-item {
-  grid-column: span 6;
-}
-
 .rproj-gallery-item--wide {
   grid-column: 1 / -1;
+  min-height: 540px;
 }
 
-.rproj-gallery-item--narrow {
-  grid-column: span 4;
-}
+.rproj-gallery-item--narrow { grid-column: span 4; }
 
 .rproj-gallery-item img {
   width: 100%;
   height: 100%;
-  min-height: 0;
+  min-height: inherit;
   display: block;
   object-fit: cover;
-  transform: none;
-  transition: none;
+}
+
+/* Photography follows the original migrated gallery model: images retain
+   their natural aspect ratios and proportional flex widths make mixed images
+   share a row height without cropping. */
+.project-photo .rproj-hero img {
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+}
+
+.project-photo .rproj-gallery {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.project-photo .rproj-gallery-item,
+.project-photo .rproj-gallery-item--wide,
+.project-photo .rproj-gallery-item--narrow {
+  grid-column: auto;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  margin: 0;
+  overflow: hidden;
+  background: #ddd;
+}
+
+.project-photo .rproj-gallery-item img {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  object-fit: contain;
 }
 
 .rproj-gallery-item button:focus-visible,
@@ -158,9 +183,7 @@
   outline-offset: -3px;
 }
 
-.rproj-related {
-  padding: clamp(64px, 8vw, 120px) 0;
-}
+.rproj-related { padding: clamp(64px, 8vw, 120px) 0; }
 
 .rproj-related-head {
   display: flex;
@@ -212,9 +235,7 @@
 }
 
 .rproj-related-card:hover img,
-.rproj-related-card:focus-visible img {
-  transform: scale(1.025);
-}
+.rproj-related-card:focus-visible img { transform: scale(1.025); }
 
 .rproj-related-card strong {
   display: block;
@@ -230,9 +251,7 @@
     gap: 28px;
   }
 
-  .rproj-summary {
-    margin-left: 0;
-  }
+  .rproj-summary { margin-left: 0; }
 
   .rproj-story {
     grid-template-columns: 1fr;
@@ -240,51 +259,38 @@
   }
 
   .rproj-gallery-item,
-  .rproj-gallery-item--narrow {
-    grid-column: span 6;
-  }
+  .rproj-gallery-item--narrow { grid-column: span 6; }
 
-  .rproj-gallery-item--wide {
-    grid-column: 1 / -1;
-  }
+  .rproj-gallery-item--wide { grid-column: 1 / -1; }
 }
 
 @media (max-width: 650px) {
-  .project-redesign .site-main {
-    width: calc(100% - 32px);
-  }
+  .project-redesign .site-main { width: calc(100% - 32px); }
+  .rproj-header { padding-top: 54px; }
+  .rproj-hero img { max-height: none; }
 
-  .rproj-header {
-    padding-top: 54px;
-  }
-
-  .rproj-hero img {
-    max-height: none;
-  }
-
-  .rproj-gallery {
-    display: block;
-  }
+  .rproj-gallery,
+  .project-photo .rproj-gallery { display: block; }
 
   .rproj-gallery-item,
   .rproj-gallery-item--wide,
-  .rproj-gallery-item--narrow {
+  .rproj-gallery-item--narrow,
+  .project-photo .rproj-gallery-item,
+  .project-photo .rproj-gallery-item--wide,
+  .project-photo .rproj-gallery-item--narrow {
+    min-height: 0;
     height: auto;
     margin-bottom: 12px;
   }
 
-  .rproj-gallery-item img {
+  .rproj-gallery-item img,
+  .project-photo .rproj-gallery-item img {
+    min-height: 0;
     height: auto;
   }
 
-  .rproj-related-head {
-    display: block;
-  }
-
-  .rproj-related-head a {
-    display: inline-block;
-    margin-top: 12px;
-  }
+  .rproj-related-head { display: block; }
+  .rproj-related-head a { display: inline-block; margin-top: 12px; }
 
   .rproj-related-grid {
     grid-template-columns: 1fr;
