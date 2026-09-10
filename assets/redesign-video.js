@@ -40,6 +40,7 @@
   };
 
   const shelves = Array.from(document.querySelectorAll('.rv-shelf'));
+  const videoCards = Array.from(document.querySelectorAll('[data-youtube-id]'));
   const dialog = document.querySelector('[data-video-dialog]');
   const player = dialog?.querySelector('.rv-dialog-player');
   const frame = player?.querySelector('iframe');
@@ -129,26 +130,48 @@
     if (frame) frame.src = '';
   };
 
-  document.querySelectorAll('[data-youtube-id]').forEach((card) => {
+  const openVideoCard = (card) => {
+    if (!card || !dialog || !frame || typeof dialog.showModal !== 'function') return false;
+
+    const id = card.getAttribute('data-youtube-id');
+    const title = card.getAttribute('data-video-title') || 'Video';
+    const kicker = card.querySelector('.rv-video-kicker')?.textContent?.trim() || 'Video';
+    if (!id) return false;
+
+    const containingShelf = card.closest('.rv-shelf');
+    if (containingShelf) openOnly(containingShelf, false);
+
+    if (dialogTitle) dialogTitle.textContent = kicker;
+    if (dialogKicker) dialogKicker.textContent = kicker;
+    if (dialogInfoTitle) dialogInfoTitle.textContent = title;
+    if (dialogDescription) dialogDescription.textContent = descriptions[id] || '';
+
+    frame.title = title;
+    frame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;
+    if (!dialog.open) dialog.showModal();
+    return true;
+  };
+
+  videoCards.forEach((card) => {
     card.addEventListener('click', (event) => {
       if (!dialog || !frame || typeof dialog.showModal !== 'function') return;
-
       event.preventDefault();
-      const id = card.getAttribute('data-youtube-id');
-      const title = card.getAttribute('data-video-title') || 'Video';
-      const kicker = card.querySelector('.rv-video-kicker')?.textContent?.trim() || 'Video';
-      if (!id) return;
-
-      if (dialogTitle) dialogTitle.textContent = kicker;
-      if (dialogKicker) dialogKicker.textContent = kicker;
-      if (dialogInfoTitle) dialogInfoTitle.textContent = title;
-      if (dialogDescription) dialogDescription.textContent = descriptions[id] || '';
-
-      frame.title = title;
-      frame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;
-      dialog.showModal();
+      openVideoCard(card);
     });
   });
+
+  const requestedVideoId = new URLSearchParams(window.location.search).get('play');
+  if (requestedVideoId) {
+    const requestedCard = videoCards.find((card) => card.getAttribute('data-youtube-id') === requestedVideoId);
+    if (requestedCard) {
+      const containingShelf = requestedCard.closest('.rv-shelf');
+      if (containingShelf) openOnly(containingShelf, false);
+      requestAnimationFrame(() => {
+        containingShelf?.scrollIntoView({ behavior: 'auto', block: 'start' });
+        requestAnimationFrame(() => openVideoCard(requestedCard));
+      });
+    }
+  }
 
   closeButton?.addEventListener('click', () => dialog?.close());
 
