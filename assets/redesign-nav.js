@@ -1,6 +1,7 @@
 (() => {
   'use strict';
 
+  if (!document.body.classList.contains('home-redesign')) return;
   if (window.__redesignNavInitialized) return;
   window.__redesignNavInitialized = true;
 
