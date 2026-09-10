@@ -1,18 +1,63 @@
-/* Homepage hero after retiring the rotating showcase. */
-.rd-hero.rd-hero--copy-only {
-  grid-template-columns: minmax(0, 1fr);
+/* Homepage hero after retiring the rotating showcase. The wide layout is an
+   intentional editorial composition rather than a leftover half of the old
+   two-column hero. */
+.rd-hero.rd-hero--editorial {
+  display: block;
+  min-height: clamp(590px, calc(100vh - 86px), 800px);
 }
 
-.rd-hero--copy-only .rd-hero-copy {
-  max-width: 980px;
-  padding-right: 0;
+.rd-hero--editorial .rd-hero-copy {
+  width: 100%;
+  max-width: none;
+  min-height: inherit;
+  padding: clamp(64px, 7vw, 104px) 0 clamp(54px, 6vw, 88px);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  column-gap: clamp(16px, 2vw, 30px);
+  align-items: end;
 }
 
-/* Five-piece Featured Work layout: two wide cards, then three equal cards. */
+.rd-hero--editorial .rd-eyebrow {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  align-self: start;
+  margin: 0;
+}
+
+.rd-hero--editorial h1 {
+  grid-column: 1 / 11;
+  grid-row: 2;
+  max-width: none;
+  align-self: center;
+  font-size: clamp(58px, 7.3vw, 118px);
+  line-height: .88;
+  text-wrap: balance;
+}
+
+.rd-hero--editorial .rd-hero-lede {
+  grid-column: 9 / -1;
+  grid-row: 3;
+  max-width: none;
+  margin: 0;
+  padding-left: clamp(18px, 2vw, 30px);
+  border-left: 1px solid rgba(0, 0, 0, .16);
+  align-self: end;
+  font-size: clamp(16px, 1.2vw, 19px);
+}
+
+.rd-hero--editorial .rd-actions {
+  grid-column: 1 / 8;
+  grid-row: 3;
+  align-self: end;
+  margin: 0;
+}
+
+/* Five-piece Featured Work layout: two horizontal video cards, then three
+   image-led design/photo cards. */
 #featured-work .rd-work-card:nth-child(1),
 #featured-work .rd-work-card:nth-child(2) {
   grid-column: span 6;
-  min-height: 560px;
 }
 
 #featured-work .rd-work-card:nth-child(3),
@@ -73,6 +118,38 @@
 }
 
 @media (max-width: 900px) {
+  .rd-hero.rd-hero--editorial {
+    min-height: auto;
+  }
+
+  .rd-hero--editorial .rd-hero-copy {
+    min-height: 0;
+    display: block;
+    padding: 70px 0 64px;
+  }
+
+  .rd-hero--editorial .rd-eyebrow {
+    margin-bottom: 22px;
+  }
+
+  .rd-hero--editorial h1 {
+    max-width: 840px;
+    font-size: clamp(50px, 11vw, 86px);
+    line-height: .92;
+  }
+
+  .rd-hero--editorial .rd-hero-lede {
+    max-width: 700px;
+    margin: 30px 0 0;
+    padding-left: 0;
+    border-left: 0;
+    font-size: 17px;
+  }
+
+  .rd-hero--editorial .rd-actions {
+    margin-top: 30px;
+  }
+
   #featured-work .rd-work-card:nth-child(n) {
     grid-column: span 6;
     min-height: 52vw;
@@ -90,9 +167,29 @@
 }
 
 @media (max-width: 500px) {
+  .rd-hero--editorial .rd-hero-copy {
+    padding: 54px 0 52px;
+  }
+
+  .rd-hero--editorial h1 {
+    font-size: clamp(46px, 13vw, 64px);
+    text-wrap: balance;
+  }
+
+  .rd-hero--editorial .rd-hero-lede {
+    margin-top: 26px;
+  }
+
   #featured-work .rd-work-card:nth-child(n) {
     min-height: 118vw;
   }
+}
+
+/* Video thumbnails keep their native horizontal composition at every width,
+   overriding the generic Featured Work card heights above. */
+#featured-work .rd-work-card[data-video-id] {
+  min-height: 0;
+  aspect-ratio: 16 / 9;
 }
 
 @media (prefers-reduced-motion: reduce) {
