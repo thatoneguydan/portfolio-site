@@ -132,7 +132,7 @@
 
   const footer = document.createElement('section');
   footer.className = 'rd-footer-cta rcompat-footer';
-  footer.innerHTML = `<p>${discipline === 'design' ? 'Need something designed?' : 'Need photos?'}</p><a href="/contact">Let's make it.</a>`;
+  footer.innerHTML = '<p>Interested in working together?</p><a href="/contact">Let\'s talk.</a>';
   main.append(footer);
 
   if (firstVisual && !firstVisual.getAttribute('alt')) firstVisual.setAttribute('alt', title);
