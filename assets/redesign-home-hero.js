@@ -39,7 +39,6 @@
     });
     controls.forEach((control, controlIndex) => {
       control.setAttribute('aria-pressed', controlIndex === activeIndex ? 'true' : 'false');
-      control.tabIndex = controlIndex === activeIndex ? 0 : -1;
     });
     if (restart) schedule();
   };
