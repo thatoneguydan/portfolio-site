@@ -1,11 +1,24 @@
 (() => {
   'use strict';
 
-  if (!document.querySelector('script[data-redesign-nav]')) {
+  const isInlineContactShelf = new URLSearchParams(window.location.search).get('inlineShelf') === '1';
+  if (isInlineContactShelf) document.body.classList.add('contact-inline-embed');
+
+  if (!isInlineContactShelf && !document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20260909-a';
+    navScript.src = '/assets/redesign-nav.js?v=20260910-contact-shelf';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
+  }
+
+  /* Project pages already load this shared runtime. Loading the shelf module
+     here as well makes Contact CTAs reliable even on compatibility pages where
+     the redesign body classes are applied asynchronously. */
+  if (!isInlineContactShelf && !document.querySelector('script[data-redesign-contact-shelf]')) {
+    const shelfScript = document.createElement('script');
+    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20260910-a';
+    shelfScript.dataset.redesignContactShelf = '';
+    document.head.append(shelfScript);
   }
 
   const tokenKeys = [29, 71, 43, 97, 13, 53, 83];
@@ -18,9 +31,9 @@
     node.textContent = decodeContactToken(node.dataset.contactToken);
   }
 
-  if (!document.body.classList.contains('project-redesign') && !document.querySelector('script[data-redesign-project-compat]')) {
+  if (!isInlineContactShelf && !document.body.classList.contains('project-redesign') && !document.querySelector('script[data-redesign-project-compat]')) {
     const compatibilityScript = document.createElement('script');
-    compatibilityScript.src = '/assets/redesign-project-compat.js?v=20260909-a';
+    compatibilityScript.src = '/assets/redesign-project-compat.js?v=20260910-contact-shelf';
     compatibilityScript.dataset.redesignProjectCompat = '';
     document.head.append(compatibilityScript);
   }
