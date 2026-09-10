@@ -62,7 +62,7 @@
   ensureStylesheet('/assets/redesign-production-baseline.css?v=20260909-a');
   ensureStylesheet('/assets/redesign-home.css?v=20260908-production-baseline');
   ensureStylesheet('/assets/redesign-project.css?v=20260909-b');
-  ensureStylesheet('/assets/redesign-project-compat.css?v=20260909-b');
+  ensureStylesheet('/assets/redesign-project-compat.css?v=20260910-clean');
 
   const main = document.querySelector('.site-main');
   if (!main) return;
@@ -99,6 +99,12 @@
   header.querySelector('.rproj-summary').textContent = summary;
   main.prepend(header);
 
+  /* The migrated project pages carried two navigation leftovers from the old
+     portfolio: a standalone Contact Dan Smith button and an Other Categories
+     grid. The redesign has its own shared Contact close and discipline indexes,
+     so these nodes are removed rather than restyled or carried into shelves. */
+  main.querySelectorAll('.button-row, .related-projects').forEach((node) => node.remove());
+
   const contentChildren = Array.from(main.children).filter((node) => node !== header);
   let firstVisual = null;
 
@@ -107,8 +113,6 @@
     if (node.matches('.media-collection')) node.classList.add('rcompat-gallery');
     if (node.matches('.module--image')) node.classList.add('rcompat-image-module');
     if (node.matches('.module--text')) node.classList.add('rcompat-text-module');
-    if (node.matches('.button-row')) node.classList.add('rcompat-old-cta');
-    if (node.matches('.related-projects')) node.classList.add('rcompat-related');
 
     if (!firstVisual) firstVisual = node.querySelector?.('img') || (node.matches('img') ? node : null);
   }
@@ -117,18 +121,6 @@
   main.querySelectorAll('.media-collection').forEach((node) => node.classList.add('rcompat-gallery'));
   main.querySelectorAll('.module--image').forEach((node) => node.classList.add('rcompat-image-module'));
   main.querySelectorAll('.module--text').forEach((node) => node.classList.add('rcompat-text-module'));
-
-  const related = main.querySelector('.related-projects');
-  if (related) {
-    related.classList.add('rcompat-related');
-    const heading = related.querySelector(':scope > h2');
-    if (heading) heading.textContent = discipline === 'design' ? 'More design work' : 'More photography';
-    const grid = related.querySelector('.cover-grid');
-    if (grid) grid.classList.add('rcompat-related-grid');
-  }
-
-  const oldCtas = main.querySelectorAll('.button-row');
-  oldCtas.forEach((node) => node.classList.add('rcompat-old-cta'));
 
   const footer = document.createElement('section');
   footer.className = 'rd-footer-cta rcompat-footer';
