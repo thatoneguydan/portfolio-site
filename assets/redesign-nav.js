@@ -26,7 +26,7 @@
 
   if (!document.querySelector('script[data-redesign-contact-shelf]')) {
     const contactShelfScript = document.createElement('script');
-    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=20260910-b';
+    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=20260910-c';
     contactShelfScript.dataset.redesignContactShelf = '';
     document.head.append(contactShelfScript);
   }
