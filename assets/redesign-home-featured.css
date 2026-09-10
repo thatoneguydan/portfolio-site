@@ -1,108 +1,146 @@
-/* Homepage composition: About first, then the restored Featured Work treatment,
-   compact discipline links, and a simple contact CTA. */
+/* Homepage composition: About first, then the preserved Featured Work treatment,
+   compact discipline navigation, and a full-bleed contact close. */
 
-/* About: keep the portrait as the opening visual. The identity label and main
-   statement sit on the image; supporting copy remains quiet and readable beside it. */
+/* About: one deliberate black/image composition. Copy lives in the black rail;
+   the portfolio statement belongs to the portrait so the opening stays visual. */
 .rd-about--home {
-  display: block;
-  padding-top: clamp(36px, 5vw, 72px);
-  padding-bottom: clamp(58px, 7vw, 104px);
+  padding: clamp(32px, 4.5vw, 64px) 0 clamp(68px, 7vw, 108px);
+  border-bottom: 1px solid rgba(0, 0, 0, .10);
 }
 
-.rd-about-stage {
+.rd-about-panel {
+  height: clamp(420px, 36vw, 520px);
   display: grid;
-  grid-template-columns: minmax(0, .92fr) minmax(300px, .72fr);
-  gap: clamp(32px, 5vw, 76px);
-  align-items: end;
+  grid-template-columns: minmax(300px, .68fr) minmax(0, 1.32fr);
+  overflow: hidden;
+  background: #111;
+  color: #fff;
+}
+
+.rd-about--home .rd-about-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  padding: clamp(28px, 3vw, 42px);
+}
+
+.rd-about-index {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: rgba(255, 255, 255, .58);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.rd-about-index span:first-child {
+  color: #fff;
+  letter-spacing: .08em;
+}
+
+.rd-about-index span:first-child::after {
+  content: '/';
+  margin-left: 14px;
+  color: rgba(255, 255, 255, .32);
+}
+
+.rd-about--home .rd-about-copy h1 {
+  max-width: 360px;
+  margin: clamp(28px, 3vw, 44px) 0 18px;
+  color: #fff;
+  font-size: clamp(34px, 3vw, 46px);
+  font-weight: 700;
+  line-height: .96;
+  letter-spacing: -.045em;
+}
+
+.rd-about--home .rd-about-copy .rd-about-lede {
+  max-width: 390px;
+  margin: 0;
+  color: rgba(255, 255, 255, .72);
+  font-size: clamp(15px, 1.08vw, 18px);
+  line-height: 1.55;
+}
+
+.rd-about-action {
+  min-height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: auto;
+  padding: 0 22px;
+  border: 1px solid rgba(255, 255, 255, .82);
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-decoration: none;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.rd-about-action:hover,
+.rd-about-action:focus-visible {
+  background: transparent;
+  color: #fff;
+}
+
+.rd-about-action span {
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 160ms ease;
+}
+
+.rd-about-action:hover span,
+.rd-about-action:focus-visible span {
+  transform: translate(2px, -2px);
 }
 
 .rd-about--home .rd-about-photo {
   position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  max-height: min(72vh, 720px);
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  aspect-ratio: auto;
   overflow: hidden;
-  background: #ddd;
+  background: #777;
 }
 
 .rd-about--home .rd-about-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: 50% 30%;
 }
 
 .rd-about--home .rd-about-photo::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.26) 42%, rgba(0,0,0,.04) 72%);
+  background: linear-gradient(to top, rgba(0, 0, 0, .72) 0%, rgba(0, 0, 0, .10) 50%, rgba(0, 0, 0, 0) 72%);
   pointer-events: none;
 }
 
-.rd-about-overlay {
+.rd-about-statement {
   position: absolute;
   z-index: 1;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(22px, 2.8vw, 38px);
-  color: #fff;
-}
-
-.rd-about-kicker {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  opacity: .82;
-}
-
-.rd-about-overlay h2 {
-  max-width: 700px;
+  left: clamp(26px, 3vw, 44px);
+  right: clamp(26px, 3vw, 44px);
+  bottom: clamp(26px, 3vw, 42px);
+  max-width: 760px;
   margin: 0;
   color: #fff;
-  font-size: clamp(38px, 4.7vw, 68px);
+  font-size: clamp(42px, 4.7vw, 68px);
   font-weight: 700;
-  line-height: .94;
-  letter-spacing: -.05em;
+  line-height: .92;
+  letter-spacing: -.052em;
   text-wrap: balance;
-}
-
-.rd-about--home .rd-about-copy {
-  padding-bottom: clamp(6px, 1vw, 12px);
-}
-
-.rd-about--home .rd-about-copy p {
-  max-width: 620px;
-  margin: 0;
-  color: #555;
-  font-size: clamp(17px, 1.35vw, 20px);
-  line-height: 1.6;
-}
-
-.rd-about--home .rd-actions {
-  margin-top: 28px;
-}
-
-.rd-about--home .rd-action {
-  min-height: 52px;
-  gap: 12px;
-  padding: 0 24px;
-  font-size: 14px;
-  letter-spacing: .02em;
-}
-
-.rd-about--home .rd-action-arrow {
-  font-size: 18px;
-  line-height: 1;
-  transition: transform 160ms ease;
-}
-
-.rd-about--home .rd-action:hover .rd-action-arrow,
-.rd-about--home .rd-action:focus-visible .rd-action-arrow {
-  transform: translate(2px, -2px);
 }
 
 /* Featured Work: preserve the previously accepted card design. Video cards stay
@@ -178,10 +216,14 @@
   background: #000;
 }
 
-/* Explore by discipline: shorter destinations, with icon and title treated as
-   one label. Icons intentionally use a heavier stroke to match the bold type. */
+/* Explore by discipline: a single low-profile navigation rail. The cells retain
+   the header's indexed/divided/inverting language without becoming big panels. */
+.rd-explore {
+  padding-bottom: clamp(64px, 7vw, 94px);
+}
+
 .rd-explore .rd-section-head {
-  margin-bottom: clamp(22px, 2.5vw, 32px);
+  margin-bottom: clamp(22px, 2.5vw, 30px);
 }
 
 .rd-explore .rd-disciplines {
@@ -190,13 +232,16 @@
 
 .rd-explore .rd-discipline {
   position: relative;
-  min-height: clamp(128px, 10vw, 148px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px 22px 22px;
+  min-height: 86px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
   border: 0;
   border-left: 1px solid rgba(0, 0, 0, .16);
+  border-right: 0;
+  color: #111;
   text-decoration: none;
   transition: background 160ms ease, color 160ms ease;
 }
@@ -211,52 +256,51 @@
   color: #fff;
 }
 
-.rd-discipline-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
 .rd-explore .rd-discipline .rd-discipline-index {
+  position: absolute;
+  top: 8px;
+  left: 10px;
   color: #777;
-  font-size: 10px;
+  font-size: 8px;
   font-weight: 700;
-  letter-spacing: .12em;
   line-height: 1;
+  letter-spacing: .12em;
+  text-transform: uppercase;
   transition: color 160ms ease;
 }
 
-.rd-explore .rd-discipline .rd-discipline-arrow {
-  font-size: 21px;
-  line-height: 1;
-  transition: transform 160ms ease;
+.rd-explore .rd-discipline:hover .rd-discipline-index,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-index {
+  color: rgba(255, 255, 255, .62);
 }
 
 .rd-discipline-label {
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .rd-discipline-icon {
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   flex: 0 0 auto;
   color: currentColor;
   transition: transform 160ms ease;
 }
 
 .rd-explore .rd-discipline strong {
-  font-size: clamp(34px, 3vw, 46px);
+  font-size: clamp(28px, 2.3vw, 38px);
   font-weight: 700;
-  line-height: .95;
-  letter-spacing: -.04em;
+  line-height: 1;
+  letter-spacing: -.035em;
 }
 
-.rd-explore .rd-discipline:hover .rd-discipline-index,
-.rd-explore .rd-discipline:focus-visible .rd-discipline-index {
-  color: rgba(255,255,255,.68);
+.rd-explore .rd-discipline .rd-discipline-arrow {
+  align-self: center;
+  font-size: 22px;
+  line-height: 1;
+  transition: transform 160ms ease;
 }
 
 .rd-explore .rd-discipline:hover .rd-discipline-icon,
@@ -269,77 +313,117 @@
   transform: translate(2px, -2px);
 }
 
-/* Contact CTA: deliberately not another box. The question carries the visual
-   weight and the action is an unmistakable button. */
+/* Contact: finish with one strong black field rather than another outlined card.
+   The white pill is intentionally unmistakable as the action. */
 .rd-footer-cta {
-  padding: clamp(64px, 8vw, 118px) 0;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: clamp(56px, 6vw, 86px) 0 clamp(62px, 7vw, 96px);
+  background: #111;
+  color: #fff;
   text-align: left;
 }
 
 .rd-footer-cta-inner {
+  width: min(92%, 1500px);
+  margin: 0 auto;
+}
+
+.rd-footer-cta-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: clamp(26px, 3vw, 40px);
+  color: rgba(255, 255, 255, .58);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.rd-footer-cta-meta span:first-child {
+  color: #fff;
+  letter-spacing: .08em;
+}
+
+.rd-footer-cta-meta span:first-child::after {
+  content: '/';
+  margin-left: 14px;
+  color: rgba(255, 255, 255, .28);
+}
+
+.rd-footer-cta-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: clamp(30px, 6vw, 90px);
   align-items: end;
 }
 
-.rd-footer-cta-copy {
-  max-width: 900px;
-}
-
 .rd-footer-cta h2 {
+  max-width: 980px;
   margin: 0;
-  font-size: clamp(46px, 6.2vw, 86px);
+  color: #fff;
+  font-size: clamp(48px, 6.2vw, 88px);
   font-weight: 700;
-  line-height: .92;
-  letter-spacing: -.05em;
+  line-height: .90;
+  letter-spacing: -.055em;
   text-wrap: balance;
 }
 
-.rd-footer-cta-button {
+.rd-footer-cta .rd-footer-cta-button {
   min-height: 58px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
   padding: 0 26px;
-  border: 1px solid #111;
+  border: 1px solid #fff;
   border-radius: 999px;
-  background: #111;
-  color: #fff;
+  background: #fff;
+  color: #111;
   font-size: 15px;
   font-weight: 700;
+  line-height: 1;
   letter-spacing: .02em;
   text-decoration: none;
   white-space: nowrap;
   transition: background 160ms ease, color 160ms ease;
 }
 
-.rd-footer-cta-button:hover,
-.rd-footer-cta-button:focus-visible {
+.rd-footer-cta .rd-footer-cta-button:hover,
+.rd-footer-cta .rd-footer-cta-button:focus-visible {
   background: transparent;
-  color: #111;
+  color: #fff;
 }
 
-.rd-footer-cta-button span {
+.rd-footer-cta .rd-footer-cta-button span {
   font-size: 21px;
   line-height: 1;
   transition: transform 160ms ease;
 }
 
-.rd-footer-cta-button:hover span,
-.rd-footer-cta-button:focus-visible span {
+.rd-footer-cta .rd-footer-cta-button:hover span,
+.rd-footer-cta .rd-footer-cta-button:focus-visible span {
   transform: translate(2px, -2px);
 }
 
 @media (max-width: 900px) {
-  .rd-about-stage {
-    grid-template-columns: minmax(0, 1fr) minmax(260px, .76fr);
-    gap: 36px;
+  .rd-about-panel {
+    height: 440px;
+    grid-template-columns: minmax(230px, .72fr) minmax(0, 1.28fr);
   }
 
-  .rd-about-overlay h2 {
-    font-size: clamp(36px, 5vw, 52px);
+  .rd-about--home .rd-about-copy {
+    padding: 28px;
+  }
+
+  .rd-about--home .rd-about-copy h1 {
+    font-size: 36px;
+  }
+
+  .rd-about-statement {
+    font-size: clamp(40px, 5.8vw, 54px);
   }
 
   #featured-work .rd-work-card:nth-child(n) {
@@ -356,55 +440,63 @@
   }
 
   .rd-explore .rd-discipline {
-    min-height: 138px;
-    padding: 18px 18px 20px;
+    min-height: 84px;
+    padding: 14px 16px;
   }
 
   .rd-discipline-icon {
-    width: 32px;
-    height: 32px;
+    width: 25px;
+    height: 25px;
   }
 
-  .rd-footer-cta-inner {
+  .rd-footer-cta-row {
     grid-template-columns: 1fr;
     align-items: start;
   }
 
-  .rd-footer-cta-button {
+  .rd-footer-cta .rd-footer-cta-button {
     justify-self: start;
+  }
+
+  .rd-footer-cta-inner {
+    width: 90%;
   }
 }
 
 @media (max-width: 720px) {
   .rd-about--home {
-    padding: 24px 0 58px;
+    padding: 18px 0 56px;
   }
 
-  .rd-about-stage {
-    grid-template-columns: 1fr;
-    gap: 26px;
+  .rd-about-panel {
+    height: 420px;
   }
 
-  .rd-about--home .rd-about-photo {
-    max-height: none;
-    aspect-ratio: 4 / 5;
+  .rd-about--home .rd-about-copy {
+    padding: 24px 22px;
   }
 
-  .rd-about-overlay {
-    padding: 22px;
+  .rd-about--home .rd-about-copy h1 {
+    margin: 26px 0 14px;
+    font-size: 32px;
   }
 
-  .rd-about-overlay h2 {
-    font-size: clamp(38px, 11vw, 56px);
+  .rd-about--home .rd-about-copy .rd-about-lede {
+    font-size: 14px;
+    line-height: 1.52;
   }
 
-  .rd-about--home .rd-about-copy p {
-    font-size: 17px;
-    line-height: 1.55;
+  .rd-about-action {
+    min-height: 48px;
+    padding: 0 18px;
+    font-size: 12px;
   }
 
-  .rd-about--home .rd-actions {
-    margin-top: 22px;
+  .rd-about-statement {
+    left: 22px;
+    right: 22px;
+    bottom: 24px;
+    font-size: clamp(34px, 5.5vw, 42px);
   }
 
   #featured-work .rd-work-card:nth-child(n) {
@@ -421,52 +513,97 @@
   }
 
   .rd-explore .rd-discipline {
-    min-height: 112px;
-    padding: 16px 18px 17px;
+    min-height: 72px;
+    padding: 14px 16px 12px;
     border-left: 0;
-    border-bottom: 1px solid rgba(0, 0, 0, .16);
-  }
-
-  .rd-explore .rd-discipline:last-child {
+    border-top: 1px solid rgba(0, 0, 0, .16);
     border-bottom: 0;
   }
 
-  .rd-discipline-label {
-    gap: 12px;
+  .rd-explore .rd-discipline:first-child {
+    border-top: 0;
+  }
+
+  .rd-explore .rd-discipline .rd-discipline-index {
+    top: 6px;
+    left: 8px;
   }
 
   .rd-discipline-icon {
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
   }
 
   .rd-explore .rd-discipline strong {
-    font-size: 34px;
+    font-size: 30px;
   }
 
   .rd-footer-cta {
-    padding: 58px 0 72px;
+    padding: 52px 0 64px;
+  }
+
+  .rd-footer-cta-inner {
+    width: calc(100% - 32px);
   }
 
   .rd-footer-cta h2 {
-    font-size: clamp(44px, 13vw, 64px);
+    font-size: clamp(44px, 13vw, 60px);
   }
 
-  .rd-footer-cta-button {
+  .rd-footer-cta-row {
+    gap: 28px;
+  }
+
+  .rd-footer-cta .rd-footer-cta-button {
     min-height: 54px;
     padding: 0 22px;
   }
 }
 
+@media (max-width: 540px) {
+  .rd-about-panel {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rd-about--home .rd-about-photo {
+    order: 1;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+  }
+
+  .rd-about--home .rd-about-copy {
+    order: 2;
+    padding: 20px;
+  }
+
+  .rd-about--home .rd-about-copy h1 {
+    margin: 20px 0 12px;
+    font-size: 30px;
+  }
+
+  .rd-about--home .rd-about-copy .rd-about-lede {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .rd-about-action {
+    min-height: 48px;
+    margin-top: 20px;
+    padding: 0 18px;
+    font-size: 12px;
+  }
+
+  .rd-about-statement {
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    font-size: clamp(34px, 10vw, 44px);
+  }
+}
+
 @media (max-width: 500px) {
-  .rd-about--home {
-    padding-top: 20px;
-  }
-
-  .rd-about-overlay h2 {
-    font-size: clamp(36px, 10.5vw, 48px);
-  }
-
   #featured-work .rd-work-card:nth-child(n) {
     min-height: 118vw;
   }
@@ -474,19 +611,12 @@
   #featured-work .rd-work-card[data-video-id] {
     min-height: 0;
   }
-
-  .rd-footer-cta-inner {
-    gap: 28px;
-  }
-
-  .rd-footer-cta h2 {
-    font-size: clamp(42px, 12.4vw, 56px);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   #featured-work .rd-work-card[data-video-id]::before,
-  .rd-about--home .rd-action-arrow,
+  .rd-about-action,
+  .rd-about-action span,
   .rd-discipline-icon,
   .rd-discipline-arrow,
   .rd-footer-cta-button,
