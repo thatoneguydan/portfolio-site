@@ -23,7 +23,12 @@
   if (normalizePath(window.location.pathname) === '/contact') return;
 
   const ensureStylesheet = (href) => {
-    if (document.querySelector(`link[href^="${href.split('?')[0]}"]`)) return;
+    const base = href.split('?')[0];
+    const existing = document.querySelector(`link[href^="${base}"]`);
+    if (existing) {
+      if (existing.getAttribute('href') !== href) existing.setAttribute('href', href);
+      return;
+    }
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
@@ -31,7 +36,7 @@
   };
 
   ensureStylesheet('/assets/redesign-contact-shelf.css?v=20260910-c');
-  ensureStylesheet('/assets/redesign-footer-contact.css?v=20260910-a');
+  ensureStylesheet('/assets/redesign-footer-contact.css?v=20260910-b');
 
   const footerMarkup = `
     <div class="rd-footer-cta-inner">
@@ -91,29 +96,44 @@
     return Math.max(0, Math.min(window.innerHeight, rect.bottom));
   };
 
-  const alignShelfTop = (state, behavior = 'smooth') => {
-    if (!state?.shelf?.isConnected) return false;
-    const desiredTop = navBottom();
-    const offset = state.shelf.getBoundingClientRect().top - desiredTop;
-    if (Math.abs(offset) <= 1.5) return true;
-
-    window.scrollTo({
-      top: Math.max(0, window.scrollY + offset),
-      left: 0,
-      behavior: reducedMotion.matches ? 'auto' : behavior,
-    });
-    return false;
+  const desiredScrollTop = (state) => {
+    const shelfTop = state.shelf.getBoundingClientRect().top + window.scrollY;
+    return Math.max(0, shelfTop - navBottom());
   };
 
-  const finishAutoAlignment = (state) => {
-    if (!state?.autoScroll || !state.shelf?.isConnected) return;
-    alignShelfTop(state, 'smooth');
+  const maxScrollTop = () => Math.max(
+    0,
+    Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0) - window.innerHeight
+  );
+
+  /* Start exactly one native smooth scroll after both the shelf animation and
+     Contact document layout have settled. Reissuing smooth-scroll commands
+     while the browser is already animating them causes the visible hitching the
+     old implementation had. */
+  const startAutoScroll = (state, forceClosest = false) => {
+    if (!state?.autoScroll || state.autoScrollStarted || !state.shelf?.isConnected) return false;
+    if (!forceClosest && (!state.shelfSettled || !state.frameReady)) return false;
+
+    const target = desiredScrollTop(state);
+    const max = maxScrollTop();
+    if (!forceClosest && target > max + 2) return false;
+
+    state.autoScrollStarted = true;
+    window.clearTimeout(state.autoScrollFallback);
+    state.autoScrollFallback = 0;
+
+    window.scrollTo({
+      top: Math.min(target, max),
+      left: 0,
+      behavior: reducedMotion.matches ? 'auto' : 'smooth',
+    });
+    return true;
   };
 
   const cleanup = (state, restoreFocus = false) => {
     if (!state) return;
     window.clearTimeout(state.removeTimer);
-    window.clearTimeout(state.alignTimer);
+    window.clearTimeout(state.autoScrollFallback);
     state.resizeObserver?.disconnect();
     state.resizeObserver = null;
     if (state.onTransitionEnd) state.shelf.removeEventListener('transitionend', state.onTransitionEnd);
@@ -162,29 +182,25 @@
     if (!doc?.body || !state.shelf.isConnected) return;
 
     resizeFrame(state);
+    state.frameReady = true;
+    state.shelf.classList.add('is-loaded');
+
     requestAnimationFrame(() => {
       resizeFrame(state);
-      finishAutoAlignment(state);
+      startAutoScroll(state);
     });
-    window.setTimeout(() => {
-      resizeFrame(state);
-      finishAutoAlignment(state);
-    }, 140);
-    window.setTimeout(() => {
-      resizeFrame(state);
-      finishAutoAlignment(state);
-    }, 620);
 
     const FrameResizeObserver = state.frame.contentWindow?.ResizeObserver;
     if (FrameResizeObserver) {
-      state.resizeObserver = new FrameResizeObserver(() => resizeFrame(state));
+      state.resizeObserver = new FrameResizeObserver(() => {
+        resizeFrame(state);
+        if (!state.autoScrollStarted) requestAnimationFrame(() => startAutoScroll(state));
+      });
       state.resizeObserver.observe(doc.documentElement);
       state.resizeObserver.observe(doc.body);
       const main = doc.querySelector('.site-main');
       if (main) state.resizeObserver.observe(main);
     }
-
-    state.shelf.classList.add('is-loaded');
   };
 
   const open = (source) => {
@@ -223,9 +239,12 @@
       closeButton: shelf.querySelector('.rc-inline-contact-close'),
       resizeObserver: null,
       removeTimer: 0,
-      alignTimer: 0,
       onTransitionEnd: null,
       autoScroll,
+      autoScrollStarted: false,
+      autoScrollFallback: 0,
+      shelfSettled: !autoScroll,
+      frameReady: false,
     };
     active = state;
 
@@ -239,30 +258,23 @@
     if (autoScroll) {
       state.onTransitionEnd = (event) => {
         if (event.target !== shelf || event.propertyName !== 'grid-template-rows') return;
-        finishAutoAlignment(state);
+        state.shelfSettled = true;
+        startAutoScroll(state);
         shelf.removeEventListener('transitionend', state.onTransitionEnd);
         state.onTransitionEnd = null;
       };
       shelf.addEventListener('transitionend', state.onTransitionEnd);
+
+      /* If loading or browser transition events are unusually delayed, perform
+         one fallback scroll to the closest naturally reachable position. This
+         is still a single scroll command, never a correction loop. */
+      state.autoScrollFallback = window.setTimeout(() => startAutoScroll(state, true), 1400);
     }
 
     requestAnimationFrame(() => {
       if (!shelf.isConnected) return;
       shelf.setAttribute('aria-hidden', 'false');
       shelf.classList.add('is-open');
-
-      if (autoScroll) {
-        requestAnimationFrame(() => {
-          if (!shelf.isConnected) return;
-          alignShelfTop(state, 'smooth');
-        });
-
-        /* The shelf is still changing height while it opens, so make one final
-           smooth correction once the transition has settled. The document keeps
-           its natural content height; browser scroll clamping handles cases where
-           there is not enough page below the shelf to reach the ideal position. */
-        state.alignTimer = window.setTimeout(() => finishAutoAlignment(state), 560);
-      }
     });
   };
 
