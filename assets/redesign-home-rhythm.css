@@ -12,14 +12,12 @@
   border-bottom: 0;
 }
 
+/* Featured Work now transitions directly into the final contact field. Keep a
+   deliberate breath after the work, but not the larger gap that previously
+   made room for a separate portfolio-navigation section. */
 .rd-featured {
   padding-top: 0;
-  padding-bottom: clamp(82px, 7.5vw, 114px);
-}
-
-.rd-explore {
-  padding-top: 0;
-  padding-bottom: clamp(92px, 8.5vw, 132px);
+  padding-bottom: clamp(56px, 5vw, 76px);
 }
 
 /* Treat the final contact field as a destination, not a footer. The headline
@@ -76,11 +74,7 @@
   }
 
   .rd-featured {
-    padding-bottom: 88px;
-  }
-
-  .rd-explore {
-    padding-bottom: 96px;
+    padding-bottom: 62px;
   }
 
   .rd-footer-cta {
@@ -108,11 +102,7 @@
   }
 
   .rd-featured {
-    padding-bottom: 72px;
-  }
-
-  .rd-explore {
-    padding-bottom: 80px;
+    padding-bottom: 54px;
   }
 
   .rd-footer-cta {
@@ -140,11 +130,7 @@
   }
 
   .rd-featured {
-    padding-bottom: 64px;
-  }
-
-  .rd-explore {
-    padding-bottom: 72px;
+    padding-bottom: 46px;
   }
 
   .rd-footer-cta {
