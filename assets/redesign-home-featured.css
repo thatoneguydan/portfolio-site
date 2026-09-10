@@ -1,41 +1,112 @@
-/* Homepage composition after review: About first, then the previously accepted
-   Featured Work card treatment, then framed discipline links and contact CTA. */
+/* Homepage composition: About first, then the restored Featured Work treatment,
+   compact discipline links, and a simple contact CTA. */
 
-/* About is the opening impression, so keep a real image visible immediately
-   and keep the copy secondary to it rather than turning it into another hero. */
+/* About: keep the portrait as the opening visual. The identity label and main
+   statement sit on the image; supporting copy remains quiet and readable beside it. */
 .rd-about--home {
-  padding-top: clamp(34px, 5vw, 72px);
+  display: block;
+  padding-top: clamp(36px, 5vw, 72px);
   padding-bottom: clamp(58px, 7vw, 104px);
 }
 
-.rd-about--home .rd-about-photo {
-  width: 100%;
-  max-height: min(70vh, 760px);
+.rd-about-stage {
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(300px, .72fr);
+  gap: clamp(32px, 5vw, 76px);
+  align-items: end;
 }
 
-.rd-about--home .rd-about-copy .rd-eyebrow {
-  margin: 0 0 22px;
-  color: #777;
+.rd-about--home .rd-about-photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: min(72vh, 720px);
+  overflow: hidden;
+  background: #ddd;
+}
+
+.rd-about--home .rd-about-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rd-about--home .rd-about-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.26) 42%, rgba(0,0,0,.04) 72%);
+  pointer-events: none;
+}
+
+.rd-about-overlay {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(22px, 2.8vw, 38px);
+  color: #fff;
+}
+
+.rd-about-kicker {
   font-size: 12px;
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: .15em;
+  line-height: 1;
+  letter-spacing: .14em;
   text-transform: uppercase;
+  opacity: .82;
 }
 
-.rd-about--home .rd-about-copy h2 {
-  max-width: 760px;
-  font-size: clamp(40px, 4.8vw, 72px);
-  line-height: .98;
+.rd-about-overlay h2 {
+  max-width: 700px;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(38px, 4.7vw, 68px);
+  font-weight: 700;
+  line-height: .94;
+  letter-spacing: -.05em;
+  text-wrap: balance;
 }
 
-.rd-about--home .rd-about-copy p:not(.rd-eyebrow) {
-  max-width: 660px;
+.rd-about--home .rd-about-copy {
+  padding-bottom: clamp(6px, 1vw, 12px);
 }
 
-/* Featured Work: restore the card design from before the all-16:9/captions-below
-   experiment. Video cards stay 16:9; design/photo cards keep the taller image-led
-   crops with title/category over the artwork. */
+.rd-about--home .rd-about-copy p {
+  max-width: 620px;
+  margin: 0;
+  color: #555;
+  font-size: clamp(17px, 1.35vw, 20px);
+  line-height: 1.6;
+}
+
+.rd-about--home .rd-actions {
+  margin-top: 28px;
+}
+
+.rd-about--home .rd-action {
+  min-height: 52px;
+  gap: 12px;
+  padding: 0 24px;
+  font-size: 14px;
+  letter-spacing: .02em;
+}
+
+.rd-about--home .rd-action-arrow {
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 160ms ease;
+}
+
+.rd-about--home .rd-action:hover .rd-action-arrow,
+.rd-about--home .rd-action:focus-visible .rd-action-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* Featured Work: preserve the previously accepted card design. Video cards stay
+   16:9; Design/Photo cards keep the taller crops and text overlays. */
 .rd-featured .rd-section-head {
   margin-bottom: clamp(24px, 3vw, 38px);
 }
@@ -107,182 +178,168 @@
   background: #000;
 }
 
-/* Explore by discipline uses the same numbered-cell language as the header,
-   but each destination is a complete outlined card with its own visual icon. */
+/* Explore by discipline: shorter destinations, with icon and title treated as
+   one label. Icons intentionally use a heavier stroke to match the bold type. */
 .rd-explore .rd-section-head {
-  margin-bottom: clamp(24px, 3vw, 38px);
+  margin-bottom: clamp(22px, 2.5vw, 32px);
 }
 
 .rd-explore .rd-disciplines {
-  border: 1px solid rgba(0, 0, 0, .14);
+  border: 1px solid rgba(0, 0, 0, .16);
 }
 
 .rd-explore .rd-discipline {
   position: relative;
-  min-height: clamp(190px, 17vw, 250px);
-  padding: clamp(22px, 2.4vw, 34px);
+  min-height: clamp(128px, 10vw, 148px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 22px 22px;
   border: 0;
-  border-left: 1px solid rgba(0, 0, 0, .14);
-  overflow: hidden;
+  border-left: 1px solid rgba(0, 0, 0, .16);
+  text-decoration: none;
+  transition: background 160ms ease, color 160ms ease;
 }
 
 .rd-explore .rd-discipline:first-child {
   border-left: 0;
 }
 
-.rd-discipline-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.rd-explore .rd-discipline .rd-discipline-index {
-  color: #777;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .12em;
-  line-height: 1;
-}
-
-.rd-discipline-icon {
-  width: clamp(34px, 3vw, 46px);
-  height: clamp(34px, 3vw, 46px);
-  flex: 0 0 auto;
-  color: #111;
-  transition: color 160ms ease, transform 180ms ease;
-}
-
-.rd-explore .rd-discipline strong {
-  align-self: flex-start;
-  font-size: clamp(34px, 3.4vw, 52px);
-  line-height: .95;
-}
-
-.rd-explore .rd-discipline .rd-discipline-arrow {
-  position: absolute;
-  right: clamp(22px, 2.4vw, 34px);
-  bottom: clamp(20px, 2.2vw, 30px);
-  align-self: auto;
-  font-size: 25px;
-  line-height: 1;
-  transition: transform 160ms ease;
-}
-
-.rd-explore .rd-discipline:hover .rd-discipline-icon,
-.rd-explore .rd-discipline:focus-visible .rd-discipline-icon,
-.rd-explore .rd-discipline:hover .rd-discipline-index,
-.rd-explore .rd-discipline:focus-visible .rd-discipline-index {
-  color: #fff;
-}
-
-.rd-explore .rd-discipline:hover .rd-discipline-icon,
-.rd-explore .rd-discipline:focus-visible .rd-discipline-icon {
-  transform: scale(1.06);
-}
-
-.rd-explore .rd-discipline:hover .rd-discipline-arrow,
-.rd-explore .rd-discipline:focus-visible .rd-discipline-arrow {
-  transform: translate(3px, -3px);
-}
-
-/* Contact CTA is a fourth indexed destination rather than a disconnected giant
-   underlined phrase. The full cell inverts on hover like the navigation system. */
-.rd-footer-cta {
-  padding: clamp(58px, 7vw, 104px) 0;
-  text-align: left;
-}
-
-.rd-footer-cta-card {
-  position: relative;
-  min-height: clamp(240px, 23vw, 350px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(24px, 3vw, 42px);
-  border: 1px solid rgba(0, 0, 0, .14);
-  color: #111;
-  text-decoration: none;
-  transition: background 160ms ease, color 160ms ease;
-}
-
-.rd-footer-cta-card:hover,
-.rd-footer-cta-card:focus-visible {
+.rd-explore .rd-discipline:hover,
+.rd-explore .rd-discipline:focus-visible {
   background: #111;
   color: #fff;
 }
 
-.rd-footer-cta-card:focus-visible {
-  outline: 2px solid #111;
-  outline-offset: 3px;
+.rd-discipline-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.rd-footer-cta-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
+.rd-explore .rd-discipline .rd-discipline-index {
   color: #777;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: .12em;
-  text-transform: uppercase;
+  line-height: 1;
   transition: color 160ms ease;
 }
 
-.rd-footer-cta-card:hover .rd-footer-cta-top,
-.rd-footer-cta-card:focus-visible .rd-footer-cta-top {
-  color: rgba(255,255,255,.72);
+.rd-explore .rd-discipline .rd-discipline-arrow {
+  font-size: 21px;
+  line-height: 1;
+  transition: transform 160ms ease;
 }
 
-.rd-footer-cta-main {
+.rd-discipline-label {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 32px;
+  align-items: center;
+  gap: 14px;
+}
+
+.rd-discipline-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  color: currentColor;
+  transition: transform 160ms ease;
+}
+
+.rd-explore .rd-discipline strong {
+  font-size: clamp(34px, 3vw, 46px);
+  font-weight: 700;
+  line-height: .95;
+  letter-spacing: -.04em;
+}
+
+.rd-explore .rd-discipline:hover .rd-discipline-index,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-index {
+  color: rgba(255,255,255,.68);
+}
+
+.rd-explore .rd-discipline:hover .rd-discipline-icon,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-icon {
+  transform: scale(1.04);
+}
+
+.rd-explore .rd-discipline:hover .rd-discipline-arrow,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* Contact CTA: deliberately not another box. The question carries the visual
+   weight and the action is an unmistakable button. */
+.rd-footer-cta {
+  padding: clamp(64px, 8vw, 118px) 0;
+  text-align: left;
+}
+
+.rd-footer-cta-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(30px, 6vw, 90px);
+  align-items: end;
 }
 
 .rd-footer-cta-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  max-width: 900px;
 }
 
-.rd-footer-cta-copy small {
-  color: #666;
-  font-size: clamp(14px, 1.2vw, 18px);
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-  transition: color 160ms ease;
-}
-
-.rd-footer-cta-card:hover .rd-footer-cta-copy small,
-.rd-footer-cta-card:focus-visible .rd-footer-cta-copy small {
-  color: rgba(255,255,255,.72);
-}
-
-.rd-footer-cta-copy strong {
-  font-size: clamp(52px, 7.2vw, 110px);
+.rd-footer-cta h2 {
+  margin: 0;
+  font-size: clamp(46px, 6.2vw, 86px);
   font-weight: 700;
-  letter-spacing: -.055em;
-  line-height: .88;
+  line-height: .92;
+  letter-spacing: -.05em;
+  text-wrap: balance;
 }
 
-.rd-footer-cta-arrow {
-  flex: 0 0 auto;
-  font-size: clamp(34px, 4vw, 58px);
+.rd-footer-cta-button {
+  min-height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 0 26px;
+  border: 1px solid #111;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.rd-footer-cta-button:hover,
+.rd-footer-cta-button:focus-visible {
+  background: transparent;
+  color: #111;
+}
+
+.rd-footer-cta-button span {
+  font-size: 21px;
   line-height: 1;
-  transition: transform 180ms ease;
+  transition: transform 160ms ease;
 }
 
-.rd-footer-cta-card:hover .rd-footer-cta-arrow,
-.rd-footer-cta-card:focus-visible .rd-footer-cta-arrow {
-  transform: translate(5px, -5px);
+.rd-footer-cta-button:hover span,
+.rd-footer-cta-button:focus-visible span {
+  transform: translate(2px, -2px);
 }
 
 @media (max-width: 900px) {
-  .rd-about--home {
-    padding-top: 42px;
+  .rd-about-stage {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, .76fr);
+    gap: 36px;
+  }
+
+  .rd-about-overlay h2 {
+    font-size: clamp(36px, 5vw, 52px);
   }
 
   #featured-work .rd-work-card:nth-child(n) {
@@ -299,21 +356,55 @@
   }
 
   .rd-explore .rd-discipline {
-    min-height: 190px;
+    min-height: 138px;
+    padding: 18px 18px 20px;
+  }
+
+  .rd-discipline-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .rd-footer-cta-inner {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .rd-footer-cta-button {
+    justify-self: start;
   }
 }
 
 @media (max-width: 720px) {
   .rd-about--home {
-    padding: 28px 0 58px;
+    padding: 24px 0 58px;
+  }
+
+  .rd-about-stage {
+    grid-template-columns: 1fr;
+    gap: 26px;
   }
 
   .rd-about--home .rd-about-photo {
     max-height: none;
+    aspect-ratio: 4 / 5;
   }
 
-  .rd-about--home .rd-about-copy h2 {
-    font-size: clamp(38px, 11vw, 58px);
+  .rd-about-overlay {
+    padding: 22px;
+  }
+
+  .rd-about-overlay h2 {
+    font-size: clamp(38px, 11vw, 56px);
+  }
+
+  .rd-about--home .rd-about-copy p {
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  .rd-about--home .rd-actions {
+    margin-top: 22px;
   }
 
   #featured-work .rd-work-card:nth-child(n) {
@@ -330,40 +421,50 @@
   }
 
   .rd-explore .rd-discipline {
-    min-height: 150px;
+    min-height: 112px;
+    padding: 16px 18px 17px;
     border-left: 0;
-    border-bottom: 1px solid rgba(0, 0, 0, .14);
+    border-bottom: 1px solid rgba(0, 0, 0, .16);
   }
 
   .rd-explore .rd-discipline:last-child {
     border-bottom: 0;
   }
 
+  .rd-discipline-label {
+    gap: 12px;
+  }
+
   .rd-discipline-icon {
-    width: 38px;
-    height: 38px;
+    width: 30px;
+    height: 30px;
   }
 
   .rd-explore .rd-discipline strong {
-    font-size: 38px;
+    font-size: 34px;
   }
 
-  .rd-footer-cta-card {
-    min-height: 240px;
+  .rd-footer-cta {
+    padding: 58px 0 72px;
   }
 
-  .rd-footer-cta-main {
-    gap: 18px;
+  .rd-footer-cta h2 {
+    font-size: clamp(44px, 13vw, 64px);
   }
 
-  .rd-footer-cta-copy strong {
-    font-size: clamp(48px, 14vw, 72px);
+  .rd-footer-cta-button {
+    min-height: 54px;
+    padding: 0 22px;
   }
 }
 
 @media (max-width: 500px) {
-  .rd-about--home .rd-about-copy h2 {
-    font-size: clamp(36px, 10.5vw, 50px);
+  .rd-about--home {
+    padding-top: 20px;
+  }
+
+  .rd-about-overlay h2 {
+    font-size: clamp(36px, 10.5vw, 48px);
   }
 
   #featured-work .rd-work-card:nth-child(n) {
@@ -374,22 +475,22 @@
     min-height: 0;
   }
 
-  .rd-footer-cta-card {
-    min-height: 220px;
-    padding: 22px;
+  .rd-footer-cta-inner {
+    gap: 28px;
   }
 
-  .rd-footer-cta-copy strong {
-    font-size: clamp(44px, 13vw, 62px);
+  .rd-footer-cta h2 {
+    font-size: clamp(42px, 12.4vw, 56px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   #featured-work .rd-work-card[data-video-id]::before,
+  .rd-about--home .rd-action-arrow,
   .rd-discipline-icon,
   .rd-discipline-arrow,
-  .rd-footer-cta-card,
-  .rd-footer-cta-arrow {
+  .rd-footer-cta-button,
+  .rd-footer-cta-button span {
     transition: none;
   }
 }
