@@ -1,49 +1,33 @@
-/* Homepage opening: artwork first, with one quiet section heading and a
-   consistent caption system. The opening deliberately avoids a separate hero. */
-.rd-home-opening {
-  padding: clamp(18px, 2vw, 28px) 0 clamp(66px, 7vw, 104px);
-  border-bottom: 1px solid rgba(0, 0, 0, .10);
+/* Homepage composition after review: About first, then the previously accepted
+   Featured Work card treatment, then framed discipline links and contact CTA. */
+
+/* About is the opening impression, so keep a real image visible immediately
+   and keep the copy secondary to it rather than turning it into another hero. */
+.rd-about--home {
+  padding-top: clamp(34px, 5vw, 72px);
+  padding-bottom: clamp(58px, 7vw, 104px);
 }
 
-.rd-opening-head {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 24px;
-  margin-bottom: clamp(14px, 1.5vw, 20px);
-  padding-bottom: clamp(12px, 1.2vw, 16px);
-  border-bottom: 1px solid rgba(0, 0, 0, .12);
+.rd-about--home .rd-about-photo {
+  width: 100%;
+  max-height: min(70vh, 760px);
 }
 
-.rd-opening-head h1 {
-  margin: 0;
-  font-size: clamp(26px, 2.3vw, 34px);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -.035em;
+.rd-about--home .rd-about-copy h2 {
+  max-width: 760px;
+  font-size: clamp(40px, 4.8vw, 72px);
+  line-height: .98;
 }
 
-.rd-opening-head p {
-  margin: 0;
-  color: #777;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: .045em;
+.rd-about--home .rd-about-copy p:not(.rd-eyebrow) {
+  max-width: 660px;
 }
 
-#featured-work .rd-work-grid {
-  gap: clamp(20px, 2.2vw, 32px) clamp(12px, 1.2vw, 18px);
-}
-
-/* The complete Featured Work set uses one visual language: every thumbnail is
-   16:9 and every caption lives below the image on the same baseline system. */
-#featured-work .rd-work-card {
-  --rd-caption-h: 92px;
-  min-height: 0;
-  overflow: hidden;
-  background: transparent;
-  color: #111;
+/* Featured Work: restore the card design from before the all-16:9/captions-below
+   experiment. Video cards stay 16:9; design/photo cards keep the taller image-led
+   crops with title/category over the artwork. */
+.rd-featured .rd-section-head {
+  margin-bottom: clamp(24px, 3vw, 38px);
 }
 
 #featured-work .rd-work-card:nth-child(1),
@@ -55,85 +39,31 @@
 #featured-work .rd-work-card:nth-child(4),
 #featured-work .rd-work-card:nth-child(5) {
   grid-column: span 4;
+  min-height: 430px;
+}
+
+#featured-work .rd-work-card[data-video-id] {
   min-height: 0;
-}
-
-#featured-work .rd-work-card img {
-  position: relative;
-  inset: auto;
-  width: 100%;
-  height: auto;
   aspect-ratio: 16 / 9;
-  object-fit: cover;
-  background: #ddd;
-  transform: scale(1.001);
-}
-
-#featured-work .rd-work-card:nth-child(4) img {
-  object-position: 50% 42%;
-}
-
-#featured-work .rd-work-card:nth-child(5) img {
-  object-position: 50% 52%;
-}
-
-#featured-work .rd-work-card::after {
-  display: none;
-}
-
-#featured-work .rd-work-card:hover img,
-#featured-work .rd-work-card:focus-visible img {
-  transform: scale(1.018);
-}
-
-#featured-work .rd-work-meta {
-  position: relative;
-  z-index: 3;
-  left: auto;
-  right: auto;
-  bottom: auto;
-  height: var(--rd-caption-h);
-  display: block;
-  padding: 14px 2px 0;
-  background: #f5f5f2;
-  color: #111;
-}
-
-#featured-work .rd-work-kicker {
-  margin: 0 0 7px;
-  color: #777;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  opacity: 1;
-}
-
-#featured-work .rd-work-title {
-  font-size: 23px;
-  font-weight: 700;
-  line-height: 1.04;
-  letter-spacing: -.025em;
 }
 
 #featured-work .rd-work-card[data-video-id]::before {
   content: '▶';
   position: absolute;
-  z-index: 4;
+  z-index: 2;
   left: 50%;
-  top: calc((100% - var(--rd-caption-h)) / 2);
-  width: clamp(48px, 4vw, 62px);
+  top: 50%;
+  width: clamp(58px, 5vw, 76px);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
   box-sizing: border-box;
   padding-left: .15em;
-  border: 1px solid rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.78);
   border-radius: 50%;
   background: rgba(17,17,17,.54);
   color: #fff;
-  font-size: clamp(16px, 1.4vw, 21px);
+  font-size: clamp(19px, 1.8vw, 26px);
   line-height: 1;
   transform: translate(-50%, -50%) scale(1);
   transition: transform 180ms cubic-bezier(.2,.7,.2,1), background 180ms ease, color 180ms ease;
@@ -167,96 +97,280 @@
   background: #000;
 }
 
-/* Keep later homepage section headings on the same typographic scale instead
-   of jumping back to oversized landing-page typography. */
-.home-redesign .rd-section-head h2 {
-  font-size: clamp(30px, 3.2vw, 46px);
-  line-height: 1;
-  letter-spacing: -.035em;
+/* Explore by discipline uses the same numbered-cell language as the header,
+   but each destination is a complete outlined card with its own visual icon. */
+.rd-explore .rd-section-head {
+  margin-bottom: clamp(24px, 3vw, 38px);
 }
 
-.home-redesign .rd-section-head p {
-  font-size: 15px;
+.rd-explore .rd-disciplines {
+  border: 1px solid rgba(0, 0, 0, .14);
+}
+
+.rd-explore .rd-discipline {
+  position: relative;
+  min-height: clamp(190px, 17vw, 250px);
+  padding: clamp(22px, 2.4vw, 34px);
+  border: 0;
+  border-left: 1px solid rgba(0, 0, 0, .14);
+  overflow: hidden;
+}
+
+.rd-explore .rd-discipline:first-child {
+  border-left: 0;
+}
+
+.rd-discipline-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.rd-discipline-index {
+  color: #777;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  line-height: 1;
+}
+
+.rd-discipline-icon {
+  width: clamp(34px, 3vw, 46px);
+  height: clamp(34px, 3vw, 46px);
+  flex: 0 0 auto;
+  color: #111;
+  transition: color 160ms ease, transform 180ms ease;
+}
+
+.rd-explore .rd-discipline strong {
+  align-self: flex-start;
+  font-size: clamp(34px, 3.4vw, 52px);
+  line-height: .95;
+}
+
+.rd-discipline-arrow {
+  position: absolute;
+  right: clamp(22px, 2.4vw, 34px);
+  bottom: clamp(20px, 2.2vw, 30px);
+  font-size: 25px;
+  line-height: 1;
+  transition: transform 160ms ease;
+}
+
+.rd-explore .rd-discipline:hover .rd-discipline-icon,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-icon,
+.rd-explore .rd-discipline:hover .rd-discipline-index,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-index {
+  color: #fff;
+}
+
+.rd-explore .rd-discipline:hover .rd-discipline-icon,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-icon {
+  transform: scale(1.06);
+}
+
+.rd-explore .rd-discipline:hover .rd-discipline-arrow,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-arrow {
+  transform: translate(3px, -3px);
+}
+
+/* Contact CTA is a fourth indexed destination rather than a disconnected giant
+   underlined phrase. The full cell inverts on hover like the navigation system. */
+.rd-footer-cta {
+  padding: clamp(58px, 7vw, 104px) 0;
+  text-align: left;
+}
+
+.rd-footer-cta-card {
+  position: relative;
+  min-height: clamp(240px, 23vw, 350px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(24px, 3vw, 42px);
+  border: 1px solid rgba(0, 0, 0, .14);
+  color: #111;
+  text-decoration: none;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.rd-footer-cta-card:hover,
+.rd-footer-cta-card:focus-visible {
+  background: #111;
+  color: #fff;
+}
+
+.rd-footer-cta-card:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 3px;
+}
+
+.rd-footer-cta-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  color: #777;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: color 160ms ease;
+}
+
+.rd-footer-cta-card:hover .rd-footer-cta-top,
+.rd-footer-cta-card:focus-visible .rd-footer-cta-top {
+  color: rgba(255,255,255,.72);
+}
+
+.rd-footer-cta-main {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.rd-footer-cta-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rd-footer-cta-copy small {
+  color: #666;
+  font-size: clamp(14px, 1.2vw, 18px);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: color 160ms ease;
+}
+
+.rd-footer-cta-card:hover .rd-footer-cta-copy small,
+.rd-footer-cta-card:focus-visible .rd-footer-cta-copy small {
+  color: rgba(255,255,255,.72);
+}
+
+.rd-footer-cta-copy strong {
+  font-size: clamp(52px, 7.2vw, 110px);
+  font-weight: 700;
+  letter-spacing: -.055em;
+  line-height: .88;
+}
+
+.rd-footer-cta-arrow {
+  flex: 0 0 auto;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+
+.rd-footer-cta-card:hover .rd-footer-cta-arrow,
+.rd-footer-cta-card:focus-visible .rd-footer-cta-arrow {
+  transform: translate(5px, -5px);
 }
 
 @media (max-width: 900px) {
+  .rd-about--home {
+    padding-top: 42px;
+  }
+
   #featured-work .rd-work-card:nth-child(n) {
     grid-column: span 6;
-    min-height: 0;
+    min-height: 52vw;
   }
 
   #featured-work .rd-work-card:nth-child(5) {
     grid-column: 1 / -1;
   }
 
-  #featured-work .rd-work-title {
-    font-size: 21px;
+  #featured-work .rd-work-card[data-video-id] {
+    min-height: 0;
+  }
+
+  .rd-explore .rd-discipline {
+    min-height: 190px;
   }
 }
 
 @media (max-width: 720px) {
-  .rd-home-opening {
-    padding: 14px 0 54px;
+  .rd-about--home {
+    padding: 28px 0 58px;
   }
 
-  .rd-opening-head {
-    margin-bottom: 12px;
-    padding-bottom: 11px;
+  .rd-about--home .rd-about-photo {
+    max-height: none;
   }
 
-  .rd-opening-head h1 {
-    font-size: 24px;
-  }
-
-  .rd-opening-head p {
-    font-size: 11px;
-  }
-
-  #featured-work .rd-work-grid {
-    display: block;
+  .rd-about--home .rd-about-copy h2 {
+    font-size: clamp(38px, 11vw, 58px);
   }
 
   #featured-work .rd-work-card:nth-child(n) {
-    --rd-caption-h: 86px;
-    display: block;
+    min-height: 110vw;
+  }
+
+  #featured-work .rd-work-card[data-video-id] {
     min-height: 0;
-    margin-bottom: 18px;
+    aspect-ratio: 16 / 9;
   }
 
-  #featured-work .rd-work-card:last-child {
-    margin-bottom: 0;
+  .rd-explore .rd-disciplines {
+    grid-template-columns: 1fr;
   }
 
-  #featured-work .rd-work-title {
-    font-size: 20px;
+  .rd-explore .rd-discipline {
+    min-height: 150px;
+    border-left: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .14);
+  }
+
+  .rd-explore .rd-discipline:last-child {
+    border-bottom: 0;
+  }
+
+  .rd-discipline-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .rd-explore .rd-discipline strong {
+    font-size: 38px;
+  }
+
+  .rd-footer-cta-card {
+    min-height: 240px;
+  }
+
+  .rd-footer-cta-main {
+    gap: 18px;
+  }
+
+  .rd-footer-cta-copy strong {
+    font-size: clamp(48px, 14vw, 72px);
   }
 }
 
 @media (max-width: 500px) {
-  .rd-opening-head {
-    display: block;
+  .rd-about--home .rd-about-copy h2 {
+    font-size: clamp(36px, 10.5vw, 50px);
   }
 
-  .rd-opening-head p {
-    display: none;
+  .rd-footer-cta-card {
+    min-height: 220px;
+    padding: 22px;
   }
 
-  #featured-work .rd-work-card:nth-child(n) {
-    --rd-caption-h: 84px;
-  }
-
-  #featured-work .rd-work-meta {
-    padding-top: 12px;
-  }
-
-  #featured-work .rd-work-title {
-    font-size: 19px;
+  .rd-footer-cta-copy strong {
+    font-size: clamp(44px, 13vw, 62px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #featured-work .rd-work-card img,
-  #featured-work .rd-work-card[data-video-id]::before {
+  #featured-work .rd-work-card[data-video-id]::before,
+  .rd-discipline-icon,
+  .rd-discipline-arrow,
+  .rd-footer-cta-card,
+  .rd-footer-cta-arrow {
     transition: none;
   }
 }
