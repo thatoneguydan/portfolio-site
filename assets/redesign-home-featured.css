@@ -13,6 +13,16 @@
   max-height: min(70vh, 760px);
 }
 
+.rd-about--home .rd-about-copy .rd-eyebrow {
+  margin: 0 0 22px;
+  color: #777;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
 .rd-about--home .rd-about-copy h2 {
   max-width: 760px;
   font-size: clamp(40px, 4.8vw, 72px);
@@ -127,7 +137,7 @@
   gap: 24px;
 }
 
-.rd-discipline-index {
+.rd-explore .rd-discipline .rd-discipline-index {
   color: #777;
   font-size: 11px;
   font-weight: 700;
@@ -149,10 +159,11 @@
   line-height: .95;
 }
 
-.rd-discipline-arrow {
+.rd-explore .rd-discipline .rd-discipline-arrow {
   position: absolute;
   right: clamp(22px, 2.4vw, 34px);
   bottom: clamp(20px, 2.2vw, 30px);
+  align-self: auto;
   font-size: 25px;
   line-height: 1;
   transition: transform 160ms ease;
@@ -353,6 +364,14 @@
 @media (max-width: 500px) {
   .rd-about--home .rd-about-copy h2 {
     font-size: clamp(36px, 10.5vw, 50px);
+  }
+
+  #featured-work .rd-work-card:nth-child(n) {
+    min-height: 118vw;
+  }
+
+  #featured-work .rd-work-card[data-video-id] {
+    min-height: 0;
   }
 
   .rd-footer-cta-card {
