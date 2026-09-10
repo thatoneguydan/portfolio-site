@@ -98,7 +98,7 @@
   const requestedShelf = window.location.hash
     ? document.getElementById(window.location.hash.slice(1))
     : null;
-  openOnly(requestedShelf?.classList.contains('rv-shelf') ? requestedShelf : shelves[0], false);
+  openOnly(requestedShelf?.classList.contains('rv-shelf') ? requestedShelf : null, false);
 
   window.addEventListener('hashchange', () => {
     const shelf = document.getElementById(window.location.hash.slice(1));
