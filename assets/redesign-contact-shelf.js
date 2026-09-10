@@ -30,7 +30,7 @@
     document.head.append(link);
   };
 
-  ensureStylesheet('/assets/redesign-contact-shelf.css?v=20260910-b');
+  ensureStylesheet('/assets/redesign-contact-shelf.css?v=20260910-c');
   ensureStylesheet('/assets/redesign-footer-contact.css?v=20260910-a');
 
   const footerMarkup = `
@@ -84,22 +84,30 @@
     return node.parentElement === main ? node : null;
   };
 
-  const alignShelfTop = (state, behavior = 'auto') => {
+  const navBottom = () => {
+    const header = document.querySelector('.site-header');
+    if (!(header instanceof HTMLElement)) return 0;
+    const rect = header.getBoundingClientRect();
+    return Math.max(0, Math.min(window.innerHeight, rect.bottom));
+  };
+
+  const alignShelfTop = (state, behavior = 'smooth') => {
     if (!state?.shelf?.isConnected) return false;
-    const offset = state.shelf.getBoundingClientRect().top;
+    const desiredTop = navBottom();
+    const offset = state.shelf.getBoundingClientRect().top - desiredTop;
     if (Math.abs(offset) <= 1.5) return true;
 
     window.scrollTo({
       top: Math.max(0, window.scrollY + offset),
       left: 0,
-      behavior,
+      behavior: reducedMotion.matches ? 'auto' : behavior,
     });
     return false;
   };
 
   const finishAutoAlignment = (state) => {
     if (!state?.autoScroll || !state.shelf?.isConnected) return;
-    alignShelfTop(state, 'auto');
+    alignShelfTop(state, 'smooth');
   };
 
   const cleanup = (state, restoreFocus = false) => {
@@ -161,11 +169,11 @@
     window.setTimeout(() => {
       resizeFrame(state);
       finishAutoAlignment(state);
-    }, 120);
+    }, 140);
     window.setTimeout(() => {
       resizeFrame(state);
       finishAutoAlignment(state);
-    }, 600);
+    }, 620);
 
     const FrameResizeObserver = state.frame.contentWindow?.ResizeObserver;
     if (FrameResizeObserver) {
@@ -246,14 +254,14 @@
       if (autoScroll) {
         requestAnimationFrame(() => {
           if (!shelf.isConnected) return;
-          alignShelfTop(state, reducedMotion.matches ? 'auto' : 'smooth');
+          alignShelfTop(state, 'smooth');
         });
 
-        /* The shelf grows for ~460 ms. A final alignment after that growth lets
-           the browser place the shelf top at viewport top once enough page
-           height exists; if the document is still too short, scrollTo naturally
-           clamps to the closest possible position. */
-        state.alignTimer = window.setTimeout(() => finishAutoAlignment(state), 540);
+        /* The shelf is still changing height while it opens, so make one final
+           smooth correction once the transition has settled. The document keeps
+           its natural content height; browser scroll clamping handles cases where
+           there is not enough page below the shelf to reach the ideal position. */
+        state.alignTimer = window.setTimeout(() => finishAutoAlignment(state), 560);
       }
     });
   };
