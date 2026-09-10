@@ -1,147 +1,82 @@
-/* Homepage opening: compact editorial introduction followed immediately by a
-   visual three-discipline reel. The goal is to establish the portfolio through
-   actual work before the visitor reaches the longer Featured Work section. */
-.rd-hero.rd-hero--showcase {
-  display: block;
-  min-height: 0;
-  padding: clamp(52px, 5.4vw, 82px) 0 clamp(54px, 5.8vw, 88px);
+/* Homepage opening: the portfolio itself is the first impression. A compact
+   masthead identifies the page, then Featured Work starts immediately. */
+.rd-home-opening {
+  padding: clamp(18px, 2vw, 30px) 0 clamp(68px, 7vw, 110px);
+  border-bottom: 1px solid rgba(0, 0, 0, .10);
 }
 
-.rd-hero--showcase .rd-hero-intro {
+.rd-opening-head {
+  min-height: clamp(68px, 6vw, 82px);
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: clamp(16px, 2vw, 30px);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  margin-bottom: clamp(38px, 4.5vw, 66px);
+  gap: 24px;
+  margin-bottom: clamp(14px, 1.6vw, 22px);
 }
 
-.rd-hero--showcase .rd-hero-heading {
-  grid-column: 1 / 9;
-}
-
-.rd-hero--showcase .rd-eyebrow {
-  margin-bottom: clamp(20px, 2vw, 28px);
-}
-
-.rd-hero--showcase h1 {
-  max-width: 980px;
-  margin: 0;
-  font-size: clamp(58px, 7vw, 112px);
-  line-height: .88;
-  letter-spacing: -.055em;
-  text-wrap: balance;
-}
-
-.rd-hero--showcase .rd-hero-side {
-  grid-column: 9 / -1;
-  padding-left: clamp(18px, 2.2vw, 32px);
-  border-left: 1px solid rgba(0, 0, 0, .16);
-}
-
-.rd-hero--showcase .rd-hero-lede {
-  max-width: 520px;
-  margin: 0;
-  color: #555;
-  font-size: clamp(16px, 1.2vw, 19px);
-  line-height: 1.55;
-}
-
-.rd-hero--showcase .rd-actions {
-  margin-top: 26px;
-}
-
-.rd-hero-gallery {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: clamp(10px, 1vw, 15px);
-}
-
-.rd-hero-tile {
-  position: relative;
-  grid-column: span 4;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #111;
-  color: #fff;
-  text-decoration: none;
-}
-
-.rd-hero-tile img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.001);
-  transition: transform 500ms cubic-bezier(.2,.7,.2,1), filter 220ms ease;
-}
-
-.rd-hero-tile::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.08) 58%, rgba(0,0,0,.16) 100%);
-  pointer-events: none;
-}
-
-.rd-hero-tile:hover img,
-.rd-hero-tile:focus-visible img {
-  transform: scale(1.035);
-}
-
-.rd-hero-tile:focus-visible {
-  outline: 3px solid #111;
-  outline-offset: 3px;
-}
-
-.rd-hero-tile-meta {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
+.rd-opening-title {
+  min-width: 0;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(16px, 1.6vw, 24px);
-  pointer-events: none;
+  align-items: baseline;
+  gap: clamp(14px, 1.5vw, 22px);
 }
 
-.rd-hero-tile-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  font-size: 10px;
+.rd-opening-title .rd-eyebrow {
+  flex: 0 0 auto;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.rd-opening-title h1 {
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(34px, 3.8vw, 58px);
   font-weight: 700;
-  letter-spacing: .14em;
+  line-height: .92;
+  letter-spacing: -.05em;
+}
+
+.rd-opening-links {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 28px);
+  padding-bottom: 4px;
+  white-space: nowrap;
+}
+
+.rd-opening-links > span {
+  color: #777;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
   text-transform: uppercase;
 }
 
-.rd-hero-tile-title {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 18px;
+.rd-opening-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #111;
+  color: #111;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-decoration: none;
 }
 
-.rd-hero-tile-title strong {
-  font-size: clamp(25px, 2.6vw, 42px);
-  line-height: .96;
-  letter-spacing: -.04em;
+.rd-opening-links a span {
+  transition: transform 160ms ease;
 }
 
-.rd-hero-tile-title span {
-  flex: 0 0 auto;
-  font-size: clamp(18px, 1.8vw, 28px);
-  line-height: 1;
-  transition: transform 180ms ease;
+.rd-opening-links a:hover span,
+.rd-opening-links a:focus-visible span {
+  transform: translate(2px, -2px);
 }
 
-.rd-hero-tile:hover .rd-hero-tile-title span,
-.rd-hero-tile:focus-visible .rd-hero-tile-title span {
-  transform: translate(3px, -3px);
-}
-
-/* Five-piece Featured Work layout: two horizontal video cards, then three
-   image-led design/photo cards. */
+/* Five-piece Featured Work layout. The two video cards keep the 16:9
+   treatment already accepted in review; the three image-led cards retain
+   their roomier crop so portrait/design work is not forced into a bad frame. */
 #featured-work .rd-work-card:nth-child(1),
 #featured-work .rd-work-card:nth-child(2) {
   grid-column: span 6;
@@ -152,6 +87,11 @@
 #featured-work .rd-work-card:nth-child(5) {
   grid-column: span 4;
   min-height: 430px;
+}
+
+#featured-work .rd-work-card[data-video-id] {
+  min-height: 0;
+  aspect-ratio: 16 / 9;
 }
 
 #featured-work .rd-work-card[data-video-id]::before {
@@ -204,41 +144,21 @@
   background: #000;
 }
 
+@media (max-width: 1100px) {
+  .rd-opening-head {
+    min-height: 64px;
+  }
+
+  .rd-opening-title h1 {
+    font-size: clamp(32px, 4.4vw, 48px);
+  }
+
+  .rd-opening-links > span {
+    display: none;
+  }
+}
+
 @media (max-width: 900px) {
-  .rd-hero.rd-hero--showcase {
-    padding: 62px 0 66px;
-  }
-
-  .rd-hero--showcase .rd-hero-intro {
-    display: block;
-    margin-bottom: 42px;
-  }
-
-  .rd-hero--showcase h1 {
-    max-width: 840px;
-    font-size: clamp(52px, 10vw, 84px);
-    line-height: .91;
-  }
-
-  .rd-hero--showcase .rd-hero-side {
-    max-width: 700px;
-    margin-top: 30px;
-    padding-left: 0;
-    border-left: 0;
-  }
-
-  .rd-hero--showcase .rd-actions {
-    margin-top: 24px;
-  }
-
-  .rd-hero-tile {
-    grid-column: span 6;
-  }
-
-  .rd-hero-tile:first-child {
-    grid-column: 1 / -1;
-  }
-
   #featured-work .rd-work-card:nth-child(n) {
     grid-column: span 6;
     min-height: 52vw;
@@ -247,69 +167,83 @@
   #featured-work .rd-work-card:nth-child(5) {
     grid-column: 1 / -1;
   }
+
+  #featured-work .rd-work-card[data-video-id] {
+    min-height: 0;
+  }
 }
 
 @media (max-width: 720px) {
-  .rd-hero.rd-hero--showcase {
-    padding: 50px 0 58px;
+  .rd-home-opening {
+    padding: 18px 0 56px;
   }
 
-  .rd-hero--showcase .rd-hero-intro {
-    margin-bottom: 34px;
+  .rd-opening-head {
+    min-height: 58px;
+    align-items: center;
+    margin-bottom: 14px;
   }
 
-  .rd-hero--showcase h1 {
-    font-size: clamp(46px, 13vw, 66px);
-    text-wrap: balance;
-  }
-
-  .rd-hero-gallery {
+  .rd-opening-title {
     display: block;
   }
 
-  .rd-hero-tile {
-    display: block;
-    margin-bottom: 10px;
+  .rd-opening-title .rd-eyebrow {
+    margin-bottom: 6px;
+    font-size: 9px;
   }
 
-  .rd-hero-tile:last-child {
-    margin-bottom: 0;
+  .rd-opening-title h1 {
+    font-size: 32px;
+  }
+
+  .rd-opening-links {
+    padding-bottom: 0;
+  }
+
+  .rd-opening-links a {
+    font-size: 11px;
   }
 
   #featured-work .rd-work-card:nth-child(n) {
     min-height: 110vw;
   }
+
+  #featured-work .rd-work-card[data-video-id] {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
 }
 
 @media (max-width: 500px) {
-  .rd-hero.rd-hero--showcase {
-    padding-top: 44px;
+  .rd-home-opening {
+    padding-top: 14px;
   }
 
-  .rd-hero--showcase .rd-hero-side {
-    margin-top: 26px;
+  .rd-opening-head {
+    min-height: 54px;
+    margin-bottom: 12px;
   }
 
-  .rd-hero--showcase .rd-actions {
-    display: grid;
-    grid-template-columns: 1fr;
+  .rd-opening-title h1 {
+    font-size: 30px;
+  }
+
+  .rd-opening-links {
+    display: none;
   }
 
   #featured-work .rd-work-card:nth-child(n) {
     min-height: 118vw;
   }
-}
 
-/* Video thumbnails keep their native horizontal composition at every width,
-   overriding the generic Featured Work card heights above. */
-#featured-work .rd-work-card[data-video-id] {
-  min-height: 0;
-  aspect-ratio: 16 / 9;
+  #featured-work .rd-work-card[data-video-id] {
+    min-height: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rd-hero-tile img,
-  .rd-hero-tile-title span,
+  .rd-opening-links a span,
   #featured-work .rd-work-card[data-video-id]::before {
     transition: none;
   }
