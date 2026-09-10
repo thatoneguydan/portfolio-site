@@ -112,7 +112,10 @@
         const shelf = findOpenShelf();
         const frame = shelf?.querySelector('.rdp-project-frame');
         const doc = frame?.contentDocument;
-        const title = doc?.querySelector('.rproj-header h1, .rcompat-header h1, .site-main h1');
+        const frameReady = doc?.body?.classList.contains('rdp-inline-frame');
+        const title = frameReady
+          ? doc.querySelector('.rproj-header h1, .rcompat-header h1, .site-main h1')
+          : null;
 
         if (!frame || !title) {
           if (performance.now() - startedAt < 4000) requestAnimationFrame(tick);
