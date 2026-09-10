@@ -78,11 +78,7 @@
 
 .rc-inline-contact-frame {
   width: 100%;
-  /* A shelf at least as tall as the viewport gives the document enough scroll
-     range to place the shelf's actual top at the viewport top. Content can
-     still make the iframe taller naturally. */
-  min-height: 100vh;
-  min-height: 100svh;
+  min-height: 560px;
   display: block;
   border: 0;
   background: #f5f5f2;
@@ -108,7 +104,7 @@
   }
 
   .rc-inline-contact-frame {
-    min-height: max(680px, 100svh);
+    min-height: 680px;
   }
 }
 
