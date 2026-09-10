@@ -1,0 +1,213 @@
+/* Shared sticky navigation for the redesign. */
+.home-redesign .site-header {
+  position: sticky !important;
+  top: 0;
+  z-index: 2000;
+  background: #f5f5f2;
+}
+
+.site-nav-toggle {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .home-redesign .site-header.has-nav-toggle {
+    width: calc(100% - 32px);
+    min-height: 72px;
+    height: 72px;
+    padding: 0;
+    gap: 0;
+    align-items: stretch;
+    overflow: visible;
+    border-bottom: 1px solid rgba(0, 0, 0, .12);
+  }
+
+  /* The source wordmark is one horizontal image: the DS mark occupies the
+     left square. Keep the image at desktop scale and crop the anchor to that
+     square so mobile shows the existing mark, not a recreated logo. */
+  .home-redesign .site-header.has-nav-toggle .site-logo {
+    position: relative;
+    width: 48px;
+    min-width: 48px;
+    max-width: 48px;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 !important;
+    border: 0;
+    overflow: hidden;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-logo img {
+    width: 205px !important;
+    max-width: none !important;
+    height: auto;
+    flex: 0 0 auto;
+    filter: none;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-logo::before,
+  .home-redesign .site-header.has-nav-toggle .site-logo::after {
+    display: none;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-logo[aria-current='page'] {
+    box-shadow: inset 0 -3px 0 #111;
+  }
+
+  .site-nav-toggle {
+    position: relative;
+    width: 56px;
+    min-width: 56px;
+    min-height: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    border-left: 1px solid rgba(0, 0, 0, .12);
+    background: transparent;
+    color: #111;
+    cursor: pointer;
+  }
+
+  .site-nav-toggle span {
+    width: 22px;
+    height: 2px;
+    display: block;
+    background: currentColor;
+    transform-origin: center;
+    transition: transform 180ms ease, opacity 120ms ease;
+  }
+
+  .site-nav-toggle:hover,
+  .site-nav-toggle:focus-visible,
+  .site-header.nav-open .site-nav-toggle {
+    background: #111;
+    color: #fff;
+  }
+
+  .site-nav-toggle:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: -2px;
+  }
+
+  .site-header.nav-open .site-nav-toggle span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .site-header.nav-open .site-nav-toggle span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .site-header.nav-open .site-nav-toggle span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin: 0;
+    border: 1px solid rgba(0, 0, 0, .12);
+    border-top: 0;
+    background: #f5f5f2;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: opacity 150ms ease, transform 180ms ease, visibility 0s linear 180ms;
+  }
+
+  .home-redesign .site-header.nav-open .site-nav {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+    transition: opacity 150ms ease, transform 180ms ease, visibility 0s;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a {
+    position: relative;
+    min-width: 0;
+    min-height: 66px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 52px 20px 48px;
+    border: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .12);
+    color: #111;
+    background: transparent;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: .06em;
+    overflow: hidden;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a:last-child {
+    border-bottom: 0;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a::before {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: #777;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a:nth-child(1)::before { content: '01'; }
+  .home-redesign .site-header.has-nav-toggle .site-nav a:nth-child(2)::before { content: '02'; }
+  .home-redesign .site-header.has-nav-toggle .site-nav a:nth-child(3)::before { content: '03'; }
+  .home-redesign .site-header.has-nav-toggle .site-nav a:nth-child(4)::before { content: '04'; }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a::after {
+    content: '↗';
+    position: absolute;
+    right: 18px;
+    bottom: 50%;
+    transform: translateY(50%);
+    color: #777;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a:hover,
+  .home-redesign .site-header.has-nav-toggle .site-nav a:focus-visible,
+  .home-redesign .site-header.has-nav-toggle .site-nav a[aria-current='page'] {
+    background: #111;
+    color: #fff;
+    box-shadow: none;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a:hover::before,
+  .home-redesign .site-header.has-nav-toggle .site-nav a:hover::after,
+  .home-redesign .site-header.has-nav-toggle .site-nav a:focus-visible::before,
+  .home-redesign .site-header.has-nav-toggle .site-nav a:focus-visible::after,
+  .home-redesign .site-header.has-nav-toggle .site-nav a[aria-current='page']::before,
+  .home-redesign .site-header.has-nav-toggle .site-nav a[aria-current='page']::after {
+    color: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav-toggle span,
+  .home-redesign .site-header.has-nav-toggle .site-nav {
+    transition: none !important;
+  }
+}
