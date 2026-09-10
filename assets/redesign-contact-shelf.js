@@ -4,16 +4,66 @@
   if (window.__redesignContactShelfInitialized) return;
   window.__redesignContactShelfInitialized = true;
 
+  /* The original portfolio embedded this DS icon as a data URI. Keep the same
+     artwork as a real favicon asset so every route can resolve it immediately. */
+  const faviconHref = '/favicon.ico?v=20260910-original';
+  let favicon = document.querySelector('link[rel~="icon"]');
+  if (!favicon) {
+    favicon = document.createElement('link');
+    favicon.rel = 'icon';
+    document.head.append(favicon);
+  }
+  favicon.removeAttribute('type');
+  favicon.href = faviconHref;
+  document.querySelectorAll('link[rel~="icon"]').forEach((candidate) => {
+    if (candidate !== favicon) candidate.remove();
+  });
+
   const normalizePath = (pathname) => pathname.replace(/\/+$/, '') || '/';
   if (normalizePath(window.location.pathname) === '/contact') return;
 
-  const stylesheetPath = '/assets/redesign-contact-shelf.css';
-  if (!document.querySelector(`link[href^="${stylesheetPath}"]`)) {
+  const ensureStylesheet = (href) => {
+    if (document.querySelector(`link[href^="${href.split('?')[0]}"]`)) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `${stylesheetPath}?v=20260910-a`;
+    link.href = href;
     document.head.append(link);
-  }
+  };
+
+  ensureStylesheet('/assets/redesign-contact-shelf.css?v=20260910-b');
+  ensureStylesheet('/assets/redesign-footer-contact.css?v=20260910-a');
+
+  const footerMarkup = `
+    <div class="rd-footer-cta-inner">
+      <div class="rd-footer-cta-row">
+        <h2>Have something in mind?</h2>
+        <a class="rd-footer-cta-button" href="/contact">Let's make it <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  `;
+
+  const normalizeFooter = (footer) => {
+    if (!(footer instanceof HTMLElement) || footer.dataset.sharedContactFooter === 'true') return;
+    footer.dataset.sharedContactFooter = 'true';
+    footer.innerHTML = footerMarkup;
+  };
+
+  const normalizeFootersIn = (root) => {
+    if (!(root instanceof Element || root instanceof Document)) return;
+    if (root instanceof Element && root.matches('.rd-footer-cta')) normalizeFooter(root);
+    root.querySelectorAll?.('.rd-footer-cta').forEach(normalizeFooter);
+  };
+
+  normalizeFootersIn(document);
+
+  const footerObserver = new MutationObserver((records) => {
+    for (const record of records) {
+      for (const node of record.addedNodes) {
+        if (node instanceof Element) normalizeFootersIn(node);
+      }
+    }
+  });
+  if (document.body) footerObserver.observe(document.body, { childList: true, subtree: true });
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let active = null;
@@ -114,6 +164,7 @@
 
     if (active) close(active, false, true);
 
+    const autoScroll = Boolean(source.closest('.rd-footer-cta'));
     const id = `contact-shelf-${++shelfSequence}`;
     const shelf = document.createElement('section');
     shelf.id = id;
@@ -149,6 +200,16 @@
       if (!shelf.isConnected) return;
       shelf.setAttribute('aria-hidden', 'false');
       shelf.classList.add('is-open');
+
+      if (autoScroll) {
+        requestAnimationFrame(() => {
+          if (!shelf.isConnected) return;
+          shelf.scrollIntoView({
+            behavior: reducedMotion.matches ? 'auto' : 'smooth',
+            block: 'start'
+          });
+        });
+      }
     });
   };
 

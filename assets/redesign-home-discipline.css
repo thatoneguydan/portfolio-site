@@ -1,10 +1,10 @@
-/* Homepage discipline navigation: deliberately quieter than the header cells.
-   The section is secondary navigation, so let the three disciplines read as
-   simple editorial links instead of another dense grid of numbered boxes. */
+/* Homepage secondary navigation: an editorial list rather than another set of
+   header-like cells. It keeps the same type scale, dividers, and restrained
+   motion used throughout the redesign. */
 
 .rd-explore .rd-section-head {
   display: block;
-  margin-bottom: clamp(22px, 2.6vw, 30px);
+  margin-bottom: clamp(28px, 3vw, 42px);
 }
 
 .rd-explore .rd-section-head p {
@@ -12,149 +12,129 @@
 }
 
 .rd-explore .rd-disciplines {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(24px, 3.5vw, 54px);
-  border: 0;
+  display: block;
+  border-top: 1px solid rgba(0, 0, 0, .18);
+  border-bottom: 1px solid rgba(0, 0, 0, .18);
 }
 
 .rd-explore .rd-discipline {
-  min-height: 96px;
+  min-height: 132px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(180px, .48fr) minmax(0, 1fr) auto;
   align-items: center;
-  gap: 14px;
-  padding: 18px 0;
+  gap: clamp(28px, 5vw, 84px);
+  padding: clamp(24px, 2.8vw, 38px) 4px;
   border: 0;
-  border-top: 1px solid rgba(0, 0, 0, .18);
-  border-bottom: 1px solid rgba(0, 0, 0, .18);
+  border-bottom: 1px solid rgba(0, 0, 0, .14);
   background: transparent;
   color: #111;
   text-decoration: none;
-  transition: color 160ms ease;
+  transition: background 160ms ease, padding 180ms ease;
 }
 
-.rd-explore .rd-discipline:first-child,
 .rd-explore .rd-discipline:last-child {
-  border-left: 0;
-  border-right: 0;
+  border-bottom: 0;
 }
 
 .rd-explore .rd-discipline:hover,
 .rd-explore .rd-discipline:focus-visible {
-  background: transparent;
+  padding-left: 16px;
+  padding-right: 16px;
+  background: rgba(0, 0, 0, .035);
   color: #111;
 }
 
 .rd-explore .rd-discipline:focus-visible {
   outline: 2px solid #111;
-  outline-offset: 5px;
-}
-
-.rd-explore .rd-discipline-index {
-  display: none;
-}
-
-.rd-explore .rd-discipline-label {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: transform 160ms ease;
-}
-
-.rd-explore .rd-discipline-icon {
-  width: 30px;
-  height: 30px;
-  flex: 0 0 auto;
-  color: currentColor;
-  transition: transform 160ms ease;
+  outline-offset: 4px;
 }
 
 .rd-explore .rd-discipline strong {
-  font-size: clamp(30px, 2.6vw, 42px);
+  font-size: clamp(42px, 4.7vw, 72px);
   font-weight: 700;
-  line-height: 1;
-  letter-spacing: -.04em;
+  line-height: .92;
+  letter-spacing: -.055em;
+}
+
+.rd-discipline-description {
+  max-width: 620px;
+  color: #666;
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1.5;
 }
 
 .rd-explore .rd-discipline-arrow {
   align-self: center;
   color: #777;
-  font-size: 20px;
+  font-size: clamp(24px, 2.4vw, 34px);
   line-height: 1;
-  opacity: .42;
-  transition: opacity 160ms ease, transform 160ms ease;
-}
-
-.rd-explore .rd-discipline:hover .rd-discipline-label,
-.rd-explore .rd-discipline:focus-visible .rd-discipline-label {
-  transform: translateX(4px);
-}
-
-.rd-explore .rd-discipline:hover .rd-discipline-icon,
-.rd-explore .rd-discipline:focus-visible .rd-discipline-icon {
-  transform: none;
+  transition: color 160ms ease, transform 180ms ease;
 }
 
 .rd-explore .rd-discipline:hover .rd-discipline-arrow,
 .rd-explore .rd-discipline:focus-visible .rd-discipline-arrow {
   color: #111;
-  opacity: 1;
-  transform: translate(2px, -2px);
+  transform: translate(4px, -4px);
+}
+
+/* Retire the earlier icon/index treatment if stale markup is ever cached. */
+.rd-explore .rd-discipline-index,
+.rd-explore .rd-discipline-icon,
+.rd-explore .rd-discipline-label {
+  display: none;
 }
 
 @media (max-width: 900px) {
-  .rd-explore .rd-disciplines {
-    gap: 24px;
-  }
-
   .rd-explore .rd-discipline {
-    min-height: 88px;
-  }
-
-  .rd-explore .rd-discipline-icon {
-    width: 27px;
-    height: 27px;
+    min-height: 118px;
+    grid-template-columns: minmax(150px, .45fr) minmax(0, 1fr) auto;
+    gap: 28px;
   }
 
   .rd-explore .rd-discipline strong {
-    font-size: clamp(28px, 3vw, 34px);
+    font-size: clamp(38px, 5vw, 54px);
   }
 }
 
-@media (max-width: 720px) {
-  .rd-explore .rd-disciplines {
-    grid-template-columns: 1fr;
-    gap: 0;
-    border-top: 1px solid rgba(0, 0, 0, .16);
+@media (max-width: 650px) {
+  .rd-explore .rd-section-head {
+    margin-bottom: 24px;
   }
 
   .rd-explore .rd-discipline {
-    min-height: 76px;
-    padding: 14px 2px;
-    border-top: 0;
-    border-bottom: 1px solid rgba(0, 0, 0, .16);
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 20px;
+    padding: 26px 2px;
   }
 
-  .rd-explore .rd-discipline-icon {
-    width: 25px;
-    height: 25px;
+  .rd-explore .rd-discipline:hover,
+  .rd-explore .rd-discipline:focus-visible {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .rd-explore .rd-discipline strong {
-    font-size: 30px;
+    grid-column: 1;
+    font-size: clamp(40px, 12vw, 58px);
+  }
+
+  .rd-discipline-description {
+    grid-column: 1;
+    max-width: 92%;
+    font-size: 14px;
   }
 
   .rd-explore .rd-discipline-arrow {
-    font-size: 18px;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    font-size: 26px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rd-explore .rd-discipline,
-  .rd-explore .rd-discipline-label,
-  .rd-explore .rd-discipline-icon,
   .rd-explore .rd-discipline-arrow {
     transition: none !important;
   }

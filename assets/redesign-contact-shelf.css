@@ -5,6 +5,7 @@
   display: grid;
   grid-template-rows: 0fr;
   margin-left: calc(50% - 50vw);
+  scroll-margin-top: 86px;
   overflow: hidden;
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
@@ -95,6 +96,10 @@
 }
 
 @media (max-width: 720px) {
+  .rc-inline-contact-shelf {
+    scroll-margin-top: 72px;
+  }
+
   .rc-inline-contact-close {
     top: 14px;
     right: 14px;
