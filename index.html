@@ -14,9 +14,11 @@
 <link rel="stylesheet" href="/assets/clean-site.css?v=0f5f0392c30d3d9a">
 <link rel="stylesheet" href="/assets/redesign-home.css?v=20260908-production-baseline">
 <link rel="stylesheet" href="/assets/redesign-home-featured.css?v=20260910-i">
-<link rel="stylesheet" href="/assets/redesign-home-about-contact.css?v=20260910-a">
+<link rel="stylesheet" href="/assets/redesign-home-about-contact.css?v=20260910-b">
 <link rel="stylesheet" href="/assets/redesign-home-rhythm.css?v=20260910-a">
 <link rel="stylesheet" href="/assets/redesign-discipline-refine.css?v=20260909-image-first">
+<link rel="stylesheet" href="/assets/redesign-video.css?v=20260909-a">
+<link rel="stylesheet" href="/assets/redesign-video-refine.css?v=20260909-b">
 <meta name="generator" content="portfolio-redesign-prototype">
 </head>
 <body class="home-redesign">
@@ -39,8 +41,8 @@
 <section class="rd-section rd-featured" id="featured-work">
   <div class="rd-section-head"><h2>Featured work</h2><p>A few pieces across video, design, and photography.</p></div>
   <div class="rd-work-grid rdp-project-grid">
-    <a class="rd-work-card" data-video-id="o8DPtyrcZ5o" data-shelf-slug="lifebuilders-camp" href="/video?play=o8DPtyrcZ5o#freelance"><img src="https://i.ytimg.com/vi/o8DPtyrcZ5o/maxresdefault.jpg" alt="LifeBUILDERS Camp video thumbnail" loading="lazy" decoding="async"><span class="rd-work-meta"><span class="rd-work-kicker">Video · Freelance Editing</span><span class="rd-work-title">LifeBUILDERS Camp</span></span></a>
-    <a class="rd-work-card" data-video-id="Z0gUnF1mCdM" data-shelf-slug="why-you-never-finish-games" href="/video?play=Z0gUnF1mCdM#essays"><img src="https://i.ytimg.com/vi/Z0gUnF1mCdM/maxresdefault.jpg" alt="Why you never finish games video thumbnail" loading="lazy" decoding="async"><span class="rd-work-meta"><span class="rd-work-kicker">Video · Video Essay</span><span class="rd-work-title">Why you never finish games</span></span></a>
+    <a class="rd-work-card" data-video-id="o8DPtyrcZ5o" data-youtube-id="o8DPtyrcZ5o" data-video-kicker="Freelance Editing" data-video-title="LifeBUILDERS Camp" href="https://www.youtube.com/watch?v=o8DPtyrcZ5o" target="_blank" rel="noreferrer"><img src="https://i.ytimg.com/vi/o8DPtyrcZ5o/maxresdefault.jpg" alt="LifeBUILDERS Camp video thumbnail" loading="lazy" decoding="async"><span class="rd-work-meta"><span class="rd-work-kicker">Video · Freelance Editing</span><span class="rd-work-title">LifeBUILDERS Camp</span></span></a>
+    <a class="rd-work-card" data-video-id="Z0gUnF1mCdM" data-youtube-id="Z0gUnF1mCdM" data-video-kicker="Video Essay" data-video-title="Why you never finish games (and how to fix it)" href="https://www.youtube.com/watch?v=Z0gUnF1mCdM" target="_blank" rel="noreferrer"><img src="https://i.ytimg.com/vi/Z0gUnF1mCdM/maxresdefault.jpg" alt="Why you never finish games video thumbnail" loading="lazy" decoding="async"><span class="rd-work-meta"><span class="rd-work-kicker">Video · Video Essay</span><span class="rd-work-title">Why you never finish games</span></span></a>
     <a class="rd-work-card" href="/couch-of-games-logo-brand-identity"><img src="/assets/media/62469a301464fec287e7d8cd584354a4cf9cd322654a14701465b224b0751a45.png" alt="Couch of Games logo and visual identity" loading="lazy" decoding="async"><span class="rd-work-meta"><span class="rd-work-kicker">Design · Identity</span><span class="rd-work-title">Couch of Games Logo &amp; Visual Identity</span></span></a>
     <a class="rd-work-card" href="/professional-headshots"><img src="/assets/media/8ec9616dabd72ec2dfe6a5b89c3ee3a5a2ea89a325d3f970340b58c1433c4cbf.jpg" alt="Portraits Collection" loading="lazy" decoding="async"><span class="rd-work-meta"><span class="rd-work-kicker">Photography · Portrait</span><span class="rd-work-title">Portraits Collection</span></span></a>
     <a class="rd-work-card" href="/photo-set-moms-basement"><img src="/assets/media/70ea6c2557ae5657290be51a5c21c46939cb160fb911c4d90434292a3eb5a59b.jpg" alt="Mom's Basement photo set" loading="lazy" decoding="async"><span class="rd-work-meta"><span class="rd-work-kicker">Photography · Stylized Set</span><span class="rd-work-title">Mom's Basement</span></span></a>
@@ -62,7 +64,17 @@
   </div>
 </section>
 </main>
+
+<dialog class="rv-video-dialog" data-video-dialog aria-label="Video player">
+  <div class="rv-dialog-head"><strong data-video-dialog-title>Video</strong><button class="rv-dialog-close" type="button" data-video-dialog-close aria-label="Close video">×</button></div>
+  <div class="rv-dialog-body">
+    <div class="rv-dialog-player"><iframe src="" title="Video" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+    <aside class="rv-dialog-info"><p class="rv-dialog-kicker"></p><h2 class="rv-dialog-title"></h2><p class="rv-dialog-description"></p></aside>
+  </div>
+</dialog>
+
 <script src="/assets/redesign-home-featured.js?v=20260910-a" defer></script>
+<script src="/assets/redesign-home-video-dialog.js?v=20260910-a" defer></script>
 <script src="/assets/redesign-shelf-media.js?v=20260909-c" defer></script>
 </body>
 </html>
