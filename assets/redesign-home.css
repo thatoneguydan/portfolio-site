@@ -351,7 +351,7 @@
 /* The desktop header borrows the same visual language as the homepage
    discipline buttons: indexed cells, dividers, corner arrows, and a full
    black/white inversion on hover. Keep touch/narrow headers compact. */
-@media (hover: hover) and (min-width: 880px) {
+@media (hover: hover) and (min-width: 981px) {
   .home-redesign .site-header {
     min-height: 86px;
     padding: 0;
