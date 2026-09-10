@@ -1,6 +1,13 @@
 (() => {
   'use strict';
 
+  if (!document.querySelector('script[data-redesign-nav]')) {
+    const navScript = document.createElement('script');
+    navScript.src = '/assets/redesign-nav.js?v=20260909-a';
+    navScript.dataset.redesignNav = '';
+    document.head.append(navScript);
+  }
+
   const grid = document.querySelector('.rdp-project-grid');
   if (!grid) return;
 
