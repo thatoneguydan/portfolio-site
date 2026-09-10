@@ -1,0 +1,104 @@
+/* Rotating homepage work showcase. Keeps the existing hero geometry while
+   replacing the static artwork with a quiet, image-first portfolio reel. */
+.rd-hero-showcase {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  min-height: 620px;
+  overflow: hidden;
+  background: #111;
+}
+
+.rd-hero-showcase__slide {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 900ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.rd-hero-showcase__slide.is-active {
+  z-index: 1;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rd-hero-showcase__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.rd-hero-showcase__controls {
+  position: absolute;
+  z-index: 3;
+  left: clamp(16px, 2vw, 28px);
+  bottom: clamp(16px, 2vw, 28px);
+  display: flex;
+  align-items: stretch;
+  border: 1px solid rgba(255, 255, 255, .4);
+  background: rgba(17, 17, 17, .72);
+  backdrop-filter: blur(8px);
+}
+
+.rd-hero-showcase__control {
+  width: 42px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-right: 1px solid rgba(255, 255, 255, .25);
+  background: transparent;
+  color: rgba(255, 255, 255, .68);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.rd-hero-showcase__control:last-child {
+  border-right: 0;
+}
+
+.rd-hero-showcase__control:hover,
+.rd-hero-showcase__control:focus-visible,
+.rd-hero-showcase__control[aria-pressed='true'] {
+  background: #fff;
+  color: #111;
+}
+
+.rd-hero-showcase__control:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .rd-hero-showcase {
+    min-height: 70vw;
+    max-height: 720px;
+  }
+}
+
+@media (max-width: 500px) {
+  .rd-hero-showcase__controls {
+    left: 12px;
+    bottom: 12px;
+  }
+
+  .rd-hero-showcase__control {
+    width: 38px;
+    height: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-hero-showcase__slide {
+    transition: none;
+  }
+}
