@@ -1,56 +1,143 @@
-/* Homepage hero after retiring the rotating showcase. The wide layout is an
-   intentional editorial composition rather than a leftover half of the old
-   two-column hero. */
-.rd-hero.rd-hero--editorial {
+/* Homepage opening: compact editorial introduction followed immediately by a
+   visual three-discipline reel. The goal is to establish the portfolio through
+   actual work before the visitor reaches the longer Featured Work section. */
+.rd-hero.rd-hero--showcase {
   display: block;
-  min-height: clamp(590px, calc(100vh - 86px), 800px);
+  min-height: 0;
+  padding: clamp(52px, 5.4vw, 82px) 0 clamp(54px, 5.8vw, 88px);
 }
 
-.rd-hero--editorial .rd-hero-copy {
-  width: 100%;
-  max-width: none;
-  min-height: inherit;
-  padding: clamp(64px, 7vw, 104px) 0 clamp(54px, 6vw, 88px);
+.rd-hero--showcase .rd-hero-intro {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  grid-template-rows: auto minmax(0, 1fr) auto;
   column-gap: clamp(16px, 2vw, 30px);
   align-items: end;
+  margin-bottom: clamp(38px, 4.5vw, 66px);
 }
 
-.rd-hero--editorial .rd-eyebrow {
-  grid-column: 1 / -1;
-  grid-row: 1;
-  align-self: start;
+.rd-hero--showcase .rd-hero-heading {
+  grid-column: 1 / 9;
+}
+
+.rd-hero--showcase .rd-eyebrow {
+  margin-bottom: clamp(20px, 2vw, 28px);
+}
+
+.rd-hero--showcase h1 {
+  max-width: 980px;
   margin: 0;
-}
-
-.rd-hero--editorial h1 {
-  grid-column: 1 / 11;
-  grid-row: 2;
-  max-width: none;
-  align-self: center;
-  font-size: clamp(58px, 7.3vw, 118px);
+  font-size: clamp(58px, 7vw, 112px);
   line-height: .88;
+  letter-spacing: -.055em;
   text-wrap: balance;
 }
 
-.rd-hero--editorial .rd-hero-lede {
+.rd-hero--showcase .rd-hero-side {
   grid-column: 9 / -1;
-  grid-row: 3;
-  max-width: none;
-  margin: 0;
-  padding-left: clamp(18px, 2vw, 30px);
+  padding-left: clamp(18px, 2.2vw, 32px);
   border-left: 1px solid rgba(0, 0, 0, .16);
-  align-self: end;
-  font-size: clamp(16px, 1.2vw, 19px);
 }
 
-.rd-hero--editorial .rd-actions {
-  grid-column: 1 / 8;
-  grid-row: 3;
-  align-self: end;
+.rd-hero--showcase .rd-hero-lede {
+  max-width: 520px;
   margin: 0;
+  color: #555;
+  font-size: clamp(16px, 1.2vw, 19px);
+  line-height: 1.55;
+}
+
+.rd-hero--showcase .rd-actions {
+  margin-top: 26px;
+}
+
+.rd-hero-gallery {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(10px, 1vw, 15px);
+}
+
+.rd-hero-tile {
+  position: relative;
+  grid-column: span 4;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #111;
+  color: #fff;
+  text-decoration: none;
+}
+
+.rd-hero-tile img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.001);
+  transition: transform 500ms cubic-bezier(.2,.7,.2,1), filter 220ms ease;
+}
+
+.rd-hero-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.08) 58%, rgba(0,0,0,.16) 100%);
+  pointer-events: none;
+}
+
+.rd-hero-tile:hover img,
+.rd-hero-tile:focus-visible img {
+  transform: scale(1.035);
+}
+
+.rd-hero-tile:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: 3px;
+}
+
+.rd-hero-tile-meta {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(16px, 1.6vw, 24px);
+  pointer-events: none;
+}
+
+.rd-hero-tile-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.rd-hero-tile-title {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.rd-hero-tile-title strong {
+  font-size: clamp(25px, 2.6vw, 42px);
+  line-height: .96;
+  letter-spacing: -.04em;
+}
+
+.rd-hero-tile-title span {
+  flex: 0 0 auto;
+  font-size: clamp(18px, 1.8vw, 28px);
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+
+.rd-hero-tile:hover .rd-hero-tile-title span,
+.rd-hero-tile:focus-visible .rd-hero-tile-title span {
+  transform: translate(3px, -3px);
 }
 
 /* Five-piece Featured Work layout: two horizontal video cards, then three
@@ -118,36 +205,38 @@
 }
 
 @media (max-width: 900px) {
-  .rd-hero.rd-hero--editorial {
-    min-height: auto;
+  .rd-hero.rd-hero--showcase {
+    padding: 62px 0 66px;
   }
 
-  .rd-hero--editorial .rd-hero-copy {
-    min-height: 0;
+  .rd-hero--showcase .rd-hero-intro {
     display: block;
-    padding: 70px 0 64px;
+    margin-bottom: 42px;
   }
 
-  .rd-hero--editorial .rd-eyebrow {
-    margin-bottom: 22px;
-  }
-
-  .rd-hero--editorial h1 {
+  .rd-hero--showcase h1 {
     max-width: 840px;
-    font-size: clamp(50px, 11vw, 86px);
-    line-height: .92;
+    font-size: clamp(52px, 10vw, 84px);
+    line-height: .91;
   }
 
-  .rd-hero--editorial .rd-hero-lede {
+  .rd-hero--showcase .rd-hero-side {
     max-width: 700px;
-    margin: 30px 0 0;
+    margin-top: 30px;
     padding-left: 0;
     border-left: 0;
-    font-size: 17px;
   }
 
-  .rd-hero--editorial .rd-actions {
-    margin-top: 30px;
+  .rd-hero--showcase .rd-actions {
+    margin-top: 24px;
+  }
+
+  .rd-hero-tile {
+    grid-column: span 6;
+  }
+
+  .rd-hero-tile:first-child {
+    grid-column: 1 / -1;
   }
 
   #featured-work .rd-work-card:nth-child(n) {
@@ -161,23 +250,49 @@
 }
 
 @media (max-width: 720px) {
+  .rd-hero.rd-hero--showcase {
+    padding: 50px 0 58px;
+  }
+
+  .rd-hero--showcase .rd-hero-intro {
+    margin-bottom: 34px;
+  }
+
+  .rd-hero--showcase h1 {
+    font-size: clamp(46px, 13vw, 66px);
+    text-wrap: balance;
+  }
+
+  .rd-hero-gallery {
+    display: block;
+  }
+
+  .rd-hero-tile {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .rd-hero-tile:last-child {
+    margin-bottom: 0;
+  }
+
   #featured-work .rd-work-card:nth-child(n) {
     min-height: 110vw;
   }
 }
 
 @media (max-width: 500px) {
-  .rd-hero--editorial .rd-hero-copy {
-    padding: 54px 0 52px;
+  .rd-hero.rd-hero--showcase {
+    padding-top: 44px;
   }
 
-  .rd-hero--editorial h1 {
-    font-size: clamp(46px, 13vw, 64px);
-    text-wrap: balance;
-  }
-
-  .rd-hero--editorial .rd-hero-lede {
+  .rd-hero--showcase .rd-hero-side {
     margin-top: 26px;
+  }
+
+  .rd-hero--showcase .rd-actions {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
   #featured-work .rd-work-card:nth-child(n) {
@@ -193,6 +308,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .rd-hero-tile img,
+  .rd-hero-tile-title span,
   #featured-work .rd-work-card[data-video-id]::before {
     transition: none;
   }
