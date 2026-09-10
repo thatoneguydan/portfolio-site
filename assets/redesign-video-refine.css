@@ -235,10 +235,7 @@
   min-width: 0;
   opacity: 1;
   transform: translateX(0) scale(1);
-  transition:
-    width 520ms cubic-bezier(.2, .72, .2, 1),
-    opacity 220ms ease,
-    transform 520ms cubic-bezier(.2, .72, .2, 1);
+  transition: none;
 }
 
 .rv-shelf:has(> .rv-shelf-toggle[aria-expanded="true"]) {
@@ -251,6 +248,10 @@
   width: 0;
   opacity: 0;
   transform: translateX(-16px) scale(.96);
+  transition:
+    width 520ms cubic-bezier(.2, .72, .2, 1),
+    opacity 220ms ease,
+    transform 520ms cubic-bezier(.2, .72, .2, 1);
 }
 
 .rv-shelf:has(> .rv-shelf-toggle[aria-expanded="true"]) .rv-video-grid {
