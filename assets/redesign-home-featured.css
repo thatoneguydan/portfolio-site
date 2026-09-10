@@ -1,82 +1,51 @@
-/* Homepage opening: the portfolio itself is the first impression. A compact
-   masthead identifies the page, then Featured Work starts immediately. */
+/* Homepage opening: artwork first, with one quiet section heading and a
+   consistent caption system. The opening deliberately avoids a separate hero. */
 .rd-home-opening {
-  padding: clamp(18px, 2vw, 30px) 0 clamp(68px, 7vw, 110px);
+  padding: clamp(18px, 2vw, 28px) 0 clamp(66px, 7vw, 104px);
   border-bottom: 1px solid rgba(0, 0, 0, .10);
 }
 
 .rd-opening-head {
-  min-height: clamp(68px, 6vw, 82px);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 24px;
-  margin-bottom: clamp(14px, 1.6vw, 22px);
-}
-
-.rd-opening-title {
-  min-width: 0;
-  display: flex;
   align-items: baseline;
-  gap: clamp(14px, 1.5vw, 22px);
+  gap: 24px;
+  margin-bottom: clamp(14px, 1.5vw, 20px);
+  padding-bottom: clamp(12px, 1.2vw, 16px);
+  border-bottom: 1px solid rgba(0, 0, 0, .12);
 }
 
-.rd-opening-title .rd-eyebrow {
-  flex: 0 0 auto;
+.rd-opening-head h1 {
   margin: 0;
-  white-space: nowrap;
-}
-
-.rd-opening-title h1 {
-  min-width: 0;
-  margin: 0;
-  font-size: clamp(34px, 3.8vw, 58px);
+  font-size: clamp(26px, 2.3vw, 34px);
   font-weight: 700;
-  line-height: .92;
-  letter-spacing: -.05em;
+  line-height: 1;
+  letter-spacing: -.035em;
 }
 
-.rd-opening-links {
-  display: flex;
-  align-items: center;
-  gap: clamp(16px, 2vw, 28px);
-  padding-bottom: 4px;
-  white-space: nowrap;
-}
-
-.rd-opening-links > span {
+.rd-opening-head p {
+  margin: 0;
   color: #777;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-
-.rd-opening-links a {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding-bottom: 3px;
-  border-bottom: 1px solid #111;
-  color: #111;
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .03em;
-  text-decoration: none;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: .045em;
 }
 
-.rd-opening-links a span {
-  transition: transform 160ms ease;
+#featured-work .rd-work-grid {
+  gap: clamp(20px, 2.2vw, 32px) clamp(12px, 1.2vw, 18px);
 }
 
-.rd-opening-links a:hover span,
-.rd-opening-links a:focus-visible span {
-  transform: translate(2px, -2px);
+/* The complete Featured Work set uses one visual language: every thumbnail is
+   16:9 and every caption lives below the image on the same baseline system. */
+#featured-work .rd-work-card {
+  --rd-caption-h: 92px;
+  min-height: 0;
+  overflow: hidden;
+  background: transparent;
+  color: #111;
 }
 
-/* Five-piece Featured Work layout. The two video cards keep the 16:9
-   treatment already accepted in review; the three image-led cards retain
-   their roomier crop so portrait/design work is not forced into a bad frame. */
 #featured-work .rd-work-card:nth-child(1),
 #featured-work .rd-work-card:nth-child(2) {
   grid-column: span 6;
@@ -86,31 +55,85 @@
 #featured-work .rd-work-card:nth-child(4),
 #featured-work .rd-work-card:nth-child(5) {
   grid-column: span 4;
-  min-height: 430px;
+  min-height: 0;
 }
 
-#featured-work .rd-work-card[data-video-id] {
-  min-height: 0;
+#featured-work .rd-work-card img {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
   aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #ddd;
+  transform: scale(1.001);
+}
+
+#featured-work .rd-work-card:nth-child(4) img {
+  object-position: 50% 42%;
+}
+
+#featured-work .rd-work-card:nth-child(5) img {
+  object-position: 50% 52%;
+}
+
+#featured-work .rd-work-card::after {
+  display: none;
+}
+
+#featured-work .rd-work-card:hover img,
+#featured-work .rd-work-card:focus-visible img {
+  transform: scale(1.018);
+}
+
+#featured-work .rd-work-meta {
+  position: relative;
+  z-index: 3;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  height: var(--rd-caption-h);
+  display: block;
+  padding: 14px 2px 0;
+  background: #f5f5f2;
+  color: #111;
+}
+
+#featured-work .rd-work-kicker {
+  margin: 0 0 7px;
+  color: #777;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  opacity: 1;
+}
+
+#featured-work .rd-work-title {
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -.025em;
 }
 
 #featured-work .rd-work-card[data-video-id]::before {
   content: '▶';
   position: absolute;
-  z-index: 2;
+  z-index: 4;
   left: 50%;
-  top: 50%;
-  width: clamp(58px, 5vw, 76px);
+  top: calc((100% - var(--rd-caption-h)) / 2);
+  width: clamp(48px, 4vw, 62px);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
   box-sizing: border-box;
   padding-left: .15em;
-  border: 1px solid rgba(255,255,255,.78);
+  border: 1px solid rgba(255,255,255,.82);
   border-radius: 50%;
   background: rgba(17,17,17,.54);
   color: #fff;
-  font-size: clamp(19px, 1.8vw, 26px);
+  font-size: clamp(16px, 1.4vw, 21px);
   line-height: 1;
   transform: translate(-50%, -50%) scale(1);
   transition: transform 180ms cubic-bezier(.2,.7,.2,1), background 180ms ease, color 180ms ease;
@@ -144,106 +167,95 @@
   background: #000;
 }
 
-@media (max-width: 1100px) {
-  .rd-opening-head {
-    min-height: 64px;
-  }
+/* Keep later homepage section headings on the same typographic scale instead
+   of jumping back to oversized landing-page typography. */
+.home-redesign .rd-section-head h2 {
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1;
+  letter-spacing: -.035em;
+}
 
-  .rd-opening-title h1 {
-    font-size: clamp(32px, 4.4vw, 48px);
-  }
-
-  .rd-opening-links > span {
-    display: none;
-  }
+.home-redesign .rd-section-head p {
+  font-size: 15px;
 }
 
 @media (max-width: 900px) {
   #featured-work .rd-work-card:nth-child(n) {
     grid-column: span 6;
-    min-height: 52vw;
+    min-height: 0;
   }
 
   #featured-work .rd-work-card:nth-child(5) {
     grid-column: 1 / -1;
   }
 
-  #featured-work .rd-work-card[data-video-id] {
-    min-height: 0;
+  #featured-work .rd-work-title {
+    font-size: 21px;
   }
 }
 
 @media (max-width: 720px) {
   .rd-home-opening {
-    padding: 18px 0 56px;
+    padding: 14px 0 54px;
   }
 
   .rd-opening-head {
-    min-height: 58px;
-    align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 11px;
   }
 
-  .rd-opening-title {
-    display: block;
+  .rd-opening-head h1 {
+    font-size: 24px;
   }
 
-  .rd-opening-title .rd-eyebrow {
-    margin-bottom: 6px;
-    font-size: 9px;
-  }
-
-  .rd-opening-title h1 {
-    font-size: 32px;
-  }
-
-  .rd-opening-links {
-    padding-bottom: 0;
-  }
-
-  .rd-opening-links a {
+  .rd-opening-head p {
     font-size: 11px;
   }
 
-  #featured-work .rd-work-card:nth-child(n) {
-    min-height: 110vw;
+  #featured-work .rd-work-grid {
+    display: block;
   }
 
-  #featured-work .rd-work-card[data-video-id] {
+  #featured-work .rd-work-card:nth-child(n) {
+    --rd-caption-h: 86px;
+    display: block;
     min-height: 0;
-    aspect-ratio: 16 / 9;
+    margin-bottom: 18px;
+  }
+
+  #featured-work .rd-work-card:last-child {
+    margin-bottom: 0;
+  }
+
+  #featured-work .rd-work-title {
+    font-size: 20px;
   }
 }
 
 @media (max-width: 500px) {
-  .rd-home-opening {
-    padding-top: 14px;
-  }
-
   .rd-opening-head {
-    min-height: 54px;
-    margin-bottom: 12px;
+    display: block;
   }
 
-  .rd-opening-title h1 {
-    font-size: 30px;
-  }
-
-  .rd-opening-links {
+  .rd-opening-head p {
     display: none;
   }
 
   #featured-work .rd-work-card:nth-child(n) {
-    min-height: 118vw;
+    --rd-caption-h: 84px;
   }
 
-  #featured-work .rd-work-card[data-video-id] {
-    min-height: 0;
+  #featured-work .rd-work-meta {
+    padding-top: 12px;
+  }
+
+  #featured-work .rd-work-title {
+    font-size: 19px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rd-opening-links a span,
+  #featured-work .rd-work-card img,
   #featured-work .rd-work-card[data-video-id]::before {
     transition: none;
   }
