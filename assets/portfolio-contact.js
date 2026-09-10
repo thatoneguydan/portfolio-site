@@ -6,7 +6,7 @@
 
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20260910-contact-shelf';
+    navScript.src = '/assets/redesign-nav.js?v=20260910-f';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -16,7 +16,7 @@
      the redesign body classes are applied asynchronously. */
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-contact-shelf]')) {
     const shelfScript = document.createElement('script');
-    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20260910-a';
+    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20260910-d';
     shelfScript.dataset.redesignContactShelf = '';
     document.head.append(shelfScript);
   }
