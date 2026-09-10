@@ -84,11 +84,31 @@
     return node.parentElement === main ? node : null;
   };
 
+  const alignShelfTop = (state, behavior = 'auto') => {
+    if (!state?.shelf?.isConnected) return false;
+    const offset = state.shelf.getBoundingClientRect().top;
+    if (Math.abs(offset) <= 1.5) return true;
+
+    window.scrollTo({
+      top: Math.max(0, window.scrollY + offset),
+      left: 0,
+      behavior,
+    });
+    return false;
+  };
+
+  const finishAutoAlignment = (state) => {
+    if (!state?.autoScroll || !state.shelf?.isConnected) return;
+    alignShelfTop(state, 'auto');
+  };
+
   const cleanup = (state, restoreFocus = false) => {
     if (!state) return;
     window.clearTimeout(state.removeTimer);
+    window.clearTimeout(state.alignTimer);
     state.resizeObserver?.disconnect();
     state.resizeObserver = null;
+    if (state.onTransitionEnd) state.shelf.removeEventListener('transitionend', state.onTransitionEnd);
     state.source?.setAttribute('aria-expanded', 'false');
     state.source?.removeAttribute('aria-controls');
     state.frame.onload = null;
@@ -134,9 +154,18 @@
     if (!doc?.body || !state.shelf.isConnected) return;
 
     resizeFrame(state);
-    requestAnimationFrame(() => resizeFrame(state));
-    window.setTimeout(() => resizeFrame(state), 120);
-    window.setTimeout(() => resizeFrame(state), 600);
+    requestAnimationFrame(() => {
+      resizeFrame(state);
+      finishAutoAlignment(state);
+    });
+    window.setTimeout(() => {
+      resizeFrame(state);
+      finishAutoAlignment(state);
+    }, 120);
+    window.setTimeout(() => {
+      resizeFrame(state);
+      finishAutoAlignment(state);
+    }, 600);
 
     const FrameResizeObserver = state.frame.contentWindow?.ResizeObserver;
     if (FrameResizeObserver) {
@@ -186,6 +215,9 @@
       closeButton: shelf.querySelector('.rc-inline-contact-close'),
       resizeObserver: null,
       removeTimer: 0,
+      alignTimer: 0,
+      onTransitionEnd: null,
+      autoScroll,
     };
     active = state;
 
@@ -196,6 +228,16 @@
     state.frame.addEventListener('load', () => prepareFrame(state), { once: true });
     state.closeButton.addEventListener('click', () => close(state, true));
 
+    if (autoScroll) {
+      state.onTransitionEnd = (event) => {
+        if (event.target !== shelf || event.propertyName !== 'grid-template-rows') return;
+        finishAutoAlignment(state);
+        shelf.removeEventListener('transitionend', state.onTransitionEnd);
+        state.onTransitionEnd = null;
+      };
+      shelf.addEventListener('transitionend', state.onTransitionEnd);
+    }
+
     requestAnimationFrame(() => {
       if (!shelf.isConnected) return;
       shelf.setAttribute('aria-hidden', 'false');
@@ -204,11 +246,14 @@
       if (autoScroll) {
         requestAnimationFrame(() => {
           if (!shelf.isConnected) return;
-          shelf.scrollIntoView({
-            behavior: reducedMotion.matches ? 'auto' : 'smooth',
-            block: 'start'
-          });
+          alignShelfTop(state, reducedMotion.matches ? 'auto' : 'smooth');
         });
+
+        /* The shelf grows for ~460 ms. A final alignment after that growth lets
+           the browser place the shelf top at viewport top once enough page
+           height exists; if the document is still too short, scrollTo naturally
+           clamps to the closest possible position. */
+        state.alignTimer = window.setTimeout(() => finishAutoAlignment(state), 540);
       }
     });
   };
