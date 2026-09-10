@@ -114,7 +114,7 @@
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
   .rd-explore .rd-disciplines {
     gap: 10px;
   }
@@ -128,12 +128,30 @@
   }
 }
 
-@media (max-width: 720px) {
+/* Three 16:9 cards become cramped before the site's general mobile breakpoint.
+   Switch to a calmer single-column strip on tablets, then return to 16:9 when
+   the viewport is narrow enough that a full-width card is naturally compact. */
+@media (max-width: 860px) {
   .rd-explore .rd-disciplines {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
+  .rd-explore .rd-discipline {
+    aspect-ratio: 2.25 / 1;
+  }
+
+  .rd-explore .rd-discipline strong {
+    font-size: clamp(36px, 6vw, 50px);
+  }
+
+  .rd-discipline-description {
+    max-width: 72%;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 560px) {
   .rd-explore .rd-discipline {
     aspect-ratio: 16 / 9;
   }
@@ -144,7 +162,6 @@
 
   .rd-discipline-description {
     max-width: 80%;
-    font-size: 14px;
   }
 }
 
