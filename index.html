@@ -13,6 +13,7 @@
 <link rel="canonical" href="/work">
 <link rel="stylesheet" href="/assets/clean-site.css?v=0f5f0392c30d3d9a">
 <link rel="stylesheet" href="/assets/redesign-home.css?v=20260908-production-baseline">
+<link rel="stylesheet" href="/assets/redesign-home-hero.css?v=20260910-a">
 <link rel="stylesheet" href="/assets/redesign-discipline-refine.css?v=20260909-image-first">
 <meta name="generator" content="portfolio-redesign-prototype">
 </head>
@@ -26,7 +27,16 @@
     <p class="rd-hero-lede">I create work across video production, graphic design, photography, print, and social media. More than nine years in, I still like moving between disciplines to find the clearest way to tell the story.</p>
     <div class="rd-actions"><a class="rd-action rd-action--primary" href="#selected-work">See selected work</a><a class="rd-action" href="/contact">Work with me</a></div>
   </div>
-  <figure class="rd-hero-visual"><img src="/assets/media/bdc69c7428f88ee1e57848ed2d66bd4bc53d7d83e742cf11abdbeacf2f4accd0.png" alt="Selected work by Dan Smith" loading="eager" decoding="async"></figure>
+  <figure class="rd-hero-visual rd-hero-showcase" data-hero-showcase aria-label="Selected work showcase">
+    <a class="rd-hero-showcase__slide is-active" data-hero-slide href="/video" aria-hidden="false"><img src="/assets/media/7d1c19a896e0e954a40afe7e3626887ee5482e348da6441ab53062734b0af0fd.png" alt="Video editing work by Dan Smith" loading="eager" decoding="async"></a>
+    <a class="rd-hero-showcase__slide" data-hero-slide href="/design" aria-hidden="true" tabindex="-1"><img src="/assets/media/62469a301464fec287e7d8cd584354a4cf9cd322654a14701465b224b0751a45.png" alt="Couch of Games logo and visual identity" loading="lazy" decoding="async"></a>
+    <a class="rd-hero-showcase__slide" data-hero-slide href="/photo" aria-hidden="true" tabindex="-1"><img src="/assets/media/70ea6c2557ae5657290be51a5c21c46939cb160fb911c4d90434292a3eb5a59b.jpg" alt="Mom's Basement stylized photo set" loading="lazy" decoding="async"></a>
+    <div class="rd-hero-showcase__controls" aria-label="Choose featured work">
+      <button class="rd-hero-showcase__control" type="button" data-hero-control aria-label="Show video work" aria-pressed="true">01</button>
+      <button class="rd-hero-showcase__control" type="button" data-hero-control aria-label="Show design work" aria-pressed="false">02</button>
+      <button class="rd-hero-showcase__control" type="button" data-hero-control aria-label="Show photography work" aria-pressed="false">03</button>
+    </div>
+  </figure>
 </section>
 
 <section class="rd-section" id="selected-work">
@@ -55,6 +65,7 @@
 
 <section class="rd-footer-cta"><p>Have something in mind?</p><a href="/contact">Let's make it.</a></section>
 </main>
+<script src="/assets/redesign-home-hero.js?v=20260910-a" defer></script>
 <script src="/assets/redesign-home-shelves.js?v=20260909-a" defer></script>
 <script src="/assets/redesign-shelf-media.js?v=20260909-c" defer></script>
 </body>
