@@ -43,6 +43,13 @@
     if (shelfMeta) shelfMeta.textContent = 'Client, editorial, social & long-form';
   }
 
+  if (document.body.classList.contains('discipline-photo')) {
+    const title = document.querySelector('.rdp-intro h1');
+    const intro = document.querySelector('.rdp-intro-copy');
+    if (title) title.textContent = 'Portraits, places, and light.';
+    if (intro) intro.innerHTML = '<strong>Portraits, events, travel, and experiments.</strong> Client work and personal projects shaped by color, light, and atmosphere.';
+  }
+
   const header = document.querySelector('.site-header');
   const nav = header?.querySelector('.site-nav');
   if (!header || !nav) return;
