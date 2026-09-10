@@ -12,60 +12,11 @@
   border-bottom: 0;
 }
 
-/* Featured Work now transitions directly into the final contact field. Keep a
-   deliberate breath after the work, but not the larger gap that previously
-   made room for a separate portfolio-navigation section. */
+/* Featured Work now transitions directly into the shared Contact close. Keep a
+   deliberate breath after the work, but not a second footer-sized gap. */
 .rd-featured {
   padding-top: 0;
   padding-bottom: clamp(56px, 5vw, 76px);
-}
-
-/* Treat the final contact field as a destination, not a footer. The headline
-   and action share one centered axis and the action is deliberately substantial. */
-.rd-footer-cta {
-  min-height: clamp(540px, 62vh, 740px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(92px, 9vw, 138px) 0;
-}
-
-.rd-footer-cta-inner {
-  width: min(92%, 1500px);
-  margin: 0 auto;
-}
-
-.rd-footer-cta-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  text-align: center;
-}
-
-.rd-footer-cta h2 {
-  max-width: 1200px;
-  margin: 0;
-  font-size: clamp(60px, 6.2vw, 90px);
-  line-height: .9;
-  text-align: center;
-  text-wrap: balance;
-}
-
-.rd-footer-cta .rd-footer-cta-button {
-  min-width: 260px;
-  min-height: 74px;
-  margin-top: clamp(34px, 3.4vw, 46px);
-  padding: 0 42px;
-  font-size: 18px;
-  gap: 16px;
-  align-self: center;
-  justify-self: auto;
-}
-
-.rd-footer-cta .rd-footer-cta-button span {
-  font-size: 24px;
 }
 
 @media (max-width: 900px) {
@@ -75,24 +26,6 @@
 
   .rd-featured {
     padding-bottom: 62px;
-  }
-
-  .rd-footer-cta {
-    min-height: 560px;
-    padding: 82px 0;
-  }
-
-  .rd-footer-cta h2 {
-    max-width: 860px;
-    font-size: clamp(56px, 7.4vw, 70px);
-  }
-
-  .rd-footer-cta .rd-footer-cta-button {
-    min-width: 250px;
-    min-height: 72px;
-    margin-top: 38px;
-    padding: 0 38px;
-    font-size: 17px;
   }
 }
 
@@ -104,24 +37,6 @@
   .rd-featured {
     padding-bottom: 54px;
   }
-
-  .rd-footer-cta {
-    min-height: 560px;
-    padding: 84px 20px;
-  }
-
-  .rd-footer-cta h2 {
-    max-width: 650px;
-    font-size: clamp(52px, 9vw, 64px);
-  }
-
-  .rd-footer-cta .rd-footer-cta-button {
-    min-width: 240px;
-    min-height: 70px;
-    margin-top: 36px;
-    padding: 0 34px;
-    font-size: 17px;
-  }
 }
 
 @media (max-width: 500px) {
@@ -131,23 +46,5 @@
 
   .rd-featured {
     padding-bottom: 46px;
-  }
-
-  .rd-footer-cta {
-    min-height: 560px;
-    padding: 84px 20px;
-  }
-
-  .rd-footer-cta h2 {
-    max-width: 350px;
-    font-size: clamp(52px, 15vw, 64px);
-  }
-
-  .rd-footer-cta .rd-footer-cta-button {
-    min-width: 230px;
-    min-height: 68px;
-    margin-top: 36px;
-    padding: 0 30px;
-    font-size: 16px;
   }
 }
