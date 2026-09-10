@@ -1,44 +1,59 @@
-/* Homepage About refinement: use the same oversized editorial title language as
-   the discipline pages while keeping the portrait decisively vertical. */
+/* Homepage About: one dominant title, supporting copy and action, with the
+   portrait left visually clean so text systems do not compete across the split. */
 
 .rd-about-panel {
   height: auto;
   min-height: 0;
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 32%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 36%);
   align-items: stretch;
+  overflow: hidden;
+  background: #111;
+  color: #fff;
 }
 
 .rd-about--home .rd-about-copy {
-  padding: clamp(38px, 4.5vw, 68px);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(44px, 5vw, 76px);
 }
 
 .rd-about--home .rd-about-copy h1 {
   max-width: 760px;
   margin: 0;
   color: #fff;
-  font-size: clamp(62px, 7vw, 108px);
+  font-size: clamp(68px, 8vw, 118px);
   font-weight: 700;
-  line-height: .84;
+  line-height: .83;
   letter-spacing: -.065em;
 }
 
 .rd-about--home .rd-about-copy .rd-about-lede {
   max-width: 610px;
-  margin: clamp(26px, 2.8vw, 42px) 0 0;
+  margin: clamp(28px, 2.6vw, 36px) 0 0;
   color: rgba(255, 255, 255, .72);
   font-size: clamp(17px, 1.4vw, 21px);
   line-height: 1.55;
 }
 
 .rd-about-action {
-  margin-top: auto;
+  min-height: 56px;
+  margin-top: clamp(28px, 2.5vw, 36px);
+  padding: 0 24px;
+  gap: 14px;
+  font-size: 14px;
 }
 
 .rd-about--home .rd-about-photo {
+  position: relative;
   width: 100%;
   height: auto;
   aspect-ratio: 2 / 3;
   align-self: start;
+  overflow: hidden;
 }
 
 .rd-about--home .rd-about-photo img {
@@ -46,31 +61,28 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
 }
 
+/* The old large statement over the portrait competed directly with the page
+   title. The portrait now acts as the visual counterweight instead. */
+.rd-about--home .rd-about-photo::after,
 .rd-about-statement {
-  left: clamp(20px, 2.2vw, 30px);
-  right: clamp(20px, 2.2vw, 30px);
-  bottom: clamp(20px, 2.2vw, 30px);
-  font-size: clamp(34px, 3.1vw, 48px);
-  line-height: .92;
-}
-
-.rd-footer-cta-row {
-  align-items: center;
+  display: none;
 }
 
 @media (max-width: 1200px) {
   .rd-about-panel {
-    grid-template-columns: minmax(0, 1fr) minmax(310px, 32%);
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 35%);
   }
 
   .rd-about--home .rd-about-copy {
-    padding: clamp(34px, 4vw, 52px);
+    padding: clamp(36px, 4.3vw, 54px);
   }
 
   .rd-about--home .rd-about-copy h1 {
-    font-size: clamp(58px, 7.1vw, 84px);
+    font-size: clamp(62px, 7.6vw, 92px);
   }
 
   .rd-about--home .rd-about-copy .rd-about-lede {
@@ -80,85 +92,60 @@
 
 @media (max-width: 900px) {
   .rd-about-panel {
-    height: auto;
-    grid-template-columns: minmax(0, 1fr) minmax(270px, 34%);
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 35%);
   }
 
   .rd-about--home .rd-about-copy {
-    padding: 28px;
+    padding: 34px;
   }
 
   .rd-about--home .rd-about-copy h1 {
-    font-size: clamp(54px, 7.5vw, 68px);
-    line-height: .85;
+    font-size: clamp(58px, 8vw, 78px);
+    line-height: .84;
   }
 
   .rd-about--home .rd-about-copy .rd-about-lede {
-    margin-top: 24px;
+    margin-top: 26px;
     font-size: 15px;
     line-height: 1.52;
   }
 
   .rd-about-action {
-    min-height: 48px;
-    padding: 0 18px;
-    font-size: 12px;
-  }
-
-  .rd-about-statement {
-    left: 18px;
-    right: 18px;
-    bottom: 18px;
-    font-size: clamp(28px, 4vw, 36px);
+    min-height: 52px;
+    margin-top: 28px;
+    padding: 0 20px;
+    font-size: 13px;
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 720px) and (min-width: 601px) {
   .rd-about-panel {
-    height: auto;
-    min-height: 0;
-    display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(240px, 36%);
   }
 
   .rd-about--home .rd-about-copy {
-    order: initial;
-    padding: 24px 22px;
+    padding: 28px 26px;
   }
 
   .rd-about--home .rd-about-copy h1 {
-    font-size: clamp(48px, 7.2vw, 54px);
+    font-size: clamp(50px, 7.4vw, 58px);
   }
 
   .rd-about--home .rd-about-copy .rd-about-lede {
-    margin-top: 20px;
+    margin-top: 22px;
     font-size: 14px;
     line-height: 1.5;
   }
 
   .rd-about-action {
-    min-height: 44px;
-    margin-top: auto;
-    padding: 0 16px;
-    font-size: 11px;
-  }
-
-  .rd-about--home .rd-about-photo {
-    order: initial;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 2 / 3;
-  }
-
-  .rd-about-statement {
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    font-size: clamp(26px, 4.4vw, 32px);
+    min-height: 48px;
+    margin-top: 24px;
+    padding: 0 18px;
+    font-size: 12px;
   }
 }
 
-@media (max-width: 540px) {
+@media (max-width: 600px) {
   .rd-about-panel {
     display: flex;
     flex-direction: column;
@@ -173,30 +160,25 @@
 
   .rd-about--home .rd-about-copy {
     order: 2;
-    padding: 28px 22px 30px;
+    justify-content: flex-start;
+    padding: 34px 24px 38px;
   }
 
   .rd-about--home .rd-about-copy h1 {
-    font-size: clamp(46px, 13.5vw, 58px);
+    font-size: clamp(54px, 15vw, 70px);
+    line-height: .84;
   }
 
   .rd-about--home .rd-about-copy .rd-about-lede {
-    margin-top: 22px;
+    margin-top: 24px;
     font-size: 15px;
     line-height: 1.52;
   }
 
   .rd-about-action {
-    min-height: 48px;
-    margin-top: 26px;
-    padding: 0 18px;
+    min-height: 52px;
+    margin-top: 28px;
+    padding: 0 20px;
     font-size: 12px;
-  }
-
-  .rd-about-statement {
-    left: 18px;
-    right: 18px;
-    bottom: 18px;
-    font-size: clamp(32px, 9.5vw, 42px);
   }
 }
