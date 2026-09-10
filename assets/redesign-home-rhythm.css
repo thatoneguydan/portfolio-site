@@ -1,0 +1,122 @@
+/* Homepage vertical rhythm: each section owns one deliberate spacing interval.
+   The earlier generic .rd-section rules stacked top/bottom padding and divider
+   lines, which made the page feel like separated wireframe bands. */
+
+.rd-about--home {
+  padding-top: clamp(28px, 3.6vw, 52px);
+  padding-bottom: clamp(72px, 6.5vw, 96px);
+  border-bottom: 0;
+}
+
+.home-redesign .rd-section {
+  border-bottom: 0;
+}
+
+.rd-featured {
+  padding-top: 0;
+  padding-bottom: clamp(82px, 7.5vw, 114px);
+}
+
+.rd-explore {
+  padding-top: 0;
+  padding-bottom: clamp(92px, 8.5vw, 132px);
+}
+
+/* The close is a full destination rather than a footer strip. Give it enough
+   vertical field to read as a final section, not something to skip past. */
+.rd-footer-cta {
+  min-height: clamp(480px, 60vh, 700px);
+  display: flex;
+  align-items: center;
+  padding: clamp(88px, 9vw, 132px) 0;
+}
+
+.rd-footer-cta-inner {
+  width: min(92%, 1500px);
+}
+
+.rd-footer-cta-row {
+  align-items: center;
+}
+
+.rd-footer-cta h2 {
+  max-width: 980px;
+  font-size: clamp(56px, 6.4vw, 92px);
+}
+
+.rd-footer-cta .rd-footer-cta-button {
+  min-height: 62px;
+  padding: 0 30px;
+  font-size: 16px;
+}
+
+@media (max-width: 900px) {
+  .rd-about--home {
+    padding-bottom: 72px;
+  }
+
+  .rd-featured {
+    padding-bottom: 88px;
+  }
+
+  .rd-explore {
+    padding-bottom: 96px;
+  }
+
+  .rd-footer-cta {
+    min-height: clamp(460px, 58vh, 620px);
+    padding: 78px 0;
+  }
+
+  .rd-footer-cta-row {
+    gap: 40px;
+  }
+}
+
+@media (max-width: 720px) {
+  .rd-about--home {
+    padding-bottom: 58px;
+  }
+
+  .rd-featured {
+    padding-bottom: 72px;
+  }
+
+  .rd-explore {
+    padding-bottom: 80px;
+  }
+
+  .rd-footer-cta {
+    min-height: 500px;
+    padding: 72px 0;
+  }
+
+  .rd-footer-cta h2 {
+    font-size: clamp(48px, 12.8vw, 64px);
+  }
+
+  .rd-footer-cta .rd-footer-cta-button {
+    min-height: 58px;
+    padding: 0 24px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 500px) {
+  .rd-about--home {
+    padding-bottom: 52px;
+  }
+
+  .rd-featured {
+    padding-bottom: 64px;
+  }
+
+  .rd-explore {
+    padding-bottom: 72px;
+  }
+
+  .rd-footer-cta {
+    min-height: 500px;
+    padding: 68px 0;
+  }
+}
