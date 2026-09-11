@@ -4,41 +4,47 @@
   padding-bottom: 0;
 }
 
+/* Current discipline intro styling lives here too so the browser has the
+   final geometry before first paint. The shared intro stylesheet may load
+   later for compatibility, but it no longer causes a visible resize. */
+.discipline-redesign .rdp-intro .rd-eyebrow {
+  display: none;
+}
+
 .rdp-intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
-  gap: clamp(38px, 8vw, 130px);
-  align-items: end;
-  padding: clamp(72px, 9vw, 145px) 0 clamp(60px, 7vw, 108px);
+  display: block;
+  padding: clamp(54px, 5vw, 68px) 0 clamp(40px, 4vw, 50px);
   border-bottom: 1px solid rgba(0, 0, 0, .10);
 }
 
 .rdp-intro h1 {
+  max-width: 710px;
   margin: 0;
-  font-size: clamp(64px, 10vw, 156px);
+  font-size: 56px;
   font-weight: 700;
-  letter-spacing: -.065em;
-  line-height: .82;
+  letter-spacing: -.055em;
+  line-height: .94;
 }
 
 .rdp-intro-copy {
-  max-width: 540px;
-  margin: 0 0 2px auto;
+  max-width: 710px;
+  margin: 24px 0 0;
   color: #555;
-  font-size: clamp(17px, 1.4vw, 21px);
+  font-size: 18px;
   line-height: 1.55;
 }
 
 .rdp-intro-copy strong {
-  color: #111;
+  color: inherit;
+  font-weight: inherit;
 }
 
 .rdp-gallery {
-  padding: clamp(58px, 7vw, 105px) 0 clamp(90px, 10vw, 160px);
+  padding: clamp(28px, 3vw, 38px) 0 clamp(90px, 10vw, 160px);
 }
 
 .rdp-gallery-head {
-  display: flex;
+  display: none;
   align-items: baseline;
   justify-content: space-between;
   gap: 24px;
@@ -172,15 +178,6 @@
 }
 
 @media (max-width: 1000px) {
-  .rdp-intro {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-
-  .rdp-intro-copy {
-    margin-left: 0;
-  }
-
   .rdp-project-card,
   .rdp-project-card--wide {
     grid-column: span 6;
@@ -195,14 +192,6 @@
 @media (max-width: 720px) {
   .discipline-redesign .site-main {
     width: 90%;
-  }
-
-  .rdp-intro {
-    padding-top: 58px;
-  }
-
-  .rdp-gallery-head span {
-    display: none;
   }
 
   .rdp-project-grid {
@@ -221,6 +210,24 @@
 @media (max-width: 540px) {
   .discipline-redesign .site-main {
     width: calc(100% - 32px);
+  }
+
+  .rdp-intro {
+    padding-top: 44px;
+    padding-bottom: 36px;
+  }
+
+  .rdp-intro h1 {
+    font-size: clamp(44px, 13vw, 56px);
+  }
+
+  .rdp-intro-copy {
+    margin-top: 20px;
+    font-size: 16px;
+  }
+
+  .rdp-gallery {
+    padding-top: 24px;
   }
 
   .rdp-project-grid {
