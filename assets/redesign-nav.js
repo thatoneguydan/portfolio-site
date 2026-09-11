@@ -47,8 +47,18 @@
     document.querySelector('.rv-shelves-head')?.remove();
     const title = document.querySelector('.rv-intro h1');
     const intro = document.querySelector('.rv-intro-copy');
+    const clientShelfTitle = document.querySelector('#freelance .rv-shelf-copy h2');
     if (title) title.textContent = 'Video that holds attention.';
     if (intro) intro.textContent = 'Editing, essays, short-form, and channel work. A selection spanning client stories, long-form editorial, social video, and gaming content.';
+    if (clientShelfTitle) clientShelfTitle.textContent = 'Client Work';
+
+    const previewVideoStylesheetPath = '/assets/redesign-video-preview.css';
+    if (!document.querySelector(`link[href^="${previewVideoStylesheetPath}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `${previewVideoStylesheetPath}?v=20260911-a`;
+      document.head.append(link);
+    }
   }
 
   if (document.body.classList.contains('discipline-redesign')) {
