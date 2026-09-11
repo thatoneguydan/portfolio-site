@@ -19,7 +19,9 @@
   min-height: 244px;
   grid-template-columns: var(--rv-preview-cover-width) minmax(0, 1fr) auto !important;
   gap: var(--rv-preview-gap);
-  padding: 28px 20px 28px 0;
+  /* Keep the media and + control inset before hover so the black hover field
+     appears around them without causing any positional change. */
+  padding: 28px 20px;
   transition:
     background 180ms ease,
     color 180ms ease,
@@ -31,8 +33,8 @@
   display: none;
 }
 
-/* Category art starts exactly on the content edge. Transparent backing avoids
-   the old gray antialiasing peeking through rounded image corners. */
+/* Transparent backing avoids the old gray antialiasing peeking through
+   rounded image corners. */
 .rv-shelf-cover {
   display: block;
   width: 100%;
@@ -127,7 +129,7 @@
     --rv-preview-gap: 18px;
     --rv-preview-cover-width: clamp(320px, 40vw, 380px);
     min-height: 214px;
-    padding: 24px 0;
+    padding: 24px 18px;
   }
 
   .rv-shelf-copy h2 {
@@ -154,7 +156,7 @@
       "cover cover"
       "copy meta";
     gap: 18px 16px;
-    padding: 20px 0 24px;
+    padding: 20px 12px 24px;
   }
 
   .rv-shelf-cover {
