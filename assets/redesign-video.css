@@ -2,42 +2,47 @@
   padding-bottom: 0;
 }
 
+/* Keep the final intro geometry in the render-blocking page stylesheet so the
+   title never paints at the old oversized prototype scale before shared
+   compatibility CSS arrives. */
+.video-redesign .rv-intro .rd-eyebrow {
+  display: none;
+}
+
 .rv-intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
-  gap: clamp(40px, 8vw, 130px);
-  align-items: end;
-  padding: clamp(72px, 9vw, 145px) 0 clamp(62px, 7vw, 110px);
+  display: block;
+  padding: clamp(54px, 5vw, 68px) 0 clamp(40px, 4vw, 50px);
   border-bottom: 1px solid rgba(0, 0, 0, .10);
 }
 
 .rv-intro h1 {
-  max-width: 940px;
+  max-width: 710px;
   margin: 0;
-  font-size: clamp(58px, 8vw, 128px);
+  font-size: 56px;
   font-weight: 700;
-  letter-spacing: -.06em;
-  line-height: .88;
+  letter-spacing: -.055em;
+  line-height: .94;
 }
 
 .rv-intro-copy {
-  max-width: 520px;
-  margin: 0 0 4px auto;
+  max-width: 710px;
+  margin: 24px 0 0;
   color: #555;
-  font-size: clamp(17px, 1.35vw, 21px);
+  font-size: 18px;
   line-height: 1.55;
 }
 
 .rv-intro-copy strong {
-  color: #111;
+  color: inherit;
+  font-weight: inherit;
 }
 
 .rv-shelves {
-  padding: clamp(54px, 6vw, 96px) 0 clamp(90px, 9vw, 150px);
+  padding: clamp(28px, 3vw, 38px) 0 clamp(90px, 9vw, 150px);
 }
 
 .rv-shelves-head {
-  display: flex;
+  display: none;
   align-items: baseline;
   justify-content: space-between;
   gap: 24px;
@@ -324,15 +329,6 @@
 }
 
 @media (max-width: 980px) {
-  .rv-intro {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-
-  .rv-intro-copy {
-    margin-left: 0;
-  }
-
   .rv-shelf-toggle {
     grid-template-columns: 34px minmax(120px, 180px) minmax(0, 1fr) auto;
     gap: 18px;
@@ -348,14 +344,6 @@
 }
 
 @media (max-width: 760px) {
-  .rv-intro {
-    padding-top: 58px;
-  }
-
-  .rv-shelves-head span {
-    display: none;
-  }
-
   .rv-shelf-toggle {
     min-height: 0;
     grid-template-columns: 28px minmax(0, 1fr) auto;
@@ -385,6 +373,24 @@
 }
 
 @media (max-width: 500px) {
+  .rv-intro {
+    padding-top: 44px;
+    padding-bottom: 36px;
+  }
+
+  .rv-intro h1 {
+    font-size: clamp(44px, 13vw, 56px);
+  }
+
+  .rv-intro-copy {
+    margin-top: 20px;
+    font-size: 16px;
+  }
+
+  .rv-shelves {
+    padding-top: 24px;
+  }
+
   .rv-video-grid {
     grid-template-columns: 1fr;
     gap: 24px;
