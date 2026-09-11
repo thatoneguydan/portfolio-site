@@ -23,13 +23,13 @@ body.contact-redesign {
   padding: clamp(54px, 5vw, 68px) 0 clamp(40px, 4vw, 50px);
 }
 
-/* Hold the desktop type scale to the proportions that worked in the narrower
-   desktop view instead of letting it balloon with viewport width. */
+/* Keep the desktop type at the proportions that worked in the narrower
+   desktop view instead of scaling it up with the viewport. */
 .video-redesign .rv-intro h1,
 .discipline-redesign .rdp-intro h1 {
-  max-width: 760px;
+  max-width: 710px;
   margin: 0;
-  font-size: clamp(50px, 6vw, 64px);
+  font-size: 56px;
   font-weight: 700;
   letter-spacing: -.055em;
   line-height: .94;
@@ -40,7 +40,7 @@ body.contact-redesign {
   max-width: 710px;
   margin: 24px 0 0;
   color: #555;
-  font-size: clamp(16px, 1.8vw, 18px);
+  font-size: 18px;
   line-height: 1.55;
 }
 
@@ -78,6 +78,7 @@ body.contact-redesign {
   .video-redesign .rv-intro-copy,
   .discipline-redesign .rdp-intro-copy {
     margin-top: 20px;
+    font-size: 16px;
   }
 
   .video-redesign .rv-shelves,
