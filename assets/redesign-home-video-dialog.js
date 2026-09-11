@@ -30,7 +30,7 @@
     if (dialogTitle) dialogTitle.textContent = kicker;
     if (dialogKicker) dialogKicker.textContent = kicker;
     if (dialogInfoTitle) dialogInfoTitle.textContent = title;
-    if (dialogDescription) dialogDescription.textContent = descriptions[id] || '';
+    if (dialogDescription) dialogDescription.textContent = card.getAttribute('data-video-description') || '';
 
     frame.title = title;
     frame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;

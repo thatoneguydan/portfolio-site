@@ -99,12 +99,6 @@
   header.querySelector('.rproj-summary').textContent = summary;
   main.prepend(header);
 
-  /* The migrated project pages carried two navigation leftovers from the old
-     portfolio: a standalone Contact Dan Smith button and an Other Categories
-     grid. The redesign has its own shared Contact close and discipline indexes,
-     so these nodes are removed rather than restyled or carried into shelves. */
-  main.querySelectorAll('.button-row, .related-projects').forEach((node) => node.remove());
-
   const contentChildren = Array.from(main.children).filter((node) => node !== header);
   let firstVisual = null;
 
