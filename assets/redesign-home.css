@@ -563,3 +563,65 @@
     font-size: 13px;
   }
 }
+
+/* Reserve the logo cell from first paint rather than letting its width depend
+   on late image/runtime geometry. This also pre-reserves the compact mobile
+   logo box before the hamburger controller adds its class. */
+@media (hover: hover) and (min-width: 981px) {
+  .home-redesign .site-logo {
+    width: 261px;
+    min-width: 261px;
+    flex: 0 0 261px;
+  }
+}
+
+@media (hover: hover) and (min-width: 721px) and (max-width: 980px) {
+  .home-redesign .site-logo {
+    width: calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px)));
+    min-width: calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px)));
+    flex: 0 0 calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px)));
+  }
+}
+
+@media (max-width: 720px) {
+  .home-redesign .site-header {
+    width: calc(100% - 32px);
+    min-height: 72px;
+    height: 72px;
+    padding: 0;
+    gap: 0;
+    align-items: stretch;
+    overflow: visible;
+  }
+
+  .home-redesign .site-logo {
+    position: relative;
+    width: 48px;
+    min-width: 48px;
+    max-width: 48px;
+    min-height: 72px;
+    flex: 0 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 !important;
+    border: 0;
+    overflow: hidden;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .home-redesign .site-logo img {
+    width: 205px !important;
+    max-width: none !important;
+    height: auto;
+    flex: 0 0 auto;
+  }
+
+  /* Prevent the old horizontal nav from flashing before the hamburger runtime
+     initializes; the higher-specificity nav-open rule takes over afterward. */
+  .home-redesign .site-nav {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
