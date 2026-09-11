@@ -1,0 +1,51 @@
+/* Shared visitor-facing page-intro treatment.
+   Contact is the visual reference for title/lede typography; Video, Design,
+   and Photo keep their existing header-section depth while using the same
+   one-column type hierarchy. */
+
+.contact-redesign-root,
+body.contact-redesign {
+  background: #f5f5f2;
+}
+
+body.contact-redesign {
+  min-height: 100vh;
+}
+
+.video-redesign .rv-intro,
+.discipline-redesign .rdp-intro {
+  display: block;
+  padding: clamp(72px, 9vw, 145px) 0 clamp(62px, 7vw, 110px);
+}
+
+.video-redesign .rv-intro h1,
+.discipline-redesign .rdp-intro h1 {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(58px, 7vw, 112px);
+  font-weight: 700;
+  letter-spacing: -.06em;
+  line-height: .9;
+}
+
+.video-redesign .rv-intro-copy,
+.discipline-redesign .rdp-intro-copy {
+  max-width: 600px;
+  margin: 30px 0 0;
+  color: #555;
+  font-size: clamp(17px, 1.45vw, 22px);
+  line-height: 1.55;
+}
+
+.video-redesign .rv-intro-copy strong,
+.discipline-redesign .rdp-intro-copy strong {
+  color: inherit;
+  font-weight: inherit;
+}
+
+@media (max-width: 500px) {
+  .video-redesign .rv-intro,
+  .discipline-redesign .rdp-intro {
+    padding-top: 58px;
+  }
+}

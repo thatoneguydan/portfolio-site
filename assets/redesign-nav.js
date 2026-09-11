@@ -16,6 +16,14 @@
   if (window.__redesignNavInitialized) return;
   window.__redesignNavInitialized = true;
 
+  const pageIntroStylesheetPath = '/assets/redesign-page-intro.css';
+  if (!document.querySelector(`link[href^="${pageIntroStylesheetPath}"]`)) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `${pageIntroStylesheetPath}?v=20260911-a`;
+    document.head.append(link);
+  }
+
   const stylesheetPath = '/assets/redesign-nav.css';
   if (!document.querySelector(`link[href^="${stylesheetPath}"]`)) {
     const link = document.createElement('link');
@@ -31,23 +39,27 @@
     document.head.append(contactShelfScript);
   }
 
-  /* Remove prototype/user-review language from the public-facing redesign.
-     This copy is visitor-facing portfolio language, not an explanation of how
-     the interface works. */
+  /* Keep visitor-facing discipline intros concise and let Contact define the
+     shared title/lede hierarchy. */
   if (document.body.classList.contains('video-redesign')) {
     const title = document.querySelector('.rv-intro h1');
     const intro = document.querySelector('.rv-intro-copy');
     const shelfMeta = document.querySelector('.rv-shelves-head span');
-    if (title) title.innerHTML = 'Video built to<br>hold attention.';
-    if (intro) intro.innerHTML = '<strong>Editing, essays, short-form, and channel work.</strong> A selection spanning client stories, long-form editorial, social video, and gaming content.';
+    if (title) title.textContent = 'Video that holds attention.';
+    if (intro) intro.textContent = 'Editing, essays, short-form, and channel work. A selection spanning client stories, long-form editorial, social video, and gaming content.';
     if (shelfMeta) shelfMeta.textContent = 'Client, editorial, social & long-form';
+  }
+
+  if (document.body.classList.contains('discipline-design')) {
+    const intro = document.querySelector('.rdp-intro-copy');
+    if (intro) intro.textContent = 'Identity, print, campaigns, and digital work. A broad selection of projects built to make organizations, events, and ideas easier to recognize and understand.';
   }
 
   if (document.body.classList.contains('discipline-photo')) {
     const title = document.querySelector('.rdp-intro h1');
     const intro = document.querySelector('.rdp-intro-copy');
     if (title) title.textContent = 'Portraits, places, and light.';
-    if (intro) intro.innerHTML = '<strong>Portraits, events, travel, and experiments.</strong> Client work and personal projects shaped by color, light, and atmosphere.';
+    if (intro) intro.textContent = 'Portraits, events, travel, and experiments. Client work and personal projects shaped by color, light, and atmosphere.';
   }
 
   const header = document.querySelector('.site-header');
