@@ -35,7 +35,7 @@
     document.head.append(link);
   };
 
-  ensureStylesheet('/assets/redesign-contact-shelf.css?v=20260910-c');
+  ensureStylesheet('/assets/redesign-contact-shelf.css?v=20260911-e');
   ensureStylesheet('/assets/redesign-footer-contact.css?v=20260910-b');
 
   const footerMarkup = `
@@ -106,22 +106,16 @@
     Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0) - window.innerHeight
   );
 
-  /* Start exactly one native smooth scroll after both the shelf animation and
-     Contact document layout have settled. Reissuing smooth-scroll commands
-     while the browser is already animating them causes the visible hitching the
-     old implementation had. */
-  const startAutoScroll = (state, forceClosest = false) => {
+  /* Footer contact shelves reserve their loading geometry immediately, so one
+     native smooth scroll can begin on the next paint instead of waiting for
+     the shelf transition, iframe load, or ResizeObserver. There are no later
+     correction scrolls, which also avoids the old hitching behavior. */
+  const startAutoScroll = (state) => {
     if (!state?.autoScroll || state.autoScrollStarted || !state.shelf?.isConnected) return false;
-    if (!forceClosest && (!state.shelfSettled || !state.frameReady)) return false;
+    state.autoScrollStarted = true;
 
     const target = desiredScrollTop(state);
     const max = maxScrollTop();
-    if (!forceClosest && target > max + 2) return false;
-
-    state.autoScrollStarted = true;
-    window.clearTimeout(state.autoScrollFallback);
-    state.autoScrollFallback = 0;
-
     window.scrollTo({
       top: Math.min(target, max),
       left: 0,
@@ -133,10 +127,8 @@
   const cleanup = (state, restoreFocus = false) => {
     if (!state) return;
     window.clearTimeout(state.removeTimer);
-    window.clearTimeout(state.autoScrollFallback);
     state.resizeObserver?.disconnect();
     state.resizeObserver = null;
-    if (state.onTransitionEnd) state.shelf.removeEventListener('transitionend', state.onTransitionEnd);
     state.source?.setAttribute('aria-expanded', 'false');
     state.source?.removeAttribute('aria-controls');
     state.frame.onload = null;
@@ -148,7 +140,7 @@
 
   const close = (state = active, restoreFocus = false, immediate = false) => {
     if (!state) return;
-    state.shelf.classList.remove('is-open', 'is-loaded');
+    state.shelf.classList.remove('is-open', 'is-loaded', 'rc-inline-contact-shelf--autoscroll');
     state.shelf.setAttribute('aria-hidden', 'true');
     state.source?.setAttribute('aria-expanded', 'false');
     state.resizeObserver?.disconnect();
@@ -182,26 +174,35 @@
     if (!doc?.body || !state.shelf.isConnected) return;
 
     resizeFrame(state);
-    state.frameReady = true;
     state.shelf.classList.add('is-loaded');
 
-    requestAnimationFrame(() => {
-      resizeFrame(state);
-      startAutoScroll(state);
-    });
+    requestAnimationFrame(() => resizeFrame(state));
 
     const FrameResizeObserver = state.frame.contentWindow?.ResizeObserver;
     if (FrameResizeObserver) {
-      state.resizeObserver = new FrameResizeObserver(() => {
-        resizeFrame(state);
-        if (!state.autoScrollStarted) requestAnimationFrame(() => startAutoScroll(state));
-      });
+      state.resizeObserver = new FrameResizeObserver(() => resizeFrame(state));
       state.resizeObserver.observe(doc.documentElement);
       state.resizeObserver.observe(doc.body);
       const main = doc.querySelector('.site-main');
       if (main) state.resizeObserver.observe(main);
     }
   };
+
+  const placeholderMarkup = `
+    <div class="rc-inline-contact-placeholder" aria-hidden="true">
+      <div class="rc-inline-contact-placeholder-copy">
+        <span class="rc-placeholder-line rc-placeholder-line--title"></span>
+        <span class="rc-placeholder-line rc-placeholder-line--long"></span>
+        <span class="rc-placeholder-line rc-placeholder-line--short"></span>
+      </div>
+      <div class="rc-inline-contact-placeholder-form">
+        <span class="rc-placeholder-field"></span>
+        <span class="rc-placeholder-field"></span>
+        <span class="rc-placeholder-field rc-placeholder-field--message"></span>
+        <span class="rc-placeholder-button"></span>
+      </div>
+    </div>
+  `;
 
   const open = (source) => {
     const anchor = directMainChildFor(source);
@@ -222,12 +223,13 @@
     const shelf = document.createElement('section');
     shelf.id = id;
     shelf.className = 'rc-inline-contact-shelf';
+    if (autoScroll) shelf.classList.add('rc-inline-contact-shelf--autoscroll');
     shelf.setAttribute('aria-hidden', 'true');
     shelf.setAttribute('aria-label', 'Contact Dan Smith');
     shelf.innerHTML = `
       <div class="rc-inline-contact-shell">
         <button class="rc-inline-contact-close" type="button" aria-label="Close contact">×</button>
-        <p class="rc-inline-contact-loading" aria-live="polite">Loading contact…</p>
+        ${placeholderMarkup}
         <iframe class="rc-inline-contact-frame" title="Contact Dan Smith" src="/contact?inlineShelf=1"></iframe>
       </div>
     `;
@@ -239,12 +241,8 @@
       closeButton: shelf.querySelector('.rc-inline-contact-close'),
       resizeObserver: null,
       removeTimer: 0,
-      onTransitionEnd: null,
       autoScroll,
       autoScrollStarted: false,
-      autoScrollFallback: 0,
-      shelfSettled: !autoScroll,
-      frameReady: false,
     };
     active = state;
 
@@ -255,21 +253,9 @@
     state.frame.addEventListener('load', () => prepareFrame(state), { once: true });
     state.closeButton.addEventListener('click', () => close(state, true));
 
-    if (autoScroll) {
-      state.onTransitionEnd = (event) => {
-        if (event.target !== shelf || event.propertyName !== 'grid-template-rows') return;
-        state.shelfSettled = true;
-        startAutoScroll(state);
-        shelf.removeEventListener('transitionend', state.onTransitionEnd);
-        state.onTransitionEnd = null;
-      };
-      shelf.addEventListener('transitionend', state.onTransitionEnd);
-
-      /* If loading or browser transition events are unusually delayed, perform
-         one fallback scroll to the closest naturally reachable position. This
-         is still a single scroll command, never a correction loop. */
-      state.autoScrollFallback = window.setTimeout(() => startAutoScroll(state, true), 1400);
-    }
+    /* Auto-scroll shelves already have placeholder height at insertion time.
+       Begin moving as soon as that geometry has been committed. */
+    if (autoScroll) requestAnimationFrame(() => startAutoScroll(state));
 
     requestAnimationFrame(() => {
       if (!shelf.isConnected) return;
