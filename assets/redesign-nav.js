@@ -20,7 +20,7 @@
   if (!document.querySelector(`link[href^="${pageIntroStylesheetPath}"]`)) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `${pageIntroStylesheetPath}?v=20260911-a`;
+    link.href = `${pageIntroStylesheetPath}?v=20260911-b`;
     document.head.append(link);
   }
 
@@ -39,15 +39,21 @@
     document.head.append(contactShelfScript);
   }
 
-  /* Keep visitor-facing discipline intros concise and let Contact define the
-     shared title/lede hierarchy. */
+  /* The active primary-nav state already identifies which discipline is being
+     viewed, so remove the duplicate micro-label and archive/category label row
+     from those pages entirely. */
   if (document.body.classList.contains('video-redesign')) {
+    document.querySelector('.rv-intro .rd-eyebrow')?.remove();
+    document.querySelector('.rv-shelves-head')?.remove();
     const title = document.querySelector('.rv-intro h1');
     const intro = document.querySelector('.rv-intro-copy');
-    const shelfMeta = document.querySelector('.rv-shelves-head span');
     if (title) title.textContent = 'Video that holds attention.';
     if (intro) intro.textContent = 'Editing, essays, short-form, and channel work. A selection spanning client stories, long-form editorial, social video, and gaming content.';
-    if (shelfMeta) shelfMeta.textContent = 'Client, editorial, social & long-form';
+  }
+
+  if (document.body.classList.contains('discipline-redesign')) {
+    document.querySelector('.rdp-intro .rd-eyebrow')?.remove();
+    document.querySelector('.rdp-gallery-head')?.remove();
   }
 
   if (document.body.classList.contains('discipline-design')) {
