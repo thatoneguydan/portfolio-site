@@ -33,6 +33,16 @@ jobs:
           $version = (node --version 2>&1 | Out-String).Trim()
           if ($version -notmatch '^v24\.') { throw "Expected managed Node 24; found '$version'." }
           node --check tools/apply-redesign-live-copy.mjs
+          node --check tools/patch-redesign-live-copy.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Patch transformer for native redesign project pages
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          node tools/patch-redesign-live-copy.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node --check tools/apply-redesign-live-copy.mjs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Apply approved copy and release cleanup
@@ -48,7 +58,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           git config user.name 'portfolio-redesign-release-bot'
           git config user.email 'portfolio-redesign-release-bot@users.noreply.github.com'
-          git rm -- '.github/workflows/redesign-live-release-prep.yml' '.github/redesign-live-release-request.json' 'tools/apply-redesign-live-copy.mjs'
+          git rm -- '.github/workflows/redesign-live-release-prep.yml' '.github/redesign-live-release-request.json' 'tools/apply-redesign-live-copy.mjs' 'tools/patch-redesign-live-copy.mjs'
           git add -A
           git diff --cached --check
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
