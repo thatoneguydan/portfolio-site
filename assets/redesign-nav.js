@@ -39,13 +39,21 @@
     document.head.append(contactShelfScript);
   }
 
-  /* Keep visitor-facing discipline intros concise. The active primary-nav
-     state already identifies which discipline is being viewed. */
+  /* The active primary-nav state already identifies which discipline is being
+     viewed, so remove the duplicate micro-label and archive/category label row
+     from those pages entirely. */
   if (document.body.classList.contains('video-redesign')) {
+    document.querySelector('.rv-intro .rd-eyebrow')?.remove();
+    document.querySelector('.rv-shelves-head')?.remove();
     const title = document.querySelector('.rv-intro h1');
     const intro = document.querySelector('.rv-intro-copy');
     if (title) title.textContent = 'Video that holds attention.';
     if (intro) intro.textContent = 'Editing, essays, short-form, and channel work. A selection spanning client stories, long-form editorial, social video, and gaming content.';
+  }
+
+  if (document.body.classList.contains('discipline-redesign')) {
+    document.querySelector('.rdp-intro .rd-eyebrow')?.remove();
+    document.querySelector('.rdp-gallery-head')?.remove();
   }
 
   if (document.body.classList.contains('discipline-design')) {
