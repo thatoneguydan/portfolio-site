@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Inventory only or delete artifacts older than the retention window'
+        description: 'Inventory only or apply the bounded artifact lifecycle'
         required: true
         default: dry-run
         type: choice
@@ -27,6 +27,9 @@ concurrency:
 
 env:
   ARTIFACT_RETENTION_DAYS: '7'
+  ARTIFACT_STORAGE_BUDGET_MIB: '192'
+  ARTIFACT_BUDGET_MIN_AGE_HOURS: '24'
+  ARTIFACT_PURGE_PREFIXES: ''
 
 jobs:
   inventory:
@@ -37,58 +40,55 @@ jobs:
       contents: read
       actions: read
     steps:
-      - name: Inventory artifact backlog
+      - name: Inventory bounded artifact storage
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $days = [int]$env:ARTIFACT_RETENTION_DAYS; $cutoff = [DateTimeOffset]::UtcNow.AddDays(-$days)
-          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }
-          $all = [System.Collections.Generic.List[object]]::new()
-          for ($page = 1; ; $page++) { $r = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?per_page=100&page=$page"; $items = @($r.artifacts); foreach ($item in $items) { $all.Add($item) }; if ($items.Count -lt 100) { break } }
-          $old = @($all | Where-Object { [DateTimeOffset]$_.created_at -lt $cutoff })
-          $allBytes = [int64](($all | Measure-Object size_in_bytes -Sum).Sum); $oldBytes = [int64](($old | Measure-Object size_in_bytes -Sum).Sum)
-          $allMiB = [math]::Round($allBytes / 1MB, 2); $oldMiB = [math]::Round($oldBytes / 1MB, 2)
-          Write-Host "Repository: $env:GITHUB_REPOSITORY"
-          Write-Host "Artifacts: $($all.Count), $allMiB MiB"
-          Write-Host "Eligible for deletion: $($old.Count), $oldMiB MiB"
+          function Get-ArtifactInventory { $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }; $all = [System.Collections.Generic.List[object]]::new(); for ($page = 1; ; $page++) { $response = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?per_page=100&page=$page"; $items = @($response.artifacts); foreach ($item in $items) { $all.Add($item) }; if ($items.Count -lt 100) { break } }; return @($all) }
+          function Get-DeletionPlan { param([object[]]$Artifacts); $now = [DateTimeOffset]::UtcNow; $ageCutoff = $now.AddDays(-[int]$env:ARTIFACT_RETENTION_DAYS); $budgetCutoff = $now.AddHours(-[int]$env:ARTIFACT_BUDGET_MIN_AGE_HOURS); [int64]$budgetBytes = [int64]$env:ARTIFACT_STORAGE_BUDGET_MIB * 1MB; $prefixes = @(([string]$env:ARTIFACT_PURGE_PREFIXES).Split(';') | ForEach-Object { $_.Trim() } | Where-Object { $_ }); $reasons = @{}; foreach ($artifact in $Artifacts) { $id = [string]$artifact.id; if ([DateTimeOffset]$artifact.created_at -lt $ageCutoff) { $reasons[$id] = 'age'; continue }; foreach ($prefix in $prefixes) { if ([string]$artifact.name -like "$prefix*") { $reasons[$id] = "purge-prefix:$prefix"; break } } }; [int64]$totalBytes = [int64](($Artifacts | Measure-Object size_in_bytes -Sum).Sum); [int64]$plannedBytes = 0; foreach ($artifact in $Artifacts) { if ($reasons.ContainsKey([string]$artifact.id)) { $plannedBytes += [int64]$artifact.size_in_bytes } }; [int64]$projectedBytes = $totalBytes - $plannedBytes; $protectedNewest = @($Artifacts | Where-Object { -not $reasons.ContainsKey([string]$_.id) } | Sort-Object { [DateTimeOffset]$_.created_at } -Descending | Select-Object -First 1); if ($projectedBytes -gt $budgetBytes) { $protectedId = if ($protectedNewest.Count -gt 0) { [string]$protectedNewest[0].id } else { '' }; $candidates = @($Artifacts | Where-Object { $id = [string]$_.id; -not $reasons.ContainsKey($id) -and $id -ne $protectedId -and [DateTimeOffset]$_.created_at -lt $budgetCutoff } | Sort-Object { [DateTimeOffset]$_.created_at }); foreach ($artifact in $candidates) { if ($projectedBytes -le $budgetBytes) { break }; $id = [string]$artifact.id; $reasons[$id] = 'storage-budget'; $plannedBytes += [int64]$artifact.size_in_bytes; $projectedBytes -= [int64]$artifact.size_in_bytes } }; $delete = @($Artifacts | Where-Object { $reasons.ContainsKey([string]$_.id) } | Sort-Object { [DateTimeOffset]$_.created_at }); $budgetDelete = @($delete | Where-Object { $reasons[[string]$_.id] -eq 'storage-budget' }); $hardDelete = @($delete | Where-Object { $reasons[[string]$_.id] -ne 'storage-budget' }); [pscustomobject]@{ delete=$delete; reasons=$reasons; totalBytes=$totalBytes; projectedBytes=$projectedBytes; hardDeleteCount=$hardDelete.Count; budgetDeleteCount=$budgetDelete.Count; protectedNewest=$protectedNewest } }
+          $all = @(Get-ArtifactInventory); $plan = Get-DeletionPlan -Artifacts $all; $allMiB = [math]::Round($plan.totalBytes / 1MB, 2); $plannedBytes = [int64](($plan.delete | Measure-Object size_in_bytes -Sum).Sum); $plannedMiB = [math]::Round($plannedBytes / 1MB, 2); $projectedMiB = [math]::Round($plan.projectedBytes / 1MB, 2); $protected = if ($plan.protectedNewest.Count -gt 0) { "'$($plan.protectedNewest[0].name)' ($($plan.protectedNewest[0].created_at))" } else { 'none' }
+          Write-Host "Repository: $env:GITHUB_REPOSITORY"; Write-Host "Artifacts: $($all.Count), $allMiB MiB"; Write-Host "Planned deletion: $($plan.delete.Count), $plannedMiB MiB (hard=$($plan.hardDeleteCount), budget=$($plan.budgetDeleteCount))"; Write-Host "Projected after cleanup: $projectedMiB MiB"
           @"
           ## Actions artifact lifecycle inventory
           - Repository: ``$env:GITHUB_REPOSITORY``
-          - Retention: **$days days**
+          - Hard maximum age: **$env:ARTIFACT_RETENTION_DAYS days**
+          - Steady-state budget: **$env:ARTIFACT_STORAGE_BUDGET_MIB MiB**
+          - Budget grace: artifacts younger than **$env:ARTIFACT_BUDGET_MIN_AGE_HOURS hours** are not budget-pruned
           - Current: **$($all.Count)** artifact(s), $allMiB MiB
-          - Eligible: **$($old.Count)** artifact(s), $oldMiB MiB
+          - Planned deletion: **$($plan.delete.Count)** artifact(s), $plannedMiB MiB (hard/policy: $($plan.hardDeleteCount); budget: $($plan.budgetDeleteCount))
+          - Projected after cleanup: **$projectedMiB MiB**
+          - Newest non-forced artifact protected from budget pruning: $protected
           - This job is read-only. Resume-critical evidence must be durable outside Actions artifacts.
           "@ >> $env:GITHUB_STEP_SUMMARY
 
   cleanup:
-    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.mode == 'apply') && (github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.repo.owner.login == github.repository_owner)) }}
+    if: ${{ github.event_name != 'pull_request' && (github.event_name != 'workflow_dispatch' || inputs.mode == 'apply') }}
     runs-on: [self-hosted, Windows, X64, glass-builder]
     timeout-minutes: 15
     permissions:
       contents: read
       actions: write
     steps:
-      - name: Delete expired artifacts
+      - name: Apply bounded artifact lifecycle
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $ErrorActionPreference = 'Stop'
-          $days = [int]$env:ARTIFACT_RETENTION_DAYS; $cutoff = [DateTimeOffset]::UtcNow.AddDays(-$days)
-          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }
-          $all = [System.Collections.Generic.List[object]]::new()
-          for ($page = 1; ; $page++) { $r = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?per_page=100&page=$page"; $items = @($r.artifacts); foreach ($item in $items) { $all.Add($item) }; if ($items.Count -lt 100) { break } }
-          $old = @($all | Where-Object { [DateTimeOffset]$_.created_at -lt $cutoff } | Sort-Object { [DateTimeOffset]$_.created_at })
-          [int64]$bytes = 0; $deleted = 0
-          foreach ($artifact in $old) { Write-Host "Deleting artifact $($artifact.id) '$($artifact.name)' created $($artifact.created_at)"; Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts/$($artifact.id)" | Out-Null; $deleted++; $bytes += [int64]$artifact.size_in_bytes }
-          $mib = [math]::Round($bytes / 1MB, 2); $kept = $all.Count - $deleted
-          Write-Host "Deleted: $deleted artifact(s), $mib MiB; kept: $kept"
+          function Get-ArtifactInventory { $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }; $all = [System.Collections.Generic.List[object]]::new(); for ($page = 1; ; $page++) { $response = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?per_page=100&page=$page"; $items = @($response.artifacts); foreach ($item in $items) { $all.Add($item) }; if ($items.Count -lt 100) { break } }; return @($all) }
+          function Get-DeletionPlan { param([object[]]$Artifacts); $now = [DateTimeOffset]::UtcNow; $ageCutoff = $now.AddDays(-[int]$env:ARTIFACT_RETENTION_DAYS); $budgetCutoff = $now.AddHours(-[int]$env:ARTIFACT_BUDGET_MIN_AGE_HOURS); [int64]$budgetBytes = [int64]$env:ARTIFACT_STORAGE_BUDGET_MIB * 1MB; $prefixes = @(([string]$env:ARTIFACT_PURGE_PREFIXES).Split(';') | ForEach-Object { $_.Trim() } | Where-Object { $_ }); $reasons = @{}; foreach ($artifact in $Artifacts) { $id = [string]$artifact.id; if ([DateTimeOffset]$artifact.created_at -lt $ageCutoff) { $reasons[$id] = 'age'; continue }; foreach ($prefix in $prefixes) { if ([string]$artifact.name -like "$prefix*") { $reasons[$id] = "purge-prefix:$prefix"; break } } }; [int64]$totalBytes = [int64](($Artifacts | Measure-Object size_in_bytes -Sum).Sum); [int64]$plannedBytes = 0; foreach ($artifact in $Artifacts) { if ($reasons.ContainsKey([string]$artifact.id)) { $plannedBytes += [int64]$artifact.size_in_bytes } }; [int64]$projectedBytes = $totalBytes - $plannedBytes; $protectedNewest = @($Artifacts | Where-Object { -not $reasons.ContainsKey([string]$_.id) } | Sort-Object { [DateTimeOffset]$_.created_at } -Descending | Select-Object -First 1); if ($projectedBytes -gt $budgetBytes) { $protectedId = if ($protectedNewest.Count -gt 0) { [string]$protectedNewest[0].id } else { '' }; $candidates = @($Artifacts | Where-Object { $id = [string]$_.id; -not $reasons.ContainsKey($id) -and $id -ne $protectedId -and [DateTimeOffset]$_.created_at -lt $budgetCutoff } | Sort-Object { [DateTimeOffset]$_.created_at }); foreach ($artifact in $candidates) { if ($projectedBytes -le $budgetBytes) { break }; $id = [string]$artifact.id; $reasons[$id] = 'storage-budget'; $plannedBytes += [int64]$artifact.size_in_bytes; $projectedBytes -= [int64]$artifact.size_in_bytes } }; $delete = @($Artifacts | Where-Object { $reasons.ContainsKey([string]$_.id) } | Sort-Object { [DateTimeOffset]$_.created_at }); [pscustomobject]@{ delete=$delete; reasons=$reasons; totalBytes=$totalBytes; projectedBytes=$projectedBytes } }
+          $headers = @{ Authorization = "Bearer $env:GH_TOKEN"; Accept = 'application/vnd.github+json'; 'X-GitHub-Api-Version' = '2022-11-28' }; $all = @(Get-ArtifactInventory); $plan = Get-DeletionPlan -Artifacts $all; [int64]$bytes = 0; $deleted = 0
+          foreach ($artifact in $plan.delete) { $reason = $plan.reasons[[string]$artifact.id]; Write-Host "Deleting artifact $($artifact.id) '$($artifact.name)' created $($artifact.created_at); reason=$reason"; Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts/$($artifact.id)" | Out-Null; $deleted++; $bytes += [int64]$artifact.size_in_bytes }
+          $mib = [math]::Round($bytes / 1MB, 2); [int64]$remainingBytes = [int64]$plan.totalBytes - $bytes; if ($remainingBytes -lt 0) { $remainingBytes = 0 }; $remainingMiB = [math]::Round($remainingBytes / 1MB, 2); $kept = $all.Count - $deleted
+          Write-Host "Deleted: $deleted artifact(s), $mib MiB; kept: $kept, about $remainingMiB MiB"
           @"
           ## Actions artifact lifecycle cleanup
           - Repository: ``$env:GITHUB_REPOSITORY``
           - Deleted: **$deleted** artifact(s), about $mib MiB
-          - Kept: **$kept** artifact(s)
-          - Scope: Actions artifacts only; Git/source, runs/logs, branches, PRs/issues, releases, and durable project state are untouched.
+          - Kept: **$kept** artifact(s), about $remainingMiB MiB
+          - Hard maximum age: **$env:ARTIFACT_RETENTION_DAYS days**
+          - Steady-state budget: **$env:ARTIFACT_STORAGE_BUDGET_MIB MiB**, applied only to artifacts at least **$env:ARTIFACT_BUDGET_MIN_AGE_HOURS hours** old while protecting the newest non-forced artifact
+          - Scope: Actions artifacts only; Git/source, runs/logs, branches, PRs/issues, Releases, and durable project state are untouched.
           "@ >> $env:GITHUB_STEP_SUMMARY
