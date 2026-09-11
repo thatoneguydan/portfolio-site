@@ -16,16 +16,16 @@ html {
 
 @media (min-width: 721px) and (max-width: 980px) {
   .home-redesign .site-logo {
-    width: 205px !important;
-    min-width: 205px !important;
-    max-width: 205px !important;
-    flex: 0 0 205px !important;
-    padding-left: 15px !important;
-    padding-right: 15px !important;
+    width: calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px))) !important;
+    min-width: calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px))) !important;
+    max-width: calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px))) !important;
+    flex: 0 0 calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px))) !important;
+    padding-left: clamp(10px, 2vw, 20px) !important;
+    padding-right: clamp(10px, 2vw, 20px) !important;
   }
 
   .home-redesign .site-logo img {
-    width: 173px !important;
+    width: clamp(140px, 19vw, 185px) !important;
     max-width: none !important;
   }
 }
