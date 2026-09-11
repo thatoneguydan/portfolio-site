@@ -24,6 +24,13 @@
   display: block;
 }
 
+/* Design uses a strict 3 / 2 / 1-column archive. Legacy --wide markers remain
+   in the markup for compatibility but no longer change row geometry. */
+.discipline-design .rdp-project-card,
+.discipline-design .rdp-project-card--wide {
+  grid-column: span 4;
+}
+
 /* Photo archive cards use one consistent tile geometry. The old wide-card
    treatment created alternating landscape and portrait rows on wide screens. */
 .discipline-photo .rdp-project-card,
@@ -182,6 +189,8 @@
 }
 
 @media (max-width: 1000px) {
+  .discipline-design .rdp-project-card,
+  .discipline-design .rdp-project-card--wide,
   .discipline-photo .rdp-project-card,
   .discipline-photo .rdp-project-card--wide {
     grid-column: span 6;
@@ -191,6 +200,11 @@
 @media (max-width: 540px) {
   .discipline-redesign .rdp-project-grid {
     row-gap: 0;
+  }
+
+  .discipline-design .rdp-project-card,
+  .discipline-design .rdp-project-card--wide {
+    grid-column: 1 / -1;
   }
 
   .discipline-redesign .rdp-project-card {
