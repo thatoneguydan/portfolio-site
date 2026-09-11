@@ -16,6 +16,16 @@
   if (window.__redesignNavInitialized) return;
   window.__redesignNavInitialized = true;
 
+  /* Preview copy test: the old internal project name does not explain the
+     subject to a first-time visitor. Keep the existing route stable while
+     presenting a descriptive portfolio title everywhere the card appears. */
+  document.querySelectorAll('a[href="/photo-set-moms-basement"], a[href$="/photo-set-moms-basement"]').forEach((card) => {
+    const title = card.querySelector('.rd-work-title, .rdp-project-title');
+    const image = card.querySelector('img');
+    if (title) title.textContent = 'Retro Tech Still Lifes';
+    if (image) image.alt = 'Retro Tech Still Lifes photo set';
+  });
+
   const pageIntroStylesheetPath = '/assets/redesign-page-intro.css';
   if (!document.querySelector(`link[href^="${pageIntroStylesheetPath}"]`)) {
     const link = document.createElement('link');
