@@ -480,12 +480,6 @@ body { font-family: vcsm, Arial, Helvetica, sans-serif; }
 .site-nav a:focus-visible,
 .site-nav a[aria-current="page"] { color: #111; }
 
-/* General body/caption typography comes first so heading-specific rules below win the cascade. */
-.masthead p { font-family: Arial, Helvetica, sans-serif; }
-.text-block,
-.cover-card p,
-.related-projects { font-family: vcsm, Arial, Helvetica, sans-serif; }
-
 .masthead h1,
 .text-block--title,
 .text-block--subtitle,
@@ -494,6 +488,10 @@ body { font-family: vcsm, Arial, Helvetica, sans-serif; }
 .related-projects > h2 {
   font-family: gmsj, Georgia, serif;
 }
+.masthead p { font-family: Arial, Helvetica, sans-serif; }
+.text-block,
+.cover-card p,
+.related-projects { font-family: vcsm, Arial, Helvetica, sans-serif; }
 
 .button-row .portfolio-button {
   font-family: Arial, Helvetica, sans-serif;

@@ -1,8 +1,8 @@
 {
-  "requestId": "portfolio-contact-worker-publish-2026-09-08-001",
+  "requestId": "portfolio-original-visual-parity-publish-2026-09-08-001",
   "mode": "publish",
-  "candidateSha256": "9415612462c5636c7d1860d58bd7f864b4588f3b82873acce46e4e1f36e1f015",
-  "publicTreeSha256": "f42d5d67df5791335c42a1fb096939db0cfed416bfff647a3e85610f9ee60ac4",
+  "candidateSha256": "5e08480fc49d684a42ef758f66589b8b8ac43a3c313a7e149687f12153ef4429",
+  "publicTreeSha256": "06eba0c71b6fc0c98fc110f534404686a951d3d0278b2211d932ddfd7bf27fde",
   "publicFiles": 646,
-  "publicBytes": 644112218
+  "publicBytes": 644107912
 }

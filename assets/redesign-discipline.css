@@ -1,0 +1,244 @@
+.discipline-redesign .site-main {
+  width: min(92%, 1500px);
+  margin: 0 auto;
+  padding-bottom: 0;
+}
+
+.rdp-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+  gap: clamp(38px, 8vw, 130px);
+  align-items: end;
+  padding: clamp(72px, 9vw, 145px) 0 clamp(60px, 7vw, 108px);
+  border-bottom: 1px solid rgba(0, 0, 0, .10);
+}
+
+.rdp-intro h1 {
+  margin: 0;
+  font-size: clamp(64px, 10vw, 156px);
+  font-weight: 700;
+  letter-spacing: -.065em;
+  line-height: .82;
+}
+
+.rdp-intro-copy {
+  max-width: 540px;
+  margin: 0 0 2px auto;
+  color: #555;
+  font-size: clamp(17px, 1.4vw, 21px);
+  line-height: 1.55;
+}
+
+.rdp-intro-copy strong {
+  color: #111;
+}
+
+.rdp-gallery {
+  padding: clamp(58px, 7vw, 105px) 0 clamp(90px, 10vw, 160px);
+}
+
+.rdp-gallery-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.rdp-gallery-head p {
+  margin: 0;
+  color: #777;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.rdp-gallery-head span {
+  color: #777;
+  font-size: 13px;
+}
+
+.rdp-project-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: clamp(16px, 2.1vw, 30px) 14px;
+}
+
+.rdp-project-card {
+  grid-column: span 4;
+  min-width: 0;
+  color: #111;
+  text-decoration: none;
+}
+
+.rdp-project-card--wide {
+  grid-column: span 6;
+}
+
+.rdp-project-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #ddd;
+}
+
+.discipline-photo .rdp-project-media {
+  aspect-ratio: 4 / 5;
+}
+
+.discipline-photo .rdp-project-card--wide .rdp-project-media {
+  aspect-ratio: 5 / 4;
+}
+
+.rdp-project-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 420ms cubic-bezier(.2,.7,.2,1);
+}
+
+.rdp-project-media::after {
+  content: 'View';
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  min-width: 56px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, .9);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.rdp-project-card:hover .rdp-project-media img,
+.rdp-project-card:focus-visible .rdp-project-media img {
+  transform: scale(1.025);
+}
+
+.rdp-project-card:hover .rdp-project-media::after,
+.rdp-project-card:focus-visible .rdp-project-media::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.rdp-project-card:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 5px;
+}
+
+.rdp-project-meta {
+  display: block;
+  padding: 13px 2px 0;
+}
+
+.rdp-project-kicker {
+  display: block;
+  margin-bottom: 5px;
+  color: #777;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.rdp-project-title {
+  display: block;
+  max-width: 95%;
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-weight: 700;
+  letter-spacing: -.025em;
+  line-height: 1.15;
+}
+
+.rdp-project-note {
+  display: block;
+  max-width: 92%;
+  margin-top: 7px;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1000px) {
+  .rdp-intro {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
+  .rdp-intro-copy {
+    margin-left: 0;
+  }
+
+  .rdp-project-card,
+  .rdp-project-card--wide {
+    grid-column: span 6;
+  }
+
+  .discipline-photo .rdp-project-media,
+  .discipline-photo .rdp-project-card--wide .rdp-project-media {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+@media (max-width: 720px) {
+  .discipline-redesign .site-main {
+    width: 90%;
+  }
+
+  .rdp-intro {
+    padding-top: 58px;
+  }
+
+  .rdp-gallery-head span {
+    display: none;
+  }
+
+  .rdp-project-grid {
+    gap: 28px 12px;
+  }
+
+  .rdp-project-title {
+    font-size: 18px;
+  }
+
+  .rdp-project-note {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 540px) {
+  .discipline-redesign .site-main {
+    width: calc(100% - 32px);
+  }
+
+  .rdp-project-grid {
+    display: block;
+  }
+
+  .rdp-project-card {
+    display: block;
+    margin-bottom: 34px;
+  }
+
+  .discipline-photo .rdp-project-media,
+  .discipline-photo .rdp-project-card--wide .rdp-project-media {
+    aspect-ratio: 4 / 5;
+  }
+
+  .rdp-project-media::after {
+    opacity: 1;
+    transform: none;
+  }
+}

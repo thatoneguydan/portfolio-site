@@ -1,0 +1,238 @@
+.contact-redesign .site-main {
+  width: min(92%, 1500px);
+  margin: 0 auto;
+}
+
+.rc-contact {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(380px, 1.1fr);
+  gap: clamp(54px, 8vw, 140px);
+  align-items: start;
+  padding: clamp(72px, 9vw, 145px) 0 clamp(90px, 10vw, 160px);
+}
+
+.rc-contact-copy h1 {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(58px, 7vw, 112px);
+  font-weight: 700;
+  letter-spacing: -.06em;
+  line-height: .9;
+}
+
+.rc-contact-lede {
+  max-width: 600px;
+  margin: 30px 0 0;
+  color: #555;
+  font-size: clamp(17px, 1.45vw, 22px);
+  line-height: 1.55;
+}
+
+.rc-contact-details {
+  display: grid;
+  gap: 10px;
+  margin-top: 38px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, .12);
+}
+
+.rc-contact-detail {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 18px;
+  align-items: baseline;
+}
+
+.rc-contact-detail dt {
+  color: #777;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.rc-contact-detail dd {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rc-contact-detail a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.rc-form-wrap {
+  position: sticky;
+  top: 34px;
+  padding: clamp(30px, 4vw, 54px);
+  border: 1px solid rgba(0, 0, 0, .13);
+  background: rgba(255, 255, 255, .44);
+}
+
+.rc-form-head {
+  margin-bottom: 34px;
+}
+
+.rc-form-head p {
+  margin: 0 0 10px;
+  color: #777;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.rc-form-head h2 {
+  margin: 0;
+  font-size: clamp(30px, 3vw, 46px);
+  letter-spacing: -.04em;
+  line-height: 1;
+}
+
+.contact-redesign .contact-form {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.contact-redesign .form-field {
+  margin: 0 0 24px;
+}
+
+.contact-redesign .form-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.contact-redesign .form-field input,
+.contact-redesign .form-field textarea {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, .28);
+  border-radius: 0;
+  padding: 12px 0 14px;
+  background: transparent;
+  color: #111;
+  font: inherit;
+  font-size: 17px;
+  line-height: 1.45;
+  box-shadow: none;
+  outline: none;
+}
+
+.contact-redesign .form-field textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.contact-redesign .form-field input::placeholder,
+.contact-redesign .form-field textarea::placeholder {
+  color: #9a9a94;
+}
+
+.contact-redesign .form-field input:focus,
+.contact-redesign .form-field textarea:focus {
+  border-bottom-color: #111;
+}
+
+.contact-redesign [data-contact-turnstile] {
+  min-height: 8px;
+  margin: 4px 0 18px;
+}
+
+.contact-redesign .portfolio-button {
+  min-height: 50px;
+  min-width: 150px;
+  padding: 0 22px;
+  border: 1px solid #111;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+
+.contact-redesign .portfolio-button:hover,
+.contact-redesign .portfolio-button:focus-visible {
+  background: transparent;
+  color: #111;
+}
+
+.contact-redesign .portfolio-button:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+
+.contact-redesign .form-status {
+  min-height: 1.4em;
+  margin: 14px 0 0;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* The in-place shelf renders this exact page in a same-origin iframe. Only the
+   duplicate global header is removed; contact content and form styling remain
+   the same source of truth as the standalone Contact page. */
+.contact-inline-embed .site-header {
+  display: none !important;
+}
+
+.contact-inline-embed {
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .contact-redesign .site-main {
+    width: 90%;
+  }
+
+  .rc-contact {
+    grid-template-columns: 1fr;
+  }
+
+  .rc-contact-copy {
+    display: block;
+  }
+
+  .rc-contact-details {
+    margin-top: 34px;
+  }
+
+  .rc-form-wrap {
+    position: static;
+  }
+}
+
+@media (max-width: 500px) {
+  .contact-redesign .site-main {
+    width: calc(100% - 32px);
+  }
+
+  .rc-contact {
+    padding-top: 58px;
+  }
+
+  .rc-contact-detail {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .rc-form-wrap {
+    padding: 28px 22px;
+  }
+
+  .contact-redesign .portfolio-button {
+    width: 100%;
+  }
+}

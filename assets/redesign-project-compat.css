@@ -1,0 +1,132 @@
+.project-compat-redesign .site-main {
+  width: min(92%, 1500px);
+  margin: 0 auto;
+  padding-bottom: 0;
+}
+
+.project-compat-redesign .rcompat-header {
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .rcompat-layout {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(30px, 6vw, 92px) !important;
+  align-items: center;
+  margin: 0 !important;
+  padding: clamp(54px, 7vw, 104px) 0 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .rcompat-layout > .column {
+  min-width: 0;
+  flex: none !important;
+}
+
+.project-compat-redesign .rcompat-layout .module,
+.project-compat-redesign .rcompat-layout .column {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.project-compat-redesign .rcompat-image-module { margin: 0; }
+
+.project-compat-redesign .rcompat-image-module button,
+.project-compat-redesign .rcompat-gallery button {
+  width: 100%;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.project-compat-redesign .rcompat-image-module img,
+.project-compat-redesign .rcompat-gallery img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.project-compat-redesign .rcompat-text-module {
+  max-width: 760px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.project-compat-redesign .rcompat-text-module .text-block {
+  margin: 0 0 18px !important;
+  color: #333;
+  font-size: clamp(18px, 1.8vw, 27px) !important;
+  line-height: 1.48 !important;
+  letter-spacing: -.014em;
+  text-align: left !important;
+}
+
+.project-compat-redesign .rcompat-text-module .text-block:last-child { margin-bottom: 0 !important; }
+
+/* Keep the production media-collection model. Each child already carries an
+   inline proportional flex weight calculated from its source aspect ratio;
+   those weights create equal-height rows without cropping. */
+.project-compat-redesign .rcompat-gallery {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: clamp(54px, 7vw, 104px) 0 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .rcompat-gallery > * {
+  min-width: 0;
+  height: auto;
+  overflow: hidden;
+}
+
+.project-compat-redesign .rcompat-gallery button,
+.project-compat-redesign .rcompat-gallery img { height: auto; }
+
+.project-compat-redesign .rcompat-gallery button:focus-visible,
+.project-compat-redesign .rcompat-image-module button:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: -3px;
+}
+
+.project-compat-redesign .site-main > .rcompat-image-module {
+  padding: clamp(54px, 7vw, 104px) 0;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .site-main > .rcompat-text-module {
+  max-width: 920px;
+  padding: clamp(54px, 7vw, 104px) 0 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+}
+
+.project-compat-redesign .rcompat-footer { margin-top: 0; }
+
+@media (max-width: 900px) {
+  .project-compat-redesign .rcompat-layout {
+    grid-template-columns: 1fr;
+    gap: 26px !important;
+  }
+}
+
+@media (max-width: 650px) {
+  .project-compat-redesign .site-main { width: calc(100% - 32px); }
+
+  .project-compat-redesign .rcompat-gallery {
+    flex-direction: column !important;
+  }
+
+  .project-compat-redesign .rcompat-gallery > * {
+    width: 100% !important;
+    flex: none !important;
+    margin-bottom: 12px !important;
+  }
+}

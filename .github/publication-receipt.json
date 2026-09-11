@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "result": "PASS",
-  "requestId": "portfolio-contact-worker-clean-handoff-2026-09-08-001",
-  "candidateSha256": "9415612462c5636c7d1860d58bd7f864b4588f3b82873acce46e4e1f36e1f015",
-  "publicTreeSha256": "f42d5d67df5791335c42a1fb096939db0cfed416bfff647a3e85610f9ee60ac4",
+  "requestId": "portfolio-original-visual-parity-clean-handoff-2026-09-08-002",
+  "candidateSha256": "5e08480fc49d684a42ef758f66589b8b8ac43a3c313a7e149687f12153ef4429",
+  "publicTreeSha256": "06eba0c71b6fc0c98fc110f534404686a951d3d0278b2211d932ddfd7bf27fde",
   "publicFiles": 646,
-  "publicBytes": 644112218,
+  "publicBytes": 644107912,
   "sourceRescueSha256": "657ebe87476132fc49f478d5b29fe9823ce59923d7cacf1ddc943e01c769e247",
-  "verifiedAt": "2026-09-08T22:46:34.178Z"
+  "verifiedAt": "2026-09-08T17:54:48.631Z"
 }
