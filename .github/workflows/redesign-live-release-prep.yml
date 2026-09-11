@@ -1,0 +1,79 @@
+name: Portfolio Redesign Live Release Prep
+
+on:
+  push:
+    branches: [redesign]
+    paths:
+      - '.github/redesign-live-release-request.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: portfolio-redesign-live-release-prep
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    name: Apply approved copy and live-release cleanup
+    runs-on: [self-hosted, Windows, X64, glass-builder]
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out redesign branch
+        uses: actions/checkout@v7
+        with:
+          ref: redesign
+          fetch-depth: 0
+
+      - name: Verify managed Node runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (node --version 2>&1 | Out-String).Trim()
+          if ($version -notmatch '^v24\.') { throw "Expected managed Node 24; found '$version'." }
+          node --check tools/apply-redesign-live-copy.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Apply approved copy and release cleanup
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          node tools/apply-redesign-live-copy.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Commit prepared redesign
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          git config user.name 'portfolio-redesign-release-bot'
+          git config user.email 'portfolio-redesign-release-bot@users.noreply.github.com'
+          git rm -- '.github/workflows/redesign-live-release-prep.yml' '.github/redesign-live-release-request.json' 'tools/apply-redesign-live-copy.mjs'
+          git add -A
+          git diff --cached --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) { throw 'Live release prep produced no changes.' }
+          if ($LASTEXITCODE -ne 1) { exit $LASTEXITCODE }
+          git commit -m 'Apply approved portfolio copy and prepare live release'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git fetch origin redesign
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git rebase origin/redesign
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git push origin HEAD:redesign
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Summarize release prep
+        shell: pwsh
+        run: |
+          @"
+          ## Portfolio redesign live-release source prepared
+          - Approved Design/Photo/Video wording applied
+          - Design/Photo legacy Contact + Other Categories markup removed
+          - Staging noindex controls removed
+          - Homepage canonical moved to `/`
+          - `/work` preserved as an alias of the accepted homepage
+          - YouTube placeholder titles recovered from YouTube oEmbed metadata
+          - Source validation passed before commit
+          "@ >> $env:GITHUB_STEP_SUMMARY
