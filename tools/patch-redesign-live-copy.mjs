@@ -15,5 +15,7 @@ const replacement = String.raw`  html = removeNoIndex(html);
     html = replaceFirstMeaningfulTextModule(html, copy.full);
   }`;
 source = source.replace(needle, replacement);
+source = source.replace("if (/const descriptions =/.test(videoJs) || /descriptions\\[id\\]/.test(videoJs)) throw new Error('Legacy video description map remains');", "if (/descriptions\\[id\\]/.test(videoJs)) throw new Error('Legacy video description lookup remains');");
+source = source.replace("if (/const descriptions =/.test(homeVideoJs) || /descriptions\\[id\\]/.test(homeVideoJs)) throw new Error('Legacy homepage video description map remains');", "if (/descriptions\\[id\\]/.test(homeVideoJs)) throw new Error('Legacy homepage video description lookup remains');");
 fs.writeFileSync(file, source, 'utf8');
-console.log('Patched release transformer for native redesign project pages.');
+console.log('Patched release transformer for native redesign project pages and data-backed video descriptions.');
