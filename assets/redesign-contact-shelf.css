@@ -6,6 +6,7 @@
   grid-template-rows: 0fr;
   margin-left: calc(50% - 50vw);
   overflow: hidden;
+  overflow-anchor: none;
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
   background: #f5f5f2;
@@ -20,6 +21,16 @@
   grid-template-rows: 1fr;
   border-color: rgba(0, 0, 0, .12);
   opacity: 1;
+}
+
+/* Footer CTA shelves need enough real layout immediately for a smooth scroll to
+   their top. Skip only the height animation in this case; the placeholder and
+   iframe fade still provide visual continuity while /contact loads. */
+.rc-inline-contact-shelf--autoscroll {
+  grid-template-rows: 1fr;
+  border-color: rgba(0, 0, 0, .12);
+  opacity: 1;
+  transition: opacity 180ms ease, border-color 180ms ease;
 }
 
 .rc-inline-contact-shell {
@@ -62,23 +73,70 @@
   outline-offset: 4px;
 }
 
-.rc-inline-contact-loading {
+/* The placeholder occupies the same area the iframe will use, so the browser
+   can begin the footer-to-shelf scroll immediately rather than waiting for the
+   remote document to finish layout. */
+.rc-inline-contact-placeholder {
   position: absolute;
   z-index: 1;
-  top: 42px;
-  left: 50%;
-  margin: 0;
-  color: #777;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .13em;
-  text-transform: uppercase;
-  transform: translateX(-50%);
+  inset: 0;
+  display: grid;
+  align-content: start;
+  grid-template-columns: minmax(0, .82fr) minmax(320px, 1.18fr);
+  gap: clamp(42px, 7vw, 110px);
+  padding: clamp(58px, 7vw, 92px) max(4vw, calc((100vw - 1500px) / 2));
+  background: #f5f5f2;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+
+.rc-inline-contact-placeholder-copy,
+.rc-inline-contact-placeholder-form {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.rc-placeholder-line,
+.rc-placeholder-field,
+.rc-placeholder-button {
+  display: block;
+  background: rgba(17, 17, 17, .08);
+}
+
+.rc-placeholder-line {
+  height: 16px;
+  border-radius: 999px;
+}
+
+.rc-placeholder-line--title {
+  width: min(100%, 520px);
+  height: 56px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+.rc-placeholder-line--long { width: min(92%, 620px); }
+.rc-placeholder-line--short { width: min(62%, 420px); }
+
+.rc-placeholder-field {
+  width: 100%;
+  height: 54px;
+  border-radius: 3px;
+}
+
+.rc-placeholder-field--message { height: 150px; }
+
+.rc-placeholder-button {
+  width: 190px;
+  height: 54px;
+  margin-top: 4px;
+  border-radius: 999px;
 }
 
 .rc-inline-contact-frame {
   width: 100%;
-  min-height: 560px;
+  min-height: clamp(760px, 82vh, 920px);
   display: block;
   border: 0;
   background: #f5f5f2;
@@ -87,11 +145,13 @@
 }
 
 .rc-inline-contact-shelf.is-loaded .rc-inline-contact-frame {
+  min-height: 0;
   opacity: 1;
 }
 
-.rc-inline-contact-shelf.is-loaded .rc-inline-contact-loading {
-  display: none;
+.rc-inline-contact-shelf.is-loaded .rc-inline-contact-placeholder {
+  opacity: 0;
+  visibility: hidden;
 }
 
 @media (max-width: 720px) {
@@ -103,14 +163,21 @@
     font-size: 20px;
   }
 
+  .rc-inline-contact-placeholder {
+    grid-template-columns: 1fr;
+    gap: 38px;
+    padding: 56px 24px 70px;
+  }
+
   .rc-inline-contact-frame {
-    min-height: 680px;
+    min-height: 940px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rc-inline-contact-shelf,
   .rc-inline-contact-close,
+  .rc-inline-contact-placeholder,
   .rc-inline-contact-frame {
     transition: none !important;
   }
