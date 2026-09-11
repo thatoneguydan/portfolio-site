@@ -1,0 +1,58 @@
+/* Critical navigation geometry. Loaded synchronously on redesign entry pages so
+   the logo cell has its final dimensions before first paint. */
+
+html {
+  scrollbar-gutter: stable;
+}
+
+@media (min-width: 981px) {
+  .home-redesign .site-logo {
+    width: 261px !important;
+    min-width: 261px !important;
+    max-width: 261px !important;
+    flex: 0 0 261px !important;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 980px) {
+  .home-redesign .site-logo {
+    width: 205px !important;
+    min-width: 205px !important;
+    max-width: 205px !important;
+    flex: 0 0 205px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  .home-redesign .site-logo img {
+    width: 173px !important;
+    max-width: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-redesign .site-header {
+    width: calc(100% - 32px) !important;
+    min-height: 72px !important;
+    height: 72px !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .home-redesign .site-logo {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    min-height: 72px !important;
+    flex: 0 0 48px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .home-redesign .site-logo img {
+    width: 205px !important;
+    max-width: none !important;
+    height: auto !important;
+  }
+}
