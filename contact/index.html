@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/assets/clean-site.css?v=0f5f0392c30d3d9a">
 <link rel="stylesheet" href="/assets/redesign-home.css?v=20260908-production-baseline">
 <link rel="stylesheet" href="/assets/redesign-contact.css?v=20260910-b">
-<link rel="stylesheet" href="/assets/redesign-page-intro.css?v=20260911-a">
+<link rel="stylesheet" href="/assets/redesign-page-intro.css?v=20260911-b">
 <meta name="generator" content="portfolio-redesign-prototype">
 </head>
 <body class="home-redesign contact-redesign">
@@ -31,7 +31,7 @@
       </div>
 
       <dl class="rc-contact-details">
-        <div class="rc-contact-detail"><dt>Phone</dt><dd><a href="tel:+15408454521">540-845-4521</a></dd></div>
+        <div class="rc-contact-detail"><dt>Phone</dt><dd><a data-contact-phone data-contact-token="40.115.27.76.53.1.102.48.115.30.83.60"></a></dd></div>
         <div class="rc-contact-detail"><dt>Email</dt><dd><span data-contact-email data-contact-token="121.38.69.79.121.76.63.120.53.5.18.96.92.39.117.7.76.12.108.92.63.51.36.68.12"></span></dd></div>
       </dl>
     </div>
@@ -50,6 +50,20 @@
     </div>
   </section>
 </main>
+<script>
+(() => {
+  const keys = [29, 71, 43, 97, 13, 53, 83];
+  const node = document.querySelector('[data-contact-phone][data-contact-token]');
+  if (!node) return;
+  const phone = String(node.dataset.contactToken || '').split('.').filter(Boolean).map((part, index) => {
+    const value = Number(part);
+    return Number.isInteger(value) ? String.fromCharCode(value ^ keys[index % keys.length]) : '';
+  }).join('');
+  const digits = phone.replace(/\D/g, '');
+  node.textContent = phone;
+  node.href = `tel:+${digits.length === 10 ? '1' : ''}${digits}`;
+})();
+</script>
 <script src="/assets/portfolio-contact.js?v=20260910-contact-shelf" defer></script>
 </body>
 </html>
