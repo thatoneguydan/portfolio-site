@@ -4,9 +4,11 @@ on:
   push:
     branches: [main]
     paths: ['.github/workflows/pages-artifact-cleanup.yml']
-  workflow_run:
-    workflows: ['pages build and deployment']
-    types: [completed]
+  deployment_status:
+  schedule:
+    - cron: '17 * * * *'
+      timezone: 'America/New_York'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,7 +20,7 @@ concurrency:
 
 jobs:
   cleanup:
-    if: ${{ github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.repository.full_name == github.repository) }}
+    if: ${{ github.event_name != 'deployment_status' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'github-pages') }}
     runs-on: [self-hosted, Windows, X64, glass-builder]
     timeout-minutes: 10
     steps:
@@ -27,7 +29,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           EVENT_NAME: ${{ github.event_name }}
-          COMPLETED_RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           $ErrorActionPreference = 'Stop'
           $headers = @{
@@ -37,36 +38,37 @@ jobs:
           }
 
           $targets = [System.Collections.Generic.List[object]]::new()
+          for ($page = 1; ; $page++) {
+            $response = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?per_page=100&page=$page"
+            $items = @($response.artifacts)
+            foreach ($artifact in $items) {
+              if ([string]$artifact.name -cne 'github-pages') { continue }
 
-          if ($env:EVENT_NAME -eq 'workflow_run') {
-            if ($env:COMPLETED_RUN_ID -notmatch '^[0-9]+$') {
-              throw 'Completed Pages workflow did not provide a valid run ID.'
-            }
-            $response = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/runs/$env:COMPLETED_RUN_ID/artifacts?per_page=100"
-            foreach ($artifact in @($response.artifacts)) {
-              if ([string]$artifact.name -ceq 'github-pages') { $targets.Add($artifact) }
-            }
-          }
-          else {
-            # Initial rollout cleanup. Avoid the current deployment race by only
-            # removing Pages transfer artifacts that have already existed for
-            # at least five minutes.
-            $cutoff = [DateTimeOffset]::UtcNow.AddMinutes(-5)
-            for ($page = 1; ; $page++) {
-              $response = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts?per_page=100&page=$page"
-              $items = @($response.artifacts)
-              foreach ($artifact in $items) {
-                if ([string]$artifact.name -ceq 'github-pages' -and [DateTimeOffset]$artifact.created_at -lt $cutoff) {
-                  $targets.Add($artifact)
-                }
+              $runId = [string]$artifact.workflow_run.id
+              if ($runId -notmatch '^[0-9]+$') {
+                Write-Warning "Keeping github-pages artifact $($artifact.id): workflow run ID is unavailable."
+                continue
               }
-              if ($items.Count -lt 100) { break }
+
+              $run = Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/runs/$runId"
+              if ([string]$run.name -cne 'pages build and deployment') {
+                Write-Warning "Keeping github-pages artifact $($artifact.id): owning workflow is '$($run.name)'."
+                continue
+              }
+              if ([string]$run.status -cne 'completed' -or [string]$run.conclusion -cne 'success') {
+                Write-Host "Keeping github-pages artifact $($artifact.id): owning Pages run $runId is status=$($run.status) conclusion=$($run.conclusion)."
+                continue
+              }
+
+              $targets.Add($artifact)
             }
+            if ($items.Count -lt 100) { break }
           }
 
           [int64]$bytes = 0
           foreach ($artifact in $targets) {
-            Write-Host "Deleting completed GitHub Pages transfer artifact $($artifact.id) created $($artifact.created_at)"
+            $runId = [string]$artifact.workflow_run.id
+            Write-Host "Deleting completed GitHub Pages transfer artifact $($artifact.id) from successful run $runId created $($artifact.created_at)"
             Invoke-RestMethod -Method Delete -Headers $headers -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/actions/artifacts/$($artifact.id)" | Out-Null
             $bytes += [int64]$artifact.size_in_bytes
           }
@@ -77,5 +79,7 @@ jobs:
           ## GitHub Pages artifact cleanup
           - Deleted: **$($targets.Count)** completed ``github-pages`` transfer artifact(s), about **$mib MiB**
           - Trigger: ``$env:EVENT_NAME``
-          - Published Pages content and deployment history are untouched; only the completed Actions transfer artifact is deleted.
+          - Safety gate: artifact owner must be a completed successful ``pages build and deployment`` run.
+          - Fallback: hourly cleanup catches completed Pages artifacts if a deployment-status event is unavailable.
+          - Published Pages content and deployment history are untouched; only completed Actions transfer artifacts are deleted.
           "@ >> $env:GITHUB_STEP_SUMMARY
