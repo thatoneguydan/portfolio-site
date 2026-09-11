@@ -36,7 +36,8 @@
   aspect-ratio: 4 / 5;
 }
 
-/* Image-first archive treatment, based on the original portfolio cover grid. */
+/* Match the homepage Featured Work hierarchy: image first, then a bottom-left
+   gradient with project type, project name, and one short explanatory line. */
 .discipline-redesign .rdp-project-media::after {
   display: none !important;
 }
@@ -47,21 +48,30 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-end;
   min-height: 0;
   overflow: hidden;
-  padding: clamp(20px, 3vw, 44px);
-  background: rgba(0, 0, 0, .68);
+  padding: clamp(20px, 2.5vw, 36px);
+  background: linear-gradient(to top, rgba(0, 0, 0, .78) 0%, rgba(0, 0, 0, .42) 34%, rgba(0, 0, 0, .04) 68%);
   color: #fff;
-  text-align: center;
+  text-align: left;
   opacity: 0;
   pointer-events: none;
   transition: opacity 180ms ease;
 }
 
 .discipline-redesign .rdp-project-kicker {
-  display: none;
+  position: static;
+  display: block;
+  max-width: min(92%, 620px);
+  margin: 0 0 8px;
+  color: rgba(255, 255, 255, .78);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: .14em;
+  text-transform: uppercase;
 }
 
 .discipline-redesign .rdp-project-title,
@@ -74,12 +84,14 @@
 }
 
 .discipline-redesign .rdp-project-title {
-  font-size: clamp(20px, 2vw, 34px);
-  line-height: 1.05;
+  font-size: clamp(24px, 2.8vw, 42px);
+  font-weight: 700;
+  letter-spacing: -.035em;
+  line-height: 1;
 }
 
 .discipline-redesign .rdp-project-note {
-  margin-top: 12px;
+  margin-top: 10px;
   font-size: clamp(12px, 1vw, 15px);
   line-height: 1.45;
   color: rgba(255, 255, 255, .9);
@@ -165,16 +177,7 @@
 
 @media (hover: none) {
   .discipline-redesign .rdp-project-meta {
-    align-items: flex-start;
-    justify-content: flex-end;
-    padding: 20px;
-    background: linear-gradient(to top, rgba(0, 0, 0, .72), rgba(0, 0, 0, 0) 58%);
-    text-align: left;
     opacity: 1;
-  }
-
-  .discipline-redesign .rdp-project-note {
-    display: none;
   }
 }
 
@@ -192,6 +195,18 @@
 
   .discipline-redesign .rdp-project-card {
     margin-bottom: 14px;
+  }
+
+  .discipline-redesign .rdp-project-meta {
+    padding: 20px;
+  }
+
+  .discipline-redesign .rdp-project-title {
+    font-size: clamp(25px, 8vw, 34px);
+  }
+
+  .discipline-redesign .rdp-project-note {
+    font-size: 13px;
   }
 
   .rdp-project-shelf.is-open > .rdp-project-shelf-inner {
