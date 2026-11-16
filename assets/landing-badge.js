@@ -126,6 +126,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     if(opened||busy||config.ticketDisabled)return;
     const start=carrier.getBoundingClientRect();busy=true;opened=true;
     previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';
+    ticketStage.classList.add('is-badge-open');
     dialog.showModal();dialog.append(carrier);carrier.classList.add('is-portaled');
     motion.th=1;motion.tx=motion.ty=0;motion.x=motion.y=0;placeExpanded();
     ticket.setAttribute('aria-expanded','true');ticket.style.touchAction='none';
@@ -147,7 +148,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     carrier.style.top=(stage.top+parseFloat(style.paddingTop))+'px';
     dialog.classList.remove('is-open');updateScroll();
     await flip(start,carrier.getBoundingClientRect());
-    ticketStage.append(carrier);carrier.classList.remove('is-portaled');carrier.style.left=carrier.style.top='';
+    ticketStage.append(carrier);ticketStage.classList.remove('is-badge-open');carrier.classList.remove('is-portaled');carrier.style.left=carrier.style.top='';
     dialog.close();document.body.style.overflow=previousOverflow;ticket.setAttribute('aria-expanded','false');ticket.style.touchAction='pan-y';
     busy=false;layout(false);ticket.focus({preventScroll:true});
   }

@@ -92,7 +92,7 @@ import {createBadge} from './landing-badge.js';
   const resize=()=>{fitText();renderGallery();badge.layout();};
   addEventListener('resize',resize);new ResizeObserver(resize).observe(root);
   document.fonts?.ready.then(resize);
-  addEventListener('pagehide',()=>{badge.destroy();currentAnimations.forEach(a=>a.cancel());},{once:true});
+  addEventListener('pagehide',event=>{if(event.persisted)return;badge.destroy();currentAnimations.forEach(a=>a.cancel());});
   const api={
     getConfig:()=>({...config}),
     applyConfig(next,{animateReveal=false}={}){Object.assign(config,normalizeSettings(next,config));render();if(animateReveal)replay();},

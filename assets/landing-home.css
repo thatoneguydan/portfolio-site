@@ -100,10 +100,10 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 #dan-landing-home .ds-hero {grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);align-items:center;min-height:0}
 #dan-landing-home .ds-intro {max-width:none}
 #dan-landing-home .ds-ticket-stage {width:100%;max-width:none;min-height:0;align-self:center;justify-self:stretch;padding:26px 16px}
-#dan-landing-home .ds-ticket-stage:empty {height:calc(var(--badge-anchor-height) + 52px)}
+#dan-landing-home .ds-ticket-stage.is-badge-open {height:calc(var(--badge-anchor-height) + 52px)}
 #dan-landing-home .ds-hero.is-compact {grid-template-columns:minmax(0,1fr) var(--badge-compact-width,92px);gap:22px;align-items:start}
 #dan-landing-home .ds-hero.is-compact .ds-ticket-stage {align-self:start;padding:0;margin-top:8px}
-#dan-landing-home .ds-hero.is-compact .ds-ticket-stage:empty {height:var(--badge-anchor-height)}
+#dan-landing-home .ds-hero.is-compact .ds-ticket-stage.is-badge-open {height:var(--badge-anchor-height)}
 #dan-landing-home .ds-hero.is-compact .ds-intro-actions {margin-top:24px}
 .ds-ticket-carrier {position:relative;flex:none;transform-origin:50% 50%}
 .ds-ticket-carrier.is-portaled {position:fixed;z-index:2}
