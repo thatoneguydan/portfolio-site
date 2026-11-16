@@ -64,7 +64,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     ticket.classList.toggle('is-compact',isCompact);
     ticket.style.width=width+'px';ticket.style.height=height+'px';ticket.style.minHeight='0';
     ticket.style.gridTemplateColumns=isCompact?'minmax(0,1fr) 0px':config.ticketOrientation==='vertical'?'minmax(0,1fr)':`minmax(0,1fr) ${config.ticketPanelSize}px`;
-    ticket.style.gridTemplateRows=!isCompact&&config.ticketOrientation==='vertical'?`minmax(0,1fr) ${config.ticketPanelSize}px`:'';
+    ticket.style.gridTemplateRows=!isCompact&&config.ticketOrientation==='vertical'?`minmax(0,1fr) ${config.ticketPanelSize}px`:'minmax(0,1fr)';
     ticket.dataset.orientation=isCompact?'compact':config.ticketOrientation;
     ticket.dataset.disabled=String(config.ticketDisabled);ticket.inert=config.ticketDisabled;
     ticket.style.borderRadius=(isCompact?Math.min(config.ticketRadius,14):config.ticketRadius)+'px';
