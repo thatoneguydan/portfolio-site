@@ -1,0 +1,96 @@
+/* Landing components inside the existing portfolio shell. */
+
+    #dan-landing-home{--dan-paper:#f5f5f2;--dan-ink:#111111;--dan-muted:#555555;--dan-line:rgba(17,17,17,.13);position:relative;isolation:isolate;font-family:inherit;color:var(--dan-ink);background:var(--dan-paper);width:100%;container-type:inline-size;color-scheme:light}
+    #dan-landing-home *{box-sizing:border-box}
+    #dan-landing-home [hidden]{display:none!important}
+    #dan-landing-home h1,#dan-landing-home h2,#dan-landing-home p{margin:0}
+    #dan-landing-home button,#dan-landing-home input,#dan-landing-home textarea,#dan-landing-home select{font:inherit}
+    #dan-landing-home button,#dan-landing-home summary,#dan-landing-home a{cursor:pointer}
+    #dan-landing-home button,#dan-landing-home a{-webkit-tap-highlight-color:transparent}
+    #dan-landing-home a{color:inherit;text-decoration:none}
+    #dan-landing-home a:focus-visible,#dan-landing-home button:focus-visible,#dan-landing-home summary:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+    #dan-landing-home .ds-hero{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);gap:42px;align-items:center;padding:76px 0 80px;min-height:410px}
+    #dan-landing-home .ds-intro{min-width:0}
+    #dan-landing-home .ds-reveal{font-weight:400;font-size:56px;line-height:1.17;letter-spacing:-.045em;text-transform:uppercase;min-width:0;padding:.08em 0 .12em}
+    #dan-landing-home .ds-reveal-line{display:block;white-space:nowrap;position:relative}
+    #dan-landing-home .ds-word{display:inline-block;white-space:nowrap;vertical-align:top;overflow:hidden;padding:.16em .07em .2em;margin:-.16em -.07em -.2em;clip-path:inset(0)}
+    #dan-landing-home .ds-glyph{display:inline-block;white-space:pre;vertical-align:baseline;will-change:transform;font-family:inherit}
+    #dan-landing-home .ds-space{white-space:pre}
+    #dan-landing-home .ds-reveal.ds-long .ds-word{white-space:normal;max-width:100%;overflow-wrap:anywhere}
+    #dan-landing-home .ds-intro-actions{display:flex;gap:18px;align-items:center;margin-top:30px;flex-wrap:wrap}
+    #dan-landing-home .ds-contact{display:inline-flex;align-items:center;gap:22px;font-size:13px;border-bottom:1px solid var(--dan-ink);padding:9px 0}
+    #dan-landing-home .ds-contact .ds-arrow{display:inline-block;transition:transform .2s}
+    #dan-landing-home .ds-contact:hover .ds-arrow{transform:translate(3px,-3px)}
+    #dan-landing-home .ds-ticket-stage{min-width:0;display:flex;align-items:center;justify-content:center;padding:26px 16px;align-self:stretch;perspective:1000px}
+    #dan-landing-home .ds-ticket{--ticket-bg:#111;--ticket-ink:#f5f5f2;--ticket-copy-bg:#111;--ticket-parallax:6px;position:relative;width:min(100%,460px);display:grid;grid-template-columns:minmax(0,1fr) 150px;min-height:260px;border-radius:16px;background:var(--ticket-bg);color:var(--ticket-ink);transform:rotate(4deg);transform-style:preserve-3d;overflow:hidden;flex-shrink:0;border:0;box-shadow:0 12px 22px #11111114;will-change:transform}
+    #dan-landing-home .ds-ticket-body{position:relative;min-width:0;min-height:140px;padding:0;display:block}
+    #dan-landing-home .ds-photo-window{position:absolute;top:8px;left:8px;right:8px;height:calc(78% - 16px);border-radius:8px;overflow:hidden;min-height:0}
+    #dan-landing-home .ds-headshot{display:block;position:absolute;left:calc(-1 * var(--ticket-parallax));top:calc(-1 * var(--ticket-parallax));width:calc(100% + 2 * var(--ticket-parallax));max-width:none;height:calc(100% + 2 * var(--ticket-parallax));object-fit:cover;object-position:50% 39%;user-select:none;-webkit-user-drag:none}
+    #dan-landing-home .ds-photo-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,var(--ticket-bg) 0%,color-mix(in srgb,var(--ticket-bg) 72%,transparent) 30%,color-mix(in srgb,var(--ticket-bg) 18%,transparent) 58%,transparent 80%)}
+    #dan-landing-home .ds-ticket-footer{position:absolute;left:0;right:0;top:78%;bottom:0;display:flex;align-items:center;padding:0 24px;font-size:15px;font-weight:500;line-height:1;letter-spacing:-.01em}
+    #dan-landing-home .ds-ticket-copy{padding:30px 20px 30px 26px;min-width:0;display:flex;flex-direction:column;background:var(--ticket-copy-bg);text-align:left}
+    #dan-landing-home .ds-ticket-heading{font-size:17px;line-height:1.2;font-weight:500;letter-spacing:-.01em;margin-bottom:8px}
+    #dan-landing-home .ds-bio{font-size:12px;line-height:1.55;color:inherit;opacity:.5;overflow-wrap:break-word}
+    #dan-landing-home .ds-ticket[data-orientation=vertical]{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(140px,1fr) auto}
+    #dan-landing-home .ds-ticket[data-orientation=vertical] .ds-ticket-copy{padding:32px 24px 30px;justify-content:flex-start}
+    #dan-landing-home .ds-ticket[data-disabled=true]{opacity:.6}
+    #dan-landing-home .ds-ticket::after{content:"";position:absolute;inset:0;z-index:4;border:var(--ticket-border-width,1px) solid var(--ticket-border-color,rgba(245,245,242,.16));border-radius:inherit;pointer-events:none}
+    #dan-landing-home .ds-featured{padding-top:15px}
+    #dan-landing-home .ds-section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:25px}
+    #dan-landing-home .ds-section-head h2{font-size:30px;letter-spacing:-.045em;line-height:1.1;font-weight:500}
+    #dan-landing-home .ds-section-head p{font-size:13px;color:var(--dan-muted);line-height:1.5}
+    #dan-landing-home .ds-gallery{display:flex;gap:10px;width:100%;height:320px}
+    #dan-landing-home .ds-panel{position:relative;display:block;min-width:0;flex:1 1 0;overflow:hidden;border-radius:16px;isolation:isolate;background:var(--dan-ink);transition:flex-grow .6s linear(0,.292893 5%,.5 10%,.646447 15%,.75 20%,.823223 25%,.875 30%,.911612 35%,.9375 40%,.955806 45%,.96875 50%,.977903 55%,.984375 60%,.988951 65%,.992188 70%,.994476 75%,.996094 80%,.997238 85%,.998047 90%,.998619 95%,1);color:var(--dan-paper)}
+    #dan-landing-home .ds-panel[data-focused=true]{flex-grow:4.333333}
+    #dan-landing-home .ds-gallery-image{position:absolute;left:50%;top:0;width:var(--media-width,600px);max-width:none;height:100%;object-fit:cover;transform:translateX(-50%);filter:none}
+    #dan-landing-home .ds-panel::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.35);transition:background .6s cubic-bezier(.16,1,.3,1);z-index:1}
+    #dan-landing-home .ds-panel[data-focused=true]::after{background:rgba(0,0,0,0)}
+    #dan-landing-home .ds-panel-gradient{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,transparent 36%,rgba(0,0,0,.78))}
+    #dan-landing-home .ds-caption{position:absolute;left:20px;right:16px;bottom:20px;display:flex;align-items:center;gap:12px;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .6s cubic-bezier(.16,1,.3,1);z-index:3;pointer-events:none}
+    #dan-landing-home .ds-caption::before{content:"";width:3px;height:32px;background:var(--dan-paper);flex-shrink:0}
+    #dan-landing-home .ds-panel[data-focused=true] .ds-caption{opacity:1;transform:translateY(0)}
+    #dan-landing-home .ds-caption small{display:block;text-transform:uppercase;font-size:9px;letter-spacing:.08em;line-height:1.4;margin-bottom:4px;opacity:.8}
+    #dan-landing-home .ds-caption strong{display:block;font-weight:500;font-size:20px;line-height:1.2;letter-spacing:-.02em}
+    #dan-landing-home .ds-caption i{margin-left:auto;font-size:22px;font-style:normal}
+/* The site owns the header, page gutters, type family, project shelves and footer. */
+#dan-landing-home {isolation:auto; font-family:inherit}
+#dan-landing-home .ds-hero {padding:clamp(52px,6vw,90px) 0 clamp(62px,7vw,110px); gap:clamp(28px,3vw,48px)}
+#dan-landing-home .ds-intro {container-type:inline-size}
+#dan-landing-home .ds-featured {padding:0 0 clamp(64px,7vw,112px)}
+#dan-landing-home .ds-section-head h2 {font-size:clamp(34px,3vw,46px);font-weight:700;letter-spacing:-.04em}
+#dan-landing-home .ds-section-head p {font-size:clamp(15px,1.08vw,18px)}
+#dan-landing-home .ds-contact {font-size:13px;font-weight:700;line-height:1.4}
+#dan-landing-home .ds-panel {grid-column:auto; min-height:0; margin:0; height:100%; box-shadow:none; transform:none}
+#dan-landing-home .ds-panel .ds-gallery-image {border-radius:0;transform:translateX(-50%);transition:none}
+#dan-landing-home .ds-caption .rd-work-title {font-size:20px;line-height:1.2;letter-spacing:-.02em;font-weight:500}
+#dan-landing-home .ds-panel .ds-caption {text-shadow:none}
+#dan-landing-home .ds-reveal {font-size:var(--landing-font-size,53px);font-weight:500}
+#dan-landing-home .ds-ticket {width:480px;min-height:380px}
+@container (max-width:1000px) {
+  #dan-landing-home .ds-hero {grid-template-columns:1fr;gap:20px;padding-top:50px}
+  #dan-landing-home .ds-intro {width:100%;max-width:760px}
+  #dan-landing-home .ds-ticket-stage {width:100%;max-width:560px;justify-self:center;padding:24px 20px}
+}
+@container (max-width:640px) {
+  #dan-landing-home .ds-hero {padding:42px 0 52px;gap:24px}
+  #dan-landing-home .ds-intro-actions {margin-top:20px}
+  #dan-landing-home .ds-section-head {align-items:start;flex-direction:column;gap:10px;margin-bottom:24px}
+  #dan-landing-home .ds-section-head h2 {font-size:32px}
+  #dan-landing-home .ds-section-head p {font-size:15px}
+}
+@container (max-width:500px) {
+  #dan-landing-home .ds-gallery {height:auto!important;flex-direction:column;gap:10px}
+  #dan-landing-home .ds-panel {flex:none!important;height:64px;min-height:64px;transition:height .6s cubic-bezier(.16,1,.3,1)}
+  #dan-landing-home .ds-panel[data-focused=true] {height:var(--mobile-expanded,320px)}
+  #dan-landing-home .ds-gallery-image {width:100%;object-position:center}
+  #dan-landing-home .ds-caption {left:17px;bottom:16px}
+  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption {opacity:1;transform:none;bottom:19px}
+  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption::before,
+  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption small {display:none}
+  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption .rd-work-title {font-size:14px}
+  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption i {font-size:17px}
+}
+@media(prefers-reduced-motion:reduce) {
+  #dan-landing-home *, #dan-landing-home *::after {animation:none!important;transition:none!important}
+  #dan-landing-home .ds-glyph {transform:none!important}
+}

@@ -85,7 +85,8 @@
       observer: null,
       cleanupTimer: 0,
     };
-    findRowEnd(card).insertAdjacentElement('afterend', shelf);
+    if (grid.classList.contains('ds-gallery')) grid.insertAdjacentElement('afterend', shelf);
+    else findRowEnd(card).insertAdjacentElement('afterend', shelf);
     liveShelves.add(state);
     return state;
   };
@@ -267,8 +268,12 @@
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
       liveShelves.forEach((state) => {
-        if (state.shelf.isConnected) findRowEnd(state.card).insertAdjacentElement('afterend', state.shelf);
+        if (state.shelf.isConnected) {
+          if (grid.classList.contains('ds-gallery')) grid.insertAdjacentElement('afterend', state.shelf);
+          else findRowEnd(state.card).insertAdjacentElement('afterend', state.shelf);
+        }
       });
     }, 120);
   });
 })();
+
