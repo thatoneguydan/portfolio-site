@@ -33,13 +33,15 @@ import {createBadge} from './landing-badge.js';
   function fitText() {
     const max=config.fontSize,compact=root.querySelector('.ds-hero').classList.contains('is-compact');
     h1.style.fontSize=max+'px';h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
-    h1.classList.remove('ds-long');h1.querySelectorAll('.ds-reveal-line').forEach(el=>el.style.whiteSpace='nowrap');
-    const width=Math.max(...[...h1.children].map(line=>line.scrollWidth),1),available=intro.clientWidth-4;
-    const floor=Math.min(max,compact?28:18);
-    if(width>available){
-      const fitted=max*available/width;h1.style.fontSize=Math.max(floor,fitted)+'px';
-      if(fitted<floor){h1.classList.add('ds-long');h1.querySelectorAll('.ds-reveal-line').forEach(el=>el.style.whiteSpace='normal');}
+    const lines=[...h1.children];
+    h1.classList.remove('ds-long');lines.forEach(el=>{el.style.whiteSpace='nowrap';el.style.width='max-content';});
+    const width=Math.max(...lines.map(line=>line.getBoundingClientRect().width),1),available=Math.max(1,intro.clientWidth-4);
+    const floor=Math.min(max,18),fitted=max*available/width;
+    if(compact||width>available){
+      h1.style.fontSize=Math.max(floor,fitted)+'px';
+      if(fitted<floor){h1.classList.add('ds-long');lines.forEach(el=>el.style.whiteSpace='normal');}
     }
+    lines.forEach(el=>el.style.removeProperty('width'));
   }
   function replay() {
     currentAnimations.forEach(a=>a.cancel());currentAnimations=[];if(reduced.matches||!config.animate)return;

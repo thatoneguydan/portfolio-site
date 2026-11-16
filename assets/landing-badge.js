@@ -107,6 +107,10 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const changed=nextCompact!==compact;compact=nextCompact;
     hero.classList.toggle('is-compact',compact);hero.style.setProperty('--badge-compact-width',config.badgeCompactWidth+'px');
     fitText();
+    if(compact){
+      const lift=Math.min(32,config.badgeCompactWidth*.35);
+      hero.style.setProperty('--badge-top',(h1.getBoundingClientRect().top-hero.getBoundingClientRect().top-lift)+'px');
+    }
     const style=getComputedStyle(ticketStage),available=Math.max(1,ticketStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight));
     inlineGeometry=compact?{width:config.badgeCompactWidth,height:config.badgeCompactWidth*1.3,scale:1}:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation);
     // The empty anchor keeps its real geometry while the badge is in the dialog.
