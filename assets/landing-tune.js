@@ -38,6 +38,7 @@ export function mountTune(api){
     if(serialized!==lastQueued){lastQueued=serialized;pending={...config};clearTimeout(saveTimer);saveTimer=setTimeout(flush,800);status.textContent='Changes apply now and save automatically.';}
   }
   function optionDisabled(key) {
+    if(['badgeIdleAngle','badgeIdlePeriod'].includes(key))return !config.badgeIdleTilt||!config.ticketTilt;
     if(['ticketTiltMax','ticketTiltReach','ticketParallax'].includes(key))return !config.ticketTilt;
     if(['ticketBorderWidth','ticketBorderColor','ticketBorderOpacity'].includes(key))return !config.ticketBorder;
     if(key==='ticketPanelBackground')return !config.ticketCustomPanelBackground;

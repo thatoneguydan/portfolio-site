@@ -5,7 +5,8 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const photo=ticket.querySelector('.ds-headshot'),photoWindow=ticket.querySelector('.ds-photo-window');
   const name=ticket.querySelector('.ds-ticket-footer'),heading=ticket.querySelector('.ds-ticket-heading');
   const copy=ticket.querySelector('.ds-ticket-copy'),bio=ticket.querySelector('.ds-bio');
-  const carrier=document.createElement('div');carrier.className='ds-ticket-carrier';ticketStage.append(carrier);carrier.append(ticket);
+  const carrier=document.createElement('div');carrier.className='ds-ticket-carrier';ticketStage.append(carrier);
+  const idleLayer=document.createElement('div');idleLayer.className='ds-ticket-idle';carrier.append(idleLayer);idleLayer.append(ticket);
   const scrim=document.createElement('div');scrim.className='ds-photo-scrim';photoWindow.append(scrim);
   const dialog=document.createElement('dialog');dialog.id='dan-badge-dialog';dialog.className='ds-badge-dialog';dialog.setAttribute('aria-label','About Dan Smith');
   dialog.innerHTML='<button type="button" class="ds-badge-close" aria-label="Close ID badge">×</button>';
@@ -15,6 +16,10 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   let compact=false,firstLayout=true,opened=false,busy=false,closeRequested=false,drag=null,frame=0,lastTime=0,scrollFrame=0,morph=null;
   let scrollTop=0,scrollTilt=0,inlineGeometry=null,lastPointer=null,suppressClickUntil=0,previousOverflow='';
   const motion={x:0,y:0,h:1,vx:0,vy:0,vh:0,tx:0,ty:0,th:1};
+  let visible=false;
+  function updateIdleVisibility(){carrier.classList.toggle('is-idle-visible',visible&&!document.hidden);}
+  const visibilityObserver=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;updateIdleVisibility();});
+  visibilityObserver.observe(ticket);document.addEventListener('visibilitychange',updateIdleVisibility);
   const rgba=(hex,opacity)=>`rgba(${[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)).join(',')},${clamp(opacity,0,100)/100})`;
   ticket.setAttribute('role','button');ticket.setAttribute('aria-haspopup','dialog');ticket.setAttribute('aria-expanded','false');ticket.tabIndex=0;
 
@@ -44,7 +49,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   }
   function targets(){
     let x=0,y=0;
-    if(config.ticketTilt&&!reduced.matches&&!opened&&lastPointer){
+    if(config.ticketTilt&&!reduced.matches&&!drag&&lastPointer){
       const rect=carrier.getBoundingClientRect();
       y=clamp((lastPointer.x-rect.left-rect.width/2)/(rect.width/2+config.ticketTiltReach),-1,1)*config.ticketTiltMax;
       x=-clamp((lastPointer.y-rect.top-rect.height/2)/(rect.height/2+config.ticketTiltReach),-1,1)*config.ticketTiltMax;
@@ -59,8 +64,12 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     scrollTilt=-config.badgeScrollTilt*progress;targets();
   }
   function look(isCompact){
-    const width=isCompact?config.badgeCompactWidth:config.ticketWidth;
-    const height=isCompact?config.badgeCompactWidth*1.3:config.ticketHeight;
+    const width=isCompact?(inlineGeometry?.width||config.badgeCompactWidth):config.ticketWidth;
+    const height=isCompact?width*1.3:config.ticketHeight;
+    carrier.classList.toggle('has-idle-tilt',config.badgeIdleTilt&&config.ticketTilt&&!config.ticketDisabled&&(isCompact||opened));
+    carrier.style.setProperty('--badge-idle-angle',config.badgeIdleAngle+'deg');
+    carrier.style.setProperty('--badge-idle-period',config.badgeIdlePeriod+'s');
+    carrier.style.setProperty('--badge-idle-perspective',config.ticketPerspective+'px');
     ticket.classList.toggle('is-compact',isCompact);
     ticket.style.width=width+'px';ticket.style.height=height+'px';ticket.style.minHeight='0';
     ticket.style.gridTemplateColumns=isCompact?'minmax(0,1fr) 0px':config.ticketOrientation==='vertical'?'minmax(0,1fr)':`minmax(0,1fr) ${config.ticketPanelSize}px`;
@@ -75,7 +84,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     photo.style.objectPosition=`50% ${config.photoPosition}%`;
     copy.style.padding=config.ticketOrientation==='vertical'?'26px 24px':'30px 20px 30px 26px';
     copy.setAttribute('aria-hidden',String(isCompact));
-    name.style.padding=isCompact?'0 8px':'0 24px';name.style.fontSize=(isCompact?Math.min(13,config.ticketNameSize):config.ticketNameSize)+'px';name.style.fontWeight=config.ticketNameWeight;
+    name.style.padding=isCompact?'0 8px':'0 24px';name.style.fontSize=(isCompact?Math.min(width*.14,config.ticketNameSize):config.ticketNameSize)+'px';name.style.fontWeight=config.ticketNameWeight;
     heading.style.fontSize=config.ticketHeadingSize+'px';heading.style.fontWeight=config.ticketHeadingWeight;
     bio.style.fontSize=config.ticketBodySize+'px';bio.style.lineHeight=config.ticketBodyLineHeight;bio.style.opacity=config.ticketBodyOpacity/100;
     scrim.hidden=!config.ticketScrim;
@@ -105,14 +114,20 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const naturalTextHeight=config.fontSize*config.lineHeight*3+56;
     const nextCompact=!!config.ticketResponsive&&candidate.height<naturalTextHeight*config.badgeCompactTextRatio;
     const changed=nextCompact!==compact;compact=nextCompact;
-    hero.classList.toggle('is-compact',compact);hero.style.setProperty('--badge-compact-width',config.badgeCompactWidth+'px');
+    hero.classList.toggle('is-compact',compact);
     fitText();
+    let compactWidth=config.badgeCompactWidth;
     if(compact){
       const lift=Math.min(32,config.badgeCompactWidth*.35);
+      const textRect=h1.getBoundingClientRect(),line=h1.children[Number(h1.dataset.longestLine)]||h1;
+      const lineHeight=parseFloat(getComputedStyle(h1).lineHeight);
+      const targetHeight=lift+line.getBoundingClientRect().top-textRect.top+lineHeight*config.badgeOverlap/100;
+      compactWidth=Math.min(Math.max(config.badgeCompactWidth,targetHeight/1.3),Math.max(config.badgeCompactWidth,heroWidth*.4));
       hero.style.setProperty('--badge-top',(h1.getBoundingClientRect().top-hero.getBoundingClientRect().top-lift)+'px');
     }
+    hero.style.setProperty('--badge-compact-width',compactWidth+'px');
     const style=getComputedStyle(ticketStage),available=Math.max(1,ticketStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight));
-    inlineGeometry=compact?{width:config.badgeCompactWidth,height:config.badgeCompactWidth*1.3,scale:1}:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation);
+    inlineGeometry=compact?{width:compactWidth,height:compactWidth*1.3,scale:1}:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation);
     // The empty anchor keeps its real geometry while the badge is in the dialog.
     ticketStage.style.setProperty('--badge-anchor-height',inlineGeometry.height+'px');
     if(!opened&&!busy){
@@ -137,6 +152,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     requestAnimationFrame(()=>dialog.classList.add('is-open'));
     copy.animate([{opacity:0},{opacity:1}],{duration:config.badgeMorphDuration*.65,easing:'ease-out'});
     await flip(start,carrier.getBoundingClientRect());busy=false;suppressClickUntil=performance.now()+150;
+    targets();
     if(closeRequested){closeRequested=false;close();}
   }
   async function close(){
@@ -166,7 +182,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   ticket.addEventListener('pointerdown',event=>{
     if(!opened||busy||event.button!==0)return;
     drag={id:event.pointerId,x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,lastTime:performance.now(),speed:0,dx:0,dy:0};
-    ticket.setPointerCapture(event.pointerId);ticket.classList.add('is-dragging');
+    ticket.setPointerCapture(event.pointerId);ticket.classList.add('is-dragging');carrier.classList.add('is-dragging');
   });
   ticket.addEventListener('pointermove',event=>{
     if(!drag||event.pointerId!==drag.id)return;
@@ -178,17 +194,17 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   function release(event){
     if(!drag||event.pointerId!==drag.id)return;
     const dismiss=event.type!=='pointercancel'&&shouldDismiss(Math.hypot(drag.dx,drag.dy),drag.speed);
-    ticket.classList.remove('is-dragging');suppressClickUntil=performance.now()+300;
+    ticket.classList.remove('is-dragging');carrier.classList.remove('is-dragging');suppressClickUntil=performance.now()+300;
     if(dismiss){drag=null;close();}
-    else{const from=carrier.style.transform;carrier.style.transform='';drag=null;carrier.animate([{transform:from},{transform:'none'}],{duration:300,easing:'cubic-bezier(.2,.85,.2,1)'});}
+    else{const from=carrier.style.transform;carrier.style.transform='';drag=null;carrier.animate([{transform:from},{transform:'none'}],{duration:300,easing:'cubic-bezier(.2,.85,.2,1)'});targets();}
   }
   ticket.addEventListener('pointerup',release);ticket.addEventListener('pointercancel',release);
   document.addEventListener('pointermove',event=>{
-    if(event.pointerType==='touch'||opened||event.target.closest?.('#dan-owner-controls'))return;
-    lastPointer={x:event.clientX,y:event.clientY};targets();
+    if(event.pointerType==='touch'||event.target.closest?.('#dan-owner-controls'))return;
+    lastPointer={x:event.clientX,y:event.clientY};if(!drag&&!busy)targets();
   },{passive:true});
   document.addEventListener('pointerleave',()=>{lastPointer=null;targets();});
   window.addEventListener('scroll',()=>{if(!scrollFrame)scrollFrame=requestAnimationFrame(updateScroll);},{passive:true});
   window.visualViewport?.addEventListener('resize',()=>{if(opened&&!busy)placeExpanded();});
-  return {layout,update:()=>layout(false),open,close,destroy(){cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);morph?.cancel();dialog.remove();}};
+  return {layout,update:()=>layout(false),open,close,destroy(){cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);morph?.cancel();visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);dialog.remove();}};
 }

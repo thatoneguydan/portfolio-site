@@ -35,7 +35,9 @@ import {createBadge} from './landing-badge.js';
     h1.style.fontSize=max+'px';h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
     const lines=[...h1.children];
     h1.classList.remove('ds-long');lines.forEach(el=>{el.style.whiteSpace='nowrap';el.style.width='max-content';});
-    const width=Math.max(...lines.map(line=>line.getBoundingClientRect().width),1),available=Math.max(1,intro.clientWidth-4);
+    const widths=lines.map(line=>line.getBoundingClientRect().width);
+    const width=Math.max(...widths,1),available=Math.max(1,intro.clientWidth-4);
+    h1.dataset.longestLine=String(widths.indexOf(Math.max(...widths)));
     const floor=Math.min(max,18),fitted=max*available/width;
     if(compact||width>available){
       h1.style.fontSize=Math.max(floor,fitted)+'px';

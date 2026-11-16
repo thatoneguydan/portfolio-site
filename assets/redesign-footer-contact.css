@@ -40,7 +40,8 @@
   text-wrap: balance;
 }
 
-.rd-footer-cta .rd-footer-cta-button {
+.rd-footer-cta .rd-footer-cta-button,
+#dan-landing-home .ds-contact {
   min-width: 260px;
   min-height: 74px;
   display: inline-flex;
@@ -50,10 +51,10 @@
   gap: 16px;
   margin-top: clamp(34px, 3.4vw, 46px);
   padding: 0 42px;
-  border: 1px solid #fff;
+  border: 1px solid var(--contact-button-background, #fff);
   border-radius: 999px;
-  background: #fff;
-  color: #111;
+  background: var(--contact-button-background, #fff);
+  color: var(--contact-button-ink, #111);
   font-size: 18px;
   font-weight: 700;
   line-height: 1;
@@ -64,19 +65,24 @@
 }
 
 .rd-footer-cta .rd-footer-cta-button:hover,
-.rd-footer-cta .rd-footer-cta-button:focus-visible {
+.rd-footer-cta .rd-footer-cta-button:focus-visible,
+#dan-landing-home .ds-contact:hover,
+#dan-landing-home .ds-contact:focus-visible {
   background: transparent;
-  color: #fff;
+  color: var(--contact-button-background, #fff);
 }
 
-.rd-footer-cta .rd-footer-cta-button span {
+.rd-footer-cta .rd-footer-cta-button span,
+#dan-landing-home .ds-contact span {
   font-size: 24px;
   line-height: 1;
   transition: transform 160ms ease;
 }
 
 .rd-footer-cta .rd-footer-cta-button:hover span,
-.rd-footer-cta .rd-footer-cta-button:focus-visible span {
+.rd-footer-cta .rd-footer-cta-button:focus-visible span,
+#dan-landing-home .ds-contact:hover span,
+#dan-landing-home .ds-contact:focus-visible span {
   transform: translate(2px, -2px);
 }
 
@@ -95,7 +101,8 @@
     font-size: clamp(56px, 7.4vw, 70px);
   }
 
-  .rd-footer-cta .rd-footer-cta-button {
+  .rd-footer-cta .rd-footer-cta-button,
+  #dan-landing-home .ds-contact {
     min-width: 250px;
     min-height: 72px;
     margin-top: 38px;
@@ -115,7 +122,8 @@
     font-size: clamp(52px, 9vw, 64px);
   }
 
-  .rd-footer-cta .rd-footer-cta-button {
+  .rd-footer-cta .rd-footer-cta-button,
+  #dan-landing-home .ds-contact {
     min-width: 240px;
     min-height: 70px;
     margin-top: 36px;
@@ -134,7 +142,8 @@
     font-size: clamp(52px, 15vw, 64px);
   }
 
-  .rd-footer-cta .rd-footer-cta-button {
+  .rd-footer-cta .rd-footer-cta-button,
+  #dan-landing-home .ds-contact {
     min-width: 230px;
     min-height: 68px;
     margin-top: 36px;
@@ -145,7 +154,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .rd-footer-cta .rd-footer-cta-button,
-  .rd-footer-cta .rd-footer-cta-button span {
+  .rd-footer-cta .rd-footer-cta-button span,
+  #dan-landing-home .ds-contact,
+  #dan-landing-home .ds-contact span {
     transition: none !important;
   }
 }
+

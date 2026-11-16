@@ -66,7 +66,11 @@ export const defaults = {
   "badgeCompactTextRatio": 1,
   "badgeHoverScale": 1.04,
   "badgeMorphDuration": 520,
-  "badgeBackdropBlur": 10
+  "badgeBackdropBlur": 10,
+  "badgeOverlap": 45,
+  "badgeIdleTilt": true,
+  "badgeIdleAngle": 1.1,
+  "badgeIdlePeriod": 10
 };
 export const controlGroups = {
     reveal: [
@@ -112,11 +116,15 @@ export const controlGroups = {
     ],
     badge: [
       ['range','badgeScrollTilt','Scroll tilt',0,36,1,'°'],
-      ['range','badgeCompactWidth','Photo badge width',64,160,2,'px'],
+      ['range','badgeCompactWidth','Photo badge minimum width',64,160,2,'px'],
+      ['range','badgeOverlap','Headline overlap',10,80,1,'%'],
       ['range','badgeCompactTextRatio','Collapse threshold',.6,1.5,.05,'×'],
       ['range','badgeHoverScale','Hover scale',1,1.12,.01,'×'],
       ['range','badgeMorphDuration','Open / close duration',200,1000,20,'ms'],
-      ['range','badgeBackdropBlur','Background blur',0,24,1,'px']
+      ['range','badgeBackdropBlur','Background blur',0,24,1,'px'],
+      ['check','badgeIdleTilt','Subtle idle tilt'],
+      ['range','badgeIdleAngle','Idle tilt strength',0,4,.1,'°'],
+      ['range','badgeIdlePeriod','Idle cycle length',5,30,.5,'s']
     ],
     gallery: [
       ['range','galleryHeight','Gallery height',240,500,1,'px'], ['range','expandRatio','Expanded width',35,75,1,'%'],

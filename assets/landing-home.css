@@ -18,9 +18,7 @@
     #dan-landing-home .ds-space{white-space:pre}
     #dan-landing-home .ds-reveal.ds-long .ds-word{white-space:normal;max-width:100%;overflow-wrap:anywhere}
     #dan-landing-home .ds-intro-actions{display:flex;gap:18px;align-items:center;margin-top:30px;flex-wrap:wrap}
-    #dan-landing-home .ds-contact{display:inline-flex;align-items:center;gap:22px;font-size:13px;border-bottom:1px solid var(--dan-ink);padding:9px 0}
-    #dan-landing-home .ds-contact .ds-arrow{display:inline-block;transition:transform .2s}
-    #dan-landing-home .ds-contact:hover .ds-arrow{transform:translate(3px,-3px)}
+    #dan-landing-home .ds-contact{--contact-button-background:var(--dan-ink);--contact-button-ink:var(--dan-paper);margin-top:0}
     #dan-landing-home .ds-ticket-stage{min-width:0;display:flex;align-items:center;justify-content:center;padding:26px 16px;align-self:stretch;perspective:1000px}
     #dan-landing-home .ds-ticket{--ticket-bg:#111;--ticket-ink:#f5f5f2;--ticket-copy-bg:#111;--ticket-parallax:6px;position:relative;width:min(100%,460px);display:grid;grid-template-columns:minmax(0,1fr) 150px;min-height:260px;border-radius:16px;background:var(--ticket-bg);color:var(--ticket-ink);transform:rotate(4deg);transform-style:preserve-3d;overflow:hidden;flex-shrink:0;border:0;box-shadow:0 12px 22px #11111114;will-change:transform}
     #dan-landing-home .ds-ticket-body{position:relative;min-width:0;min-height:140px;padding:0;display:block}
@@ -59,7 +57,6 @@
 #dan-landing-home .ds-featured {padding:0 0 clamp(64px,7vw,112px)}
 #dan-landing-home .ds-section-head h2 {font-size:clamp(34px,3vw,46px);font-weight:700;letter-spacing:-.04em}
 #dan-landing-home .ds-section-head p {font-size:clamp(15px,1.08vw,18px)}
-#dan-landing-home .ds-contact {font-size:13px;font-weight:700;line-height:1.4}
 #dan-landing-home .ds-gallery > .ds-panel {grid-column:auto; min-height:0; margin:0; height:100%; aspect-ratio:auto; box-shadow:none; transform:none}
 #dan-landing-home .ds-gallery > .ds-panel .ds-gallery-image {border-radius:0;transform:translateX(-50%);transition:none}
 #dan-landing-home .ds-caption .rd-work-title {font-size:20px;line-height:1.2;letter-spacing:-.02em;font-weight:500}
@@ -107,6 +104,15 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 #dan-landing-home .ds-hero.is-compact .ds-intro-actions {margin-top:24px}
 .ds-ticket-carrier {position:relative;flex:none;transform-origin:50% 50%}
 .ds-ticket-carrier.is-portaled {position:fixed;z-index:2}
+.ds-ticket-idle {position:absolute;inset:0;transform-style:preserve-3d}
+.ds-ticket-carrier.has-idle-tilt .ds-ticket-idle {animation:ds-badge-idle var(--badge-idle-period,10s) ease-in-out infinite;animation-play-state:paused;will-change:transform}
+.ds-ticket-carrier.has-idle-tilt.is-idle-visible:not(.is-dragging) .ds-ticket-idle {animation-play-state:running}
+@keyframes ds-badge-idle {
+  0%,100% {transform:perspective(var(--badge-idle-perspective,1000px)) rotateX(0deg) rotateY(0deg)}
+  25% {transform:perspective(var(--badge-idle-perspective,1000px)) rotateX(var(--badge-idle-angle,1.1deg)) rotateY(calc(var(--badge-idle-angle,1.1deg) * -.5))}
+  50% {transform:perspective(var(--badge-idle-perspective,1000px)) rotateX(calc(var(--badge-idle-angle,1.1deg) * -.5)) rotateY(var(--badge-idle-angle,1.1deg))}
+  75% {transform:perspective(var(--badge-idle-perspective,1000px)) rotateX(calc(var(--badge-idle-angle,1.1deg) * -1)) rotateY(calc(var(--badge-idle-angle,1.1deg) * -.5))}
+}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket {position:absolute;left:50%;top:50%;min-height:0;min-width:0;transform-origin:50% 50%;cursor:pointer;touch-action:pan-y}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-copy {transition:opacity 180ms ease}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket.is-compact .ds-ticket-copy {opacity:0;visibility:hidden;pointer-events:none;padding:0!important}
@@ -134,4 +140,4 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 #dan-badge-dialog .ds-ticket.is-dragging {cursor:grabbing}
 .ds-badge-close {position:fixed;top:20px;right:24px;z-index:3;width:40px;height:40px;display:grid;place-items:center;border:1px solid #1114;border-radius:50%;background:#f5f5f2;color:#111;font:26px/1 Arial;cursor:pointer;transition:background 150ms ease}
 .ds-badge-close:hover {background:white}
-@media(prefers-reduced-motion:reduce){#dan-badge-dialog::backdrop {transition:none}}
+@media(prefers-reduced-motion:reduce){#dan-badge-dialog::backdrop {transition:none}.ds-ticket-idle {animation:none!important}}
