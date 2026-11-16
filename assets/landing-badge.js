@@ -12,7 +12,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   document.body.append(dialog);
   const closeButton=dialog.querySelector('button');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let compact=false,firstLayout=true,opened=false,busy=false,drag=null,frame=0,lastTime=0,scrollFrame=0,morph=null;
+  let compact=false,firstLayout=true,opened=false,busy=false,closeRequested=false,drag=null,frame=0,lastTime=0,scrollFrame=0,morph=null;
   let scrollTop=0,scrollTilt=0,inlineGeometry=null,lastPointer=null,suppressClickUntil=0,previousOverflow='';
   const motion={x:0,y:0,h:1,vx:0,vy:0,vh:0,tx:0,ty:0,th:1};
   const rgba=(hex,opacity)=>`rgba(${[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)).join(',')},${clamp(opacity,0,100)/100})`;
@@ -132,9 +132,11 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     requestAnimationFrame(()=>dialog.classList.add('is-open'));
     copy.animate([{opacity:0},{opacity:1}],{duration:config.badgeMorphDuration*.65,easing:'ease-out'});
     await flip(start,carrier.getBoundingClientRect());busy=false;suppressClickUntil=performance.now()+150;
+    if(closeRequested){closeRequested=false;close();}
   }
   async function close(){
-    if(!opened||busy)return;
+    if(!opened)return;
+    if(busy){closeRequested=true;return;}
     busy=true;
     const start=carrier.getBoundingClientRect();
     // Remove the drag transform after capturing its actual screen position.
