@@ -40,15 +40,15 @@
     #dan-landing-home .ds-section-head h2{font-size:30px;letter-spacing:-.045em;line-height:1.1;font-weight:500}
     #dan-landing-home .ds-section-head p{font-size:13px;color:var(--dan-muted);line-height:1.5}
     #dan-landing-home .ds-gallery{display:flex;gap:10px;width:100%;height:320px}
-    #dan-landing-home .ds-panel{position:relative;display:block;min-width:0;flex:1 1 0;overflow:hidden;border-radius:16px;isolation:isolate;background:var(--dan-ink);transition:flex-grow .6s linear(0,.292893 5%,.5 10%,.646447 15%,.75 20%,.823223 25%,.875 30%,.911612 35%,.9375 40%,.955806 45%,.96875 50%,.977903 55%,.984375 60%,.988951 65%,.992188 70%,.994476 75%,.996094 80%,.997238 85%,.998047 90%,.998619 95%,1);color:var(--dan-paper)}
-    #dan-landing-home .ds-panel[data-focused=true]{flex-grow:4.333333}
+    #dan-landing-home .ds-gallery > .ds-panel{position:relative;display:block;min-width:0;flex:1 1 0;overflow:hidden;border-radius:16px;isolation:isolate;background:var(--dan-ink);transition:flex-grow .6s linear(0,.292893 5%,.5 10%,.646447 15%,.75 20%,.823223 25%,.875 30%,.911612 35%,.9375 40%,.955806 45%,.96875 50%,.977903 55%,.984375 60%,.988951 65%,.992188 70%,.994476 75%,.996094 80%,.997238 85%,.998047 90%,.998619 95%,1);color:var(--dan-paper)}
+    #dan-landing-home .ds-gallery > .ds-panel[data-focused=true]{flex-grow:4.333333}
     #dan-landing-home .ds-gallery-image{position:absolute;left:50%;top:0;width:var(--media-width,600px);max-width:none;height:100%;object-fit:cover;transform:translateX(-50%);filter:none}
-    #dan-landing-home .ds-panel::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.35);transition:background .6s cubic-bezier(.16,1,.3,1);z-index:1}
-    #dan-landing-home .ds-panel[data-focused=true]::after{background:rgba(0,0,0,0)}
-    #dan-landing-home .ds-panel-gradient{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,transparent 36%,rgba(0,0,0,.78))}
+    #dan-landing-home .ds-gallery > .ds-panel::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.35);transition:background .6s cubic-bezier(.16,1,.3,1);z-index:1}
+    #dan-landing-home .ds-gallery > .ds-panel[data-focused=true]::after{background:rgba(0,0,0,0)}
+    #dan-landing-home .ds-gallery > .ds-panel-gradient{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,transparent 36%,rgba(0,0,0,.78))}
     #dan-landing-home .ds-caption{position:absolute;left:20px;right:16px;bottom:20px;display:flex;align-items:center;gap:12px;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .6s cubic-bezier(.16,1,.3,1);z-index:3;pointer-events:none}
     #dan-landing-home .ds-caption::before{content:"";width:3px;height:32px;background:var(--dan-paper);flex-shrink:0}
-    #dan-landing-home .ds-panel[data-focused=true] .ds-caption{opacity:1;transform:translateY(0)}
+    #dan-landing-home .ds-gallery > .ds-panel[data-focused=true] .ds-caption{opacity:1;transform:translateY(0)}
     #dan-landing-home .ds-caption small{display:block;text-transform:uppercase;font-size:9px;letter-spacing:.08em;line-height:1.4;margin-bottom:4px;opacity:.8}
     #dan-landing-home .ds-caption strong{display:block;font-weight:500;font-size:20px;line-height:1.2;letter-spacing:-.02em}
     #dan-landing-home .ds-caption i{margin-left:auto;font-size:22px;font-style:normal}
@@ -60,10 +60,10 @@
 #dan-landing-home .ds-section-head h2 {font-size:clamp(34px,3vw,46px);font-weight:700;letter-spacing:-.04em}
 #dan-landing-home .ds-section-head p {font-size:clamp(15px,1.08vw,18px)}
 #dan-landing-home .ds-contact {font-size:13px;font-weight:700;line-height:1.4}
-#dan-landing-home .ds-panel {grid-column:auto; min-height:0; margin:0; height:100%; box-shadow:none; transform:none}
-#dan-landing-home .ds-panel .ds-gallery-image {border-radius:0;transform:translateX(-50%);transition:none}
+#dan-landing-home .ds-gallery > .ds-panel {grid-column:auto; min-height:0; margin:0; height:100%; aspect-ratio:auto; box-shadow:none; transform:none}
+#dan-landing-home .ds-gallery > .ds-panel .ds-gallery-image {border-radius:0;transform:translateX(-50%);transition:none}
 #dan-landing-home .ds-caption .rd-work-title {font-size:20px;line-height:1.2;letter-spacing:-.02em;font-weight:500}
-#dan-landing-home .ds-panel .ds-caption {text-shadow:none}
+#dan-landing-home .ds-gallery > .ds-panel .ds-caption {text-shadow:none}
 #dan-landing-home .ds-reveal {font-size:var(--landing-font-size,53px);font-weight:500}
 #dan-landing-home .ds-ticket {width:480px;min-height:380px}
 @container (max-width:1000px) {
@@ -80,15 +80,15 @@
 }
 @container (max-width:500px) {
   #dan-landing-home .ds-gallery {height:auto!important;flex-direction:column;gap:10px}
-  #dan-landing-home .ds-panel {flex:none!important;height:64px;min-height:64px;transition:height .6s cubic-bezier(.16,1,.3,1)}
-  #dan-landing-home .ds-panel[data-focused=true] {height:var(--mobile-expanded,320px)}
+  #dan-landing-home .ds-gallery > .ds-panel {flex:none!important;height:64px;min-height:64px;transition:height .6s cubic-bezier(.16,1,.3,1)}
+  #dan-landing-home .ds-gallery > .ds-panel[data-focused=true] {height:var(--mobile-expanded,320px)}
   #dan-landing-home .ds-gallery-image {width:100%;object-position:center}
   #dan-landing-home .ds-caption {left:17px;bottom:16px}
-  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption {opacity:1;transform:none;bottom:19px}
-  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption::before,
-  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption small {display:none}
-  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption .rd-work-title {font-size:14px}
-  #dan-landing-home .ds-panel:not([data-focused=true]) .ds-caption i {font-size:17px}
+  #dan-landing-home .ds-gallery > .ds-panel:not([data-focused=true]) .ds-caption {opacity:1;transform:none;bottom:19px}
+  #dan-landing-home .ds-gallery > .ds-panel:not([data-focused=true]) .ds-caption::before,
+  #dan-landing-home .ds-gallery > .ds-panel:not([data-focused=true]) .ds-caption small {display:none}
+  #dan-landing-home .ds-gallery > .ds-panel:not([data-focused=true]) .ds-caption .rd-work-title {font-size:14px}
+  #dan-landing-home .ds-gallery > .ds-panel:not([data-focused=true]) .ds-caption i {font-size:17px}
 }
 @media(prefers-reduced-motion:reduce) {
   #dan-landing-home *, #dan-landing-home *::after {animation:none!important;transition:none!important}
