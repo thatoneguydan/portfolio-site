@@ -98,7 +98,7 @@
 /* Responsive ID badge */
 #dan-landing-home .ds-hero {grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);align-items:center;min-height:0}
 #dan-landing-home .ds-intro {max-width:none}
-#dan-landing-home .ds-ticket-stage {width:auto;max-width:none;min-height:0;align-self:center;padding:26px 16px}
+#dan-landing-home .ds-ticket-stage {width:100%;max-width:none;min-height:0;align-self:center;justify-self:stretch;padding:26px 16px}
 #dan-landing-home .ds-ticket-stage:empty {height:calc(var(--badge-anchor-height) + 52px)}
 #dan-landing-home .ds-hero.is-compact {grid-template-columns:minmax(0,1fr) var(--badge-compact-width,92px);gap:22px;align-items:start}
 #dan-landing-home .ds-hero.is-compact .ds-ticket-stage {align-self:start;padding:0;margin-top:8px}

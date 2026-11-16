@@ -58,7 +58,7 @@ export function mountTune(api){
 
   function positionControls() {
     placementFrame=0;if(!ownerPreview)return;
-    const pad=12,gap=11,area=visibleViewport||{left:0,top:0,right:window.innerWidth,bottom:window.innerHeight};
+    const pad=12,gap=11,area=visibleViewport||{left:0,top:0,right:document.documentElement.clientWidth,bottom:window.innerHeight};
     const w=area.right-area.left,minX=area.left+pad,minY=area.top+pad;
     const b=configLauncher.getBoundingClientRect(),maxX=Math.max(minX,area.right-b.width-pad),maxY=Math.max(minY,area.bottom-b.height-pad);
     const position=launcherPosition||{x:1,y:1};
@@ -79,7 +79,7 @@ export function mountTune(api){
   }
   function schedulePlacement(){if(!placementFrame)placementFrame=requestAnimationFrame(positionControls);}
   function rememberLauncher(x,y) {
-    const b=configLauncher.getBoundingClientRect(),pad=12,area=visibleViewport||{left:0,top:0,right:window.innerWidth,bottom:window.innerHeight};
+    const b=configLauncher.getBoundingClientRect(),pad=12,area=visibleViewport||{left:0,top:0,right:document.documentElement.clientWidth,bottom:window.innerHeight};
     launcherPosition={x:clamp((x-area.left-pad)/Math.max(1,area.right-area.left-b.width-pad*2),0,1),y:clamp((y-area.top-pad)/Math.max(1,area.bottom-area.top-b.height-pad*2),0,1)};
   }
   function toggleControls(show){if(!ownerPreview)return;configPanel.hidden=!show;configLauncher.setAttribute('aria-expanded',String(show));schedulePlacement();persist();}
@@ -103,7 +103,9 @@ export function mountTune(api){
   });
   configPanel.querySelector('[data-close-config]').addEventListener('click',()=>toggleControls(false));
   configPanel.querySelector('[data-replay]').addEventListener('click',replay);
-  configPanel.addEventListener('toggle',schedulePlacement,true);new ResizeObserver(schedulePlacement).observe(configPanel);
+  configPanel.addEventListener('toggle',schedulePlacement,true);
+  const placementObserver=new ResizeObserver(schedulePlacement);placementObserver.observe(configPanel);placementObserver.observe(configLauncher);
+  stylesheet.addEventListener('load',schedulePlacement);document.fonts?.ready.then(schedulePlacement);
   configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.addEventListener('input',()=>{config[input.name]=input.value;render();persist();clearTimeout(liveTimer);liveTimer=setTimeout(replay,700);}));
   configPanel.addEventListener('input',event=>{
     const input=event.target,key=input.dataset.option;if(!key)return;
