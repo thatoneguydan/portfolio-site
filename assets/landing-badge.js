@@ -1,4 +1,4 @@
-import {clamp,fitBadge,shouldDismiss} from './badge-math.js';
+import {clamp,fitBadge,shouldDismiss,compactBadge,idleOrbit} from './badge-math.js';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');
@@ -7,6 +7,11 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const copy=ticket.querySelector('.ds-ticket-copy'),bio=ticket.querySelector('.ds-bio');
   const carrier=document.createElement('div');carrier.className='ds-ticket-carrier';ticketStage.append(carrier);
   const idleLayer=document.createElement('div');idleLayer.className='ds-ticket-idle';carrier.append(idleLayer);idleLayer.append(ticket);
+  const surface=document.createElement('div');surface.className='ds-ticket-surface';surface.append(...ticket.children);ticket.append(surface);
+  // Keep hit testing in an untransformed plane. The painted card can tilt freely.
+  const activation=document.createElement('button');activation.type='button';activation.className='ds-badge-activate';
+  activation.setAttribute('aria-haspopup','dialog');activation.setAttribute('aria-expanded','false');carrier.append(activation);
+  const dragPlane=document.createElement('div');dragPlane.className='ds-badge-drag-plane';dragPlane.hidden=true;carrier.append(dragPlane);
   const scrim=document.createElement('div');scrim.className='ds-photo-scrim';photoWindow.append(scrim);
   const dialog=document.createElement('dialog');dialog.id='dan-badge-dialog';dialog.className='ds-badge-dialog';dialog.setAttribute('aria-label','About Dan Smith');
   dialog.innerHTML='<button type="button" class="ds-badge-close" aria-label="Close ID badge">×</button>';
@@ -16,23 +21,30 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   let compact=false,firstLayout=true,opened=false,busy=false,closeRequested=false,drag=null,frame=0,lastTime=0,scrollFrame=0,morph=null;
   let scrollTop=0,scrollTilt=0,inlineGeometry=null,lastPointer=null,suppressClickUntil=0,previousOverflow='';
   const motion={x:0,y:0,h:1,vx:0,vy:0,vh:0,tx:0,ty:0,th:1};
-  let visible=false;
-  function updateIdleVisibility(){carrier.classList.toggle('is-idle-visible',visible&&!document.hidden);}
+  let visible=false,idlePhase=0,idleWeight=0,lastPointerTime=0,hovering=false;
+  const idleEnabled=()=>config.badgeIdleTilt&&config.ticketTilt&&!config.ticketDisabled&&(compact||opened)&&visible&&!document.hidden&&!reduced.matches&&!drag;
+  function updateIdleVisibility(){animateMotion();}
   const visibilityObserver=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;updateIdleVisibility();});
-  visibilityObserver.observe(ticket);document.addEventListener('visibilitychange',updateIdleVisibility);
+  visibilityObserver.observe(carrier);document.addEventListener('visibilitychange',updateIdleVisibility);
   const rgba=(hex,opacity)=>`rgba(${[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)).join(',')},${clamp(opacity,0,100)/100})`;
-  ticket.setAttribute('role','button');ticket.setAttribute('aria-haspopup','dialog');ticket.setAttribute('aria-expanded','false');ticket.tabIndex=0;
+  ticket.removeAttribute('role');ticket.removeAttribute('tabindex');
 
   function paint(){
     const scale=Number(carrier.dataset.scale||1)*motion.h;
     const rotation=opened?0:config.ticketRotation;
-    ticket.style.transform=`translate(-50%,-50%) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${motion.x}deg) rotateY(${motion.y}deg) scale(${scale})`;
+    const idle=idleOrbit(idlePhase,config.badgeIdleAngle*idleWeight),x=motion.x+idle.x,y=motion.y+idle.y;
+    ticket.style.transform=`translate(-50%,-50%) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${x}deg) rotateY(${y}deg) scale(${scale})`;
     const depth=config.ticketTiltMax>0?config.ticketParallax/config.ticketTiltMax:0;
-    photo.style.transform=`translate(${-motion.y*depth}px,${motion.x*depth}px)`;
-    name.style.transform=`translate(${motion.y*depth*.22}px,${-motion.x*depth*.22}px)`;
+    const px=clamp(-y*depth,-config.ticketParallax,config.ticketParallax),py=clamp(x*depth,-config.ticketParallax,config.ticketParallax);
+    photo.style.transform=`translate(${px}px,${py}px)`;
+    name.style.transform=`translate(${-px*.22}px,${-py*.22}px)`;
   }
   function tick(now){
     const dt=lastTime?Math.min((now-lastTime)/1000,.04):1/60;lastTime=now;
+    const idle=idleEnabled();
+    if(idle)idlePhase=(idlePhase+dt*Math.PI*2/config.badgeIdlePeriod)%(Math.PI*2);
+    const targetWeight=idle&&now-lastPointerTime>1000?1:0;
+    idleWeight+=(targetWeight-idleWeight)*(1-Math.exp(-dt*5));
     for(let step=0;step<3;step++)for(const axis of ['x','y','h']){
       const velocity='v'+axis,target='t'+axis;
       motion[velocity]+=(220*(motion[target]-motion[axis])-24*motion[velocity])/.6*(dt/3);
@@ -40,11 +52,11 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     }
     paint();
     const resting=['x','y','h'].every(axis=>Math.abs(motion['t'+axis]-motion[axis])+Math.abs(motion['v'+axis])<.008);
-    if(resting){for(const axis of ['x','y','h']){motion[axis]=motion['t'+axis];motion['v'+axis]=0;}paint();frame=0;lastTime=0;}
+    if(resting&&!idle&&idleWeight<.001){for(const axis of ['x','y','h']){motion[axis]=motion['t'+axis];motion['v'+axis]=0;}idleWeight=0;paint();frame=0;lastTime=0;}
     else frame=requestAnimationFrame(tick);
   }
   function animateMotion(){
-    if(reduced.matches){motion.x=motion.y=0;motion.h=1;paint();return;}
+    if(reduced.matches){motion.x=motion.y=0;motion.h=1;idleWeight=0;paint();return;}
     if(!frame)frame=requestAnimationFrame(tick);
   }
   function targets(){
@@ -64,23 +76,22 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     scrollTilt=-config.badgeScrollTilt*progress;targets();
   }
   function look(isCompact){
-    const width=isCompact?(inlineGeometry?.width||config.badgeCompactWidth):config.ticketWidth;
+    // One intrinsic compact design scales as a unit, including its insets/type.
+    const width=isCompact?100:config.ticketWidth;
     const height=isCompact?width*1.3:config.ticketHeight;
-    carrier.classList.toggle('has-idle-tilt',config.badgeIdleTilt&&config.ticketTilt&&!config.ticketDisabled&&(isCompact||opened));
-    carrier.style.setProperty('--badge-idle-angle',config.badgeIdleAngle+'deg');
-    carrier.style.setProperty('--badge-idle-period',config.badgeIdlePeriod+'s');
-    carrier.style.setProperty('--badge-idle-perspective',config.ticketPerspective+'px');
     ticket.classList.toggle('is-compact',isCompact);
     ticket.style.width=width+'px';ticket.style.height=height+'px';ticket.style.minHeight='0';
-    ticket.style.gridTemplateColumns=isCompact?'minmax(0,1fr) 0px':config.ticketOrientation==='vertical'?'minmax(0,1fr)':`minmax(0,1fr) ${config.ticketPanelSize}px`;
-    ticket.style.gridTemplateRows=!isCompact&&config.ticketOrientation==='vertical'?`minmax(0,1fr) ${config.ticketPanelSize}px`:'minmax(0,1fr)';
+    surface.style.gridTemplateColumns=isCompact?'minmax(0,1fr) 0px':config.ticketOrientation==='vertical'?'minmax(0,1fr)':`minmax(0,1fr) ${config.ticketPanelSize}px`;
+    surface.style.gridTemplateRows=!isCompact&&config.ticketOrientation==='vertical'?`minmax(0,1fr) ${config.ticketPanelSize}px`:'minmax(0,1fr)';
     ticket.dataset.orientation=isCompact?'compact':config.ticketOrientation;
-    ticket.dataset.disabled=String(config.ticketDisabled);ticket.inert=config.ticketDisabled;
+    ticket.dataset.disabled=String(config.ticketDisabled);activation.disabled=config.ticketDisabled;
     ticket.style.borderRadius=(isCompact?Math.min(config.ticketRadius,14):config.ticketRadius)+'px';
+    ticket.style.setProperty('--ticket-radius',(isCompact?Math.min(config.ticketRadius,14):config.ticketRadius)+'px');
     ticket.style.setProperty('--ticket-bg',config.ticketBackground);ticket.style.setProperty('--ticket-ink',config.ticketColor);
     ticket.style.setProperty('--ticket-copy-bg',config.ticketCustomPanelBackground?config.ticketPanelBackground:config.ticketBackground);
     ticket.style.setProperty('--ticket-parallax',config.ticketParallax+'px');
     photoWindow.style.borderRadius=(config.ticketAutoImageRadius?Math.max(0,Math.min(config.ticketRadius,isCompact?14:32)-8):config.ticketImageRadius)+'px';
+    photoWindow.style.setProperty('--photo-radius',photoWindow.style.borderRadius);
     photo.style.objectPosition=`50% ${config.photoPosition}%`;
     copy.style.padding=config.ticketOrientation==='vertical'?'26px 24px':'30px 20px 30px 26px';
     copy.setAttribute('aria-hidden',String(isCompact));
@@ -88,10 +99,19 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     heading.style.fontSize=config.ticketHeadingSize+'px';heading.style.fontWeight=config.ticketHeadingWeight;
     bio.style.fontSize=config.ticketBodySize+'px';bio.style.lineHeight=config.ticketBodyLineHeight;bio.style.opacity=config.ticketBodyOpacity/100;
     scrim.hidden=!config.ticketScrim;
+    const radians=config.scrimAngle*Math.PI/180;
+    const distance=config.scrimDistance,size=config.scrimSize;
+    const anchor=100-config.scrimSpread;
+    scrim.style.background=`linear-gradient(${config.scrimAngle+90}deg,transparent ${anchor-size}%,${rgba(config.scrimColor,config.scrimOpacity*.18)} ${anchor-size*.72}%,${rgba(config.scrimColor,config.scrimOpacity*.72)} ${anchor-size*.38}%,${rgba(config.scrimColor,config.scrimOpacity)} ${anchor}%)`;
+    scrim.style.transform=`translate(${-Math.cos(radians)*distance}%,${Math.sin(radians)*distance}%)`;
+    scrim.style.mixBlendMode=config.scrimBlend;
     ticket.style.setProperty('--ticket-border-width',(config.ticketBorder?config.ticketBorderWidth:0)+'px');
+    ticket.style.setProperty('--ticket-border-bleed',(config.ticketBorder?.7:0)+'px');
     ticket.style.setProperty('--ticket-border-color',rgba(config.ticketBorderColor,config.ticketBorderOpacity));
     ticket.style.boxShadow=config.ticketShadow?`${config.shadowX}px ${config.shadowY}px ${config.shadowBlur}px ${config.shadowSpread}px ${rgba(config.shadowColor,config.shadowOpacity)}`:'none';
-    ticket.setAttribute('aria-label',`${config.ticketName}: ${opened?'ID badge':'open ID badge'}`);
+    ticket.setAttribute('aria-label',`${config.ticketName}: ID badge`);
+    activation.setAttribute('aria-label',`${config.ticketName}: open ID badge`);
+    activation.hidden=opened||busy||!isCompact;dragPlane.hidden=!opened||busy;
     dialog.style.setProperty('--badge-blur',config.badgeBackdropBlur+'px');
   }
   function sizeCarrier(geometry){
@@ -116,18 +136,16 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const changed=nextCompact!==compact;compact=nextCompact;
     hero.classList.toggle('is-compact',compact);
     fitText();
-    let compactWidth=config.badgeCompactWidth;
+    let compactGeometry;
     if(compact){
-      const lift=Math.min(32,config.badgeCompactWidth*.35);
       const textRect=h1.getBoundingClientRect(),line=h1.children[Number(h1.dataset.longestLine)]||h1;
       const lineHeight=parseFloat(getComputedStyle(h1).lineHeight);
-      const targetHeight=lift+line.getBoundingClientRect().top-textRect.top+lineHeight*config.badgeOverlap/100;
-      compactWidth=Math.min(Math.max(config.badgeCompactWidth,targetHeight/1.3),Math.max(config.badgeCompactWidth,heroWidth*.4));
-      hero.style.setProperty('--badge-top',(h1.getBoundingClientRect().top-hero.getBoundingClientRect().top-lift)+'px');
+      compactGeometry=compactBadge(lineHeight,line.getBoundingClientRect().top-textRect.top,config.badgeOverlap,config.badgeCompactScale);
+      hero.style.setProperty('--badge-top',(textRect.top-hero.getBoundingClientRect().top-compactGeometry.lift)+'px');
     }
-    hero.style.setProperty('--badge-compact-width',compactWidth+'px');
+    hero.style.setProperty('--badge-compact-width',(compactGeometry?.width||0)+'px');
     const style=getComputedStyle(ticketStage),available=Math.max(1,ticketStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight));
-    inlineGeometry=compact?{width:compactWidth,height:compactWidth*1.3,scale:1}:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation);
+    inlineGeometry=compact?compactGeometry:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation);
     // The empty anchor keeps its real geometry while the badge is in the dialog.
     ticketStage.style.setProperty('--badge-anchor-height',inlineGeometry.height+'px');
     if(!opened&&!busy){
@@ -142,16 +160,16 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     carrier.style.left=(innerWidth-geometry.width)/2+'px';carrier.style.top=(innerHeight-geometry.height)/2+'px';
   }
   async function open(){
-    if(opened||busy||config.ticketDisabled)return;
+    if(opened||busy||!compact||config.ticketDisabled)return;
     const start=carrier.getBoundingClientRect();busy=true;opened=true;
     previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';
     ticketStage.classList.add('is-badge-open');
     dialog.showModal();dialog.append(carrier);carrier.classList.add('is-portaled');
     motion.th=1;motion.tx=motion.ty=0;motion.x=motion.y=0;placeExpanded();
-    ticket.setAttribute('aria-expanded','true');ticket.style.touchAction='none';
+    activation.setAttribute('aria-expanded','true');
     requestAnimationFrame(()=>dialog.classList.add('is-open'));
     copy.animate([{opacity:0},{opacity:1}],{duration:config.badgeMorphDuration*.65,easing:'ease-out'});
-    await flip(start,carrier.getBoundingClientRect());busy=false;suppressClickUntil=performance.now()+150;
+    await flip(start,carrier.getBoundingClientRect());busy=false;dragPlane.hidden=false;suppressClickUntil=performance.now()+150;
     targets();
     if(closeRequested){closeRequested=false;close();}
   }
@@ -169,22 +187,21 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     dialog.classList.remove('is-open');updateScroll();
     await flip(start,carrier.getBoundingClientRect());
     ticketStage.append(carrier);ticketStage.classList.remove('is-badge-open');carrier.classList.remove('is-portaled');carrier.style.left=carrier.style.top='';
-    dialog.close();document.body.style.overflow=previousOverflow;ticket.setAttribute('aria-expanded','false');ticket.style.touchAction='pan-y';
-    busy=false;layout(false);ticket.focus({preventScroll:true});
+    dialog.close();document.body.style.overflow=previousOverflow;activation.setAttribute('aria-expanded','false');
+    busy=false;layout(false);activation.focus({preventScroll:true});
   }
-  ticket.addEventListener('click',()=>{if(performance.now()>=suppressClickUntil&&!opened)open();});
-  ticket.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)&&!opened){event.preventDefault();open();}});
+  activation.addEventListener('click',()=>{if(performance.now()>=suppressClickUntil&&!opened)open();});
   closeButton.addEventListener('click',close);
   dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
   dialog.addEventListener('click',event=>{if(event.target===dialog&&performance.now()>=suppressClickUntil)close();});
-  ticket.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch'&&!opened){motion.th=config.badgeHoverScale;animateMotion();}});
-  ticket.addEventListener('pointerleave',()=>{motion.th=1;animateMotion();});
-  ticket.addEventListener('pointerdown',event=>{
+  carrier.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch'){hovering=true;motion.th=config.badgeHoverScale;animateMotion();}});
+  carrier.addEventListener('pointerleave',()=>{hovering=false;motion.th=1;animateMotion();});
+  dragPlane.addEventListener('pointerdown',event=>{
     if(!opened||busy||event.button!==0)return;
     drag={id:event.pointerId,x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,lastTime:performance.now(),speed:0,dx:0,dy:0};
-    ticket.setPointerCapture(event.pointerId);ticket.classList.add('is-dragging');carrier.classList.add('is-dragging');
+    dragPlane.setPointerCapture(event.pointerId);carrier.classList.add('is-dragging');
   });
-  ticket.addEventListener('pointermove',event=>{
+  dragPlane.addEventListener('pointermove',event=>{
     if(!drag||event.pointerId!==drag.id)return;
     const now=performance.now(),elapsed=Math.max(1,now-drag.lastTime);
     drag.speed=Math.hypot(event.clientX-drag.lastX,event.clientY-drag.lastY)/elapsed;
@@ -194,17 +211,18 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   function release(event){
     if(!drag||event.pointerId!==drag.id)return;
     const dismiss=event.type!=='pointercancel'&&shouldDismiss(Math.hypot(drag.dx,drag.dy),drag.speed);
-    ticket.classList.remove('is-dragging');carrier.classList.remove('is-dragging');suppressClickUntil=performance.now()+300;
+    carrier.classList.remove('is-dragging');suppressClickUntil=performance.now()+300;
     if(dismiss){drag=null;close();}
     else{const from=carrier.style.transform;carrier.style.transform='';drag=null;carrier.animate([{transform:from},{transform:'none'}],{duration:300,easing:'cubic-bezier(.2,.85,.2,1)'});targets();}
   }
-  ticket.addEventListener('pointerup',release);ticket.addEventListener('pointercancel',release);
+  dragPlane.addEventListener('pointerup',release);dragPlane.addEventListener('pointercancel',release);
   document.addEventListener('pointermove',event=>{
     if(event.pointerType==='touch'||event.target.closest?.('#dan-owner-controls'))return;
-    lastPointer={x:event.clientX,y:event.clientY};if(!drag&&!busy)targets();
+    lastPointer={x:event.clientX,y:event.clientY};lastPointerTime=performance.now();if(!drag&&!busy)targets();
   },{passive:true});
   document.addEventListener('pointerleave',()=>{lastPointer=null;targets();});
   window.addEventListener('scroll',()=>{if(!scrollFrame)scrollFrame=requestAnimationFrame(updateScroll);},{passive:true});
   window.visualViewport?.addEventListener('resize',()=>{if(opened&&!busy)placeExpanded();});
-  return {layout,update:()=>layout(false),open,close,destroy(){cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);morph?.cancel();visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);dialog.remove();}};
+  reduced.addEventListener('change',targets);
+  return {layout,update:()=>{motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);morph?.cancel();visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);dialog.remove();}};
 }

@@ -7,3 +7,10 @@ export function fitBadge(width,height,availableWidth,availableHeight=Infinity,ro
   return {scale,width:width*scale,height:height*scale};
 }
 export function shouldDismiss(distance,speed){return distance>100||(distance>24&&speed>.55);}
+// A ratio of the headline, never a pixel minimum. Narrow layouts shrink together.
+export function compactBadge(lineHeight,lineOffset,overlap,scale=1){
+  const lift=lineHeight*.55;
+  const height=(lift+lineOffset+lineHeight*overlap/100)*scale;
+  return {width:height/1.3,height,lift,scale:height/130};
+}
+export function idleOrbit(phase,angle){return {x:Math.sin(phase)*angle,y:Math.cos(phase)*angle};}

@@ -1,1 +1,1 @@
-{"version":1,"include":["/api/owner","/api/landing-settings","/api/tune","/tune","/tune/"],"exclude":[]}
+{"version":1,"include":["/api/owner","/api/landing-settings","/api/tune","/tune","/tune/","/api/landing-bootstrap"],"exclude":[]}

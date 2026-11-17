@@ -24,6 +24,13 @@ export const defaults = {
   "ticketAutoImageRadius": true,
   "ticketResponsive": true,
   "ticketScrim": true,
+  "scrimColor": "#111111",
+  "scrimBlend": "normal",
+  "scrimOpacity": 100,
+  "scrimAngle": 90,
+  "scrimDistance": 0,
+  "scrimSpread": 0,
+  "scrimSize": 80,
   "photoPosition": 17,
   "ticketRotation": 4,
   "ticketTilt": true,
@@ -63,14 +70,24 @@ export const defaults = {
   "activeIndex": 0,
   "badgeScrollTilt": 20,
   "badgeCompactWidth": 92,
+  "badgeCompactScale": 1,
   "badgeCompactTextRatio": 1,
   "badgeHoverScale": 1.04,
   "badgeMorphDuration": 520,
   "badgeBackdropBlur": 10,
-  "badgeOverlap": 45,
+  "badgeOverlap": 32,
   "badgeIdleTilt": true,
   "badgeIdleAngle": 1.1,
-  "badgeIdlePeriod": 10
+  "badgeIdlePeriod": 10,
+  "verticalGalleryHeight": 320,
+  "verticalGalleryCollapsed": 64,
+  "verticalGalleryGap": 10,
+  "verticalGalleryRadius": 16,
+  "verticalGalleryDuration": 600,
+  "verticalGalleryGrayscale": false,
+  "verticalGalleryTitleSize": 20,
+  "verticalGalleryCompactTitleSize": 14,
+  "verticalGalleryPadding": 17
 };
 export const controlGroups = {
     reveal: [
@@ -97,7 +114,7 @@ export const controlGroups = {
       ['range','ticketParallax','Parallax',0,32,1,'px'], ['range','ticketPerspective','Perspective',400,2400,50,'px']
     ],
     ticketAppearance: [
-      ['check','ticketScrim','Scrim'], ['color','ticketBackground','Background'], ['color','ticketColor','Text color'],
+      ['color','ticketBackground','Background'], ['color','ticketColor','Text color'],
       ['check','ticketCustomPanelBackground','Separate text-panel background'], ['color','ticketPanelBackground','Text-panel background'],
       ['check','ticketBorder','Border'], ['range','ticketBorderWidth','Border width',.5,4,.5,'px'],
       ['color','ticketBorderColor','Border color'], ['range','ticketBorderOpacity','Border opacity',0,100,1,'%'],
@@ -109,6 +126,15 @@ export const controlGroups = {
       ['range','ticketBodySize','Description size',11,20,1,'px'], ['range','ticketBodyLineHeight','Description line spacing',1.1,1.9,.05,''],
       ['range','ticketBodyOpacity','Description opacity',30,100,1,'%']
     ],
+    ticketScrim: [
+      ['check','ticketScrim','Photo scrim'], ['color','scrimColor','Scrim color'],
+      ['select','scrimBlend','Blend mode',['normal','multiply','screen','overlay','darken','lighten','soft-light','hard-light']],
+      ['range','scrimOpacity','Scrim opacity',0,100,1,'%'],
+      ['range','scrimAngle','Light angle',-180,180,1,'°'],
+      ['range','scrimDistance','Distance',-100,100,1,'%'],
+      ['range','scrimSpread','Spread',0,100,1,'%'],
+      ['range','scrimSize','Size',1,200,1,'%']
+    ],
     ticketShadow: [
       ['check','ticketShadow','Drop shadow'], ['color','shadowColor','Shadow color'], ['range','shadowOpacity','Shadow opacity',0,100,1,'%'],
       ['range','shadowX','Horizontal offset',-50,50,1,'px'], ['range','shadowY','Vertical offset',-50,70,1,'px'],
@@ -116,26 +142,40 @@ export const controlGroups = {
     ],
     badge: [
       ['range','badgeScrollTilt','Scroll tilt',0,36,1,'°'],
-      ['range','badgeCompactWidth','Photo badge minimum width',64,160,2,'px'],
+      ['range','badgeCompactScale','Photo badge scale',.4,1.6,.01,'×'],
       ['range','badgeOverlap','Headline overlap',10,80,1,'%'],
       ['range','badgeCompactTextRatio','Collapse threshold',.6,1.5,.05,'×'],
       ['range','badgeHoverScale','Hover scale',1,1.12,.01,'×'],
       ['range','badgeMorphDuration','Open / close duration',200,1000,20,'ms'],
       ['range','badgeBackdropBlur','Background blur',0,24,1,'px'],
       ['check','badgeIdleTilt','Subtle idle tilt'],
-      ['range','badgeIdleAngle','Idle tilt strength',0,4,.1,'°'],
-      ['range','badgeIdlePeriod','Idle cycle length',5,30,.5,'s']
+      ['range','badgeIdleAngle','Idle tilt strength',0,30,.1,'°'],
+      ['range','badgeIdlePeriod','Idle cycle length',.5,120,.5,'s']
     ],
     gallery: [
       ['range','galleryHeight','Gallery height',240,500,1,'px'], ['range','expandRatio','Expanded width',35,75,1,'%'],
       ['range','galleryGap','Gallery gap',0,24,1,'px'], ['range','galleryRadius','Gallery radius',0,32,1,'px'],
       ['range','galleryDuration','Transition duration',200,1400,50,'ms'], ['check','grayscale','Grayscale inactive cards']
+    ],
+    galleryVertical: [
+      ['range','verticalGalleryHeight','Expanded card height',140,640,1,'px'],
+      ['range','verticalGalleryCollapsed','Collapsed card height',44,140,1,'px'],
+      ['range','verticalGalleryGap','Vertical gallery gap',0,32,1,'px'],
+      ['range','verticalGalleryRadius','Vertical gallery radius',0,40,1,'px'],
+      ['range','verticalGalleryDuration','Vertical transition duration',200,1400,50,'ms'],
+      ['range','verticalGalleryTitleSize','Expanded title size',12,32,1,'px'],
+      ['range','verticalGalleryCompactTitleSize','Collapsed title size',11,24,1,'px'],
+      ['range','verticalGalleryPadding','Caption inset',10,32,1,'px'],
+      ['check','verticalGalleryGrayscale','Grayscale inactive vertical cards']
     ]
   };
 export function normalizeSettings(input, base = defaults) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Settings must be an object.');
   const result={...defaults,...base};
-  const colors=['ticketBackground','ticketColor','ticketPanelBackground','ticketBorderColor','shadowColor'];
+  const colors=['ticketBackground','ticketColor','ticketPanelBackground','ticketBorderColor','shadowColor','scrimColor'];
+  // Old saved settings keep their vertical appearance when first upgraded.
+  const inherited={verticalGalleryHeight:['galleryHeight',v=>Math.min(360,v)],verticalGalleryGap:['galleryGap'],verticalGalleryRadius:['galleryRadius'],verticalGalleryDuration:['galleryDuration'],verticalGalleryGrayscale:['grayscale']};
+  for(const [key,[source,convert]] of Object.entries(inherited))if(!(key in input)&&!(key in base&&base!==defaults)&&source in input)result[key]=convert?convert(input[source]):input[source];
   for(const [key,value] of Object.entries(input)) {
     if(!(key in defaults)) throw new Error('Unknown setting: '+key);
     if(typeof value!==typeof defaults[key]) throw new Error('Invalid setting: '+key);

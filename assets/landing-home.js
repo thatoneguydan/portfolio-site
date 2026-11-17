@@ -64,19 +64,35 @@ import {createBadge} from './landing-badge.js';
   }
   function selectPanel(index,save=true) {
     config.activeIndex=(index+panels.length)%panels.length;
-    panels.forEach((el,i) => {const active=i===config.activeIndex;el.dataset.focused=String(active);el.style.flexGrow=active?config.expandRatio*(panels.length-1)/(100-config.expandRatio):1;el.querySelector('img').style.filter=config.grayscale&&!active?'grayscale(1)':'none';});
+    const grayscale=gallery.dataset.layout==='vertical'?config.verticalGalleryGrayscale:config.grayscale;
+    panels.forEach((el,i) => {const active=i===config.activeIndex;el.dataset.focused=String(active);el.style.flexGrow=active?config.expandRatio*(panels.length-1)/(100-config.expandRatio):1;el.querySelector('img').style.filter=grayscale&&!active?'grayscale(1)':'none';});
     if(save)persist();
   }
   function renderGallery() {
-    gallery.style.height=config.galleryHeight+'px';gallery.style.gap=config.galleryGap+'px';gallery.style.setProperty('--mobile-expanded',Math.min(360,config.galleryHeight)+'px');
-    panels.forEach(p=>{p.style.borderRadius=config.galleryRadius+'px';p.style.transitionDuration=config.galleryDuration+'ms';});
-    gallery.style.setProperty('--media-width',Math.max(140,(gallery.clientWidth-config.galleryGap*(panels.length-1))*config.expandRatio/100*1.22)+'px');selectPanel(config.activeIndex,false);
+    const vertical=root.clientWidth<=500;
+    const gap=vertical?config.verticalGalleryGap:config.galleryGap;
+    const settledWidth=vertical?gallery.clientWidth:(gallery.clientWidth-gap*(panels.length-1))*config.expandRatio/100;
+    gallery.dataset.layout=vertical?'vertical':'horizontal';
+    gallery.style.setProperty('--gallery-height',config.galleryHeight+'px');
+    gallery.style.setProperty('--gallery-gap',gap+'px');
+    gallery.style.setProperty('--gallery-radius',(vertical?config.verticalGalleryRadius:config.galleryRadius)+'px');
+    gallery.style.setProperty('--gallery-duration',(vertical?config.verticalGalleryDuration:config.galleryDuration)+'ms');
+    gallery.style.setProperty('--mobile-expanded',config.verticalGalleryHeight+'px');
+    gallery.style.setProperty('--mobile-collapsed',config.verticalGalleryCollapsed+'px');
+    gallery.style.setProperty('--caption-inset',(vertical?config.verticalGalleryPadding:20)+'px');
+    gallery.style.setProperty('--caption-width',Math.max(1,settledWidth-(vertical?config.verticalGalleryPadding*2:36))+'px');
+    gallery.style.setProperty('--caption-title-size',(vertical?config.verticalGalleryTitleSize:20)+'px');
+    gallery.style.setProperty('--compact-title-size',config.verticalGalleryCompactTitleSize+'px');
+    gallery.style.setProperty('--media-width',Math.max(140,settledWidth*1.22)+'px');selectPanel(config.activeIndex,false);
   }
 
   const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText});
   function render(){renderText();renderGallery();badge.update();}
 
   panels.forEach((panel,i)=>{
+    const compactCaption=document.createElement('span');compactCaption.className='ds-compact-caption';compactCaption.setAttribute('aria-hidden','true');
+    const compactTitle=document.createElement('strong');compactTitle.textContent=panel.querySelector('.rd-work-title').textContent;
+    compactCaption.append(compactTitle);panel.append(compactCaption);
     let touchExpanding=false;
     panel.addEventListener('pointerdown',event=>{touchExpanding=event.pointerType==='touch'&&config.activeIndex!==i;});
     panel.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch')selectPanel(i);});
@@ -95,25 +111,28 @@ import {createBadge} from './landing-badge.js';
 
   const resize=()=>{fitText();renderGallery();badge.layout();};
   addEventListener('resize',resize);new ResizeObserver(resize).observe(root);
-  document.fonts?.ready.then(resize);
   addEventListener('pagehide',event=>{if(event.persisted)return;badge.destroy();currentAnimations.forEach(a=>a.cancel());});
   const api={
     getConfig:()=>({...config}),
     applyConfig(next,{animateReveal=false}={}){Object.assign(config,normalizeSettings(next,config));render();if(animateReveal)replay();},
     replay,
-    revision:null,
+    revision:window.portfolioLandingRevision||null,
     defaults:{...defaults},
     owner:false
   };
   window.portfolioLanding=api;
-  render();requestAnimationFrame(()=>requestAnimationFrame(replay));
+  render();
   async function loadSettings(){
-    try{
+    if(!window.portfolioLandingBootstrapped)try{
       const response=await fetch('/api/landing-settings',{credentials:'same-origin',cache:'no-store'});
       if(response.ok){const data=await response.json();api.revision=data.revision;
         if(data.config&&JSON.stringify(data.config)!==JSON.stringify(config))api.applyConfig(data.config);
       }
     }catch{}
+    await document.fonts?.ready;
+    resize();
+    document.documentElement.classList.remove('landing-loading');
+    requestAnimationFrame(replay);
     try{
       const response=await fetch('/api/owner',{credentials:'same-origin',cache:'no-store'});
       if(response.ok&&(await response.json()).owner){api.owner=true;const module=await import('./landing-tune.js');module.mountTune(api);}
