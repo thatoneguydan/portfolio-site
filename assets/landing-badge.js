@@ -190,9 +190,10 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     firstLayout=false;scrollTop=hero.getBoundingClientRect().top+window.scrollY;updateScroll();
   }
   function placeExpanded(){
-    const geometry=fitBadge(config.ticketWidth,config.ticketHeight,innerWidth*config.badgeExpandedWidth/100,Math.max(140,innerHeight*config.badgeExpandedHeight/100),0,true);
+    const bounds=dialog.getBoundingClientRect(),width=bounds.width||innerWidth,height=bounds.height||innerHeight;
+    const geometry=fitBadge(config.ticketWidth,config.ticketHeight,width*config.badgeExpandedWidth/100,Math.max(140,height*config.badgeExpandedHeight/100),0,true);
     look(false,geometry);sizeCarrier(geometry);
-    carrier.style.left=(innerWidth-geometry.width)/2+'px';carrier.style.top=(innerHeight-geometry.height)/2+'px';
+    carrier.style.left=(bounds.left+(width-geometry.width)/2)+'px';carrier.style.top=(bounds.top+(height-geometry.height)/2)+'px';
   }
   async function open(){
     if(opened||busy||!compact||config.ticketDisabled)return;
