@@ -1,6 +1,6 @@
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-site8';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-site8';
-import {headlineSettings} from './landing-schema.js?v=20261117-site8';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-site9';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-site9';
+import {headlineSettings} from './landing-schema.js?v=20261117-site9';
 
 export function revealFrames(start,duration){
   return Array.from({length:51},(_,i)=>{

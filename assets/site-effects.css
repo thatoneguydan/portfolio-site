@@ -42,7 +42,7 @@
 *::-webkit-scrollbar-track,*::-webkit-scrollbar-corner {background:transparent}
 *::-webkit-scrollbar-thumb {background:#92928b;border:2px solid transparent;background-clip:padding-box;border-radius:20px}
 *::-webkit-scrollbar-button {display:none}
-html {background:#f5f5f2;scrollbar-color:#92928b var(--scrollbar-surface,#f5f5f2)}
-html::-webkit-scrollbar-track {background:var(--root-scrollbar-track,#f5f5f2)}
+html {background-color:#f5f5f2;background-image:var(--root-scrollbar-track,none);background-attachment:fixed;background-size:100% 100vh;background-repeat:no-repeat;scrollbar-color:#92928b transparent}
+html::-webkit-scrollbar-track,body::-webkit-scrollbar-track {background:var(--root-scrollbar-track,#f5f5f2)}
 @supports selector(::-webkit-scrollbar){*{scrollbar-color:auto;scrollbar-width:auto}html{scrollbar-color:auto;scrollbar-width:auto}}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-heading,:is(#dan-landing-home,#dan-badge-dialog) .ds-bio {hyphens:none;word-break:normal}

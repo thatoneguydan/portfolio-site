@@ -1,5 +1,5 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-site8';
-import {appendEmojiText} from './site-emoji.js?v=20261117-site8';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-site9';
+import {appendEmojiText} from './site-emoji.js?v=20261117-site9';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');
