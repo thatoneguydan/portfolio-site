@@ -1,5 +1,5 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-polish7';
-import {appendEmojiText} from './site-emoji.js?v=20261117-polish7';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-views9';
+import {appendEmojiText} from './site-emoji.js?v=20261117-views9';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');
@@ -130,7 +130,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     copy.style.padding='0';
     // Type is laid out in canonical design coordinates, then scaled as a plane.
     copyLayout.style.width=(config.ticketOrientation==='vertical'?config.ticketWidth:designPanel)+'px';
-    copyLayout.style.padding=(config.ticketOrientation==='vertical'?[26,24]:[30,20,30,26]).map(n=>n+'px').join(' ');
+    copyLayout.style.padding=(config.ticketOrientation==='vertical'?[26,24]:[30,24]).map(n=>n+'px').join(' ');
     copyLayout.style.textAlign=config.ticketCopyAlign;copyLayout.style.hyphens='none';
     copy.setAttribute('aria-hidden',String(isCompact));
     const bodyWidth=width-(config.ticketOrientation==='horizontal'?panel:0),bodyHeight=height-(config.ticketOrientation==='vertical'?panel:0);

@@ -1,5 +1,5 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-polish7';
-import {mountHeadline} from './headline-view.js?v=20261117-polish7';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-views9';
+import {mountHeadline} from './headline-view.js?v=20261117-views9';
 
 let config=normalizeSettings(window.portfolioLandingConfig||{}),revision=window.portfolioLandingRevision||null;
 const views=new Set();let pageHeadline=null;
@@ -35,7 +35,7 @@ export const siteReady=(async()=>{
   }else siteAPI.ownerReady=(async()=>{
     try{
       const response=await fetch('/api/owner',{credentials:'same-origin',cache:'no-store'});
-      if(response.ok&&(await response.json()).owner){siteAPI.owner=true;const {mountTune}=await import('./landing-tune.js?v=20261117-polish7');mountTune(siteAPI);}
+      if(response.ok&&(await response.json()).owner){siteAPI.owner=true;const {mountTune}=await import('./landing-tune.js?v=20261117-views9');mountTune(siteAPI);}
     }catch(error){console.warn('Owner controls could not initialize.',error);}
   })();
   return siteAPI;

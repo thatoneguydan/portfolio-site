@@ -9,9 +9,10 @@ export function masonryLayout(items,width,{columns=masonryColumns(width),gap=14}
   const heights=new Array(count).fill(0),tiles=[];
   for(const item of items){
     if(item.kind==='shelf'){
-      const y=Math.max(...heights),h=Math.max(0,item.height||0);
+      const anchor=item.source?tiles.find(tile=>tile.el?.id===item.source):null;
+      const y=anchor?anchor.y+anchor.h+gap+(item.tail||0):Math.max(...heights),h=Math.max(0,item.height||0);
       tiles.push({...item,x:0,y,w:width,h});
-      if(h>.5)heights.fill(y+h+gap);
+      if(h>.5)for(let column=0;column<count;column++)heights[column]=Math.max(heights[column],y+h+gap);
       continue;
     }
     const span=Math.min(count,Math.max(1,Math.round(item.span||1)));

@@ -1,10 +1,31 @@
+function installLogoInkAlignment(){
+  const bounds=new WeakMap(),cells=[...document.querySelectorAll('.site-logo')];
+  function align(cell){
+    const image=cell.querySelector('img'),label=cell.querySelector('.ds-nav-label');if(!image?.naturalWidth||!label)return;
+    let ink=bounds.get(image);
+    if(!ink)try{
+      const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;let left=canvas.width,right=0,top=canvas.height,bottom=0;
+      for(let y=0;y<canvas.height;y++)for(let x=0;x<canvas.width;x++)if(data[(y*canvas.width+x)*4+3]>24){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}
+      ink={x:left,y:top,w:right-left+1,h:bottom-top+1};bounds.set(image,ink);
+    }catch{return;}
+    const compact=getComputedStyle(document.querySelector('.site-nav-toggle')||cell).display!=='none'&&innerWidth<=720;
+    const crop={...ink,w:compact?ink.h:ink.w},available=compact?48:Math.min(205,Math.max(32,cell.clientWidth-48)),scale=Math.min(available/crop.w,48/crop.h);
+    Object.assign(label.style,{display:'block',position:'relative',overflow:'hidden',width:crop.w*scale+'px',height:crop.h*scale+'px',flexBasis:'auto'});
+    Object.assign(image.style,{position:'absolute',left:-crop.x*scale+'px',top:-crop.y*scale+'px',maxWidth:'none'});image.style.setProperty('width',image.naturalWidth*scale+'px','important');image.style.setProperty('height',image.naturalHeight*scale+'px','important');
+    cell.style.justifyContent='center';cell.dataset.logoInkBounds=[ink.x,ink.y,ink.w,ink.h].join(',');
+  }
+  for(const cell of cells){cell.querySelector('img')?.addEventListener('load',()=>align(cell));align(cell);}
+  addEventListener('resize',()=>cells.forEach(align),{passive:true});
+}
 export function installSiteInteractions(){
   if(window.__portfolioInteractions)return;window.__portfolioInteractions=true;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)'),motions=new WeakMap(),pressed=new Map();
   for(const cell of document.querySelectorAll('.site-logo,.site-nav a')){
     if(cell.querySelector('.ds-nav-label'))continue;
     const label=document.createElement('span');label.className='ds-nav-label';label.append(...cell.childNodes);cell.append(label);
+    const shadow=document.createElement('span');shadow.className='ds-nav-shadow';shadow.setAttribute('aria-hidden','true');cell.append(shadow);
   }
+  installLogoInkAlignment();
   function targetFor(node){
     const button=node.closest?.('button,a,[role="button"]');
     if(!button||button.matches(':disabled,[aria-disabled="true"],.ds-badge-activate,.ds-badge-drag-plane'))return null;

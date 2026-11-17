@@ -48,6 +48,31 @@ export const defaults = {
   "projectLoaderHeight": 32,
   "projectLoaderGap": 4,
   "projectLoaderPadding": 40,
+  "projectPanelSpacing": 24,
+  "projectImageRadius": 12,
+  "projectEdgeFade": true,
+  "projectTextAutoContrast": true,
+  "projectTextColor": "#373b35",
+  "projectHeadingColor": "#373b35",
+  "projectTextSize": 16,
+  "projectTextWeight": 400,
+  "projectTextLeading": 1.6,
+  "projectHeadingSize": 40,
+  "projectHeadingWeight": 700,
+  "projectTextAlign": "left",
+  "projectPanelShadow": true,
+  "projectShadowColor": "#111111",
+  "projectShadowOpacity": 16,
+  "projectShadowX": 0,
+  "projectShadowY": 12,
+  "projectShadowBlur": 20,
+  "navShadow": true,
+  "navShadowColor": "#111111",
+  "navShadowOpacity": 18,
+  "navShadowX": 0,
+  "navShadowY": 8,
+  "navShadowBlur": 14,
+  "navShadowSpread": 0,
   "paletteSaturation": 42,
   "bio": "I work across video, design, print, and photography to make things clear, intentional, and worth looking at.",
   "fontSize": 53,
@@ -293,7 +318,21 @@ export const controlGroups = {
       ['color','projectPanelBackground','Panel background'], ['color','projectPanelBorderColor','Panel outline color'],
       ['range','projectPanelBorderWidth','Panel outline thickness',0,8,.25,'px'],
       ['range','projectPanelRadius','Panel corner radius',0,80,1,'px'],
-      ['range','projectPanelTailSize','Panel tail size',0,100,1,'px']
+      ['range','projectPanelTailSize','Panel tail size',0,100,1,'px'], ['check','projectEdgeFade','Fade beneath overlapping neighboring thumbnails']
+    ],
+    projectText: [
+      ['check','projectTextAutoContrast','Automatic text contrast'], ['color','projectTextColor','Body text color'], ['color','projectHeadingColor','Heading color'],
+      ['range','projectTextSize','Body text size',8,48,1,'px'], ['range','projectTextWeight','Body text weight',100,1000,50,''], ['range','projectTextLeading','Body line spacing',1,2.5,.05,''],
+      ['range','projectHeadingSize','Heading size',14,120,1,'px'], ['range','projectHeadingWeight','Heading weight',100,1000,50,''], ['select','projectTextAlign','Text alignment',['left','center','right','justify']],
+      ['range','projectPanelSpacing','Content spacing on all sides',8,100,1,'px'], ['range','projectImageRadius','Project image corners',0,80,1,'px']
+    ],
+    projectShadow: [
+      ['check','projectPanelShadow','Project drop shadow'], ['color','projectShadowColor','Project shadow color'], ['range','projectShadowOpacity','Project shadow opacity',0,100,1,'%'],
+      ['range','projectShadowX','Project shadow horizontal offset',-80,80,1,'px'], ['range','projectShadowY','Project shadow vertical offset',-80,100,1,'px'], ['range','projectShadowBlur','Project shadow blur',0,120,1,'px']
+    ],
+    navShadow: [
+      ['check','navShadow','Navigation hover shadow'], ['color','navShadowColor','Navigation shadow color'], ['range','navShadowOpacity','Navigation shadow opacity',0,100,1,'%'],
+      ['range','navShadowX','Navigation shadow horizontal offset',-60,60,1,'px'], ['range','navShadowY','Navigation shadow vertical offset',-40,80,1,'px'], ['range','navShadowBlur','Navigation shadow blur',0,100,1,'px'], ['range','navShadowSpread','Navigation shadow spread',-30,40,1,'px']
     ],
     projectClose: [
       ['range','projectCloseSize','Close button size',24,100,1,'px'],

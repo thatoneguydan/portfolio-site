@@ -90,3 +90,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+Tabler Icons — circle-arrow-left, circle-arrow-right, circle-x (filled variants).
+Source: https://github.com/tabler/tabler-icons/tree/main/icons/filled
+Copyright and MIT license: TABLER-LICENSE.txt. Original paths retained; viewBox fitted to the 20px circle.

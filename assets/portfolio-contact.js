@@ -6,7 +6,7 @@
 
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261117-polish7';
+    navScript.src = '/assets/redesign-nav.js?v=20261117-views9';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -16,7 +16,7 @@
      the redesign body classes are applied asynchronously. */
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-contact-shelf]')) {
     const shelfScript = document.createElement('script');
-    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20261117-polish7';
+    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20261117-views9';
     shelfScript.dataset.redesignContactShelf = '';
     document.head.append(shelfScript);
   }
@@ -162,67 +162,5 @@
     }
   }, true);
 
-  const lightboxTriggers = Array.from(document.querySelectorAll('[data-lightbox-src]'));
-  if (!lightboxTriggers.length) return;
-
-  const lightbox = document.createElement('div');
-  lightbox.className = 'portfolio-lightbox';
-  lightbox.hidden = true;
-  lightbox.setAttribute('role', 'dialog');
-  lightbox.setAttribute('aria-modal', 'true');
-  lightbox.setAttribute('aria-label', 'Image viewer');
-  lightbox.innerHTML = '<button type="button" class="portfolio-lightbox__close" aria-label="Close image viewer">×</button>' +
-    '<button type="button" class="portfolio-lightbox__nav portfolio-lightbox__nav--prev" aria-label="Previous image">‹</button>' +
-    '<img class="portfolio-lightbox__image" alt="">' +
-    '<button type="button" class="portfolio-lightbox__nav portfolio-lightbox__nav--next" aria-label="Next image">›</button>';
-  document.body.append(lightbox);
-
-  const image = lightbox.querySelector('.portfolio-lightbox__image');
-  const closeButton = lightbox.querySelector('.portfolio-lightbox__close');
-  const previousButton = lightbox.querySelector('.portfolio-lightbox__nav--prev');
-  const nextButton = lightbox.querySelector('.portfolio-lightbox__nav--next');
-  let currentIndex = -1;
-  let returnFocus = null;
-
-  const show = (index) => {
-    currentIndex = (index + lightboxTriggers.length) % lightboxTriggers.length;
-    const trigger = lightboxTriggers[currentIndex];
-    image.src = trigger.dataset.lightboxSrc || '';
-    image.alt = trigger.querySelector('img')?.alt || '';
-    previousButton.hidden = lightboxTriggers.length < 2;
-    nextButton.hidden = lightboxTriggers.length < 2;
-  };
-
-  const open = (index, trigger) => {
-    returnFocus = trigger;
-    show(index);
-    lightbox.hidden = false;
-    document.body.classList.add('lightbox-open');
-    closeButton.focus();
-  };
-
-  const close = () => {
-    if (lightbox.hidden) return;
-    lightbox.hidden = true;
-    image.removeAttribute('src');
-    document.body.classList.remove('lightbox-open');
-    if (returnFocus instanceof HTMLElement) returnFocus.focus();
-    returnFocus = null;
-  };
-
-  lightboxTriggers.forEach((trigger, index) => {
-    trigger.addEventListener('click', () => open(index, trigger));
-  });
-  closeButton.addEventListener('click', close);
-  previousButton.addEventListener('click', () => show(currentIndex - 1));
-  nextButton.addEventListener('click', () => show(currentIndex + 1));
-  lightbox.addEventListener('click', (event) => {
-    if (event.target === lightbox) close();
-  });
-  document.addEventListener('keydown', (event) => {
-    if (lightbox.hidden) return;
-    if (event.key === 'Escape') { event.preventDefault(); close(); }
-    else if (event.key === 'ArrowLeft' && lightboxTriggers.length > 1) { event.preventDefault(); show(currentIndex - 1); }
-    else if (event.key === 'ArrowRight' && lightboxTriggers.length > 1) { event.preventDefault(); show(currentIndex + 1); }
-  });
+  import('/assets/image-viewer.js?v=20261117-views9').then(module=>module.installImageViewer());
 })();

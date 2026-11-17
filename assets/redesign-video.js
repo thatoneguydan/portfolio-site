@@ -3,7 +3,7 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261117-polish7';
+    navScript.src = '/assets/redesign-nav.js?v=20261117-views9';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -130,27 +130,8 @@
     if (frame) frame.src = '';
   };
 
-  const openVideoCard = (card) => {
-    if (!card || !dialog || !frame || typeof dialog.showModal !== 'function') return false;
-
-    const id = card.getAttribute('data-youtube-id');
-    const title = card.getAttribute('data-video-title') || 'Video';
-    const kicker = card.querySelector('.rv-video-kicker')?.textContent?.trim() || 'Video';
-    if (!id) return false;
-
-    const containingShelf = card.closest('.rv-shelf');
-    if (containingShelf) openOnly(containingShelf, false);
-
-    if (dialogTitle) dialogTitle.textContent = kicker;
-    if (dialogKicker) dialogKicker.textContent = kicker;
-    if (dialogInfoTitle) dialogInfoTitle.textContent = title;
-    if (dialogDescription) dialogDescription.textContent = card.getAttribute('data-video-description') || '';
-
-    frame.title = title;
-    frame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;
-    if (!dialog.open) dialog.showModal();
-    return true;
-  };
+  videoCards.forEach(card=>{if(!card.dataset.videoDescription)card.dataset.videoDescription=descriptions[card.dataset.youtubeId]||'';});
+  const openVideoCard = card => {if(!card)return false;import('/assets/project-views.js?v=20261117-views9').then(module=>{module.installProjectViews();module.openProject(card);});return true;};
 
   videoCards.forEach((card) => {
     card.addEventListener('click', (event) => {

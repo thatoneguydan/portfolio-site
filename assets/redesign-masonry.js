@@ -1,4 +1,4 @@
-import {masonryLayout} from './masonry-layout.js?v=20261117-polish7';
+import {masonryLayout} from './masonry-layout.js?v=20261117-views9';
 
 // Keep the portfolio's existing links, caption planes and inline project shelves.
 const grid=document.querySelector('.rdp-project-grid[data-masonry]');
@@ -72,7 +72,7 @@ if(grid){
     frame=0;discover();const width=grid.clientWidth;if(!width)return;
     const items=[...grid.children].filter(el=>el.matches('.rdp-project-card,.rdp-project-shelf')).map(el=>({
       el,kind:el.matches('.rdp-project-shelf')?'shelf':'card',
-      ratio:Number(el.dataset.masonryRatio)||1,height:el.offsetHeight
+      ratio:Number(el.dataset.masonryRatio)||1,height:el.offsetHeight,source:el.dataset.projectSource,tail:parseFloat(getComputedStyle(el).getPropertyValue('--project-tail-size'))||0
     }));
     const plan=masonryLayout(items,width);
     grid.style.height=plan.height+'px';grid.dataset.masonryColumns=plan.columns;
@@ -97,6 +97,7 @@ if(grid){
   new ResizeObserver(entries=>{if(Math.abs(entries[0].contentRect.width-lastWidth)>.5)schedule();}).observe(grid);
   new MutationObserver(records=>{if(records.some(r=>r.type==='childList'&&r.target===grid))schedule();}).observe(grid,{childList:true});
   layout();
+  document.addEventListener('portfolio-project-config',schedule);
   reduced.addEventListener('change',()=>{if(reduced.matches){cancelAnimationFrame(motionFrame);motionFrame=0;for(const [el,s]of motions){s.x=s.tx;s.y=s.ty;s.vx=s.vy=0;paintPosition(el,s);}}});
   addEventListener('pagehide',()=>cancelAnimationFrame(motionFrame),{once:true});
 }
