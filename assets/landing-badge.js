@@ -1,5 +1,7 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-views9';
-import {appendEmojiText} from './site-emoji.js?v=20261117-views9';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-refine2';
+import {appendEmojiText} from './site-emoji.js?v=20261117-refine2';
+import {filledControlIcon} from './filled-controls.js?v=20261117-refine2';
+import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-refine2';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');
@@ -20,7 +22,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const dragPlane=document.createElement('div');dragPlane.className='ds-badge-drag-plane';dragPlane.hidden=true;carrier.append(dragPlane);
   const scrim=document.createElement('div');scrim.className='ds-photo-scrim';photoWindow.append(scrim);
   const dialog=document.createElement('dialog');dialog.id='dan-badge-dialog';dialog.className='ds-badge-dialog';dialog.setAttribute('aria-label','About Dan Smith');
-  dialog.innerHTML='<button type="button" class="ds-badge-close" aria-label="Close ID badge">×</button>';
+  dialog.innerHTML=`<button type="button" class="portfolio-panel-close ds-badge-close" aria-label="Close ID badge">${filledControlIcon('circle-x')}</button>`;
   document.body.append(dialog);
   const closeButton=dialog.querySelector('button');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -132,7 +134,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     copyLayout.style.width=(config.ticketOrientation==='vertical'?config.ticketWidth:designPanel)+'px';
     copyLayout.style.padding=(config.ticketOrientation==='vertical'?[26,24]:[30,24]).map(n=>n+'px').join(' ');
     copyLayout.style.textAlign=config.ticketCopyAlign;copyLayout.style.hyphens='none';
-    copy.setAttribute('aria-hidden',String(isCompact));
+    copy.setAttribute('aria-hidden',String(isCompact));copy.style.opacity=isCompact?'0':'1';copy.style.visibility='visible';
     const bodyWidth=width-(config.ticketOrientation==='horizontal'?panel:0),bodyHeight=height-(config.ticketOrientation==='vertical'?panel:0);
     for(const [layout,ink,badgeText]of [[nameLayout,nameInk,false],[badgeNameLayout,badgeNameInk,true]]){
       const value=badgeText?(config.badgeName||config.ticketName):config.ticketName;
@@ -160,7 +162,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     ticket.style.boxShadow=config.ticketShadow?`${config.shadowX*scale}px ${config.shadowY*scale}px ${config.shadowBlur*scale}px ${config.shadowSpread*scale}px ${rgba(config.shadowColor,config.shadowOpacity)}`:'none';
     ticket.setAttribute('aria-label',`${config.ticketName}: ID badge`);
     activation.setAttribute('aria-label',`${config.ticketName}: open ID badge`);
-    activation.hidden=opened||busy||!isCompact;dragPlane.hidden=!opened||busy;
+    activation.hidden=opened||busy;dragPlane.hidden=!opened||busy;
     dialog.style.setProperty('--badge-blur',config.badgeBackdropBlur+'px');
   }
   function sizeCarrier(geometry){
@@ -232,9 +234,9 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     carrier.style.left=(bounds.left+(width-geometry.width)/2)+'px';carrier.style.top=(bounds.top+(height-geometry.height)/2)+'px';
   }
   async function open(){
-    if(opened||busy||!compact||config.ticketDisabled)return;
+    if(opened||busy||config.ticketDisabled)return;
     const start=carrier.getBoundingClientRect(),from=captureLook();busy=true;opened=true;
-    previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';
+    lockOverlayScroll(dialog);
     ticketStage.classList.add('is-badge-open');
     dialog.showModal();dialog.append(carrier);carrier.classList.add('is-portaled');
     motion.th=1;motion.tx=motion.ty=0;placeExpanded();
@@ -258,7 +260,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     dialog.classList.remove('is-open');updateScroll();
     await flip(start,carrier.getBoundingClientRect(),from);
     ticketStage.append(carrier);ticketStage.classList.remove('is-badge-open');carrier.classList.remove('is-portaled');carrier.style.left=carrier.style.top='';
-    dialog.close();document.body.style.overflow=previousOverflow;activation.setAttribute('aria-expanded','false');
+    dialog.close();unlockOverlayScroll(dialog);activation.setAttribute('aria-expanded','false');
     busy=false;layout(false);settleHover();activation.focus({preventScroll:true});
   }
   activation.addEventListener('click',()=>{if(performance.now()>=suppressClickUntil&&!opened)open();});
@@ -302,5 +304,5 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const animation=carrier.animate(sequence.frames,{duration:sequence.duration,delay:entranceDelay(config.badgeEntrancePosition,lineTimes),easing:'linear',fill:'backwards'});
     entrance=animation;animation.finished.catch(()=>{}).then(()=>{if(entrance===animation)entrance=null;});
   }
-  return {layout,enter,update:()=>{if(!busy&&!morphing)motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);dialog.remove();}};
+  return {layout,enter,update:()=>{if(!busy&&!morphing)motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);unlockOverlayScroll(dialog);dialog.remove();}};
 }

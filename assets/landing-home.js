@@ -1,10 +1,10 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-views9';
-import {createBadge} from './landing-badge.js?v=20261117-views9';
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-views9';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-views9';
-import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-views9';
-import {siteReady} from './site-runtime.js?v=20261117-views9';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261117-views9';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-refine2';
+import {createBadge} from './landing-badge.js?v=20261117-refine2';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-refine2';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-refine2';
+import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-refine2';
+import {siteReady} from './site-runtime.js?v=20261117-refine2';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261117-refine2';
 (async() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;

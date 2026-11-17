@@ -1,5 +1,5 @@
-import {imageDimensions} from './project-image-dimensions.js?v=20261117-views9';
-import {bindImageDocument} from './image-viewer.js?v=20261117-views9';
+import {imageDimensions} from './project-image-dimensions.js?v=20261117-refine2';
+import {bindImageDocument} from './image-viewer.js?v=20261117-refine2';
 
 const prepared=new WeakMap();
 const css=`

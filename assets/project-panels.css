@@ -74,3 +74,27 @@
 .portfolio-viewer-dots button::after{content:'';position:absolute;inset:7px;border-radius:50%;background:#f5f5f280;transition:background 180ms,transform 180ms}
 .portfolio-viewer-dots button.is-current::after{background:#f5f5f2;transform:scale(1.4)}
 @media(prefers-reduced-motion:reduce){.portfolio-panel-surface,.portfolio-panel-edge-fade,.portfolio-viewer-blur,.portfolio-image-viewer{transition:none!important}}
+
+/* Filter the path inside a padded user-space region, never an SVG viewport. */
+.portfolio-panel-surface{max-width:none}
+.portfolio-panel-surface.is-backing{filter:none;color-interpolation-filters:sRGB}
+/* Both colors live inside the SVG. No backing disc can rim its antialiasing. */
+.portfolio-panel-close,.portfolio-panel-controls>.portfolio-panel-close,.portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close){--control-glyph:var(--project-close-ink,#111);display:block;margin:0;padding:0;border:0!important;border-radius:50%;background:transparent!important;color:var(--project-close-bg,#fff);box-shadow:none!important;appearance:none;cursor:pointer;font-size:0;line-height:1;transition:color 150ms}
+.portfolio-panel-controls>.portfolio-panel-close{margin-left:auto}
+.portfolio-panel-close.ds-badge-close{position:fixed;top:20px;right:24px;z-index:3;opacity:0;transform:translateY(-5px);pointer-events:none;transition:opacity 220ms ease,transform 220ms ease,color 150ms}
+#dan-badge-dialog.is-open .portfolio-panel-close.ds-badge-close{opacity:1;transform:translateY(0);pointer-events:auto}
+.portfolio-panel-close svg,.portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close) svg{display:block;width:100%;height:100%;max-width:none;fill:currentColor;stroke:none!important;overflow:visible}
+.portfolio-panel-close svg *,.portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close) svg *{stroke:none!important}
+.portfolio-control-ink{fill:var(--control-glyph);transition:fill 150ms}
+.portfolio-panel-close:hover,.portfolio-panel-controls>.portfolio-panel-close:hover,.portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close):hover{--control-glyph:var(--project-close-hover-ink,#fff);color:var(--project-close-hover-bg,#111);background:transparent}
+.portfolio-panel-close:focus:not(:focus-visible),.portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close):focus:not(:focus-visible){outline:0}
+.portfolio-panel-close:focus-visible,.portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close):focus-visible{outline:2px solid #888;outline-offset:4px}
+.portfolio-project-loading{position:fixed!important;z-index:1000;display:grid;place-items:center;min-height:0!important;width:max-content;transform:translate(-50%,-50%);border:0;border-radius:var(--project-image-radius,12px);background:var(--project-panel-bg);color:var(--project-text-color);pointer-events:none;box-sizing:border-box;letter-spacing:0;text-align:center}
+.portfolio-project-loading[hidden]{display:none!important}
+.portfolio-image-viewer.portfolio-lightbox{padding:60px 74px 40px;overscroll-behavior:none;touch-action:none}
+.portfolio-viewer-photo{overflow:hidden;border-radius:8px;touch-action:none}
+.portfolio-image-viewer .portfolio-lightbox__image{border:0}
+.portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close){transform:none}
+.portfolio-viewer-dots{max-width:calc(100vw - 148px);background:#fff;box-shadow:0 3px 12px #0002}
+.portfolio-viewer-dots button::after{background:#a4a4a4}
+.portfolio-viewer-dots button.is-current::after{background:#111}

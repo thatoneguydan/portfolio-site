@@ -1,6 +1,6 @@
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-views9';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-views9';
-import {headlineSettings} from './landing-schema.js?v=20261117-views9';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-refine2';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-refine2';
+import {headlineSettings} from './landing-schema.js?v=20261117-refine2';
 
 export function revealOffset(clipHeight,glyphHeight,fontSize,direction){
   return Math.sign(direction)*(Math.max(clipHeight,glyphHeight)+fontSize*.6+2);

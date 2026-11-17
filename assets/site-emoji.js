@@ -1,5 +1,5 @@
 import {emojiPaths,emojiBase,localEmoji} from './fluent-emoji-map.js';
-import {createPaletteGlyph} from './palette-glyph.js?v=20261117-views9';
+import {createPaletteGlyph} from './palette-glyph.js?v=20261117-refine2';
 
 export const graphemes=text=>typeof Intl.Segmenter==='function'?[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(String(text))].map(s=>s.segment):Array.from(String(text));
 export function emojiUrl(glyph){

@@ -119,8 +119,8 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 #dan-badge-dialog [hidden] {display:none!important}
 #dan-badge-dialog .ds-ticket {cursor:grab}
 #dan-badge-dialog .ds-ticket.is-dragging {cursor:grabbing}
-.ds-badge-close {position:fixed;top:20px;right:24px;z-index:3;width:40px;height:40px;display:grid;place-items:center;border:1px solid #1114;border-radius:50%;background:#f5f5f2;color:#111;font:26px/1 Arial;cursor:pointer;transition:background 150ms ease}
-.ds-badge-close:hover {background:white}
+.ds-badge-close {position:fixed;top:20px;right:24px;z-index:3;opacity:0;transform:translateY(-5px);pointer-events:none;transition:opacity 220ms ease,transform 220ms ease,color 150ms}
+#dan-badge-dialog.is-open .ds-badge-close {opacity:1;transform:translateY(0);pointer-events:auto}
 @media(prefers-reduced-motion:reduce){#dan-badge-dialog::backdrop {transition:none}.ds-ticket-idle {animation:none!important}}
 
 /* A clipped content surface inside an overlapping, unclipped frame. */
@@ -140,6 +140,8 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-name-ink {display:block;white-space:nowrap;line-height:1;letter-spacing:-.01em;backface-visibility:hidden;-webkit-font-smoothing:antialiased;will-change:transform}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-copy {position:relative}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-copy-layout {position:absolute;left:0;top:0;box-sizing:border-box;transform-origin:0 0;will-change:transform}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-copy {transition:none!important}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-bio {white-space:pre-wrap}
 .ds-badge-activate,.ds-badge-drag-plane {position:absolute;inset:-6px;z-index:5;margin:0;padding:0;appearance:none;border:0!important;border-radius:20px;background:transparent!important;color:inherit;box-shadow:none!important;transform:none!important;transition:none!important}
 .ds-badge-activate {cursor:pointer;touch-action:pan-y}
 .ds-badge-activate:focus-visible {outline:2px solid #777;outline-offset:4px}

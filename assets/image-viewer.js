@@ -1,7 +1,8 @@
-import {filledIcons} from './filled-icons.js?v=20261117-views9';
+import {filledControlIcon} from './filled-controls.js?v=20261117-refine2';
+import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-refine2';
 let viewer,photo,stage,dots,prev,next,closeButton,items=[],index=0,focusBack,drag=null,closing=0,token=0;
 const bound=new WeakSet(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
-const icon=name=>filledIcons[name];
+const icon=name=>filledControlIcon(name);
 function create(){
   if(viewer)return;
   viewer=document.createElement('div');viewer.className='portfolio-lightbox portfolio-image-viewer';viewer.hidden=true;viewer.setAttribute('role','dialog');viewer.setAttribute('aria-modal','true');viewer.setAttribute('aria-label','Image viewer');
@@ -20,7 +21,14 @@ function create(){
   document.addEventListener('keydown',event=>{if(viewer.hidden)return;if(event.key==='Escape'){event.preventDefault();close();}else if(event.key==='ArrowLeft'){event.preventDefault();show(index-1);}else if(event.key==='ArrowRight'){event.preventDefault();show(index+1);}else if(event.key==='Tab'){const targets=[...viewer.querySelectorAll('button:not([hidden])')];let at=targets.indexOf(document.activeElement)+(event.shiftKey?-1:1);if(at<0)at=targets.length-1;if(at>=targets.length)at=0;event.preventDefault();targets[at]?.focus();}});
 }
 function bounce(offset){if(!reduced.matches)photo.animate([{transform:`translateX(${offset||20}px)`},{transform:'translateX(-3px)',offset:.55},{transform:'none'}],{duration:420,easing:'cubic-bezier(.2,.75,.2,1)'});}
-function geometry(){const item=items[index];if(!item)return;const width=Math.min(innerWidth-96,(innerHeight-130)*item.ratio),height=width/item.ratio;photo.style.width=width+'px';photo.style.height=height+'px';}
+function geometry(){
+  const item=items[index];if(!item||viewer.hidden)return;
+  const style=getComputedStyle(viewer),number=key=>parseFloat(style[key])||0;
+  const availableWidth=Math.max(1,viewer.clientWidth-number('paddingLeft')-number('paddingRight'));
+  const availableHeight=Math.max(1,viewer.clientHeight-number('paddingTop')-number('paddingBottom')-(dots.hidden?0:dots.offsetHeight+16));
+  const width=Math.min(availableWidth,availableHeight*item.ratio),height=width/item.ratio;
+  stage.style.width=photo.style.width=width+'px';stage.style.height=photo.style.height=height+'px';
+}
 function show(at,scrub=false){
   if(at<0||at>=items.length){bounce(at<0?24:-24);return;}
   if(at===index&&photo.getAttribute('src'))return;
@@ -32,9 +40,9 @@ function show(at,scrub=false){
 }
 function open(list,at,trigger){create();clearTimeout(closing);token++;items=list;index=-1;focusBack=trigger;photo.removeAttribute('src');dots.replaceChildren();
   list.forEach((_,i)=>{const button=document.createElement('button');button.type='button';button.dataset.index=i;button.setAttribute('aria-label',`Image ${i+1} of ${list.length}`);button.addEventListener('click',()=>show(i));dots.append(button);});
-  dots.hidden=list.length<2;viewer.hidden=false;document.body.classList.add('lightbox-open');show(at);requestAnimationFrame(()=>viewer.classList.add('is-open'));closeButton.focus();
+  dots.hidden=list.length<2;viewer.hidden=false;lockOverlayScroll(viewer);document.body.classList.add('lightbox-open');show(at);requestAnimationFrame(()=>viewer.classList.add('is-open'));closeButton.focus({preventScroll:true});
 }
-function close(){if(!viewer||viewer.hidden)return;token++;viewer.classList.remove('is-open');document.body.classList.remove('lightbox-open');closing=setTimeout(()=>{viewer.hidden=true;photo.removeAttribute('src');focusBack?.focus?.();},reduced.matches?0:300);}
+function close(){if(!viewer||viewer.hidden)return;token++;viewer.classList.remove('is-open');clearTimeout(closing);closing=setTimeout(()=>{viewer.hidden=true;photo.removeAttribute('src');document.body.classList.remove('lightbox-open');unlockOverlayScroll(viewer);focusBack?.focus?.({preventScroll:true});},reduced.matches?0:300);}
 export function bindImageDocument(doc){
   if(bound.has(doc))return;bound.add(doc);
   doc.querySelectorAll('.portfolio-lightbox:not(.portfolio-image-viewer)').forEach(el=>el.remove());

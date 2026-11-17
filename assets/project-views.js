@@ -5,7 +5,8 @@ const titleFor=card=>card.dataset.videoTitle||card.querySelector('.rdp-project-t
 const slugFor=card=>card.dataset.shelfSlug||((card.dataset.youtubeId||card.dataset.videoId)?'video-'+(card.dataset.youtubeId||card.dataset.videoId):new URL(card.href,location.href).pathname.replace(/^\/+|\/+$/g,''))||'project';
 function close(state){
   if(!state)return;state.card.classList.remove('is-active');state.card.setAttribute('aria-expanded','false');state.shelf.classList.remove('is-open');state.shelf.setAttribute('aria-hidden','true');state.shelf.inert=true;
-  setTimeout(()=>{state.shelf.querySelectorAll('iframe').forEach(f=>f.src='about:blank');state.shelf.remove();},reduced.matches?0:520);
+  let removed=false;const remove=()=>{if(removed)return;removed=true;state.shelf.querySelectorAll('iframe').forEach(f=>f.src='about:blank');state.shelf.remove();};
+  state.shelf.addEventListener('portfolio-panel-closed',remove,{once:true});setTimeout(remove,reduced.matches?100:1400);
   if(active===state)active=null;
 }
 function insert(card,shelf){
