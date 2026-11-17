@@ -1,19 +1,22 @@
 import {installAuthoredEmoji} from './site-emoji.js';
 import {defaults} from './landing-schema.js';
+import {installSettledShelfText} from './settled-text.js';
 
-const href='/assets/site-effects.css?v=20261116-motion4';
+const href='/assets/site-effects.css?v=20261117-settled1';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
 installAuthoredEmoji();
+installSettledShelfText();
 
 let config={...defaults,...window.portfolioLandingConfig};
+document.documentElement.style.setProperty('--palette-saturation',config.paletteSaturation/100);
 const cards=new Set(),seen=new WeakSet();
 function apply(card){
   card.classList.toggle('has-progressive-blur',!!config.portfolioBlur);
   const blur=card.querySelector('.portfolio-blur');if(!blur)return;
-  blur.style.height=config.portfolioBlurHeight+'%';blur.style.transitionDuration=config.portfolioBlurDuration+'ms';
-  [...blur.children].forEach((layer,i)=>{const filter=`blur(${config.portfolioBlurStrength*(i+1)/6}px)`;layer.style.backdropFilter=filter;layer.style.webkitBackdropFilter=filter;});
+  blur.style.height=config.portfolioBlurHeight+'%';blur.style.setProperty('--blur-duration',config.portfolioBlurDuration+'ms');
+  [...blur.children].forEach((layer,i)=>layer.style.setProperty('--layer-blur',config.portfolioBlurStrength*(i+1)/6+'px'));
 }
 function ensure(card){
   if(!config.portfolioBlur||card.querySelector('.portfolio-blur'))return;
@@ -41,6 +44,6 @@ function discover(root){
 }
 discover(document.body);
 new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1&&!node.matches('.portfolio-blur,.portfolio-blur *'))discover(node);}).observe(document.body,{childList:true,subtree:true});
-function update(next){config={...defaults,...next};for(const card of cards){if(!card.isConnected){cards.delete(card);continue;}apply(card);}}
+function update(next){config={...defaults,...next};document.documentElement.style.setProperty('--palette-saturation',config.paletteSaturation/100);for(const card of cards){if(!card.isConnected){cards.delete(card);continue;}apply(card);}}
 document.addEventListener('portfolio-appearance',event=>update(event.detail));
 if(!document.getElementById('dan-landing-home'))fetch('/api/landing-settings',{credentials:'same-origin',cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{if(data?.config)update(data.config);}).catch(()=>{});

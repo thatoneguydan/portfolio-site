@@ -13,13 +13,18 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
   const bio=root.querySelector('.ds-bio'),copy=root.querySelector('.ds-ticket-copy');
   const gallery=root.querySelector('.ds-gallery'),panels=[...gallery.querySelectorAll('.ds-panel')];
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let currentAnimations=[],rotator=null;
+  let currentAnimations=[],rotator=null,lastHeadline='',lastFit='';
   const persist=()=>{};
   function segment(text) {
     return graphemes(text);
   }
   function renderText() {
+    for(const [element,value]of [[name.querySelector('.ds-name-ink')||name,config.ticketName],[heading,config.ticketHeading],[bio,config.bio]])if(element.textContent!==value)element.textContent=value;
+    const headlineSignature=JSON.stringify(Object.entries(config).filter(([key])=>/^line\d$/.test(key)||key==='lineCount'||key.startsWith('rotate')));
+    if(headlineSignature===lastHeadline){fitText();return;}
+    lastHeadline=headlineSignature;
     currentAnimations.forEach(a=>a.cancel()); currentAnimations=[];rotator?.destroy();rotator=null; h1.replaceChildren();
+    h1.classList.remove('is-revealing');
     const lines = headlineLines(config); h1.setAttribute('aria-label',accessibleHeadline(config));
     lines.forEach((text,index) => {
       const line=document.createElement('span'); line.className='ds-reveal-line'; line.dataset.line=index; line.setAttribute('aria-hidden','true');
@@ -35,12 +40,13 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
       });
       if (!text) line.append(document.createTextNode('\u00a0')); h1.append(line);
     });
-    name.textContent=config.ticketName; heading.textContent=config.ticketHeading; bio.textContent=config.bio;
     fitText();
     rotator?.start();
   }
   function fitText() {
     const max=config.fontSize,compact=root.querySelector('.ds-hero').classList.contains('is-compact');
+    const signature=JSON.stringify([intro.clientWidth,compact,max,config.fontWeight,config.lineHeight,lastHeadline]);
+    if(signature===lastFit)return;lastFit=signature;
     h1.style.fontSize=max+'px';h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
     const lines=[...h1.children];
     h1.classList.remove('ds-long');lines.forEach(el=>{el.style.whiteSpace='nowrap';el.style.width='max-content';});
@@ -55,7 +61,7 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
     lines.forEach(el=>el.style.removeProperty('width'));
   }
   function replay() {
-    currentAnimations.forEach(a=>a.cancel());currentAnimations=[];rotator?.pause();if(reduced.matches||!config.animate){rotator?.start();badge.enter([{start:0,end:0}]);return;}
+    currentAnimations.forEach(a=>a.cancel());currentAnimations=[];h1.classList.remove('is-revealing');rotator?.pause();if(reduced.matches||!config.animate){rotator?.start();badge.enter([{start:0,end:0}]);return;}
     let revealEnd=0;const lineTimes=[],lead=config.badgeEntrance?220:0;
     [...h1.children].forEach((line,li) => {
       const glyphs=[...line.querySelectorAll('.ds-glyph')],words=[...line.querySelectorAll('.ds-word')],n=glyphs.length;
@@ -75,6 +81,11 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
     });
     badge.enter(lineTimes);
     rotator?.start(revealEnd+config.rotateInterval);
+    const sequence=currentAnimations;h1.classList.add('is-revealing');
+    Promise.all(sequence.map(animation=>animation.finished.catch(()=>{}))).then(()=>{
+      if(currentAnimations!==sequence)return;
+      sequence.forEach(animation=>animation.cancel());currentAnimations=[];h1.classList.remove('is-revealing');
+    });
   }
   function selectPanel(index,save=true) {
     config.activeIndex=(index+panels.length)%panels.length;
@@ -144,6 +155,7 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
       }
     }catch{}
     await document.fonts?.ready;
+    lastFit='';
     resize();
     document.documentElement.classList.remove('landing-loading');
     requestAnimationFrame(replay);

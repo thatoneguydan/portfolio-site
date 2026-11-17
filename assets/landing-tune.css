@@ -39,3 +39,6 @@
 
 #dan-owner-controls [hidden]{display:none!important}
 #dan-owner-controls .ds-rotate-count{font-size:12px;line-height:1.5;color:#666;margin:4px 0 18px}
+#dan-owner-controls .ds-config > details > summary{font-size:15px;font-weight:600}
+#dan-owner-controls .ds-config details details{margin-left:10px}
+#dan-owner-controls .ds-control-help{font-size:12px;line-height:1.5;color:var(--dan-muted);margin:12px 0}

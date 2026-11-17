@@ -18,6 +18,7 @@ export const defaults = {
   "portfolioBlurStrength": 8,
   "portfolioBlurHeight": 62,
   "portfolioBlurDuration": 240,
+  "paletteSaturation": 42,
   "bio": "I work across video, design, print, and photography to make things clear, intentional, and worth looking at.",
   "fontSize": 53,
   "fontWeight": 500,
@@ -87,6 +88,7 @@ export const defaults = {
   "badgeScrollTilt": 20,
   "badgeCompactWidth": 92,
   "badgeBreakpoint": 760,
+  "badgeLinkNavBreakpoint": true,
   "badgeExpandedWidth": 92,
   "badgeExpandedHeight": 86,
   "badgeEntrance": true,
@@ -114,10 +116,13 @@ export const defaults = {
   "verticalGalleryPadding": 17
 };
 export const controlGroups = {
-    reveal: [
+    headlineTypography: [
       ['range','lineCount','Number of lines',1,6,1,''],
       ['range','fontSize','Text size',30,120,1,'px'], ['range','fontWeight','Text weight',100,900,100,''],
       ['range','lineHeight','Line spacing',1.05,1.5,.01,''],
+      ['range','paletteSaturation','Palette emoji saturation',0,100,1,'%']
+    ],
+    reveal: [
       ['select','splitBy','Reveal by',['characters','words','lines']],
       ['range','stagger','Character / word stagger',0,100,1,'ms'],
       ['range','duration','Reveal duration',400,1800,50,'ms'], ['range','lineDelay','Delay between lines',0,1200,50,'ms'],
@@ -143,14 +148,17 @@ export const controlGroups = {
       ['select','ticketOrientation','Orientation',['horizontal','vertical']],
       ['range','ticketWidth','Width',220,560,10,'px'], ['range','ticketHeight','Height',140,460,10,'px'],
       ['range','ticketPanelSize','Text panel size',70,180,2,'px'], ['range','ticketRadius','Radius',0,32,1,'px'],
-      ['check','ticketAutoImageRadius','Image radius follows card'], ['range','ticketImageRadius','Image radius',0,32,1,'px'],
-      ['check','ticketResponsive','Collapse to photo badge when space is tight'],
+      ['check','ticketAutoImageRadius','Image radius follows card'], ['range','ticketImageRadius','Image radius',0,32,1,'px']
+    ],
+    ticketPhoto: [
       ['range','photoPosition','Photo crop position',0,100,1,'%']
     ],
     ticketMotion: [
       ['range','ticketRotation','Rotate',-20,20,1,'°'], ['check','ticketTilt','Tilt'],
       ['range','ticketTiltMax','Tilt max',0,24,1,'°'], ['range','ticketTiltReach','Tilt reach',0,700,20,'px'],
-      ['range','ticketParallax','Parallax',0,32,1,'px'], ['range','ticketPerspective','Perspective',400,2400,50,'px']
+      ['range','ticketParallax','Parallax',0,32,1,'px'], ['range','ticketPerspective','Perspective',400,2400,50,'px'],
+      ['range','badgeHoverScale','Hover scale',1,1.12,.01,'×'],
+      ['range','badgeScrollTilt','Scroll tilt',0,36,1,'°']
     ],
     ticketAppearance: [
       ['color','ticketBackground','Background'], ['color','ticketColor','Text color'],
@@ -180,15 +188,19 @@ export const controlGroups = {
       ['range','shadowBlur','Blur',0,100,1,'px'], ['range','shadowSpread','Spread',-25,30,1,'px']
     ],
     badge: [
-      ['range','badgeScrollTilt','Scroll tilt',0,36,1,'°'],
+      ['check','ticketResponsive','Collapse to photo badge'],
+      ['check','badgeLinkNavBreakpoint','Match hamburger-menu breakpoint'],
+      ['range','badgeBreakpoint','Custom badge breakpoint',320,1800,10,'px'],
       ['range','badgeCompactScale','Photo badge scale',.4,1.6,.01,'×'],
-      ['range','badgeOverlap','Headline overlap',10,80,1,'%'],
-      ['range','badgeBreakpoint','Badge below viewport width',320,1800,10,'px'],
+      ['range','badgeOverlap','Headline overlap',10,80,1,'%']
+    ],
+    badgeFullscreen: [
       ['range','badgeExpandedWidth','Expanded width',50,98,1,'%'],
       ['range','badgeExpandedHeight','Expanded height limit',50,94,1,'%'],
-      ['range','badgeHoverScale','Hover scale',1,1.12,.01,'×'],
       ['range','badgeMorphDuration','Open / close duration',200,1000,20,'ms'],
-      ['range','badgeBackdropBlur','Background blur',0,24,1,'px'],
+      ['range','badgeBackdropBlur','Background blur',0,24,1,'px']
+    ],
+    badgeIdle: [
       ['check','badgeIdleTilt','Subtle idle tilt'],
       ['range','badgeIdleAngle','Idle tilt strength',0,30,.1,'°'],
       ['range','badgeIdlePeriod','Idle cycle length',.5,120,.5,'s']

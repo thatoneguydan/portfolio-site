@@ -1,10 +1,13 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay} from './badge-math.js';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix} from './badge-math.js';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');
   const photo=ticket.querySelector('.ds-headshot'),photoWindow=ticket.querySelector('.ds-photo-window');
   const name=ticket.querySelector('.ds-ticket-footer'),heading=ticket.querySelector('.ds-ticket-heading');
   const copy=ticket.querySelector('.ds-ticket-copy'),bio=ticket.querySelector('.ds-bio');
+  const nameLayout=document.createElement('span');nameLayout.className='ds-name-layout';
+  const nameInk=document.createElement('span');nameInk.className='ds-name-ink';nameInk.textContent=name.textContent;name.replaceChildren(nameLayout);nameLayout.append(nameInk);
+  const copyLayout=document.createElement('div');copyLayout.className='ds-copy-layout';copyLayout.append(...copy.children);copy.append(copyLayout);
   const carrier=document.createElement('div');carrier.className='ds-ticket-carrier';ticketStage.append(carrier);
   const idleLayer=document.createElement('div');idleLayer.className='ds-ticket-idle';carrier.append(idleLayer);idleLayer.append(ticket);
   const surface=document.createElement('div');surface.className='ds-ticket-surface';surface.append(...ticket.children);ticket.append(surface);
@@ -47,8 +50,9 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const parallax=config.ticketParallax*Number(carrier.dataset.scale||1);
     const depth=config.ticketTiltMax>0?parallax/config.ticketTiltMax:0;
     const px=clamp(-y*depth,-parallax,parallax),py=clamp(x*depth,-parallax,parallax);
-    photo.style.transform=`translate(${px}px,${py}px)`;
-    name.style.transform=`translate(${-px*.22}px,${-py*.22}px)`;
+    photo.style.transform=`translate3d(${px}px,${py}px,0)`;
+    const textScale=Number(nameLayout.dataset.scale||1);
+    nameInk.style.transform=`translate3d(${-px*.22/textScale}px,${-py*.22/textScale}px,0)`;
   }
   function tick(now){
     const dt=lastTime?Math.min((now-lastTime)/1000,.04):1/60;lastTime=now;
@@ -102,27 +106,36 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     surface.style.gridTemplateRows=config.ticketOrientation==='vertical'?`minmax(0,1fr) ${panel}px`:'minmax(0,1fr)';
     ticket.dataset.orientation=isCompact?'compact':config.ticketOrientation;
     ticket.dataset.disabled=String(config.ticketDisabled);activation.disabled=config.ticketDisabled;
-    ticket.style.borderRadius=((isCompact?Math.min(config.ticketRadius,14):config.ticketRadius)*scale)+'px';
+    const radii=badgeRadii(config,isCompact,scale);
+    ticket.style.borderRadius=radii.card+'px';
     ticket.style.setProperty('--ticket-radius',ticket.style.borderRadius);
     ticket.style.setProperty('--ticket-bg',config.ticketBackground);ticket.style.setProperty('--ticket-ink',config.ticketColor);
     ticket.style.setProperty('--ticket-copy-bg',config.ticketCustomPanelBackground?config.ticketPanelBackground:config.ticketBackground);
     ticket.style.setProperty('--ticket-parallax',config.ticketParallax*scale+'px');
-    photoWindow.style.borderRadius=((config.ticketAutoImageRadius?Math.max(0,Math.min(config.ticketRadius,isCompact?14:32)-8):config.ticketImageRadius)*scale)+'px';
+    photoWindow.style.borderRadius=radii.photo+'px';
     photoWindow.style.setProperty('--photo-radius',photoWindow.style.borderRadius);
     photoWindow.style.top=photoWindow.style.left=photoWindow.style.right=(isCompact?6:8)*scale+'px';
     photoWindow.style.height=`calc(${isCompact?76:78}% - ${(isCompact?6:16)*scale}px)`;
     photo.style.objectPosition=`50% ${config.photoPosition}%`;
-    copy.style.padding=(config.ticketOrientation==='vertical'?[26,24]:[30,20,30,26]).map(n=>n*scale+'px').join(' ');
+    copy.style.padding='0';
+    // Type is laid out in canonical design coordinates, then scaled as a plane.
+    copyLayout.style.width=(config.ticketOrientation==='vertical'?config.ticketWidth:config.ticketPanelSize)+'px';
+    copyLayout.style.padding=(config.ticketOrientation==='vertical'?[26,24]:[30,20,30,26]).map(n=>n+'px').join(' ');
+    copyLayout.style.transform=`scale(${scale})`;
     copy.setAttribute('aria-hidden',String(isCompact));
-    name.style.padding=`0 ${(isCompact?8:24)*scale}px`;name.style.fontSize=(isCompact?Math.min(14,config.ticketNameSize):config.ticketNameSize)*scale+'px';name.style.fontWeight=config.ticketNameWeight;
-    heading.style.fontSize=config.ticketHeadingSize*scale+'px';heading.style.fontWeight=config.ticketHeadingWeight;heading.style.marginBottom=8*scale+'px';
-    bio.style.fontSize=config.ticketBodySize*scale+'px';bio.style.lineHeight=config.ticketBodyLineHeight;bio.style.opacity=config.ticketBodyOpacity/100;
+    nameInk.style.fontSize=config.ticketNameSize+'px';nameInk.style.fontWeight=config.ticketNameWeight;
+    const bodyWidth=width-(config.ticketOrientation==='horizontal'?panel:0),bodyHeight=height-(config.ticketOrientation==='vertical'?panel:0);
+    const desiredNameScale=scale*(isCompact?Math.min(14,config.ticketNameSize)/config.ticketNameSize:1);
+    const nameScale=Math.min(desiredNameScale,Math.max(.01,(bodyWidth-(isCompact?16:48)*scale)/Math.max(1,nameInk.offsetWidth)));
+    const nameX=isCompact?(bodyWidth-nameInk.offsetWidth*nameScale)/2:24*scale;
+    const top=isCompact?.76:.78,nameY=bodyHeight*top+(bodyHeight*(1-top)-nameInk.offsetHeight*nameScale)/2;
+    nameLayout.style.transform=`translate3d(${nameX}px,${nameY}px,0) scale(${nameScale})`;nameLayout.dataset.scale=nameScale;
+    heading.style.fontSize=config.ticketHeadingSize+'px';heading.style.fontWeight=config.ticketHeadingWeight;heading.style.marginBottom='8px';
+    bio.style.fontSize=config.ticketBodySize+'px';bio.style.lineHeight=config.ticketBodyLineHeight;bio.style.opacity=config.ticketBodyOpacity/100;
     scrim.hidden=!config.ticketScrim;
-    const radians=config.scrimAngle*Math.PI/180;
-    const distance=config.scrimDistance,size=config.scrimSize;
-    const anchor=100-config.scrimSpread;
-    scrim.style.background=`linear-gradient(${config.scrimAngle+90}deg,transparent ${anchor-size}%,${rgba(config.scrimColor,config.scrimOpacity*.18)} ${anchor-size*.72}%,${rgba(config.scrimColor,config.scrimOpacity*.72)} ${anchor-size*.38}%,${rgba(config.scrimColor,config.scrimOpacity)} ${anchor}%)`;
-    scrim.style.transform=`translate(${-Math.cos(radians)*distance}%,${Math.sin(radians)*distance}%)`;
+    const [start,soft,middle,end]=photoScrimStops(config);
+    scrim.style.background=`linear-gradient(${config.scrimAngle+90}deg,transparent ${start}%,${rgba(config.scrimColor,config.scrimOpacity*.18)} ${soft}%,${rgba(config.scrimColor,config.scrimOpacity*.72)} ${middle}%,${rgba(config.scrimColor,config.scrimOpacity)} ${end}%)`;
+    scrim.style.transform='none';
     scrim.style.mixBlendMode=config.scrimBlend;
     ticket.style.setProperty('--ticket-border-width',(config.ticketBorder?config.ticketBorderWidth*scale:0)+'px');
     ticket.style.setProperty('--ticket-border-bleed',(config.ticketBorder?.7*scale:0)+'px');
@@ -140,11 +153,14 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const read=(element,properties)=>Object.fromEntries(properties.map(key=>[key,getComputedStyle(element)[key]]));
     const matrix=new DOMMatrixReadOnly(getComputedStyle(carrier).transform);
     const scale=motion.h*Math.hypot(matrix.a,matrix.b);
-    return Object.fromEntries([
+    const look=Object.fromEntries([
       ['ticket',ticket,['width','height','borderRadius','boxShadow']],['surface',surface,['gridTemplateColumns','gridTemplateRows']],
-      ['photo',photoWindow,['height','top','left','right','borderRadius']],['name',name,['fontSize','padding']],
-      ['copy',copy,['padding']],['heading',heading,['fontSize','marginBottom']],['bio',bio,['fontSize','lineHeight']]
+      ['photo',photoWindow,['height','top','left','right','borderRadius']]
     ].map(([key,el,properties])=>[key,scalePixelStyles(read(el,properties),scale)]));
+    look.name={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(nameLayout).transform),scale)};
+    look.copyLayout={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(copyLayout).transform),scale)};
+    look.copy={opacity:getComputedStyle(copy).opacity,visibility:'visible'};
+    return look;
   }
   function cancelEntrance(){entrance?.cancel();entrance=null;if(hasEntered)carrier.style.visibility='visible';}
   function settleHover(){hovering=carrier.matches(':hover');motion.th=!busy&&!morphing&&hovering?config.badgeHoverScale:1;animateMotion();}
@@ -162,12 +178,14 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
       {transform:`translate(${dx}px,${dy}px)`},
       {transform:'translate(0,0)'}
     ],options);
-    morphParts=[morph,...[[ticket,'ticket'],[surface,'surface'],[photoWindow,'photo'],[name,'name'],[copy,'copy'],[heading,'heading'],[bio,'bio']].map(([el,key])=>el.animate([from[key],to[key]],options))];
+    morphParts=[morph,...[[ticket,'ticket'],[surface,'surface'],[photoWindow,'photo'],[nameLayout,'name'],[copyLayout,'copyLayout'],[copy,'copy']].map(([el,key])=>el.animate([from[key],to[key]],options))];
     return Promise.all(morphParts.map(a=>a.finished.catch(()=>{}))).then(()=>{if(generation===morphGeneration){morphing=false;settleHover();}});
   }
   function layout(animate=true){
     const before=carrier.getBoundingClientRect(),from=captureLook(),heroWidth=hero.clientWidth;
-    const nextCompact=!!config.ticketResponsive&&innerWidth<=config.badgeBreakpoint;
+    const navToggle=document.querySelector('.site-nav-toggle');
+    const linkedToNav=config.badgeLinkNavBreakpoint&&navToggle;
+    const nextCompact=!!config.ticketResponsive&&(linkedToNav?getComputedStyle(navToggle).display!=='none':innerWidth<=config.badgeBreakpoint);
     const changed=nextCompact!==compact;compact=nextCompact;
     hero.classList.toggle('is-compact',compact);
     fitText();
@@ -204,7 +222,6 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     motion.th=1;motion.tx=motion.ty=0;placeExpanded();
     activation.setAttribute('aria-expanded','true');
     requestAnimationFrame(()=>dialog.classList.add('is-open'));
-    copy.animate([{opacity:0},{opacity:1}],{duration:config.badgeMorphDuration*.65,easing:'ease-out'});
     await flip(start,carrier.getBoundingClientRect(),from);busy=false;dragPlane.hidden=false;suppressClickUntil=performance.now()+150;
     settleHover();targets();
     if(closeRequested){closeRequested=false;close();}

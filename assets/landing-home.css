@@ -14,7 +14,8 @@
     #dan-landing-home .ds-reveal{font-weight:400;font-size:56px;line-height:1.17;letter-spacing:-.045em;text-transform:uppercase;min-width:0;padding:.08em 0 .12em}
     #dan-landing-home .ds-reveal-line{display:block;white-space:nowrap;position:relative}
     #dan-landing-home .ds-word{display:inline-block;white-space:nowrap;vertical-align:top;overflow:hidden;padding:.16em .07em .2em;margin:-.16em -.07em -.2em;clip-path:inset(0)}
-    #dan-landing-home .ds-glyph{display:inline-block;white-space:pre;vertical-align:baseline;will-change:transform;font-family:inherit}
+    #dan-landing-home .ds-glyph{display:inline-block;white-space:pre;vertical-align:baseline;font-family:inherit}
+    #dan-landing-home .ds-reveal.is-revealing .ds-glyph{will-change:transform}
     #dan-landing-home .ds-space{white-space:pre}
     #dan-landing-home .ds-reveal.ds-long .ds-word{white-space:normal;max-width:100%;overflow-wrap:anywhere}
     #dan-landing-home .ds-intro-actions{display:flex;gap:18px;align-items:center;margin-top:30px;flex-wrap:wrap}
@@ -126,13 +127,19 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket {display:block;overflow:visible;background:transparent;pointer-events:none;cursor:inherit}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-surface {position:absolute;inset:0;display:grid;overflow:hidden;isolation:isolate;border-radius:inherit;background:var(--ticket-bg);transform:translateZ(0)}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-body {min-height:0}
-:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket::after {inset:-.7px;border-radius:calc(var(--ticket-radius,16px) + .7px);border-width:calc(var(--ticket-border-width,0px) + var(--ticket-border-bleed,0px));background:transparent}
-:is(#dan-landing-home,#dan-badge-dialog) .ds-photo-window {isolation:isolate;transform:translateZ(0);clip-path:inset(0 round var(--photo-radius,8px));border:0;outline:0;box-shadow:none}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket::after {inset:-.7px;border-radius:inherit;border-width:calc(var(--ticket-border-width,0px) + var(--ticket-border-bleed,0px));background:transparent}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-photo-window {isolation:isolate;transform:translateZ(0);clip-path:none;border:0;outline:0;box-shadow:none}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-photo-window::after {content:'';position:absolute;inset:-.2px;z-index:2;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--ticket-bg)}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-headshot {border:0;outline:0;box-shadow:none;border-radius:0;backface-visibility:hidden}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-photo-scrim {inset:-1px;z-index:1}
 .ds-ticket-carrier {isolation:isolate}
 .ds-ticket-idle {pointer-events:none}
+/* Text stays in its final layout. Only the containing planes move and scale. */
+:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-footer,:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket.is-compact .ds-ticket-footer {inset:0;display:block;padding:0;transform:none}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-name-layout {position:absolute;left:0;top:0;width:max-content;transform-origin:0 0;will-change:transform}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-name-ink {display:block;white-space:nowrap;line-height:1;letter-spacing:-.01em;backface-visibility:hidden;-webkit-font-smoothing:antialiased;will-change:transform}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-copy {position:relative}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-copy-layout {position:absolute;left:0;top:0;box-sizing:border-box;transform-origin:0 0;will-change:transform}
 .ds-badge-activate,.ds-badge-drag-plane {position:absolute;inset:-6px;z-index:5;margin:0;padding:0;appearance:none;border:0!important;border-radius:20px;background:transparent!important;color:inherit;box-shadow:none!important;transform:none!important;transition:none!important}
 .ds-badge-activate {cursor:pointer;touch-action:pan-y}
 .ds-badge-activate:focus-visible {outline:2px solid #777;outline-offset:4px}

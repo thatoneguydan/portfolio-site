@@ -1,6 +1,7 @@
 /* Author-provided emoji, independent of the visitor's installed emoji font. */
 img.ms-emoji {display:inline-block!important;width:1.15em!important;height:1.15em!important;max-width:none!important;min-width:0;object-fit:contain;vertical-align:-.2em;margin:0 .025em;border:0!important;border-radius:0!important;box-shadow:none!important;transform:none;pointer-events:none;user-select:none}
 .ds-reveal img.ms-emoji {width:1.1em!important;height:1.1em!important}
+img.ms-emoji[alt="🎨"] {filter:saturate(var(--palette-saturation,.42))}
 
 /* Fancy Text Rotate motion, in the portfolio's existing type and colors. */
 #dan-landing-home .ds-rotate {position:relative;display:inline-grid;vertical-align:baseline;white-space:pre}
@@ -11,14 +12,18 @@ img.ms-emoji {display:inline-block!important;width:1.15em!important;height:1.15e
 #dan-landing-home .ds-long .ds-rotate {max-width:100%;grid-template-columns:minmax(0,1fr);white-space:normal}
 #dan-landing-home .ds-long .ds-rotate-measure,#dan-landing-home .ds-long .ds-rotate-entry {white-space:normal;overflow-wrap:anywhere}
 
-/* Only opacity animates; blur strength/masks stay fixed during hover. */
-.portfolio-blur {position:absolute;left:0;right:0;bottom:0;z-index:2;display:block;overflow:hidden;pointer-events:none;opacity:0;transition:opacity 240ms ease;border-radius:inherit}
-.portfolio-blur > span {position:absolute;inset:0;pointer-events:none;border-radius:inherit}
-.has-progressive-blur:hover .portfolio-blur.is-ready,.has-progressive-blur:focus-visible .portfolio-blur.is-ready {opacity:1}
+/* Keep the ancestor opaque: ancestor opacity creates a backdrop root which
+   hides its descendants' blur until opacity reaches one. Fade the filters. */
+.portfolio-blur {position:absolute;left:0;right:0;bottom:0;z-index:2;display:block;overflow:hidden;pointer-events:none;opacity:1;border-radius:inherit}
+.portfolio-blur > span {position:absolute;inset:0;pointer-events:none;border-radius:inherit;opacity:0;backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);transition:backdrop-filter var(--blur-duration,240ms) ease,-webkit-backdrop-filter var(--blur-duration,240ms) ease,opacity var(--blur-duration,240ms) ease}
+.has-progressive-blur:hover .portfolio-blur.is-ready > span,.has-progressive-blur:focus-visible .portfolio-blur.is-ready > span {opacity:1;backdrop-filter:blur(var(--layer-blur));-webkit-backdrop-filter:blur(var(--layer-blur))}
 .rv-video-thumb,.rdp-project-media {position:relative}
-@media(hover:none){.ds-panel.has-progressive-blur[data-focused=true] .portfolio-blur.is-ready {opacity:1}}
+@media(hover:none){.ds-panel.has-progressive-blur[data-focused=true] .portfolio-blur.is-ready > span {opacity:1;backdrop-filter:blur(var(--layer-blur));-webkit-backdrop-filter:blur(var(--layer-blur))}}
 #featured-work .rd-work-card[data-video-id]::before {z-index:4}
 #featured-work .ds-panel[data-video-id]::before {opacity:0;visibility:hidden;transition:opacity 160ms ease,visibility 160ms,transform 180ms cubic-bezier(.2,.7,.2,1),background 180ms ease,color 180ms ease}
 #featured-work .ds-panel[data-video-id][data-focused=true]::before {opacity:1;visibility:visible}
 .rv-video-thumb::after {z-index:4}
-@media(prefers-reduced-motion:reduce){.portfolio-blur {transition:none}.ds-rotate-piece {will-change:auto}}
+/* Reveals clip settled content; horizontal padding never changes its width. */
+.rdp-project-shelf > .rdp-project-shelf-inner {padding-left:clamp(12px,1.5vw,24px);padding-right:clamp(12px,1.5vw,24px)}
+.video-redesign .rv-shelf-panel > .rv-video-grid {padding-left:18px;padding-right:18px;transition-property:padding-top,padding-bottom}
+@media(prefers-reduced-motion:reduce){.portfolio-blur,.portfolio-blur > span {transition:none}.ds-rotate-piece {will-change:auto}}
