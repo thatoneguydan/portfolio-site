@@ -1,8 +1,8 @@
-import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-site9';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-site9';
+import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-polish7';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-polish7';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
-  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-site9';document.head.append(stylesheet);
+  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-polish7';document.head.append(stylesheet);
   const config={...api.getConfig()},baseline={...api.getConfig()};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';
@@ -49,7 +49,12 @@ export function mountTune(api){
     <details><summary>Featured work</summary>
       <details open><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
       <details><summary>Vertical gallery</summary><div data-controls="galleryVertical"></div></details>
-      <details><summary>Caption blur</summary><div data-controls="portfolioEffects"></div></details>
+    </details>
+    <details><summary>Thumbnails & captions</summary><details open><summary>Caption blur</summary><div data-controls="portfolioEffects"></div></details><details><summary>Design inner shadow</summary><div data-controls="designShadow"></div></details></details>
+    <details><summary>Project panels</summary>
+      <details open><summary>Surface & tail</summary><div data-controls="projectPanel"></div></details>
+      <details><summary>Floating close button</summary><div data-controls="projectClose"></div></details>
+      <details><summary>Wave-bars loader</summary><div data-controls="projectLoader"></div><div class="ds-loader-preview"><span class="portfolio-wave-loader" role="status" aria-label="Loading preview">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span></div></details>
     </details>
     <details><summary>Copy / paste settings</summary><label>Settings<textarea aria-label="Settings JSON" class="ds-config-json" spellcheck="false"></textarea></label><div class="ds-config-buttons"><button type="button" data-export>Copy settings</button><button type="button" data-import>Apply settings</button></div></details>
     <div class="ds-config-buttons"><button type="button" data-save>Save staging settings</button><button type="button" data-reset>Restore starting settings</button></div><p class="ds-config-status" role="status"></p>
@@ -59,7 +64,7 @@ export function mountTune(api){
   let placementFrame=0,launcherPosition=saved.launcherPosition||null,visibleViewport=null,drag=null,suppressToggleUntil=0,liveTimer=0;
   let saveTimer=0,pending=null,saving=false,lastQueued=JSON.stringify(config);
   const status=configPanel.querySelector('.ds-config-status');
-  const colorKeys=['ticketBackground','ticketColor','ticketPanelBackground','ticketBorderColor','shadowColor','scrimColor'];
+  const colorKeys=Object.values(controlGroups).flat().filter(field=>field[0]==='color').map(field=>field[1]);
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const replay=()=>api.replay();

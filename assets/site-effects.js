@@ -1,40 +1,60 @@
-import {installAuthoredEmoji} from './site-emoji.js?v=20261117-site9';
-import {setPaletteSaturation} from './palette-glyph.js?v=20261117-site9';
-import {defaults} from './landing-schema.js?v=20261117-site9';
+import {installAuthoredEmoji} from './site-emoji.js?v=20261117-polish7';
+import {setPaletteSaturation} from './palette-glyph.js?v=20261117-polish7';
+import {defaults} from './landing-schema.js?v=20261117-polish7';
 import {installSettledShelfText} from './settled-text.js';
-import {captionBlurGeometry} from './gallery-layout.js?v=20261117-site9';
-import './site-runtime.js?v=20261117-site9';
-import {installSiteInteractions} from './site-interactions.js?v=20261117-site9';
+import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-polish7';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261117-polish7';
+import './site-runtime.js?v=20261117-polish7';
+import {installSiteInteractions} from './site-interactions.js?v=20261117-polish7';
 
-const href='/assets/site-effects.css?v=20261117-site9';
+const href='/assets/site-effects.css?v=20261117-polish7';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
-installAuthoredEmoji();installSettledShelfText();installSiteInteractions();
+installAuthoredEmoji();installSettledShelfText();installSiteInteractions();installProjectPanels();
 let config={...defaults,...window.portfolioLandingConfig};
 setPaletteSaturation(config.paletteSaturation);
 const cards=new Set(),seen=new WeakSet();
 const cardResize=new ResizeObserver(entries=>{for(const {target}of entries)schedule(target);});
 function captionVisible(card){
   if(card.matches('.ds-panel'))return card.dataset.captionVisible==='true';
-  return !!card.querySelector('.rdp-project-meta')&&card.matches(':hover,:focus-visible');
+  return !!card.querySelector('.rdp-project-meta')&&(card.matches(':hover,:focus-visible')||matchMedia('(hover:none)').matches);
+}
+function innerShadow(card){
+  const design=!!card.closest('.discipline-design')||(card.matches('.ds-panel')&&/^DESIGN\b/i.test(card.querySelector('small')?.textContent.trim()||''));
+  const media=card.matches('.ds-panel')?card:card.querySelector('.rdp-project-media');if(!design||!media)return;
+  let layer=media.querySelector(':scope > .portfolio-thumbnail-shadow');
+  if(!layer){layer=document.createElement('span');layer.className='portfolio-thumbnail-shadow';layer.setAttribute('aria-hidden','true');media.append(layer);}
+  layer.hidden=!config.designInnerShadow;
+  const angle=config.designShadowAngle*Math.PI/180,x=-Math.cos(angle)*config.designShadowDistance,y=Math.sin(angle)*config.designShadowDistance;
+  const rgb=config.designShadowColor.match(/\w\w/g).map(n=>parseInt(n,16));
+  layer.style.boxShadow=`inset ${x}px ${y}px ${config.designShadowSize}px ${config.designShadowSize*config.designShadowChoke/100}px rgba(${rgb.join(',')},${config.designShadowOpacity/100})`;
+  layer.style.mixBlendMode=config.designShadowBlend;
 }
 function apply(card){
+  innerShadow(card);
   const enabled=!!config.portfolioBlur;
   if(card.classList.contains('has-progressive-blur')!==enabled)card.classList.toggle('has-progressive-blur',enabled);
   const active=String(enabled&&captionVisible(card));if(card.dataset.blurActive!==active)card.dataset.blurActive=active;
-  const blur=card.querySelector('.portfolio-blur');if(!blur)return;
+  const blur=card.querySelector('.portfolio-blur');
   const source=card.querySelector('img:not([data-blur-copy])');
   const caption=card.querySelector(card.dataset.captionKind==='compact'?'.ds-compact-caption':'.ds-caption,.rdp-project-meta');
-  const text=caption?.querySelector('strong')||caption,style=text&&getComputedStyle(text),captionStyle=caption&&getComputedStyle(caption);
-  const geometry=captionBlurGeometry({height:card.clientHeight,captionHeight:caption?.offsetHeight||0,bottom:parseFloat(captionStyle?.bottom)||0,fontSize:parseFloat(style?.fontSize)||20,coverage:config.portfolioBlurHeight,strength:config.portfolioBlurStrength,compact:card.dataset.captionKind==='compact'});
+  if(!caption)return;
+  const text=caption.querySelector('strong,.rdp-project-title')||caption,style=getComputedStyle(text);
+  const plane=(card.querySelector('.rdp-masonry-face')||card).getBoundingClientRect();
+  const bounds=[...caption.children].map(el=>el.getBoundingClientRect()).filter(r=>r.height>0);
+  const top=bounds.length?Math.min(...bounds.map(r=>r.top)):plane.bottom;
+  const bottom=bounds.length?Math.max(...bounds.map(r=>r.bottom)):plane.bottom;
+  const geometry=captionBlurGeometry({height:card.clientHeight,captionHeight:Math.max(0,bottom-top),bottom:Math.max(0,plane.bottom-bottom),fontSize:parseFloat(style.fontSize)||20,coverage:config.portfolioBlurHeight,strength:config.portfolioBlurStrength,compact:card.dataset.captionKind==='compact'});
   const height=geometry.percent;
   for(const [key,value]of [['--caption-solid-height',geometry.solid+'px'],['--caption-cover-height',geometry.cover+'px']])if(card.style.getPropertyValue(key)!==value)card.style.setProperty(key,value);
+  const shade=captionShadeGradient(geometry);if(card.style.getPropertyValue('--caption-shade')!==shade)card.style.setProperty('--caption-shade',shade);
+  if(!blur)return;
   blur.style.setProperty('--blur-duration',config.portfolioBlurDuration+'ms');
   [...blur.children].forEach((layer,i)=>{
     layer.style.setProperty('--layer-blur',geometry.strength*(i+1)/6+'px');
-    const stops=[i,i+1,i+2,i+3].map((n,j)=>'rgba(255,255,255,'+(j===1||j===2?1:0)+') '+(100-height+n/7*height)+'%');
-    const mask='linear-gradient(180deg,'+stops.join(',')+')';layer.style.maskImage=mask;layer.style.webkitMaskImage=mask;
+    const full=geometry.solid*Math.max(.25,1-i*.1);
+    const mask=`linear-gradient(to top,#000 0px,#000 ${full}px,transparent ${geometry.cover}px)`;layer.style.maskImage=mask;layer.style.webkitMaskImage=mask;
     const image=layer.querySelector('img');if(source&&image&&image.style.filter!==source.style.filter)image.style.filter=source.style.filter;
   });
 }
@@ -76,10 +96,10 @@ new MutationObserver(records=>{
   for(const record of records){
     if(record.target.nodeType!==1||record.target.closest('.portfolio-blur'))continue;
     if(record.type==='childList')for(const node of record.addedNodes)discover(node);
-    else schedule(record.target.closest('.ds-panel,.rdp-project-card'));
+    else if(!(record.attributeName==='style'&&record.target.matches('.rdp-project-card')))schedule(record.target.closest('.ds-panel,.rdp-project-card'));
   }
 }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-caption-visible','data-caption-kind','data-focused','class','style','src']});
-function update(next){config={...defaults,...next};setPaletteSaturation(config.paletteSaturation);for(const card of cards)sync(card);}
+function update(next){config={...defaults,...next};setPaletteSaturation(config.paletteSaturation);applyProjectConfig(config);for(const card of cards)sync(card);}
 document.addEventListener('portfolio-appearance',event=>update(event.detail));
 addEventListener('resize',()=>{for(const card of cards)schedule(card);},{passive:true});
 if(!document.getElementById('dan-landing-home'))fetch('/api/landing-settings',{credentials:'same-origin',cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{if(data?.config)update(data.config);}).catch(()=>{});

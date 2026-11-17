@@ -237,3 +237,5 @@ html.contact-inline-embed {scrollbar-gutter:auto;overflow:hidden;min-height:0}
     width: 100%;
   }
 }
+/* The standalone form and the embedded form share the same card corners. */
+.contact-redesign .rc-form-wrap {border-radius:16px}

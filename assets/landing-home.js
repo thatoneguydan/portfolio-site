@@ -1,10 +1,10 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-site9';
-import {createBadge} from './landing-badge.js?v=20261117-site9';
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-site9';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-site9';
-import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-site9';
-import {siteReady} from './site-runtime.js?v=20261117-site9';
-import {revealFrames} from './headline-view.js?v=20261117-site9';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-polish7';
+import {createBadge} from './landing-badge.js?v=20261117-polish7';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-polish7';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-polish7';
+import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-polish7';
+import {siteReady} from './site-runtime.js?v=20261117-polish7';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261117-polish7';
 (async() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
@@ -44,7 +44,7 @@ import {revealFrames} from './headline-view.js?v=20261117-site9';
       if (!text) line.append(document.createTextNode('\u00a0')); h1.append(line);
     });
     fitText();
-    rotator?.start();
+    if(!h1.hasAttribute('data-headline-pending'))rotator?.start();
   }
   function fitText() {
     const max=config.fontSize,compact=root.querySelector('.ds-hero').classList.contains('is-compact');
@@ -64,8 +64,8 @@ import {revealFrames} from './headline-view.js?v=20261117-site9';
     lines.forEach(el=>el.style.removeProperty('width'));
   }
   function replay() {
-    currentAnimations.forEach(a=>a.cancel());currentAnimations=[];h1.classList.remove('is-revealing');rotator?.pause();if(reduced.matches||!config.animate){rotator?.start();badge.enter([{start:0,end:0}]);return;}
-    let revealEnd=0;const lineTimes=[],lead=config.badgeEntrance?220:0;
+    currentAnimations.forEach(a=>a.cancel());currentAnimations=[];h1.classList.remove('is-revealing');rotator?.reset();if(reduced.matches||!config.animate){h1.removeAttribute('data-headline-pending');rotator?.start();badge.enter([{start:0,end:0}]);return;}
+    let revealEnd=0,rotationEnd=0;const lineTimes=[],lead=config.badgeEntrance?220:0,rotatingLine=Number(config.rotateTarget.split(':')[0])-1;
     [...h1.children].forEach((line,li) => {
       const glyphs=[...line.querySelectorAll('.ds-glyph')],words=[...line.querySelectorAll('.ds-word')],n=glyphs.length;
       const timing={start:lead+li*config.lineDelay,end:lead+li*config.lineDelay};lineTimes.push(timing);
@@ -77,13 +77,15 @@ import {revealFrames} from './headline-view.js?v=20261117-site9';
         const position=config.splitBy==='lines'?0:config.splitBy==='words'?Math.max(0,words.indexOf(el.closest('.ds-word'))):index;
         const count=config.splitBy==='lines'?1:config.splitBy==='words'?words.length:n;
         const order=from==='last'?count-1-position:from==='center'?Math.abs(position-(count-1)/2):from==='random'?randomOrder[position]||0:position;
-        const frames=revealFrames(start,config.duration);
+        const distance=revealOffset(el.closest('.ds-word,.ds-space').offsetHeight,el.offsetHeight,parseFloat(getComputedStyle(el).fontSize),start);
+        const frames=revealFrames(distance,config.duration,'px');
         const delay=lead+li*config.lineDelay+order*config.stagger;revealEnd=Math.max(revealEnd,config.duration+delay);timing.end=Math.max(timing.end,config.duration+delay);
+        if(li===rotatingLine)rotationEnd=Math.max(rotationEnd,config.duration+delay);
         currentAnimations.push(el.animate(frames,{duration:config.duration,delay,easing:'linear',fill:'both'}));
       });
     });
     badge.enter(lineTimes);
-    rotator?.start(revealEnd+config.rotateInterval);
+    rotator?.start(rotationEnd+config.rotateInterval);h1.removeAttribute('data-headline-pending');
     const sequence=currentAnimations;h1.classList.add('is-revealing');
     Promise.all(sequence.map(animation=>animation.finished.catch(()=>{}))).then(()=>{
       if(currentAnimations!==sequence)return;

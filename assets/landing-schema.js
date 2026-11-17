@@ -18,6 +18,36 @@ export const defaults = {
   "portfolioBlurStrength": 8,
   "portfolioBlurHeight": 33,
   "portfolioBlurDuration": 240,
+  "designInnerShadow": true,
+  "designShadowColor": "#111111",
+  "designShadowBlend": "multiply",
+  "designShadowOpacity": 18,
+  "designShadowAngle": 90,
+  "designShadowDistance": 2,
+  "designShadowChoke": 0,
+  "designShadowSize": 18,
+  "projectPanelBackground": "#e5e5e0",
+  "projectPanelBorderColor": "#a9aca4",
+  "projectPanelBorderWidth": 1.5,
+  "projectPanelRadius": 12,
+  "projectPanelTailSize": 28,
+  "projectCloseSize": 38,
+  "projectCloseBackground": "#373b35",
+  "projectCloseColor": "#f5f5f2",
+  "projectCloseHoverBackground": "#111111",
+  "projectCloseHoverColor": "#ffffff",
+  "projectCloseRight": 16,
+  "projectCloseTop": 16,
+  "projectCloseNavGap": 12,
+  "projectLoaderColor1": "#70736e",
+  "projectLoaderColor2": "#92958f",
+  "projectLoaderColor3": "#373b35",
+  "projectLoaderColor4": "#92958f",
+  "projectLoaderColor5": "#70736e",
+  "projectLoaderWidth": 5,
+  "projectLoaderHeight": 32,
+  "projectLoaderGap": 4,
+  "projectLoaderPadding": 40,
   "paletteSaturation": 42,
   "bio": "I work across video, design, print, and photography to make things clear, intentional, and worth looking at.",
   "fontSize": 53,
@@ -78,6 +108,7 @@ export const defaults = {
   "ticketBodyWeight": 400,
   "ticketCopyAlign": "left",
   "ticketCopyCenter": false,
+  "ticketHeadingGap": 24,
   "ticketBodyLineHeight": 1.65,
   "ticketBodyOpacity": 50,
   "ticketShadow": true,
@@ -154,13 +185,13 @@ export const controlGroups = {
     portfolioEffects: [
       ['check','portfolioBlur','Progressive blur behind captions'],
       ['range','portfolioBlurStrength','Maximum blur',0,24,.5,'px'],
-      ['range','portfolioBlurHeight','Blur height',20,100,1,'%'],
+      ['range','portfolioBlurHeight','Fade beyond text',0,200,1,'% of type size'],
       ['range','portfolioBlurDuration','Blur hover duration',100,800,20,'ms']
     ],
     ticketLayout: [
       ['select','ticketOrientation','Orientation',['horizontal','vertical']],
-      ['range','ticketWidth','Width',220,560,10,'px'], ['range','ticketHeight','Height',140,460,10,'px'],
-      ['range','ticketPanelSize','Text panel size',70,180,2,'px'], ['range','ticketRadius','Radius',0,32,1,'px'],
+      ['range','ticketWidth','Width',220,1400,10,'px'], ['range','ticketHeight','Height',140,1200,10,'px'],
+      ['range','ticketPanelSize','Text panel size',70,640,2,'px'], ['range','ticketRadius','Radius',0,32,1,'px'],
       ['check','ticketAutoImageRadius','Image radius follows card'], ['range','ticketImageRadius','Image radius',0,32,1,'px']
     ],
     ticketPhoto: [
@@ -198,6 +229,7 @@ export const controlGroups = {
     ],
     ticketCopyLayout: [
       ['check','ticketCopyCenter','Center heading and bio vertically'],
+      ['range','ticketHeadingGap','Heading to bio spacing',0,200,1,'px'],
       ['select','ticketCopyAlign','Heading and bio alignment',['left','right','center','justify']]
     ],
     ticketScrim: [
@@ -247,6 +279,38 @@ export const controlGroups = {
       ['range','galleryGap','Gallery gap',0,24,1,'px'], ['range','galleryRadius','Gallery radius',0,32,1,'px'],
       ['range','galleryDuration','Transition duration',200,1400,50,'ms'], ['check','grayscale','Grayscale inactive cards']
     ],
+    designShadow: [
+      ['check','designInnerShadow','Inner shadow on design thumbnails'],
+      ['color','designShadowColor','Inner shadow color'],
+      ['select','designShadowBlend','Inner shadow blend',['normal','multiply','screen','overlay','darken','lighten','soft-light','hard-light']],
+      ['range','designShadowOpacity','Inner shadow opacity',0,100,1,'%'],
+      ['range','designShadowAngle','Inner shadow angle',-180,180,1,'°'],
+      ['range','designShadowDistance','Inner shadow distance',0,100,1,'px'],
+      ['range','designShadowChoke','Inner shadow choke',0,100,1,'%'],
+      ['range','designShadowSize','Inner shadow size',0,160,1,'px']
+    ],
+    projectPanel: [
+      ['color','projectPanelBackground','Panel background'], ['color','projectPanelBorderColor','Panel outline color'],
+      ['range','projectPanelBorderWidth','Panel outline thickness',0,8,.25,'px'],
+      ['range','projectPanelRadius','Panel corner radius',0,80,1,'px'],
+      ['range','projectPanelTailSize','Panel tail size',0,100,1,'px']
+    ],
+    projectClose: [
+      ['range','projectCloseSize','Close button size',24,100,1,'px'],
+      ['color','projectCloseBackground','Close button background'], ['color','projectCloseColor','Close icon color'],
+      ['color','projectCloseHoverBackground','Close hover background'], ['color','projectCloseHoverColor','Close hover icon color'],
+      ['range','projectCloseRight','Close offset from right',-60,120,1,'px'],
+      ['range','projectCloseTop','Close offset from top',-60,120,1,'px'],
+      ['range','projectCloseNavGap','Close spacing below navigation',0,120,1,'px']
+    ],
+    projectLoader: [
+      ['color','projectLoaderColor1','Loader bar 1'], ['color','projectLoaderColor2','Loader bar 2'],
+      ['color','projectLoaderColor3','Loader bar 3'], ['color','projectLoaderColor4','Loader bar 4'], ['color','projectLoaderColor5','Loader bar 5'],
+      ['range','projectLoaderWidth','Loader bar width',1,24,1,'px'],
+      ['range','projectLoaderHeight','Loader bar height',8,160,1,'px'],
+      ['range','projectLoaderGap','Loader bar spacing',0,40,1,'px'],
+      ['range','projectLoaderPadding','Loader vertical breathing room',12,160,1,'px']
+    ],
     galleryVertical: [
       ['check','verticalGalleryAdaptive','Responsive 16:9 height'],
       ['range','verticalGalleryHeight','Manual expanded card height',140,640,1,'px'],
@@ -281,7 +345,7 @@ for(const scope of headlineScopes){
 export function normalizeSettings(input, base = defaults) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Settings must be an object.');
   const result={...defaults,...base};
-  const colors=['ticketBackground','ticketColor','ticketPanelBackground','ticketBorderColor','shadowColor','scrimColor'];
+  const colors=Object.values(controlGroups).flat().filter(field=>field[0]==='color').map(field=>field[1]);
   // Old saved settings keep their vertical appearance when first upgraded.
   const inherited={verticalGalleryHeight:['galleryHeight',v=>Math.min(360,v)],verticalGalleryGap:['galleryGap'],verticalGalleryRadius:['galleryRadius'],verticalGalleryDuration:['galleryDuration'],verticalGalleryGrayscale:['grayscale']};
   for(const [key,[source,convert]] of Object.entries(inherited))if(!(key in input)&&!(key in base&&base!==defaults)&&source in input)result[key]=convert?convert(input[source]):input[source];

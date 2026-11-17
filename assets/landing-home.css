@@ -150,11 +150,11 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 /* Text is laid out at its final expanded width, never the animated card width. */
 #dan-landing-home .ds-gallery {height:var(--gallery-height,320px);gap:var(--gallery-gap,10px)}
 #dan-landing-home .ds-gallery > .ds-panel {border-radius:var(--gallery-radius,16px);transition-duration:var(--gallery-duration,600ms)}
-#dan-landing-home .ds-gallery > .ds-panel::after {z-index:3}
+#dan-landing-home .ds-gallery > .ds-panel::after {display:none}
 #dan-landing-home .ds-gallery .ds-caption {left:var(--caption-inset,20px);right:auto;width:var(--caption-width,500px);bottom:20px;transition:opacity 180ms ease,transform var(--gallery-duration,600ms) cubic-bezier(.16,1,.3,1)}
 #dan-landing-home .ds-caption > span {min-width:0;flex:1}
 #dan-landing-home .ds-caption .rd-work-title {font-size:var(--caption-title-size,20px)}
-#dan-landing-home .ds-gallery .ds-panel-gradient {position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;background:linear-gradient(to top,rgba(0,0,0,.86),rgba(0,0,0,.72) var(--caption-solid-height,50px),transparent var(--caption-cover-height,80px));transition:opacity 180ms ease}
+#dan-landing-home .ds-gallery .ds-panel-gradient {position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;background:var(--caption-shade,linear-gradient(to top,rgba(0,0,0,.78),transparent 130px));transition:opacity 180ms ease}
 #dan-landing-home .ds-gallery > .ds-panel[data-caption-visible=true] .ds-panel-gradient {opacity:1}
 #dan-landing-home .ds-gallery .ds-caption {z-index:4}
 #dan-landing-home .ds-compact-caption {display:none}

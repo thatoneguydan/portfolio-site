@@ -1,4 +1,4 @@
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-site9';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-polish7';
 export const headlineLines=config=>Array.from({length:config.lineCount},(_,i)=>config['line'+(i+1)]||'');
 export const rotationWords=config=>config.rotateWords.split(',').map(s=>s.trim()).filter(Boolean);
 export function splitPunctuation(word){
@@ -22,12 +22,21 @@ export function accessibleHeadline(config){
     }).join('');
   }).join(' ');
 }
-export function createTextRotation(host,config,{suffix=''}={}){
+export function createTextRotation(host,config,{suffix='',dynamicWidth=false}={}){
   const words=rotationWords(config).map(word=>suffix&&!word.endsWith(suffix)?word+suffix:word),reduced=matchMedia('(prefers-reduced-motion: reduce)');
   host.classList.add('ds-rotate');
-  for(const word of words){const measure=document.createElement('span');measure.className='ds-rotate-measure';appendEmojiText(measure,word);host.append(measure);}
+  const measures=[];for(const word of words){const measure=document.createElement('span');measure.className='ds-rotate-measure';appendEmojiText(measure,word);host.append(measure);measures.push(measure);}
+  if(dynamicWidth){host.classList.add('ds-rotate-dynamic');const sizer=document.createElement('span');sizer.className='ds-rotate-sizer';sizer.textContent='Ag';host.append(sizer);}
   const clip=document.createElement('span');clip.className='ds-rotate-clip';host.append(clip);
-  let index=0,timer=0,visible=false,running=true,destroyed=false,notBefore=0,animations=[];
+  let index=0,timer=0,visible=false,running=false,destroyed=false,notBefore=0,animations=[],generation=0,widthMotion=null;
+  const measureWidth=i=>measures[i]?.getBoundingClientRect().width||0;
+  function syncWidth(){if(!dynamicWidth)return;widthMotion?.cancel();widthMotion=null;host.style.width=measureWidth(index)+'px';}
+  function prepareFit(){if(!dynamicWidth)return;widthMotion?.cancel();widthMotion=null;host.style.width=Math.max(...measures.map((_,i)=>measureWidth(i)))+'px';}
+  function morphWidth(){
+    if(!dynamicWidth)return;const from=host.getBoundingClientRect().width,to=measureWidth(index);
+    widthMotion?.cancel();host.style.width=to+'px';
+    if(!reduced.matches){const motion=host.animate([{width:from+'px'},{width:to+'px'}],{duration:config.rotateDuration,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});widthMotion=motion;motion.finished.catch(()=>{}).then(()=>{if(widthMotion===motion){motion.cancel();widthMotion=null;}});}
+  }
   function entry(text){
     const el=document.createElement('span');el.className='ds-rotate-entry';
     const add=(parent,chunk)=>{const piece=document.createElement('span');piece.className='ds-rotate-piece';appendEmojiText(piece,chunk);parent.append(piece);};
@@ -47,8 +56,9 @@ export function createTextRotation(host,config,{suffix=''}={}){
     timer=setTimeout(next,Math.max(config.rotateInterval,notBefore-performance.now()));
   }
   async function next(){
-    timer=0;if(destroyed||document.hidden||!visible||reduced.matches)return;
-    const old=current;index=(index+1)%words.length;current=entry(words[index]);clip.append(current);
+    timer=0;if(destroyed||!running||document.hidden||!visible||reduced.matches)return;
+    const token=++generation;
+    const old=current;index=(index+1)%words.length;current=entry(words[index]);clip.append(current);morphWidth();
     const pieces=[...current.querySelectorAll('.ds-rotate-piece')],count=pieces.length;
     const order=pieces.map((_,i)=>i);if(config.rotateFrom==='random')for(let i=count-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
     animations=[...old.querySelectorAll('.ds-rotate-piece')].map((el,i)=>el.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(-120%)',opacity:0}],{duration:config.rotateDuration*.55,delay:i*config.rotateStagger*.45,easing:'cubic-bezier(.4,0,1,1)',fill:'both'}));
@@ -60,9 +70,10 @@ export function createTextRotation(host,config,{suffix=''}={}){
       animations.push(el.animate(frames,{duration:config.rotateDuration,delay:config.rotateDuration*.14+rank*config.rotateStagger,easing:'linear',fill:'both'}));
     });
     await Promise.all(animations.map(a=>a.finished.catch(()=>{})));
+    if(token!==generation||destroyed)return;
     old.remove();animations.forEach(a=>a.cancel());animations=[];if(!destroyed)arm();
   }
   const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;arm();});observer.observe(host);
   const visibility=()=>arm();document.addEventListener('visibilitychange',visibility);reduced.addEventListener('change',visibility);
-  return {start(delay=0){running=true;notBefore=performance.now()+delay;arm();},pause(){running=false;clear();},destroy(){destroyed=true;clear();animations.forEach(a=>a.cancel());observer.disconnect();document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',visibility);}};
+  return {syncWidth,prepareFit,start(delay=0){running=true;notBefore=performance.now()+delay;arm();},pause(){running=false;clear();},reset(){running=false;clear();generation++;animations.forEach(a=>a.cancel());animations=[];index=0;current=entry(words[0]);clip.replaceChildren(current);syncWidth();},destroy(){destroyed=true;generation++;clear();widthMotion?.cancel();animations.forEach(a=>a.cancel());observer.disconnect();document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',visibility);}};
 }

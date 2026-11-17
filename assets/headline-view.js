@@ -1,11 +1,14 @@
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-site9';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-site9';
-import {headlineSettings} from './landing-schema.js?v=20261117-site9';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-polish7';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-polish7';
+import {headlineSettings} from './landing-schema.js?v=20261117-polish7';
 
-export function revealFrames(start,duration){
+export function revealOffset(clipHeight,glyphHeight,fontSize,direction){
+  return Math.sign(direction)*(Math.max(clipHeight,glyphHeight)+fontSize*.6+2);
+}
+export function revealFrames(start,duration,unit='%'){
   return Array.from({length:51},(_,i)=>{
     const t=i/50*duration/1000,decay=Math.exp(-10.5*t)*(Math.cos(9.47365*t)+10.5/9.47365*Math.sin(9.47365*t));
-    return {transform:`translateY(${i===50?0:start*decay}%)`,offset:i/50};
+    return {transform:`translateY(${i===50?0:start*decay}${unit})`,offset:i/50};
   });
 }
 
@@ -20,16 +23,18 @@ export function mountHeadline(h1,scope,initial){
     h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
     h1.classList.toggle('is-wrapping',scope!=='contact');
     if(scope==='contact'){
+      rotator?.prepareFit();
       const lines=[...h1.children];lines.forEach(line=>line.style.width='max-content');
       const widths=lines.map(line=>line.scrollWidth),longest=Math.max(1,...widths);
       if(longest>available)h1.style.fontSize=Math.max(12,config.fontSize*available/longest)+'px';
       lines.forEach(line=>line.style.removeProperty('width'));
     }
+    rotator?.syncWidth();
   }
   function replay(){
-    animations.forEach(a=>a.cancel());animations=[];rotator?.pause();
-    if(!config.animate||reduced.matches){rotator?.start();return;}
-    let end=0;
+    animations.forEach(a=>a.cancel());animations=[];rotator?.reset();
+    if(!config.animate||reduced.matches){h1.removeAttribute('data-headline-pending');rotator?.start();return;}
+    let end=0,rotationEnd=0;const rotatingLine=Number(config.rotateTarget.split(':')[0])-1;
     [...h1.children].forEach((line,li)=>{
       const glyphs=[...line.querySelectorAll('.ds-glyph')],words=[...line.querySelectorAll('.ds-word')];
       const count=config.splitBy==='lines'?1:config.splitBy==='words'?words.length:glyphs.length;
@@ -41,10 +46,12 @@ export function mountHeadline(h1,scope,initial){
         const at=config.splitBy==='lines'?0:config.splitBy==='words'?words.indexOf(glyph.closest('.ds-word')):i;
         const rank=from==='last'?count-1-at:from==='center'?Math.abs(at-(count-1)/2):from==='random'?order[at]:at;
         const delay=li*config.lineDelay+rank*config.stagger;end=Math.max(end,delay+config.duration);
-        animations.push(glyph.animate(revealFrames(start,config.duration),{duration:config.duration,delay,easing:'linear',fill:'both'}));
+        if(li===rotatingLine)rotationEnd=Math.max(rotationEnd,delay+config.duration);
+        const distance=revealOffset(glyph.closest('.ds-word').offsetHeight,glyph.offsetHeight,parseFloat(getComputedStyle(glyph).fontSize),start);
+        animations.push(glyph.animate(revealFrames(distance,config.duration,'px'),{duration:config.duration,delay,easing:'linear',fill:'both'}));
       });
     });
-    rotator?.start(end+config.rotateInterval);
+    rotator?.start(rotationEnd+config.rotateInterval);h1.removeAttribute('data-headline-pending');
     const sequence=animations;
     Promise.all(sequence.map(a=>a.finished.catch(()=>{}))).then(()=>{if(sequence===animations){sequence.forEach(a=>a.cancel());animations=[];}});
   }
@@ -59,13 +66,13 @@ export function mountHeadline(h1,scope,initial){
         const wrap=document.createElement('span');wrap.className='ds-word';
         if(config.rotateEnabled&&config.rotateTarget===`${index+1}:${wordIndex}`&&rotationWords(config).length){
           const {prefix,suffix}=splitPunctuation(word);appendEmojiText(wrap,prefix);
-          const glyph=document.createElement('span');glyph.className='ds-glyph';wrap.append(glyph);rotator=createTextRotation(glyph,config,{suffix});
+          const glyph=document.createElement('span');glyph.className='ds-glyph';wrap.append(glyph);rotator=createTextRotation(glyph,config,{suffix,dynamicWidth:scope==='contact'});
         }else for(const char of graphemes(word)){const glyph=document.createElement('span');glyph.className='ds-glyph';appendEmojiText(glyph,char);wrap.append(glyph);}
         wordIndex++;line.append(wrap);
       });
       if(!text)line.append(document.createTextNode('\u00a0'));h1.append(line);
     });
-    fit();if(animate)replay();else rotator?.start();
+    fit();if(animate)replay();else if(!h1.hasAttribute('data-headline-pending'))rotator?.start();
   }
   const observer=new ResizeObserver(()=>{if(!fitFrame)fitFrame=requestAnimationFrame(fit);});observer.observe(h1.parentElement);
   update(initial);

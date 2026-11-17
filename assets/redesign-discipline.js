@@ -3,7 +3,7 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261117-masonry1';
+    navScript.src = '/assets/redesign-nav.js?v=20261117-polish7';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -194,6 +194,9 @@
       cleanupTimer: 0,
     };
 
+    if (!card.id) card.id = 'project-card-' + shelfSlug(card);
+    shelf.dataset.projectSource = card.id;
+    shelf.addEventListener('portfolio-panel-close', () => { if (active === state) openOnly(card, true); });
     findRowEnd(card).insertAdjacentElement('afterend', shelf);
     liveShelves.add(state);
     return state;

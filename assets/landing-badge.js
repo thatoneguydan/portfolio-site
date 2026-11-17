@@ -1,5 +1,5 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-site9';
-import {appendEmojiText} from './site-emoji.js?v=20261117-site9';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-polish7';
+import {appendEmojiText} from './site-emoji.js?v=20261117-polish7';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');
@@ -108,7 +108,8 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     ticket.classList.toggle('is-compact',isCompact);
     // The content boundary stays fixed; increasing the frame grows outward.
     ticket.style.width=(width+2*frameWidth)+'px';ticket.style.height=(height+2*frameWidth)+'px';ticket.style.minHeight='0';
-    const panel=(isCompact?0:config.ticketPanelSize)*scale;
+    const designPanel=Math.min(config.ticketPanelSize,Math.max(70,(config.ticketOrientation==='vertical'?config.ticketHeight:config.ticketWidth)-70));
+    const panel=(isCompact?0:designPanel)*scale;
     surface.style.gridTemplateColumns=config.ticketOrientation==='vertical'?'minmax(0,1fr)':`minmax(0,1fr) ${panel}px`;
     surface.style.gridTemplateRows=config.ticketOrientation==='vertical'?`minmax(0,1fr) ${panel}px`:'minmax(0,1fr)';
     ticket.dataset.orientation=isCompact?'compact':config.ticketOrientation;
@@ -128,7 +129,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     photo.style.objectPosition=`${config.photoPositionX}% ${config.photoPosition}%`;
     copy.style.padding='0';
     // Type is laid out in canonical design coordinates, then scaled as a plane.
-    copyLayout.style.width=(config.ticketOrientation==='vertical'?config.ticketWidth:config.ticketPanelSize)+'px';
+    copyLayout.style.width=(config.ticketOrientation==='vertical'?config.ticketWidth:designPanel)+'px';
     copyLayout.style.padding=(config.ticketOrientation==='vertical'?[26,24]:[30,20,30,26]).map(n=>n+'px').join(' ');
     copyLayout.style.textAlign=config.ticketCopyAlign;copyLayout.style.hyphens='none';
     copy.setAttribute('aria-hidden',String(isCompact));
@@ -144,7 +145,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
       layout.style.transform=`translate3d(${nameX}px,${nameY}px,0) scale(${nameScale})`;layout.dataset.scale=nameScale;
       layout.style.opacity=String(badgeText===isCompact?1:0);layout.setAttribute('aria-hidden',String(badgeText!==isCompact));
     }
-    heading.style.fontSize=config.ticketHeadingSize+'px';heading.style.fontWeight=config.ticketHeadingWeight;heading.style.marginBottom='8px';
+    heading.style.fontSize=config.ticketHeadingSize+'px';heading.style.fontWeight=config.ticketHeadingWeight;heading.style.marginBottom=config.ticketHeadingGap+'px';
     bio.style.fontSize=config.ticketBodySize+'px';bio.style.fontWeight=config.ticketBodyWeight;bio.style.lineHeight=config.ticketBodyLineHeight;bio.style.opacity=config.ticketBodyOpacity/100;
     const copyHeight=config.ticketOrientation==='vertical'?panel:height;
     const copyY=config.ticketCopyCenter?Math.max(0,(copyHeight-copyLayout.offsetHeight*scale)/2):0;

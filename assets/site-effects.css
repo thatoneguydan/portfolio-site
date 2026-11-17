@@ -10,6 +10,10 @@
 .ds-rotate-entry {position:absolute;inset:.18em 0 auto;display:block;white-space:pre;line-height:inherit}
 .ds-rotate-piece {display:inline-block;white-space:pre;will-change:transform,opacity}
 .ds-rotate-word {display:inline-block;white-space:nowrap}
+.ds-rotate-dynamic {grid-template-columns:minmax(0,1fr);min-width:0}
+.ds-rotate-dynamic .ds-rotate-measure {position:absolute;inset:0 auto auto 0;width:max-content;max-width:none}
+.ds-rotate-sizer {grid-area:1/1;display:block;width:0;min-width:0;visibility:hidden;white-space:pre}
+.ds-rotate-dynamic .ds-rotate-entry {right:auto;width:max-content;max-width:none;white-space:pre}
 .ds-authored-reveal .ds-reveal-line {display:block;white-space:nowrap}
 .ds-authored-reveal .ds-word {display:inline-block;max-width:100%;vertical-align:baseline;overflow:hidden;padding:.16em .07em .2em;margin:-.16em -.07em -.2em;clip-path:inset(0)}
 .ds-authored-reveal .ds-glyph {display:inline-block;vertical-align:baseline;white-space:pre}
@@ -25,6 +29,10 @@
 .portfolio-blur * {user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
 .portfolio-blur > span {position:absolute;inset:0;pointer-events:none;opacity:0;filter:blur(0px);transition:filter var(--blur-duration,240ms) ease,opacity var(--blur-duration,240ms) ease}
 .portfolio-blur-image {position:absolute;inset:0;display:block;width:100%;height:100%;max-width:none;object-fit:cover;pointer-events:none}
+.portfolio-thumbnail-shadow {position:absolute;inset:0;z-index:3;display:block;border-radius:inherit;pointer-events:none}
+.portfolio-thumbnail-shadow[hidden] {display:none}
+.discipline-redesign .rdp-project-card .rdp-project-meta {background:var(--caption-shade,linear-gradient(to top,rgba(0,0,0,.78),transparent 180px))}
+html.portfolio-js [data-headline-pending] {visibility:hidden}
 .has-progressive-blur[data-blur-active=true] .portfolio-blur.is-ready > span {opacity:1;filter:blur(var(--layer-blur))}
 .rv-video-thumb,.rdp-project-media {position:relative}
 #featured-work .rd-work-card[data-video-id]::before {z-index:5}

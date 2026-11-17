@@ -1,0 +1,28 @@
+/* A single surface for project shelves in Design, Photo, Video and Featured. */
+.portfolio-project-panel.rdp-project-shelf,.portfolio-project-panel.rv-shelf-panel {position:relative;display:block;min-width:0;min-height:0;margin:0;padding:0!important;border:0!important;overflow:visible;box-shadow:none!important;opacity:1;visibility:visible;transition:none!important;isolation:isolate;z-index:15}
+.portfolio-project-panel > .portfolio-panel-clip {position:relative;height:100%;min-height:0;overflow:hidden;border-radius:var(--project-panel-radius,12px);background:var(--project-panel-bg,#e5e5e0)}
+.portfolio-project-panel > .portfolio-panel-clip::after {content:'';position:absolute;inset:0;z-index:4;border:var(--project-panel-border-width,1.5px) solid var(--project-panel-border,#a9aca4);border-radius:inherit;pointer-events:none}
+.portfolio-project-panel .rdp-project-shelf-inner,.portfolio-project-panel .portfolio-panel-content {position:relative;min-height:0;padding:28px clamp(16px,2vw,28px)!important;border:0!important;background:var(--project-panel-bg,#e5e5e0)!important;box-shadow:none!important;transition:none!important}
+.portfolio-project-panel .rdp-project-frame {background:var(--project-panel-bg,#e5e5e0)}
+.portfolio-project-panel .rv-video-grid {padding:0!important}
+.video-redesign .portfolio-project-panel .rv-video-card,.video-redesign .portfolio-project-panel .rv-video-title {color:#111!important}
+.video-redesign .portfolio-project-panel .rv-video-kicker {color:#555!important}
+.portfolio-panel-tail {position:absolute;top:calc(-1 * var(--project-tail-size,28px) + var(--project-panel-border-width,1.5px));width:calc(var(--project-tail-size,28px) * 2);height:var(--project-tail-size,28px);overflow:visible;transform:translateX(-50%);pointer-events:none;z-index:6;opacity:0;transition:opacity 180ms}
+.is-open > .portfolio-panel-tail {opacity:1}
+.portfolio-tail-fill {fill:var(--project-panel-bg,#e5e5e0)}
+.portfolio-tail-edge {fill:none;stroke:var(--project-panel-border,#a9aca4);stroke-width:var(--project-panel-border-width,1.5px);vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.portfolio-panel-close {position:absolute;z-index:10;width:var(--project-close-size,38px);height:var(--project-close-size,38px);display:grid;place-items:center;padding:0;border:1px solid var(--project-panel-border,#a9aca4);border-radius:50%;background:var(--project-close-bg,#373b35);color:var(--project-close-ink,#f5f5f2);cursor:pointer;transition:background 150ms,color 150ms}
+.portfolio-panel-close svg {width:55%;height:55%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.portfolio-panel-close:hover,.portfolio-panel-close:focus-visible {background:var(--project-close-hover-bg,#111111);color:var(--project-close-hover-ink,#ffffff)}
+.portfolio-panel-close[hidden] {display:none!important}
+.portfolio-project-panel .rdp-project-loading {min-height:0;display:grid;place-items:center;padding:var(--loader-padding,40px) 0;letter-spacing:0}
+.portfolio-project-panel .rdp-project-loading[hidden] {display:none!important}
+.portfolio-wave-loader {display:inline-flex;align-items:center;gap:var(--loader-bar-gap,4px);height:var(--loader-bar-height,32px)}
+.portfolio-wave-loader > span {display:block;width:var(--loader-bar-width,5px);height:100%;border-radius:3px;background:var(--loader-color-1,#70736e);animation:portfolio-wave 1s ease-in-out infinite;animation-delay:calc(var(--bar-index) * 100ms);transform-origin:center}
+.portfolio-wave-loader > span:nth-child(2){background:var(--loader-color-2,#92958f)}
+.portfolio-wave-loader > span:nth-child(3){background:var(--loader-color-3,#373b35)}
+.portfolio-wave-loader > span:nth-child(4){background:var(--loader-color-4,#92958f)}
+.portfolio-wave-loader > span:nth-child(5){background:var(--loader-color-5,#70736e)}
+@keyframes portfolio-wave {0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+.ds-loader-preview {display:grid;place-items:center;padding:36px;background:var(--project-panel-bg,#e5e5e0);border:1px solid var(--project-panel-border,#a9aca4);border-radius:var(--project-panel-radius,12px)}
+@media(prefers-reduced-motion:reduce){.portfolio-wave-loader > span{animation:none;transform:scaleY(.65)}.portfolio-panel-tail{transition:none}}
