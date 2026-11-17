@@ -1,14 +1,15 @@
 .contact-redesign .site-main {
   width: min(92%, 1500px);
   margin: 0 auto;
+  container-type: inline-size;
 }
 
 .rc-contact {
   display: grid;
   grid-template-columns: minmax(0, .9fr) minmax(380px, 1.1fr);
-  gap: clamp(54px, 8vw, 140px);
+  gap: clamp(44px, 7cqi, 110px);
   align-items: start;
-  padding: clamp(72px, 9vw, 145px) 0 clamp(90px, 10vw, 160px);
+  padding: clamp(64px, 7cqi, 100px) 0 clamp(72px, 9cqi, 140px);
 }
 
 .rc-contact-copy h1 {
@@ -66,7 +67,7 @@
 .rc-form-wrap {
   position: sticky;
   top: 34px;
-  padding: clamp(30px, 4vw, 54px);
+  padding: clamp(30px, 4cqi, 54px);
   border: 1px solid rgba(0, 0, 0, .13);
   background: rgba(255, 255, 255, .44);
 }
@@ -198,10 +199,6 @@
     width: 90%;
   }
 
-  .rc-contact {
-    grid-template-columns: 1fr;
-  }
-
   .rc-contact-copy {
     display: block;
   }
@@ -210,10 +207,14 @@
     margin-top: 34px;
   }
 
-  .rc-form-wrap {
-    position: static;
-  }
 }
+
+@container(max-width:820px){.rc-contact{grid-template-columns:1fr}.rc-form-wrap{position:static}}
+.rc-inline-contact-placeholder {container-type:inline-size}
+html.contact-inline-embed {scrollbar-gutter:auto;overflow:hidden;min-height:0}
+.contact-inline-embed body,body.contact-inline-embed {min-height:0!important;overflow:hidden}
+.contact-inline-embed .site-main {width:100%!important;margin:0!important}
+.contact-inline-embed .rc-form-wrap,.rc-inline-contact-placeholder .rc-form-wrap {position:static}
 
 @media (max-width: 500px) {
   .contact-redesign .site-main {

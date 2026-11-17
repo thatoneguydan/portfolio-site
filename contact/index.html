@@ -11,11 +11,14 @@
 <link rel="canonical" href="/contact">
 <link rel="stylesheet" href="/assets/clean-site.css?v=0f5f0392c30d3d9a">
 <link rel="stylesheet" href="/assets/redesign-home.css?v=20260911-header-stable">
-<link rel="stylesheet" href="/assets/redesign-header-stable.css?v=20260911-a">
-<link rel="stylesheet" href="/assets/redesign-nav.css?v=20260911-a">
-<link rel="stylesheet" href="/assets/redesign-contact.css?v=20260910-b">
+<link rel="stylesheet" href="/assets/redesign-header-stable.css?v=20261117-site8">
+<link rel="stylesheet" href="/assets/redesign-nav.css?v=20261117-site8">
+<link rel="stylesheet" href="/assets/redesign-contact.css?v=20261117-site8">
 <link rel="stylesheet" href="/assets/redesign-page-intro.css?v=20260911-b">
 <meta name="generator" content="portfolio-redesign-prototype">
+<script>if(new URLSearchParams(location.search).get('inlineShelf')==='1')document.documentElement.classList.add('contact-inline-embed');</script>
+<script src="/api/landing-bootstrap"></script>
+<link rel="stylesheet" href="/assets/site-effects.css?v=20261117-site8">
 </head>
 <body class="home-redesign contact-redesign">
 <header class="site-header">
@@ -28,7 +31,7 @@
     <div class="rc-contact-copy">
       <div>
         <p class="rd-eyebrow">Contact</p>
-        <h1>Let's make something worth looking at.</h1>
+        <h1>Let's make<br>something<br>worth<br>looking at.</h1>
         <p class="rc-contact-lede">Whether you need help with a single project, ongoing creative support, or someone to join your team, tell me what you're working toward and where I could help.</p>
       </div>
 
@@ -43,7 +46,7 @@
       <form class="contact-form" data-portfolio-contact data-contact-endpoint="https://dantylersmith.com/api/contact" data-turnstile-sitekey="0x4AAAAAAEtIIAXkhptRjw-6">
         <div class="form-field"><label for="contact-field1">Your name *</label><input id="contact-field1" type="text" name="field1" placeholder="Name" autocomplete="name" required></div>
         <div class="form-field"><label for="contact-email">Your email *</label><input id="contact-email" type="email" name="email" placeholder="Email" autocomplete="email" required></div>
-        <div class="form-field"><label for="contact-field2">Message *</label><textarea id="contact-field2" name="field2" placeholder="A project, ongoing support, a role on your team—whatever context is useful…" required></textarea></div>
+        <div class="form-field"><label for="contact-field2">Message *</label><textarea id="contact-field2" name="field2" placeholder="A project, an idea, an role on your team? I'm all ears!" required></textarea></div>
         <div hidden aria-hidden="true"><label for="contact-website">Website</label><input id="contact-website" type="text" name="website" autocomplete="off" tabindex="-1"></div>
         <div data-contact-turnstile></div>
         <button class="portfolio-button" type="submit">Start the conversation</button>
@@ -66,6 +69,8 @@
   node.href = `tel:+${digits.length === 10 ? '1' : ''}${digits}`;
 })();
 </script>
-<script src="/assets/portfolio-contact.js?v=20260911-header-stable" defer></script>
+<script src="/assets/portfolio-contact.js?v=20261117-site8" defer></script>
+<script type="module" src="/assets/site-effects.js?v=20261117-site8"></script>
+<script type="module" src="/assets/contact-ready.js?v=20261117-site8"></script>
 </body>
 </html>

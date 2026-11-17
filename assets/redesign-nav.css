@@ -211,3 +211,18 @@
     transition: none !important;
   }
 }
+
+/* Labels move independently of the cell's number and corner arrow. */
+.ds-nav-label {display:flex;align-items:center;justify-content:center;transform-origin:center;line-height:inherit}
+.site-logo .ds-nav-label {flex:0 0 auto}
+@media(min-width:721px){
+  .home-redesign .site-header {height:86px;min-height:86px;padding:0;align-items:stretch}
+  .home-redesign .site-nav {height:86px;align-self:flex-start;align-items:flex-start;overflow:visible}
+  .home-redesign .site-logo,.home-redesign .site-nav a {--nav-drop:0px;height:calc(86px + var(--nav-drop));min-height:0;align-self:flex-start;overflow:visible;transition:height 230ms cubic-bezier(.2,.75,.2,1),background 160ms ease,color 160ms ease}
+  .home-redesign .site-logo .ds-nav-label,.home-redesign .site-nav a .ds-nav-label {position:relative;z-index:1}
+  .home-redesign .site-logo::after,.home-redesign .site-nav a::after {bottom:7px;transform:none!important}
+  .home-redesign .site-logo:hover,.home-redesign .site-logo:focus-visible,.home-redesign .site-nav a:hover,.home-redesign .site-nav a:focus-visible {--nav-drop:6px}
+}
+@media(max-width:720px){.site-logo .ds-nav-label{width:48px;justify-content:flex-start;overflow:hidden}.site-nav .ds-nav-label{justify-content:flex-start}}
+@media(prefers-reduced-motion:reduce){.home-redesign .site-logo,.home-redesign .site-nav a{transition:none!important}}
+

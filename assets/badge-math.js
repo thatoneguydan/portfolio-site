@@ -25,8 +25,18 @@ export function entranceDelay(position,lineTimes){
 }
 export function scalePixelStyles(styles,scale){return Object.fromEntries(Object.entries(styles).map(([key,value])=>[key,String(value).replace(/(-?\d*\.?\d+)px/g,(_,n)=>(Number(n)*scale)+'px')]))}
 export function badgeRadii(config,compact,scale){
-  const inset=(compact?6:8)+(config.ticketBorder?config.ticketBorderWidth:0);
+  const inset=compact?6:8;
   return {card:config.ticketRadius*scale,photo:(config.ticketAutoImageRadius?Math.max(0,config.ticketRadius-inset):config.ticketImageRadius)*scale};
+}
+export function badgeEntranceFrames(config){
+  const total=config.badgeEntranceDuration+config.badgeEntranceHold+config.badgeEntranceSettle;
+  const peak=1+config.badgeEntranceBounce/100;
+  return {duration:total,frames:[
+    {transform:'scale(0)',visibility:'hidden',offset:0,easing:'cubic-bezier(.16,1,.3,1)'},
+    {transform:`scale(${peak})`,visibility:'visible',offset:config.badgeEntranceDuration/total,easing:'linear'},
+    {transform:`scale(${peak})`,visibility:'visible',offset:(config.badgeEntranceDuration+config.badgeEntranceHold)/total,easing:'cubic-bezier(.4,0,.2,1)'},
+    {transform:'scale(1)',visibility:'visible',offset:1}
+  ]};
 }
 export function photoScrimStops(config){
   const end=100-config.scrimSpread+config.scrimDistance;

@@ -5,9 +5,9 @@ export async function onRequestPut({request,env}){
   if(!hostAllowed(request,env)||!await verifyOwner(request,env))return json({error:'Owner sign-in required.'},403);
   if(request.headers.get('Origin')!==new URL(request.url).origin)return json({error:'Invalid request origin.'},403);
   if(!request.headers.get('Content-Type')?.startsWith('application/json'))return json({error:'JSON required.'},415);
-  if(Number(request.headers.get('Content-Length'))>24000)return json({error:'Settings are too large.'},413);
+  if(Number(request.headers.get('Content-Length'))>96000)return json({error:'Settings are too large.'},413);
   try{
-    const text=await request.text();if(text.length>24000)return json({error:'Settings are too large.'},413);
+    const text=await request.text();if(text.length>96000)return json({error:'Settings are too large.'},413);
     const body=JSON.parse(text),db=await database(env),current=await readSettings(db);
     if(body.revision!==current.revision)return json({error:'Settings changed in another session. Reload them before saving.',...current},409);
     const config=normalizeSettings(body.config),revision=crypto.randomUUID();

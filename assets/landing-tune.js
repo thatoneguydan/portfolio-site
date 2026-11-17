@@ -1,13 +1,59 @@
-import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-gallery4';
-import {controlGroups,normalizeSettings} from './landing-schema.js?v=20261117-gallery4';
+import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-site8';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-site8';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
-  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-groups1';document.head.append(stylesheet);
-  const root=document.getElementById('dan-landing-home');
-  const config={...api.getConfig()},baseline={...api.defaults};
+  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-site8';document.head.append(stylesheet);
+  const config={...api.getConfig()},baseline={...api.getConfig()};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';
-  ownerPortal.innerHTML="<button class=\"ds-config-launch\" type=\"button\" aria-label=\"Tune staging. Drag to move.\" aria-expanded=\"false\" aria-controls=\"dan-demo-config\"><span class=\"ds-config-grip\" aria-hidden=\"true\">⠿</span><span>Tune</span></button>\n<aside class=\"ds-config\" id=\"dan-demo-config\" aria-label=\"Staging controls\" hidden>\n  <div class=\"ds-config-header\"><h2>Tune the homepage</h2><button type=\"button\" aria-label=\"Close staging controls\" data-close-config>×</button></div>\n  <details open><summary>Headline</summary>\n    <details open><summary>Text & typography</summary>\n      <div class=\"ds-edit-fields\">\n        <label data-line-field=\"1\">Line 1<input name=\"line1\" type=\"text\" aria-label=\"Line 1\"></label>\n        <label data-line-field=\"2\">Line 2<input name=\"line2\" type=\"text\" aria-label=\"Line 2\"></label>\n        <label data-line-field=\"3\">Line 3<input name=\"line3\" type=\"text\" aria-label=\"Line 3\"></label>\n        <label data-line-field=\"4\">Line 4<input name=\"line4\" type=\"text\" aria-label=\"Line 4\"></label>\n        <label data-line-field=\"5\">Line 5<input name=\"line5\" type=\"text\" aria-label=\"Line 5\"></label>\n        <label data-line-field=\"6\">Line 6<input name=\"line6\" type=\"text\" aria-label=\"Line 6\"></label>\n      </div>\n      <div data-controls=\"headlineTypography\"></div>\n    </details>\n    <details><summary>Reveal animation</summary><div data-controls=\"reveal\"></div><div class=\"ds-config-buttons\"><button type=\"button\" data-replay>Replay reveal</button></div></details>\n    <details><summary>Rotating word</summary>\n      <label>Word to replace<select data-option=\"rotateTarget\" aria-label=\"Word to replace\"></select></label>\n      <label>Cycle through<input type=\"text\" data-rotate-words aria-label=\"Rotating words, comma separated\" maxlength=\"6000\" spellcheck=\"false\"></label>\n      <p class=\"ds-rotate-count\"></p><div data-controls=\"rotate\"></div>\n    </details>\n  </details>\n  <details><summary>ID card</summary>\n    <details open><summary>Content</summary><div class=\"ds-edit-fields\">\n      <label>Name<input name=\"ticketName\" type=\"text\" aria-label=\"Ticket name\"></label>\n      <label>Heading<input name=\"ticketHeading\" type=\"text\" aria-label=\"Ticket heading\"></label>\n      <label>Short bio<textarea name=\"bio\" aria-label=\"Short bio\"></textarea></label>\n    </div></details>\n    <details><summary>Size & corners</summary><div data-controls=\"ticketLayout\"></div></details>\n    <details><summary>Photo & scrim</summary><div data-controls=\"ticketPhoto\"></div><div data-controls=\"ticketScrim\"></div></details>\n    <details><summary>Typography</summary><div data-controls=\"ticketTypography\"></div></details>\n    <details><summary>Colors & frame</summary><div data-controls=\"ticketAppearance\"></div></details>\n    <details><summary>Drop shadow</summary><div data-controls=\"ticketShadow\"></div></details>\n  </details>\n  <details><summary>Badge behavior</summary>\n    <details open><summary>Responsive layout</summary><div data-controls=\"badge\"></div><p class=\"ds-control-help\">Match navigation to switch at the same width as its hamburger menu, or choose a custom breakpoint.</p></details>\n    <details><summary>Fullscreen & transformations</summary><div data-controls=\"badgeFullscreen\"></div></details>\n  </details>\n  <details><summary>ID animation</summary>\n    <details open><summary>Entrance</summary><div data-controls=\"badgeEntrance\"></div><div class=\"ds-config-buttons\"><button type=\"button\" data-replay>Replay entrance</button></div></details>\n    <details><summary>Pointer & scroll</summary><div data-controls=\"ticketMotion\"></div></details>\n    <details><summary>Idle tilt</summary><div data-controls=\"badgeIdle\"></div></details>\n  </details>\n  <details><summary>Featured work</summary>\n    <details open><summary>Horizontal gallery</summary><div data-controls=\"gallery\"></div></details>\n    <details><summary>Vertical gallery</summary><div data-controls=\"galleryVertical\"></div></details>\n    <details><summary>Caption blur</summary><div data-controls=\"portfolioEffects\"></div></details>\n  </details>\n  <details><summary>Copy / paste settings</summary>\n    <label>Settings<textarea aria-label=\"Settings JSON\" class=\"ds-config-json\" spellcheck=\"false\"></textarea></label>\n    <div class=\"ds-config-buttons\"><button type=\"button\" data-export>Copy settings</button><button type=\"button\" data-import>Apply settings</button></div>\n  </details>\n  <div class=\"ds-config-buttons\"><button type=\"button\" data-save>Save staging settings</button><button type=\"button\" data-reset>Restore starting settings</button></div>\n  <p class=\"ds-config-status\" role=\"status\"></p>\n</aside>\n";document.body.append(ownerPortal);
+  function headlineEditor(scope,label,open=false){
+    const key=name=>scopedKey(scope,name);
+    return `<details data-headline-editor="${scope}"${open?' open':''}><summary>${label}</summary>
+      <details open><summary>Text & typography</summary><div class="ds-edit-fields">
+        ${Array.from({length:6},(_,i)=>`<label data-line-field="${i+1}">Line ${i+1}<input name="${key('line'+(i+1))}" type="text" aria-label="${scope?label+' ':''}Line ${i+1}"></label>`).join('')}
+      </div><div data-controls="${scope?scope+'Typography':'headlineTypography'}"></div></details>
+      <details><summary>Reveal animation</summary><div data-controls="${scope?scope+'Reveal':'reveal'}"></div><div class="ds-config-buttons"><button type="button" data-replay>Replay text animation</button></div></details>
+      <details><summary>Rotating text</summary>
+        <label>Word to replace<select data-option="${key('rotateTarget')}" data-rotate-target="${scope}" aria-label="${scope?label+' ':''}Word to replace"></select></label>
+        <label>Cycle through<input type="text" data-rotate-words="${scope}" aria-label="${scope?label+' ':''}Rotating words, comma separated" maxlength="6000" spellcheck="false"></label>
+        <p class="ds-rotate-count"></p><div data-controls="${scope?scope+'Rotate':'rotate'}"></div>
+      </details></details>`;
+  }
+  ownerPortal.innerHTML=`<button class="ds-config-launch" type="button" aria-label="Tune staging. Drag to move." aria-expanded="false" aria-controls="dan-demo-config"><span class="ds-config-grip" aria-hidden="true">⠿</span><span>Tune</span></button>
+  <aside class="ds-config" id="dan-demo-config" aria-label="Staging controls" hidden>
+    <div class="ds-config-header"><h2>Tune the website</h2><button type="button" aria-label="Close staging controls" data-close-config>×</button></div>
+    ${headlineEditor('','Home headline',!api.pageScope)}
+    <details${api.pageScope?' open':''}><summary>Page headlines</summary>${headlineScopes.map(scope=>headlineEditor(scope,scope[0].toUpperCase()+scope.slice(1)+' headline',scope===api.pageScope)).join('')}</details>
+    <details><summary>ID card</summary>
+      <details open><summary>Content & typography</summary>
+        <details open><summary>Full ID name</summary><div class="ds-edit-fields"><label>Name<input name="ticketName" type="text" aria-label="Full ID name"></label></div><div data-controls="ticketNameType"></div></details>
+        <details><summary>Badge name</summary><div class="ds-edit-fields"><label>Name<input name="badgeName" type="text" aria-label="Badge name" placeholder="Use full ID name"></label></div><p class="ds-control-help">Leave blank to use the full ID name.</p><div data-controls="badgeNameType"></div></details>
+        <details><summary>Heading</summary><div class="ds-edit-fields"><label>Heading<input name="ticketHeading" type="text" aria-label="Ticket heading"></label></div><div data-controls="ticketHeadingType"></div></details>
+        <details><summary>Short bio</summary><div class="ds-edit-fields"><label>Short bio<textarea name="bio" aria-label="Short bio"></textarea></label></div><div data-controls="ticketBodyType"></div></details>
+        <div data-controls="ticketCopyLayout"></div>
+      </details>
+      <details><summary>Size & corners</summary><div data-controls="ticketLayout"></div></details>
+      <details><summary>Photo & scrim</summary><div data-controls="ticketPhoto"></div><div data-controls="ticketScrim"></div></details>
+      <details><summary>Colors & frame</summary><div data-controls="ticketAppearance"></div></details>
+      <details><summary>Drop shadow</summary><div data-controls="ticketShadow"></div></details>
+    </details>
+    <details><summary>Badge behavior</summary>
+      <details open><summary>Responsive layout</summary><div data-controls="badge"></div><p class="ds-control-help">Match navigation to switch at the same width as its hamburger menu, or choose a custom breakpoint.</p></details>
+      <details><summary>Fullscreen & transformations</summary><div data-controls="badgeFullscreen"></div></details>
+    </details>
+    <details><summary>ID animation</summary>
+      <details open><summary>Entrance</summary><div data-controls="badgeEntrance"></div><div class="ds-config-buttons"><button type="button" data-replay>Replay entrance</button></div></details>
+      <details><summary>Pointer & scroll</summary><div data-controls="ticketMotion"></div></details>
+      <details><summary>Idle tilt</summary><div data-controls="badgeIdle"></div></details>
+    </details>
+    <details><summary>Featured work</summary>
+      <details open><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
+      <details><summary>Vertical gallery</summary><div data-controls="galleryVertical"></div></details>
+      <details><summary>Caption blur</summary><div data-controls="portfolioEffects"></div></details>
+    </details>
+    <details><summary>Copy / paste settings</summary><label>Settings<textarea aria-label="Settings JSON" class="ds-config-json" spellcheck="false"></textarea></label><div class="ds-config-buttons"><button type="button" data-export>Copy settings</button><button type="button" data-import>Apply settings</button></div></details>
+    <div class="ds-config-buttons"><button type="button" data-save>Save staging settings</button><button type="button" data-reset>Restore starting settings</button></div><p class="ds-config-status" role="status"></p>
+  </aside>`;document.body.append(ownerPortal);
   const configPanel=ownerPortal.querySelector('.ds-config'),configLauncher=ownerPortal.querySelector('.ds-config-launch');
   const ownerPreview=true;
   let placementFrame=0,launcherPosition=saved.launcherPosition||null,visibleViewport=null,drag=null,suppressToggleUntil=0,liveTimer=0;
@@ -19,9 +65,7 @@ export function mountTune(api){
   const replay=()=>api.replay();
   function render(){
     api.applyConfig(config);updateTextEditors();updateEntranceLabel();
-    for(const key of ['line1','line2','line3','line4','line5','line6','bio','ticketName','ticketHeading']){
-      const input=configPanel.querySelector(`[name=${key}]`);if(input&&document.activeElement!==input)input.value=config[key];
-    }
+    configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>{if(document.activeElement!==input)input.value=config[input.name];});
   }
   async function flush(){
     clearTimeout(saveTimer);if(saving||!pending)return;
@@ -39,18 +83,21 @@ export function mountTune(api){
     if(serialized!==lastQueued){lastQueued=serialized;pending={...config};clearTimeout(saveTimer);saveTimer=setTimeout(flush,800);status.textContent='Changes apply now and save automatically.';}
   }
   function updateTextEditors(){
-    configPanel.querySelectorAll('[data-line-field]').forEach(el=>el.hidden=Number(el.dataset.lineField)>config.lineCount);
-    const select=configPanel.querySelector('[data-option=rotateTarget]'),choices=targetChoices(config);
-    select.innerHTML=(!choices.some(c=>c.value===config.rotateTarget)?`<option value="${escapeHtml(config.rotateTarget)}" selected disabled>Choose a visible word</option>`:'')+choices.map(c=>`<option value="${c.value}"${c.value===config.rotateTarget?' selected':''}>${escapeHtml(c.label)}</option>`).join('');
-    select.disabled=!config.rotateEnabled;
-    const words=configPanel.querySelector('[data-rotate-words]');if(document.activeElement!==words)words.value=config.rotateWords;words.disabled=!config.rotateEnabled;
-    configPanel.querySelector('.ds-rotate-count').textContent=rotationWords(config).length+' / 50 entries · separate words or phrases with commas';
+    for(const scope of ['',...headlineScopes]){
+      const editor=configPanel.querySelector(`[data-headline-editor="${scope}"]`),local=headlineSettings(config,scope);
+      editor.querySelectorAll('[data-line-field]').forEach(el=>el.hidden=Number(el.dataset.lineField)>local.lineCount);
+      const select=editor.querySelector('[data-rotate-target]'),choices=targetChoices(local);
+      select.innerHTML=(!choices.some(c=>c.value===local.rotateTarget)?`<option value="${escapeHtml(local.rotateTarget)}" selected disabled>Choose a visible word</option>`:'')+choices.map(c=>`<option value="${c.value}"${c.value===local.rotateTarget?' selected':''}>${escapeHtml(c.label)}</option>`).join('');
+      select.disabled=!local.rotateEnabled;
+      const words=editor.querySelector('[data-rotate-words]');if(document.activeElement!==words)words.value=local.rotateWords;words.disabled=!local.rotateEnabled;
+      editor.querySelector('.ds-rotate-count').textContent=rotationWords(local).length+' / 50 entries · separate words or phrases with commas';
+    }
   }
-  configPanel.querySelector('[data-rotate-words]').addEventListener('input',event=>{
-    const input=event.target;
-    try{normalizeSettings({rotateWords:input.value},config);input.setCustomValidity('');config.rotateWords=input.value;render();persist();}
+  configPanel.querySelectorAll('[data-rotate-words]').forEach(input=>input.addEventListener('input',()=>{
+    const key=scopedKey(input.dataset.rotateWords,'rotateWords');
+    try{normalizeSettings({[key]:input.value},config);input.setCustomValidity('');config[key]=input.value;render();persist();}
     catch(error){input.setCustomValidity(error.message);status.textContent=error.message;}
-  });
+  }));
   function updateEntranceLabel(){
     const input=configPanel.querySelector('[data-option=badgeEntrancePosition]'),output=configPanel.querySelector('[data-output=badgeEntrancePosition]');
     if(!input||!output)return;
@@ -64,7 +111,7 @@ export function mountTune(api){
     if(key==='badgeLinkNavBreakpoint')return !config.ticketResponsive;
     if(key==='badgeBreakpoint')return !config.ticketResponsive||config.badgeLinkNavBreakpoint;
     if(key.startsWith('badgeEntrance')&&key!=='badgeEntrance')return !config.badgeEntrance;
-    if(key.startsWith('rotate')&&key!=='rotateEnabled')return !config.rotateEnabled;
+    for(const scope of ['',...headlineScopes])if(key.startsWith(scopedKey(scope,'rotate'))&&key!==scopedKey(scope,'rotateEnabled'))return !config[scopedKey(scope,'rotateEnabled')];
     if(key.startsWith('portfolioBlur')&&key!=='portfolioBlur')return !config.portfolioBlur;
     if(['badgeIdleAngle','badgeIdlePeriod','badgeIdleEase'].includes(key))return !config.badgeIdleTilt||!config.ticketTilt;
     if(['ticketTiltMax','ticketTiltReach','ticketParallax'].includes(key))return !config.ticketTilt;
@@ -137,7 +184,7 @@ export function mountTune(api){
   configPanel.addEventListener('toggle',schedulePlacement,true);
   const placementObserver=new ResizeObserver(schedulePlacement);placementObserver.observe(configPanel);placementObserver.observe(configLauncher);
   stylesheet.addEventListener('load',schedulePlacement);document.fonts?.ready.then(schedulePlacement);
-  configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.addEventListener('input',()=>{config[input.name]=input.value;render();persist();clearTimeout(liveTimer);liveTimer=setTimeout(replay,700);}));
+  configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.addEventListener('input',()=>{config[input.name]=input.value;render();persist();if(input.closest('[data-headline-editor]')){clearTimeout(liveTimer);liveTimer=setTimeout(replay,700);}}));
   configPanel.addEventListener('input',event=>{
     const input=event.target,key=input.dataset.option;if(!key)return;
     if(colorKeys.includes(key)&&!/^#[\da-f]{6}$/i.test(input.value))return;
@@ -148,7 +195,7 @@ export function mountTune(api){
       const vertical=config.ticketOrientation==='vertical';config.ticketWidth=vertical?300:460;config.ticketHeight=vertical?440:260;config.ticketPanelSize=vertical?130:150;renderControls();
     }
     if(input.type==='checkbox')configPanel.querySelectorAll('[data-option]').forEach(control=>control.disabled=optionDisabled(control.dataset.option));
-    if(key!=='paletteSaturation'&&[...controlGroups.reveal,...controlGroups.headlineTypography,...controlGroups.badgeEntrance].some(f=>f[1]===key)){render();replay();}else render();persist();
+    if(key!=='paletteSaturation'&&[...controlGroups.reveal,...controlGroups.headlineTypography,...controlGroups.badgeEntrance,...headlineScopes.flatMap(scope=>[...controlGroups[scope+'Typography'],...controlGroups[scope+'Reveal']])].some(f=>f[1]===key)){render();replay();}else render();persist();
   });
   configPanel.querySelector('[data-export]').addEventListener('click',()=>{const area=configPanel.querySelector('.ds-config-json');area.value=JSON.stringify(config,null,2);area.focus();area.select();navigator.clipboard?.writeText(area.value).catch(()=>{});configPanel.querySelector('.ds-config-status').textContent='Settings ready to copy.';});
   configPanel.querySelector('[data-import]').addEventListener('click',()=>{try{const value=JSON.parse(configPanel.querySelector('.ds-config-json').value);if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Paste a settings object.');Object.assign(config,normalizeSettings(value,config));render();renderControls();replay();persist();configPanel.querySelector('.ds-config-status').textContent='Settings applied.';}catch(error){configPanel.querySelector('.ds-config-status').textContent=error.message;}});
@@ -161,6 +208,7 @@ export function mountTune(api){
   window.visualViewport?.addEventListener('resize',schedulePlacement);
   configPanel.hidden=location.hash==='#tune'?false:!saved.controlsOpen;
   configLauncher.setAttribute('aria-expanded',String(!configPanel.hidden));
-  for(const key of ['line1','line2','line3','line4','line5','line6','bio','ticketName','ticketHeading'])configPanel.querySelector(`[name=${key}]`).value=config[key];
+  configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.value=config[input.name]);
+  configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.maxLength=2000);
   renderControls();schedulePlacement();status.textContent='Changes save automatically to staging.';
 }

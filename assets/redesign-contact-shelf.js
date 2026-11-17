@@ -1,291 +1,94 @@
 (() => {
   'use strict';
-
-  if (window.__redesignContactShelfInitialized) return;
-  window.__redesignContactShelfInitialized = true;
-
-  /* The original portfolio embedded this DS icon as a data URI. Keep the same
-     artwork as a real favicon asset so every route can resolve it immediately. */
-  const faviconHref = '/favicon.ico?v=20260910-original';
-  let favicon = document.querySelector('link[rel~="icon"]');
-  if (!favicon) {
-    favicon = document.createElement('link');
-    favicon.rel = 'icon';
-    document.head.append(favicon);
+  if(window.__redesignContactShelfInitialized)return;window.__redesignContactShelfInitialized=true;
+  const path=name=>name.replace(/\/+$/,'')||'/';if(path(location.pathname)==='/contact')return;
+  function style(href){
+    let link=document.querySelector(`link[href^="${href.split('?')[0]}"]`);
+    if(!link){link=document.createElement('link');link.rel='stylesheet';link.href=href;document.head.append(link);}
+    if(link.sheet)return Promise.resolve();
+    return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  favicon.removeAttribute('type');
-  favicon.href = faviconHref;
-  document.querySelectorAll('link[rel~="icon"]').forEach((candidate) => {
-    if (candidate !== favicon) candidate.remove();
-  });
-
-  const normalizePath = (pathname) => pathname.replace(/\/+$/, '') || '/';
-  if (normalizePath(window.location.pathname) === '/contact') return;
-
-  const ensureStylesheet = (href) => {
-    const base = href.split('?')[0];
-    const existing = document.querySelector(`link[href^="${base}"]`);
-    if (existing) {
-      if (existing.getAttribute('href') !== href) existing.setAttribute('href', href);
-      return;
-    }
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    document.head.append(link);
-  };
-
-  ensureStylesheet('/assets/redesign-contact-shelf.css?v=20260911-e');
-  ensureStylesheet('/assets/redesign-footer-contact.css?v=20260910-b');
-
-  const footerMarkup = `
-    <div class="rd-footer-cta-inner">
-      <div class="rd-footer-cta-row">
-        <h2>Have something in mind?</h2>
-        <a class="rd-footer-cta-button" href="/contact">Let's make it <span aria-hidden="true">↗</span></a>
-      </div>
-    </div>
-  `;
-
-  const normalizeFooter = (footer) => {
-    if (!(footer instanceof HTMLElement) || footer.dataset.sharedContactFooter === 'true') return;
-    footer.dataset.sharedContactFooter = 'true';
-    footer.innerHTML = footerMarkup;
-  };
-
-  const normalizeFootersIn = (root) => {
-    if (!(root instanceof Element || root instanceof Document)) return;
-    if (root instanceof Element && root.matches('.rd-footer-cta')) normalizeFooter(root);
-    root.querySelectorAll?.('.rd-footer-cta').forEach(normalizeFooter);
-  };
-
-  normalizeFootersIn(document);
-
-  const footerObserver = new MutationObserver((records) => {
-    for (const record of records) {
-      for (const node of record.addedNodes) {
-        if (node instanceof Element) normalizeFootersIn(node);
-      }
-    }
-  });
-  if (document.body) footerObserver.observe(document.body, { childList: true, subtree: true });
-
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let active = null;
-  let shelfSequence = 0;
-
-  const isContactLink = (link) => {
-    if (!(link instanceof HTMLAnchorElement)) return false;
-    let url;
-    try { url = new URL(link.href, window.location.href); } catch { return false; }
-    return url.origin === window.location.origin && normalizePath(url.pathname) === '/contact';
-  };
-
-  const directMainChildFor = (link) => {
-    const main = link.closest('main');
-    if (!main) return null;
-    let node = link;
-    while (node.parentElement && node.parentElement !== main) node = node.parentElement;
-    return node.parentElement === main ? node : null;
-  };
-
-  const navBottom = () => {
-    const header = document.querySelector('.site-header');
-    if (!(header instanceof HTMLElement)) return 0;
-    const rect = header.getBoundingClientRect();
-    return Math.max(0, Math.min(window.innerHeight, rect.bottom));
-  };
-
-  const desiredScrollTop = (state) => {
-    const shelfTop = state.shelf.getBoundingClientRect().top + window.scrollY;
-    return Math.max(0, shelfTop - navBottom());
-  };
-
-  const maxScrollTop = () => Math.max(
-    0,
-    Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight || 0) - window.innerHeight
-  );
-
-  /* Footer contact shelves reserve their loading geometry immediately, so one
-     native smooth scroll can begin on the next paint instead of waiting for
-     the shelf transition, iframe load, or ResizeObserver. There are no later
-     correction scrolls, which also avoids the old hitching behavior. */
-  const startAutoScroll = (state) => {
-    if (!state?.autoScroll || state.autoScrollStarted || !state.shelf?.isConnected) return false;
-    state.autoScrollStarted = true;
-
-    const target = desiredScrollTop(state);
-    const max = maxScrollTop();
-    window.scrollTo({
-      top: Math.min(target, max),
-      left: 0,
-      behavior: reducedMotion.matches ? 'auto' : 'smooth',
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261117-site8'),style('/assets/redesign-contact.css?v=20261117-site8'),style('/assets/redesign-footer-contact.css?v=20261117-site8')]);
+  const runtime=import('/assets/site-runtime.js?v=20261117-site8');
+  const headline=import('/assets/headline-view.js?v=20261117-site8');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let active=null,sequence=0;
+  const footerMarkup='<div class="rd-footer-cta-inner"><div class="rd-footer-cta-row"><h2>Have something in mind?</h2><a class="rd-footer-cta-button" href="/contact">Let\'s make it <span aria-hidden="true">↗</span></a></div></div>';
+  function footers(root){
+    const found=[...(root.matches?.('.rd-footer-cta')?[root]:[]),...(root.querySelectorAll?.('.rd-footer-cta')||[])];
+    for(const footer of found)if(footer.dataset.sharedContactFooter!=='true'){footer.dataset.sharedContactFooter='true';footer.innerHTML=footerMarkup;}
+  }
+  footers(document);new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1)footers(node);}).observe(document.body,{childList:true,subtree:true});
+  function anchorFor(source){
+    // The landing wrapper contains both hero and gallery. It is not a section
+    // boundary for an action inside the hero.
+    const hero=source.closest('.ds-hero');if(hero)return hero;
+    const section=source.closest('section');if(section&&section.closest('main'))return section;
+    const main=source.closest('main');if(!main)return null;
+    let node=source;while(node.parentElement!==main&&node.parentElement)node=node.parentElement;
+    return node.parentElement===main?node:null;
+  }
+  function clean(state,focus=false){
+    if(!state)return;clearTimeout(state.removeTimer);clearTimeout(state.timeout);cancelAnimationFrame(state.poll);
+    state.observer?.disconnect();state.preview?.destroy();state.source.setAttribute('aria-expanded','false');state.source.removeAttribute('aria-controls');
+    state.anchor.classList.remove('has-contact-shelf');state.frame.src='about:blank';state.shelf.remove();
+    if(active===state)active=null;if(focus&&state.source.isConnected)state.source.focus({preventScroll:true});
+  }
+  function close(state=active,focus=false,immediate=false){
+    if(!state||state.closing)return;state.closing=true;clearTimeout(state.timeout);cancelAnimationFrame(state.poll);
+    state.shelf.classList.remove('is-open');state.shelf.setAttribute('aria-hidden','true');state.source.setAttribute('aria-expanded','false');state.anchor.classList.remove('has-contact-shelf');
+    if(immediate||reduced.matches)clean(state,focus);else state.removeTimer=setTimeout(()=>clean(state,focus),500);
+  }
+  function resize(state){
+    if(!state.shelf.isConnected||state.closing)return;
+    const main=state.frame.contentDocument?.querySelector('.site-main');if(!main)return;
+    const height=Math.ceil(main.getBoundingClientRect().height);
+    if(height>0&&state.frame.style.height!==height+'px')state.frame.style.height=height+'px';
+  }
+  function prepare(state){
+    if(state.loaded||state.closing||!state.shelf.isConnected)return;
+    let doc;try{doc=state.frame.contentDocument;}catch{return;}
+    if(doc?.documentElement.dataset.contactReady!=='true'||!doc.querySelector('[data-portfolio-contact]'))return;
+    state.loaded=true;clearTimeout(state.timeout);cancelAnimationFrame(state.poll);resize(state);
+    state.shelf.classList.add('is-loaded');state.frame.removeAttribute('aria-hidden');state.preview?.destroy();state.preview=null;
+    state.observer=new ResizeObserver(()=>resize(state));state.observer.observe(doc.querySelector('.site-main'));
+    runtime.then(({siteAPI})=>state.frame.contentWindow?.postMessage({type:'portfolio-contact-settings',config:siteAPI.getConfig(),revision:siteAPI.revision},location.origin));
+  }
+  const previewMarkup=`<div class="rc-inline-contact-placeholder contact-redesign" aria-hidden="true"><section class="rc-contact">
+    <div class="rc-contact-copy"><div><p class="rd-eyebrow">Contact</p><h1></h1><p class="rc-contact-lede">Whether you need help with a single project, ongoing creative support, or someone to join your team, tell me what you're working toward and where I could help.</p></div><dl class="rc-contact-details"><div class="rc-contact-detail"><dt>Phone</dt><dd><span class="rc-placeholder-detail"></span></dd></div><div class="rc-contact-detail"><dt>Email</dt><dd><span class="rc-placeholder-detail"></span></dd></div></dl></div>
+    <div class="rc-form-wrap"><header class="rc-form-head"><h2>Tell me what you're looking for.</h2></header><div class="contact-form"><div class="form-field"><label>Your name *</label><input placeholder="Name" disabled></div><div class="form-field"><label>Your email *</label><input placeholder="Email" disabled></div><div class="form-field"><label>Message *</label><textarea placeholder="A project, an idea, an role on your team? I'm all ears!" disabled></textarea></div><div data-contact-turnstile></div><button class="portfolio-button" disabled>Start the conversation</button><p class="form-status"></p></div></div>
+  </section></div>`;
+  async function open(source){
+    const anchor=anchorFor(source);if(!anchor){location.assign('/contact/');return;}
+    if(active?.source===source&&!active.closing){close(active,true);return;}
+    if(active)clean(active);
+    const shelf=document.createElement('section');shelf.id='contact-shelf-'+(++sequence);shelf.className='rc-inline-contact-shelf';shelf.setAttribute('aria-label','Contact Dan Smith');shelf.setAttribute('aria-hidden','true');
+    shelf.innerHTML=`<div class="rc-inline-contact-shell"><button class="rc-inline-contact-close" type="button" aria-label="Close contact">×</button>${previewMarkup}<iframe class="rc-inline-contact-frame" title="Contact Dan Smith" aria-hidden="true"></iframe><p class="rc-inline-contact-error" hidden>Contact is taking longer to load. <a href="/contact/" data-contact-fallback>Open the contact page ↗</a></p></div>`;
+    const state={source,anchor,shelf,frame:shelf.querySelector('iframe'),loaded:false,closing:false,preview:null,poll:0};active=state;
+    source.setAttribute('aria-expanded','true');source.setAttribute('aria-controls',shelf.id);anchor.classList.add('has-contact-shelf');
+    state.frame.addEventListener('load',()=>prepare(state));
+    shelf.querySelector('.rc-inline-contact-close').addEventListener('click',()=>close(state,true));
+    anchor.insertAdjacentElement('afterend',shelf);
+    const [{siteAPI},{mountHeadline}]=await Promise.all([runtime,headline,styles]);
+    if(state.closing||!shelf.isConnected)return;
+    state.preview=mountHeadline(shelf.querySelector('h1'),'contact',siteAPI.getConfig());
+    state.frame.src='/contact/?inlineShelf=1';
+    const started=performance.now();
+    function poll(){prepare(state);if(!state.loaded&&!state.closing&&performance.now()-started<12000)state.poll=requestAnimationFrame(poll);}
+    state.poll=requestAnimationFrame(poll);
+    state.timeout=setTimeout(()=>{if(!state.loaded&&!state.closing)shelf.querySelector('.rc-inline-contact-error').hidden=false;},10000);
+    requestAnimationFrame(()=>{
+      shelf.setAttribute('aria-hidden','false');shelf.classList.add('is-open');
+      const top=source.getBoundingClientRect().top+scrollY,header=document.querySelector('.site-header')?.getBoundingClientRect().bottom||0;
+      if(shelf.getBoundingClientRect().top>innerHeight*.65||source.closest('.rd-footer-cta'))window.scrollTo({top:Math.max(0,top-header-20),behavior:reduced.matches?'auto':'smooth'});
     });
-    return true;
-  };
-
-  const cleanup = (state, restoreFocus = false) => {
-    if (!state) return;
-    window.clearTimeout(state.removeTimer);
-    state.resizeObserver?.disconnect();
-    state.resizeObserver = null;
-    state.source?.setAttribute('aria-expanded', 'false');
-    state.source?.removeAttribute('aria-controls');
-    state.frame.onload = null;
-    if (state.frame.src) state.frame.src = 'about:blank';
-    state.shelf.remove();
-    if (active === state) active = null;
-    if (restoreFocus && state.source instanceof HTMLElement && state.source.isConnected) state.source.focus();
-  };
-
-  const close = (state = active, restoreFocus = false, immediate = false) => {
-    if (!state) return;
-    state.shelf.classList.remove('is-open', 'is-loaded', 'rc-inline-contact-shelf--autoscroll');
-    state.shelf.setAttribute('aria-hidden', 'true');
-    state.source?.setAttribute('aria-expanded', 'false');
-    state.resizeObserver?.disconnect();
-    state.resizeObserver = null;
-
-    if (immediate || reducedMotion.matches) {
-      cleanup(state, restoreFocus);
-      return;
-    }
-
-    state.removeTimer = window.setTimeout(() => cleanup(state, restoreFocus), 500);
-  };
-
-  const resizeFrame = (state) => {
-    if (!state?.frame?.isConnected) return;
-    const doc = state.frame.contentDocument;
-    if (!doc?.documentElement || !doc.body) return;
-
-    const main = doc.querySelector('.site-main');
-    const height = Math.max(
-      doc.documentElement.scrollHeight,
-      doc.body.scrollHeight,
-      main?.scrollHeight || 0,
-      560
-    );
-    state.frame.style.height = `${Math.ceil(height)}px`;
-  };
-
-  const prepareFrame = (state) => {
-    const doc = state.frame.contentDocument;
-    if (!doc?.body || !state.shelf.isConnected) return;
-
-    resizeFrame(state);
-    state.shelf.classList.add('is-loaded');
-
-    requestAnimationFrame(() => resizeFrame(state));
-
-    const FrameResizeObserver = state.frame.contentWindow?.ResizeObserver;
-    if (FrameResizeObserver) {
-      state.resizeObserver = new FrameResizeObserver(() => resizeFrame(state));
-      state.resizeObserver.observe(doc.documentElement);
-      state.resizeObserver.observe(doc.body);
-      const main = doc.querySelector('.site-main');
-      if (main) state.resizeObserver.observe(main);
-    }
-  };
-
-  const placeholderMarkup = `
-    <div class="rc-inline-contact-placeholder" aria-hidden="true">
-      <div class="rc-inline-contact-placeholder-copy">
-        <span class="rc-placeholder-line rc-placeholder-line--title"></span>
-        <span class="rc-placeholder-line rc-placeholder-line--long"></span>
-        <span class="rc-placeholder-line rc-placeholder-line--short"></span>
-      </div>
-      <div class="rc-inline-contact-placeholder-form">
-        <span class="rc-placeholder-field"></span>
-        <span class="rc-placeholder-field"></span>
-        <span class="rc-placeholder-field rc-placeholder-field--message"></span>
-        <span class="rc-placeholder-button"></span>
-      </div>
-    </div>
-  `;
-
-  const open = (source) => {
-    const anchor = directMainChildFor(source);
-    if (!anchor) {
-      window.location.assign('/contact');
-      return;
-    }
-
-    if (active?.source === source && active.shelf.isConnected) {
-      close(active, true);
-      return;
-    }
-
-    if (active) close(active, false, true);
-
-    const autoScroll = Boolean(source.closest('.rd-footer-cta'));
-    const id = `contact-shelf-${++shelfSequence}`;
-    const shelf = document.createElement('section');
-    shelf.id = id;
-    shelf.className = 'rc-inline-contact-shelf';
-    if (autoScroll) shelf.classList.add('rc-inline-contact-shelf--autoscroll');
-    shelf.setAttribute('aria-hidden', 'true');
-    shelf.setAttribute('aria-label', 'Contact Dan Smith');
-    shelf.innerHTML = `
-      <div class="rc-inline-contact-shell">
-        <button class="rc-inline-contact-close" type="button" aria-label="Close contact">×</button>
-        ${placeholderMarkup}
-        <iframe class="rc-inline-contact-frame" title="Contact Dan Smith" src="/contact?inlineShelf=1"></iframe>
-      </div>
-    `;
-
-    const state = {
-      source,
-      shelf,
-      frame: shelf.querySelector('.rc-inline-contact-frame'),
-      closeButton: shelf.querySelector('.rc-inline-contact-close'),
-      resizeObserver: null,
-      removeTimer: 0,
-      autoScroll,
-      autoScrollStarted: false,
-    };
-    active = state;
-
-    source.setAttribute('aria-expanded', 'true');
-    source.setAttribute('aria-controls', id);
-    anchor.insertAdjacentElement('afterend', shelf);
-
-    state.frame.addEventListener('load', () => prepareFrame(state), { once: true });
-    state.closeButton.addEventListener('click', () => close(state, true));
-
-    /* Auto-scroll shelves already have placeholder height at insertion time.
-       Begin moving as soon as that geometry has been committed. */
-    if (autoScroll) requestAnimationFrame(() => startAutoScroll(state));
-
-    requestAnimationFrame(() => {
-      if (!shelf.isConnected) return;
-      shelf.setAttribute('aria-hidden', 'false');
-      shelf.classList.add('is-open');
-    });
-  };
-
-  document.addEventListener('click', (event) => {
-    if (
-      event.defaultPrevented ||
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) return;
-
-    const link = event.target.closest?.('a[href]');
-    if (!isContactLink(link)) return;
-    if (link.closest('.site-nav')) return;
-
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    open(link);
-  }, { capture: true });
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape' || !active) return;
-    event.preventDefault();
-    close(active, true);
-  });
+  }
+  addEventListener('message',event=>{if(active&&event.origin===location.origin&&event.source===active.frame.contentWindow&&event.data?.type==='portfolio-contact-ready')prepare(active);});
+  document.addEventListener('click',event=>{
+    if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+    const link=event.target.closest?.('a[href]');if(!link||link.closest('.site-nav')||link.hasAttribute('data-contact-fallback'))return;
+    const url=new URL(link.href,location.href);if(url.origin!==location.origin||path(url.pathname)!=='/contact')return;
+    event.preventDefault();event.stopImmediatePropagation();open(link);
+  },{capture:true});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&active&&!document.querySelector('#dan-demo-config:not([hidden])')){event.preventDefault();close(active,true);}});
 })();

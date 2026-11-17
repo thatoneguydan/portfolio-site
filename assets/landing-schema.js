@@ -49,6 +49,7 @@ export const defaults = {
   "scrimSpread": 0,
   "scrimSize": 80,
   "photoPosition": 17,
+  "photoPositionX": 50,
   "ticketRotation": 4,
   "ticketTilt": true,
   "ticketTiltMax": 9,
@@ -66,9 +67,17 @@ export const defaults = {
   "ticketDisabled": false,
   "ticketNameSize": 18,
   "ticketNameWeight": 500,
+  "ticketNameAlign": "left",
+  "badgeName": "",
+  "badgeNameSize": 14,
+  "badgeNameWeight": 500,
+  "badgeNameAlign": "center",
   "ticketHeadingSize": 27,
   "ticketHeadingWeight": 800,
   "ticketBodySize": 13,
+  "ticketBodyWeight": 400,
+  "ticketCopyAlign": "left",
+  "ticketCopyCenter": false,
   "ticketBodyLineHeight": 1.65,
   "ticketBodyOpacity": 50,
   "ticketShadow": true,
@@ -95,7 +104,9 @@ export const defaults = {
   "badgeEntrance": true,
   "badgeEntrancePosition": 1,
   "badgeEntranceDuration": 850,
-  "badgeEntranceBounce": 7,
+  "badgeEntranceBounce": 3,
+  "badgeEntranceHold": 220,
+  "badgeEntranceSettle": 750,
   "badgeCompactScale": 1,
   "badgeCompactTextRatio": 1,
   "badgeHoverScale": 1.04,
@@ -153,7 +164,8 @@ export const controlGroups = {
       ['check','ticketAutoImageRadius','Image radius follows card'], ['range','ticketImageRadius','Image radius',0,32,1,'px']
     ],
     ticketPhoto: [
-      ['range','photoPosition','Photo crop position',0,100,1,'%']
+      ['range','photoPositionX','Photo horizontal position',0,100,1,'%'],
+      ['range','photoPosition','Photo vertical position',0,100,1,'%']
     ],
     ticketMotion: [
       ['range','ticketRotation','Rotate',-20,20,1,'°'], ['check','ticketTilt','Tilt'],
@@ -165,15 +177,28 @@ export const controlGroups = {
     ticketAppearance: [
       ['color','ticketBackground','Background'], ['color','ticketColor','Text color'],
       ['check','ticketCustomPanelBackground','Separate text-panel background'], ['color','ticketPanelBackground','Text-panel background'],
-      ['check','ticketBorder','Border'], ['range','ticketBorderWidth','Border width',.5,4,.5,'px'],
+      ['check','ticketBorder','Border'], ['range','ticketBorderWidth','Border width',0,12,.25,'px'],
       ['color','ticketBorderColor','Border color'], ['range','ticketBorderOpacity','Border opacity',0,100,1,'%'],
       ['check','ticketDisabled','Disabled']
     ],
-    ticketTypography: [
-      ['range','ticketNameSize','Name size',11,25,1,'px'], ['range','ticketNameWeight','Name weight',100,900,100,''],
-      ['range','ticketHeadingSize','Heading size',11,27,1,'px'], ['range','ticketHeadingWeight','Heading weight',100,900,100,''],
-      ['range','ticketBodySize','Description size',11,20,1,'px'], ['range','ticketBodyLineHeight','Description line spacing',1.1,1.9,.05,''],
-      ['range','ticketBodyOpacity','Description opacity',30,100,1,'%']
+    ticketNameType: [
+      ['range','ticketNameSize','Full ID name size',6,120,1,'px'], ['range','ticketNameWeight','Full ID name weight',100,1000,50,''],
+      ['select','ticketNameAlign','Full ID name alignment',['left','center','right','justify']]
+    ],
+    badgeNameType: [
+      ['range','badgeNameSize','Badge name size',6,100,1,'px'], ['range','badgeNameWeight','Badge name weight',100,1000,50,''],
+      ['select','badgeNameAlign','Badge name alignment',['left','center','right','justify']]
+    ],
+    ticketHeadingType: [
+      ['range','ticketHeadingSize','ID heading size',6,120,1,'px'], ['range','ticketHeadingWeight','ID heading weight',100,1000,50,'']
+    ],
+    ticketBodyType: [
+      ['range','ticketBodySize','Short bio size',6,96,1,'px'], ['range','ticketBodyWeight','Short bio weight',100,1000,50,''],
+      ['range','ticketBodyLineHeight','Short bio line spacing',.9,2.5,.05,''], ['range','ticketBodyOpacity','Short bio opacity',0,100,1,'%']
+    ],
+    ticketCopyLayout: [
+      ['check','ticketCopyCenter','Center heading and bio vertically'],
+      ['select','ticketCopyAlign','Heading and bio alignment',['left','right','center','justify']]
     ],
     ticketScrim: [
       ['check','ticketScrim','Photo scrim'], ['color','scrimColor','Scrim color'],
@@ -211,8 +236,10 @@ export const controlGroups = {
     badgeEntrance: [
       ['check','badgeEntrance','Animate ID entrance'],
       ['range','badgeEntrancePosition','Entrance in text sequence',0,7,.1,''],
-      ['range','badgeEntranceDuration','Entrance duration',250,1600,50,'ms'],
-      ['range','badgeEntranceBounce','Entrance bounce',0,18,1,'%']
+      ['range','badgeEntranceDuration','Entrance growth duration',250,3000,50,'ms'],
+      ['range','badgeEntranceBounce','Entrance overshoot',0,18,.5,'%'],
+      ['range','badgeEntranceHold','Hold at maximum size',0,2000,20,'ms'],
+      ['range','badgeEntranceSettle','Rubber-band settling duration',200,3000,50,'ms']
     ],
     gallery: [
       ['check','galleryAdaptive','Responsive 16:9 height'],
@@ -233,6 +260,24 @@ export const controlGroups = {
       ['check','verticalGalleryGrayscale','Grayscale inactive vertical cards']
     ]
   };
+
+// Every page uses the same reveal/rotation engine and validation contract.
+export const headlineScopes=['contact','video','design','photo'];
+export const scopedKey=(scope,key)=>scope?scope+key[0].toUpperCase()+key.slice(1):key;
+export function headlineSettings(config,scope=''){
+  const fields=['lineCount','fontSize','fontWeight','lineHeight','splitBy','stagger','duration','lineDelay','direction','staggerFrom','animate','rotateEnabled','rotateTarget','rotateWords','rotateInterval','rotateDuration','rotateStagger','rotateSplit','rotateFrom',...Array.from({length:6},(_,i)=>'line'+(i+1))];
+  return Object.fromEntries(fields.map(key=>[key,config[scopedKey(scope,key)]]));
+}
+const phraseWords='hold attention, get the click, tell a story, stop the scroll';
+for(const scope of headlineScopes){
+  const contact=scope==='contact';
+  const initial={...headlineSettings(defaults),lineCount:contact?4:1,line1:contact?"Let's make":`${{video:'Videos',design:'Designs',photo:'Photos'}[scope]} that _.`,line2:contact?'something':'',line3:contact?'worth':'',line4:contact?'looking at.':'',line5:'',line6:'',fontSize:contact?112:56,fontWeight:700,lineHeight:contact?.94:1.08,rotateTarget:contact?'4:0':'1:2',rotateWords:contact?'looking, peeking, grinning, peering, marveling, smiling':phraseWords,lineDelay:160};
+  for(const [key,value]of Object.entries(initial))defaults[scopedKey(scope,key)]=value;
+  const scoped=fields=>fields.map(field=>{const next=[...field];next[1]=scopedKey(scope,next[1]);return next;});
+  controlGroups[scope+'Typography']=scoped(controlGroups.headlineTypography.filter(field=>field[1]!=='paletteSaturation')).map(field=>{if(field[1]===scopedKey(scope,'fontSize')){field[3]=18;field[4]=180;}if(field[1]===scopedKey(scope,'lineHeight')){field[3]=.85;field[4]=2;}return field;});
+  controlGroups[scope+'Reveal']=scoped(controlGroups.reveal);
+  controlGroups[scope+'Rotate']=scoped(controlGroups.rotate);
+}
 export function normalizeSettings(input, base = defaults) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Settings must be an object.');
   const result={...defaults,...base};
@@ -244,7 +289,7 @@ export function normalizeSettings(input, base = defaults) {
     if(!(key in defaults)) throw new Error('Unknown setting: '+key);
     if(typeof value!==typeof defaults[key]) throw new Error('Invalid setting: '+key);
     if(typeof value==='number'&&!Number.isFinite(value))throw new Error('Invalid number: '+key);
-    if(typeof value==='string'&&value.length>(key==='rotateWords'?6000:2000))throw new Error('Text is too long: '+key);
+    if(typeof value==='string'&&value.length>(/rotateWords$/i.test(key)?6000:2000))throw new Error('Text is too long: '+key);
     if(colors.includes(key)&&!/^#[a-f0-9]{6}$/i.test(value))throw new Error('Invalid color: '+key);
     result[key]=value;
   }
@@ -253,10 +298,12 @@ export function normalizeSettings(input, base = defaults) {
     if(type==='select'&&!min.some(v=>(Array.isArray(v)?v[0]:v)===result[key]))throw new Error('Invalid choice: '+key);
   }
   result.activeIndex=Math.max(0,Math.min(4,Math.round(result.activeIndex)));
-  result.lineCount=Math.round(result.lineCount);
-  if(!/^[1-6]:\d{1,3}$/.test(result.rotateTarget))throw new Error('Choose a valid rotating word.');
-  const entries=result.rotateWords.split(',').map(s=>s.trim()).filter(Boolean);
-  if(entries.length>50)throw new Error('Use up to 50 comma-separated words or phrases.');
-  if(entries.some(s=>s.length>100))throw new Error('Keep each rotating entry within 100 characters.');
+  for(const scope of ['',...headlineScopes]){
+    result[scopedKey(scope,'lineCount')]=Math.round(result[scopedKey(scope,'lineCount')]);
+    if(!/^[1-6]:\d{1,3}$/.test(result[scopedKey(scope,'rotateTarget')]))throw new Error('Choose a valid rotating word.');
+    const entries=result[scopedKey(scope,'rotateWords')].split(',').map(s=>s.trim()).filter(Boolean);
+    if(entries.length>50)throw new Error('Use up to 50 comma-separated words or phrases.');
+    if(entries.some(s=>s.length>100))throw new Error('Keep each rotating entry within 100 characters.');
+  }
   return result;
 }

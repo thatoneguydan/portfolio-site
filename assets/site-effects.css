@@ -3,11 +3,20 @@
 .ds-reveal .ms-emoji {width:1.1em!important;height:1.1em!important}
 
 /* Fancy Text Rotate motion, in the portfolio's existing type and colors. */
-#dan-landing-home .ds-rotate {position:relative;display:inline-grid;vertical-align:baseline;white-space:pre}
-#dan-landing-home .ds-rotate-measure {grid-area:1/1;visibility:hidden;white-space:pre;pointer-events:none}
-#dan-landing-home .ds-rotate-clip {position:absolute;inset:-.18em 0;overflow:hidden;pointer-events:none}
-#dan-landing-home .ds-rotate-entry {position:absolute;inset:.18em 0 auto;display:block;white-space:pre;line-height:inherit}
-#dan-landing-home .ds-rotate-piece {display:inline-block;white-space:pre;will-change:transform,opacity}
+.ds-rotate {position:relative;display:inline-grid;vertical-align:baseline;white-space:pre}
+:is(#dan-landing-home,.ds-authored-reveal) .ds-glyph.ds-rotate {display:inline-grid}
+.ds-rotate-measure {grid-area:1/1;visibility:hidden;white-space:pre;pointer-events:none}
+.ds-rotate-clip {position:absolute;inset:-.18em 0;overflow:hidden;pointer-events:none}
+.ds-rotate-entry {position:absolute;inset:.18em 0 auto;display:block;white-space:pre;line-height:inherit}
+.ds-rotate-piece {display:inline-block;white-space:pre;will-change:transform,opacity}
+.ds-rotate-word {display:inline-block;white-space:nowrap}
+.ds-authored-reveal .ds-reveal-line {display:block;white-space:nowrap}
+.ds-authored-reveal .ds-word {display:inline-block;max-width:100%;vertical-align:baseline;overflow:hidden;padding:.16em .07em .2em;margin:-.16em -.07em -.2em;clip-path:inset(0)}
+.ds-authored-reveal .ds-glyph {display:inline-block;vertical-align:baseline;white-space:pre}
+.ds-authored-reveal:not(.is-wrapping) .ds-word {max-width:none}
+.ds-authored-reveal.is-wrapping .ds-reveal-line {white-space:normal}
+.ds-authored-reveal.is-wrapping .ds-rotate {max-width:100%;grid-template-columns:minmax(0,1fr);white-space:normal}
+.ds-authored-reveal.is-wrapping .ds-rotate-measure,.ds-authored-reveal.is-wrapping .ds-rotate-entry {white-space:normal}
 #dan-landing-home .ds-long .ds-rotate {max-width:100%;grid-template-columns:minmax(0,1fr);white-space:normal}
 #dan-landing-home .ds-long .ds-rotate-measure,#dan-landing-home .ds-long .ds-rotate-entry {white-space:normal;overflow-wrap:anywhere}
 
@@ -26,3 +35,14 @@
 .rdp-project-shelf > .rdp-project-shelf-inner {padding-left:clamp(12px,1.5vw,24px);padding-right:clamp(12px,1.5vw,24px)}
 .video-redesign .rv-shelf-panel > .rv-video-grid {padding-left:18px;padding-right:18px;transition-property:padding-top,padding-bottom}
 @media(prefers-reduced-motion:reduce){.portfolio-blur,.portfolio-blur > span {transition:none}.ds-rotate-piece {will-change:auto}}
+
+/* Local scroll tracks reveal their actual surface instead of a white strip. */
+* {scrollbar-width:thin;scrollbar-color:#92928b transparent}
+*::-webkit-scrollbar {width:9px;height:9px;background:transparent}
+*::-webkit-scrollbar-track,*::-webkit-scrollbar-corner {background:transparent}
+*::-webkit-scrollbar-thumb {background:#92928b;border:2px solid transparent;background-clip:padding-box;border-radius:20px}
+*::-webkit-scrollbar-button {display:none}
+html {background:#f5f5f2;scrollbar-color:#92928b var(--scrollbar-surface,#f5f5f2)}
+html::-webkit-scrollbar-track {background:var(--root-scrollbar-track,#f5f5f2)}
+@supports selector(::-webkit-scrollbar){*{scrollbar-color:auto;scrollbar-width:auto}html{scrollbar-color:auto;scrollbar-width:auto}}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-heading,:is(#dan-landing-home,#dan-badge-dialog) .ds-bio {hyphens:none;word-break:normal}

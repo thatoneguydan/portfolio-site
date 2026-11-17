@@ -1,16 +1,20 @@
-import {installAuthoredEmoji} from './site-emoji.js?v=20261117-gallery4';
-import {setPaletteSaturation} from './palette-glyph.js?v=20261117-gallery4';
-import {defaults} from './landing-schema.js?v=20261117-gallery4';
+import {installAuthoredEmoji} from './site-emoji.js?v=20261117-site8';
+import {setPaletteSaturation} from './palette-glyph.js?v=20261117-site8';
+import {defaults} from './landing-schema.js?v=20261117-site8';
 import {installSettledShelfText} from './settled-text.js';
+import {captionBlurGeometry} from './gallery-layout.js?v=20261117-site8';
+import './site-runtime.js?v=20261117-site8';
+import {installSiteInteractions} from './site-interactions.js?v=20261117-site8';
 
-const href='/assets/site-effects.css?v=20261117-gallery4';
+const href='/assets/site-effects.css?v=20261117-site8';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
-installAuthoredEmoji();installSettledShelfText();
+installAuthoredEmoji();installSettledShelfText();installSiteInteractions();
 let config={...defaults,...window.portfolioLandingConfig};
 setPaletteSaturation(config.paletteSaturation);
 const cards=new Set(),seen=new WeakSet();
+const cardResize=new ResizeObserver(entries=>{for(const {target}of entries)schedule(target);});
 function captionVisible(card){
   if(card.matches('.ds-panel'))return card.dataset.captionVisible==='true';
   return !!card.querySelector('.rdp-project-meta')&&card.matches(':hover,:focus-visible');
@@ -21,10 +25,14 @@ function apply(card){
   const active=String(enabled&&captionVisible(card));if(card.dataset.blurActive!==active)card.dataset.blurActive=active;
   const blur=card.querySelector('.portfolio-blur');if(!blur)return;
   const source=card.querySelector('img:not([data-blur-copy])');
-  const height=card.dataset.captionKind==='compact'?100:config.portfolioBlurHeight;
+  const caption=card.querySelector(card.dataset.captionKind==='compact'?'.ds-compact-caption':'.ds-caption,.rdp-project-meta');
+  const text=caption?.querySelector('strong')||caption,style=text&&getComputedStyle(text),captionStyle=caption&&getComputedStyle(caption);
+  const geometry=captionBlurGeometry({height:card.clientHeight,captionHeight:caption?.offsetHeight||0,bottom:parseFloat(captionStyle?.bottom)||0,fontSize:parseFloat(style?.fontSize)||20,coverage:config.portfolioBlurHeight,strength:config.portfolioBlurStrength,compact:card.dataset.captionKind==='compact'});
+  const height=geometry.percent;
+  for(const [key,value]of [['--caption-solid-height',geometry.solid+'px'],['--caption-cover-height',geometry.cover+'px']])if(card.style.getPropertyValue(key)!==value)card.style.setProperty(key,value);
   blur.style.setProperty('--blur-duration',config.portfolioBlurDuration+'ms');
   [...blur.children].forEach((layer,i)=>{
-    layer.style.setProperty('--layer-blur',config.portfolioBlurStrength*(i+1)/6+'px');
+    layer.style.setProperty('--layer-blur',geometry.strength*(i+1)/6+'px');
     const stops=[i,i+1,i+2,i+3].map((n,j)=>'rgba(255,255,255,'+(j===1||j===2?1:0)+') '+(100-height+n/7*height)+'%');
     const mask='linear-gradient(180deg,'+stops.join(',')+')';layer.style.maskImage=mask;layer.style.webkitMaskImage=mask;
     const image=layer.querySelector('img');if(source&&image&&image.style.filter!==source.style.filter)image.style.filter=source.style.filter;
@@ -47,13 +55,13 @@ function ensure(card){
   media.append(blur);apply(card);
   requestAnimationFrame(()=>requestAnimationFrame(()=>blur.classList.add('is-ready')));
 }
-function sync(card){if(!card.isConnected){cards.delete(card);return;}if(card.matches('.ds-panel')||captionVisible(card))ensure(card);apply(card);}
+function sync(card){if(!card.isConnected){cards.delete(card);cardResize.unobserve(card);return;}if(card.matches('.ds-panel')||captionVisible(card))ensure(card);apply(card);}
 function discover(root){
   if(root.nodeType!==1||root.closest('.portfolio-blur'))return;
   const selector='.ds-panel,.rdp-project-card';
   const found=[...(root.matches(selector)?[root]:[]),...root.querySelectorAll(selector)];
   for(const card of found){
-    if(seen.has(card))continue;seen.add(card);cards.add(card);
+    if(seen.has(card))continue;seen.add(card);cards.add(card);cardResize.observe(card);
     card.addEventListener('pointerenter',()=>sync(card),{passive:true});
     card.addEventListener('pointerleave',()=>sync(card),{passive:true});
     card.addEventListener('focusin',()=>sync(card));
@@ -73,4 +81,5 @@ new MutationObserver(records=>{
 }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-caption-visible','data-caption-kind','data-focused','class','style','src']});
 function update(next){config={...defaults,...next};setPaletteSaturation(config.paletteSaturation);for(const card of cards)sync(card);}
 document.addEventListener('portfolio-appearance',event=>update(event.detail));
+addEventListener('resize',()=>{for(const card of cards)schedule(card);},{passive:true});
 if(!document.getElementById('dan-landing-home'))fetch('/api/landing-settings',{credentials:'same-origin',cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{if(data?.config)update(data.config);}).catch(()=>{});

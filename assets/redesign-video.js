@@ -3,7 +3,7 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20260910-live';
+    navScript.src = '/assets/redesign-nav.js?v=20261117-site8';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -181,3 +181,4 @@
 
   dialog?.addEventListener('close', resetPlayer);
 })();
+

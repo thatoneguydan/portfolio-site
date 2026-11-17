@@ -2,12 +2,12 @@
    homepage CTA markup and this single style source. */
 .rd-footer-cta {
   box-sizing: border-box;
-  width: 100vw;
+  width: var(--site-viewport-width,100vw);
   min-height: clamp(540px, 62vh, 740px);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: calc(50% - 50vw);
+  margin-left: calc(50% - var(--site-viewport-width,100vw) / 2);
   padding: clamp(92px, 9vw, 138px) 0;
   background: #111;
   color: #fff;

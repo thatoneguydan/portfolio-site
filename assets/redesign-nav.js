@@ -1,7 +1,8 @@
 (() => {
   'use strict';
   // Shared authored emoji and portfolio hover treatment, including project shelves.
-  import('/assets/site-effects.js?v=20261117-gallery4').catch(()=>{});
+  import('/assets/site-effects.js?v=20261117-site8').catch(()=>{});
+  import('/assets/site-runtime.js?v=20261117-site8').catch(()=>{});
 
   /* Use the original portfolio favicon as a real asset on every redesign route. */
   const faviconHref = '/favicon.ico?v=20260910-original';
@@ -30,13 +31,13 @@
   if (!document.querySelector(`link[href^="${stylesheetPath}"]`)) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `${stylesheetPath}?v=20260909-a`;
+    link.href = `${stylesheetPath}?v=20261117-site8`;
     document.head.append(link);
   }
 
   if (!document.querySelector('script[data-redesign-contact-shelf]')) {
     const contactShelfScript = document.createElement('script');
-    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=20260911-e';
+    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=20261117-site8';
     contactShelfScript.dataset.redesignContactShelf = '';
     document.head.append(contactShelfScript);
   }
@@ -47,10 +48,8 @@
   if (document.body.classList.contains('video-redesign')) {
     document.querySelector('.rv-intro .rd-eyebrow')?.remove();
     document.querySelector('.rv-shelves-head')?.remove();
-    const title = document.querySelector('.rv-intro h1');
     const intro = document.querySelector('.rv-intro-copy');
     const clientShelfTitle = document.querySelector('#freelance .rv-shelf-copy h2');
-    if (title) title.textContent = 'Video that holds attention.';
     if (intro) intro.textContent = 'Editing, essays, short-form, and channel work. A selection spanning client stories, long-form editorial, social video, and gaming content.';
     if (clientShelfTitle) clientShelfTitle.textContent = 'Client Work';
 
@@ -74,9 +73,7 @@
   }
 
   if (document.body.classList.contains('discipline-photo')) {
-    const title = document.querySelector('.rdp-intro h1');
     const intro = document.querySelector('.rdp-intro-copy');
-    if (title) title.textContent = 'Portraits, places, and light.';
     if (intro) intro.textContent = 'Portraits, events, travel, and experiments. Client work and personal projects shaped by color, light, and atmosphere.';
   }
 

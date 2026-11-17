@@ -1,12 +1,14 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-gallery4';
-import {createBadge} from './landing-badge.js?v=20261117-gallery4';
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-gallery4';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-gallery4';
-import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-gallery4';
-(() => {
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-site8';
+import {createBadge} from './landing-badge.js?v=20261117-site8';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-site8';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-site8';
+import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-site8';
+import {siteReady} from './site-runtime.js?v=20261117-site8';
+import {revealFrames} from './headline-view.js?v=20261117-site8';
+(async() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
-  const config=normalizeSettings(window.portfolioLandingConfig||{});
+  const api=await siteReady,config=api.getConfig();
   const h1=root.querySelector('.ds-reveal'),intro=root.querySelector('.ds-intro');
   const ticket=root.querySelector('.ds-ticket'),ticketStage=root.querySelector('.ds-ticket-stage');
   const headshot=root.querySelector('.ds-headshot'),photoWindow=root.querySelector('.ds-photo-window');
@@ -20,7 +22,7 @@ import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20
     return graphemes(text);
   }
   function renderText() {
-    for(const [element,value]of [[name.querySelector('.ds-name-ink')||name,config.ticketName],[heading,config.ticketHeading],[bio,config.bio]])if(element.dataset.authoredCopy!==value){element.dataset.authoredCopy=value;element.replaceChildren();appendEmojiText(element,value);}
+    for(const [element,value]of [[heading,config.ticketHeading],[bio,config.bio]])if(element.dataset.authoredCopy!==value){element.dataset.authoredCopy=value;element.replaceChildren();appendEmojiText(element,value);}
     const headlineSignature=JSON.stringify(Object.entries(config).filter(([key])=>/^line\d$/.test(key)||key==='lineCount'||key.startsWith('rotate')));
     if(headlineSignature===lastHeadline){fitText();return;}
     lastHeadline=headlineSignature;
@@ -75,7 +77,7 @@ import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20
         const position=config.splitBy==='lines'?0:config.splitBy==='words'?Math.max(0,words.indexOf(el.closest('.ds-word'))):index;
         const count=config.splitBy==='lines'?1:config.splitBy==='words'?words.length:n;
         const order=from==='last'?count-1-position:from==='center'?Math.abs(position-(count-1)/2):from==='random'?randomOrder[position]||0:position;
-        const frames=[];for(let i=0;i<=50;i++){const t=i/50*config.duration/1000,decay=Math.exp(-10.5*t)*(Math.cos(9.47365*t)+10.5/9.47365*Math.sin(9.47365*t));frames.push({transform:`translateY(${i===50?0:start*decay}%)`,offset:i/50});}
+        const frames=revealFrames(start,config.duration);
         const delay=lead+li*config.lineDelay+order*config.stagger;revealEnd=Math.max(revealEnd,config.duration+delay);timing.end=Math.max(timing.end,config.duration+delay);
         currentAnimations.push(el.animate(frames,{duration:config.duration,delay,easing:'linear',fill:'both'}));
       });
@@ -105,22 +107,27 @@ import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20
     });
   }
   function renderGallery() {
-    const vertical=root.clientWidth<=500;
+    const navToggle=document.querySelector('.site-nav-toggle');
+    const vertical=navToggle?getComputedStyle(navToggle).display!=='none':innerWidth<=720;
+    const layout=vertical?'vertical':'horizontal',changed=gallery.dataset.layout!==layout;
+    if(changed)gallery.classList.add('is-switching-layout');
     const gap=vertical?config.verticalGalleryGap:config.galleryGap;
     const settledWidth=vertical?gallery.clientWidth:(gallery.clientWidth-gap*(panels.length-1))*config.expandRatio/100;
     const height=expandedGalleryHeight(config,vertical,settledWidth);
-    gallery.dataset.layout=vertical?'vertical':'horizontal';
+    gallery.dataset.layout=layout;
     gallery.style.setProperty('--gallery-height',height+'px');
     gallery.style.setProperty('--gallery-gap',gap+'px');
     gallery.style.setProperty('--gallery-radius',(vertical?config.verticalGalleryRadius:config.galleryRadius)+'px');
     gallery.style.setProperty('--gallery-duration',(vertical?config.verticalGalleryDuration:config.galleryDuration)+'ms');
     gallery.style.setProperty('--mobile-expanded',height+'px');
     gallery.style.setProperty('--mobile-collapsed',config.verticalGalleryCollapsed+'px');
+    gallery.style.setProperty('--gallery-total-height',(height+config.verticalGalleryCollapsed*(panels.length-1)+gap*(panels.length-1))+'px');
     gallery.style.setProperty('--caption-inset',(vertical?config.verticalGalleryPadding:20)+'px');
     gallery.style.setProperty('--caption-width',Math.max(1,settledWidth-(vertical?config.verticalGalleryPadding*2:36))+'px');
     gallery.style.setProperty('--caption-title-size',(vertical?config.verticalGalleryTitleSize:20)+'px');
     gallery.style.setProperty('--compact-title-size',config.verticalGalleryCompactTitleSize+'px');
     gallery.style.setProperty('--media-width',Math.max(1,settledWidth)+'px');selectPanel(config.activeIndex,false);
+    if(changed){void gallery.offsetHeight;requestAnimationFrame(()=>gallery.classList.remove('is-switching-layout'));}
   }
 
   const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText});
@@ -149,34 +156,9 @@ import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20
   });
 
   const resize=()=>{fitText();renderGallery();badge.layout();};
-  addEventListener('resize',resize);new ResizeObserver(resize).observe(root);
+  addEventListener('resize',resize);let lastRootWidth=0;new ResizeObserver(()=>{if(root.clientWidth!==lastRootWidth){lastRootWidth=root.clientWidth;resize();}}).observe(root);
   addEventListener('pagehide',event=>{if(event.persisted)return;badge.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
-  const api={
-    getConfig:()=>({...config}),
-    applyConfig(next,{animateReveal=false}={}){Object.assign(config,normalizeSettings(next,config));render();if(animateReveal)replay();},
-    replay,
-    revision:window.portfolioLandingRevision||null,
-    defaults:{...defaults},
-    owner:false
-  };
   window.portfolioLanding=api;
-  render();
-  async function loadSettings(){
-    if(!window.portfolioLandingBootstrapped)try{
-      const response=await fetch('/api/landing-settings',{credentials:'same-origin',cache:'no-store'});
-      if(response.ok){const data=await response.json();api.revision=data.revision;
-        if(data.config&&JSON.stringify(data.config)!==JSON.stringify(config))api.applyConfig(data.config);
-      }
-    }catch{}
-    await document.fonts?.ready;
-    lastFit='';
-    resize();
-    document.documentElement.classList.remove('landing-loading');
-    requestAnimationFrame(replay);
-    try{
-      const response=await fetch('/api/owner',{credentials:'same-origin',cache:'no-store'});
-      if(response.ok&&(await response.json()).owner){api.owner=true;const module=await import('./landing-tune.js?v=20261117-gallery4');module.mountTune(api);}
-    }catch{}
-  }
-  loadSettings();
+  api.register({update(next){Object.assign(config,next);render();},replay});
+  lastFit='';resize();document.documentElement.classList.remove('landing-loading');requestAnimationFrame(replay);
 })();

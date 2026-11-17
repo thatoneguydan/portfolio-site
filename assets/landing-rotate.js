@@ -1,4 +1,4 @@
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-gallery4';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-site8';
 export const headlineLines=config=>Array.from({length:config.lineCount},(_,i)=>config['line'+(i+1)]||'');
 export const rotationWords=config=>config.rotateWords.split(',').map(s=>s.trim()).filter(Boolean);
 export function splitPunctuation(word){
@@ -30,8 +30,14 @@ export function createTextRotation(host,config,{suffix=''}={}){
   let index=0,timer=0,visible=false,running=true,destroyed=false,notBefore=0,animations=[];
   function entry(text){
     const el=document.createElement('span');el.className='ds-rotate-entry';
-    const chunks=config.rotateSplit==='whole'?[text]:config.rotateSplit==='words'?text.split(/(\s+)/).filter(Boolean):graphemes(text);
-    for(const chunk of chunks){const piece=document.createElement('span');piece.className='ds-rotate-piece';appendEmojiText(piece,chunk);el.append(piece);}
+    const add=(parent,chunk)=>{const piece=document.createElement('span');piece.className='ds-rotate-piece';appendEmojiText(piece,chunk);parent.append(piece);};
+    if(config.rotateSplit==='whole')add(el,text);
+    else for(const word of text.split(/(\s+)/).filter(Boolean)){
+      if(/^\s+$/.test(word)){el.append(document.createTextNode(word));continue;}
+      const wrap=document.createElement('span');wrap.className='ds-rotate-word';
+      for(const chunk of config.rotateSplit==='words'?[word]:graphemes(word))add(wrap,chunk);
+      el.append(wrap);
+    }
     return el;
   }
   let current=entry(words[0]);clip.append(current);
@@ -43,9 +49,9 @@ export function createTextRotation(host,config,{suffix=''}={}){
   async function next(){
     timer=0;if(destroyed||document.hidden||!visible||reduced.matches)return;
     const old=current;index=(index+1)%words.length;current=entry(words[index]);clip.append(current);
-    const pieces=[...current.children],count=pieces.length;
+    const pieces=[...current.querySelectorAll('.ds-rotate-piece')],count=pieces.length;
     const order=pieces.map((_,i)=>i);if(config.rotateFrom==='random')for(let i=count-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
-    animations=[...old.children].map((el,i)=>el.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(-120%)',opacity:0}],{duration:config.rotateDuration*.55,delay:i*config.rotateStagger*.45,easing:'cubic-bezier(.4,0,1,1)',fill:'both'}));
+    animations=[...old.querySelectorAll('.ds-rotate-piece')].map((el,i)=>el.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY(-120%)',opacity:0}],{duration:config.rotateDuration*.55,delay:i*config.rotateStagger*.45,easing:'cubic-bezier(.4,0,1,1)',fill:'both'}));
     pieces.forEach((el,i)=>{
       const rank=config.rotateFrom==='last'?count-1-i:config.rotateFrom==='center'?Math.abs(i-(count-1)/2):config.rotateFrom==='random'?order[i]:i;
       const frames=[];
