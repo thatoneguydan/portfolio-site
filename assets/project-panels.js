@@ -1,7 +1,7 @@
-import {defaults} from './landing-schema.js?v=20261117-refine4';
-import {panelTailCenter,panelSurfacePath} from './project-panel-math.js?v=20261117-refine4';
-import {prepareProjectDocument} from './project-content.js?v=20261117-refine4';
-import {filledControlIcon} from './filled-controls.js?v=20261117-refine4';
+import {defaults} from './landing-schema.js?v=20261117-refine5';
+import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-refine5';
+import {prepareProjectDocument} from './project-content.js?v=20261117-refine5';
+import {filledControlIcon} from './filled-controls.js?v=20261117-refine5';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
 const panels=new Set(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const rgba=(hex,opacity)=>`rgba(${hex.match(/\w\w/g).map(s=>parseInt(s,16))},${opacity/100})`;
@@ -32,12 +32,12 @@ function updateMasks(state,sourceRect){
   if(state.maskProgress<=0||!sourceRect){clearMasks(state);return;}
   const grid=state.source.closest('.is-masonry,.ds-gallery');if(!grid){clearMasks(state);return;}
   const candidates=[...grid.children].filter(card=>card!==state.source&&card.matches('.rdp-project-card,.ds-panel')&&(grid.matches('.ds-gallery')||!!(card.compareDocumentPosition(state.shelf)&Node.DOCUMENT_POSITION_FOLLOWING)));
-  const current=new Set(),end=sourceRect.bottom+(grid.dataset.layout==='vertical'?0:14),start=end-48;
+  const current=new Set();
   for(const card of candidates){
-    const rect=card.getBoundingClientRect();if(rect.bottom<=start)continue;current.add(card);
+    const rect=card.getBoundingClientRect(),bounds=neighborMaskBounds(sourceRect,rect,grid.dataset.layout==='vertical');if(!bounds)continue;current.add(card);
     let record=maskCards.get(card);
     if(!record){record={saved:{maskImage:card.style.maskImage,maskComposite:card.style.maskComposite},layers:new Map()};maskCards.set(card,record);}
-    record.layers.set(state,{start:start-rect.top,end:end-rect.top,amount:state.maskProgress});paintMasks(card);
+    record.layers.set(state,{...bounds,amount:state.maskProgress});paintMasks(card);
   }
   for(const card of state.masked)if(!current.has(card)){maskCards.get(card)?.layers.delete(state);paintMasks(card);}state.masked=current;
 }

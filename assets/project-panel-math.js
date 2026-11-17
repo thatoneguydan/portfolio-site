@@ -6,3 +6,8 @@ export function panelTailCenter(source,panel,size,radius){
   const inset=Math.min(panel.width/2,radius+2);
   return Math.max(inset,Math.min(panel.width-inset,source.left+source.width/2-panel.left));
 }
+export function neighborMaskBounds(source,neighbor,vertical=false){
+  const cutoff=source.bottom+(vertical?0:14);
+  if(neighbor.bottom<=cutoff)return null;
+  return{start:cutoff-48-neighbor.top,end:cutoff-neighbor.top};
+}
