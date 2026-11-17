@@ -14,3 +14,7 @@ export function compactBadge(lineHeight,lineOffset,overlap,scale=1){
   return {width:height/1.3,height,lift,scale:height/130};
 }
 export function idleOrbit(phase,angle){return {x:Math.sin(phase)*angle,y:Math.cos(phase)*angle};}
+export function blendIdlePose(x,y,bias,phase,angle,weight){
+  const orbit=idleOrbit(phase,angle);
+  return {x:x*(1-weight)+(bias+orbit.x)*weight,y:y*(1-weight)+orbit.y*weight};
+}

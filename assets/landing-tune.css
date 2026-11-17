@@ -36,3 +36,6 @@
 #dan-owner-controls .ds-config-launch{cursor:grab}
 #dan-owner-controls .ds-config-launch.is-dragging{cursor:grabbing}
 @media(max-width:640px){#dan-owner-controls .ds-config input[type=text],#dan-owner-controls .ds-config select,#dan-owner-controls .ds-config textarea{font-size:16px}}
+
+#dan-owner-controls [hidden]{display:none!important}
+#dan-owner-controls .ds-rotate-count{font-size:12px;line-height:1.5;color:#666;margin:4px 0 18px}

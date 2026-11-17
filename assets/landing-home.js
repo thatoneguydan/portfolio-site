@@ -1,5 +1,7 @@
 import {defaults,normalizeSettings} from './landing-schema.js';
 import {createBadge} from './landing-badge.js';
+import {appendEmojiText,graphemes} from './site-emoji.js';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation} from './landing-rotate.js';
 (() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
@@ -11,24 +13,31 @@ import {createBadge} from './landing-badge.js';
   const bio=root.querySelector('.ds-bio'),copy=root.querySelector('.ds-ticket-copy');
   const gallery=root.querySelector('.ds-gallery'),panels=[...gallery.querySelectorAll('.ds-panel')];
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let currentAnimations=[];
+  let currentAnimations=[],rotator=null;
   const persist=()=>{};
   function segment(text) {
-    return typeof Intl.Segmenter === 'function' ? [...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(text)].map(x=>x.segment) : Array.from(text);
+    return graphemes(text);
   }
   function renderText() {
-    currentAnimations.forEach(a=>a.cancel()); currentAnimations=[]; h1.replaceChildren();
-    const lines = [config.line1,config.line2,config.line3]; h1.setAttribute('aria-label',lines.join(' '));
+    currentAnimations.forEach(a=>a.cancel()); currentAnimations=[];rotator?.destroy();rotator=null; h1.replaceChildren();
+    const lines = headlineLines(config); h1.setAttribute('aria-label',lines.join(' '));
     lines.forEach((text,index) => {
       const line=document.createElement('span'); line.className='ds-reveal-line'; line.dataset.line=index; line.setAttribute('aria-hidden','true');
+      let wordIndex=0;
       String(text).split(/(\s+)/).filter(Boolean).forEach(word => {
         const wrap=document.createElement('span'); wrap.className=/^\s+$/.test(word)?'ds-space':'ds-word';
-        segment(word).forEach(char => {const el=document.createElement('span');el.className='ds-glyph';el.textContent=char;wrap.append(el);}); line.append(wrap);
+        const isWord=!/^\s+$/.test(word),target=isWord&&config.rotateEnabled&&config.rotateTarget===`${index+1}:${wordIndex}`&&rotationWords(config).length;
+        if(target){
+          const parts=splitPunctuation(word);appendEmojiText(wrap,parts.prefix);
+          const glyph=document.createElement('span');glyph.className='ds-glyph';wrap.append(glyph);rotator=createTextRotation(glyph,config,{suffix:parts.suffix});
+        }else segment(word).forEach(char => {const el=document.createElement('span');el.className='ds-glyph';appendEmojiText(el,char);wrap.append(el);});
+        if(isWord)wordIndex++;line.append(wrap);
       });
       if (!text) line.append(document.createTextNode('\u00a0')); h1.append(line);
     });
     name.textContent=config.ticketName; heading.textContent=config.ticketHeading; bio.textContent=config.bio;
     fitText();
+    rotator?.start();
   }
   function fitText() {
     const max=config.fontSize,compact=root.querySelector('.ds-hero').classList.contains('is-compact');
@@ -46,7 +55,8 @@ import {createBadge} from './landing-badge.js';
     lines.forEach(el=>el.style.removeProperty('width'));
   }
   function replay() {
-    currentAnimations.forEach(a=>a.cancel());currentAnimations=[];if(reduced.matches||!config.animate)return;
+    currentAnimations.forEach(a=>a.cancel());currentAnimations=[];rotator?.pause();if(reduced.matches||!config.animate){rotator?.start();return;}
+    let revealEnd=0;
     [...h1.children].forEach((line,li) => {
       const glyphs=[...line.querySelectorAll('.ds-glyph')],words=[...line.querySelectorAll('.ds-word')],n=glyphs.length;
       const from=config.staggerFrom==='reference'?['first','last','center'][li]:config.staggerFrom;
@@ -58,9 +68,11 @@ import {createBadge} from './landing-badge.js';
         const count=config.splitBy==='lines'?1:config.splitBy==='words'?words.length:n;
         const order=from==='last'?count-1-position:from==='center'?Math.abs(position-(count-1)/2):from==='random'?randomOrder[position]||0:position;
         const frames=[];for(let i=0;i<=50;i++){const t=i/50*config.duration/1000,decay=Math.exp(-10.5*t)*(Math.cos(9.47365*t)+10.5/9.47365*Math.sin(9.47365*t));frames.push({transform:`translateY(${i===50?0:start*decay}%)`,offset:i/50});}
-        currentAnimations.push(el.animate(frames,{duration:config.duration,delay:li*config.lineDelay+order*config.stagger,easing:'linear',fill:'both'}));
+        const delay=li*config.lineDelay+order*config.stagger;revealEnd=Math.max(revealEnd,config.duration+delay);
+        currentAnimations.push(el.animate(frames,{duration:config.duration,delay,easing:'linear',fill:'both'}));
       });
     });
+    rotator?.start(revealEnd+config.rotateInterval);
   }
   function selectPanel(index,save=true) {
     config.activeIndex=(index+panels.length)%panels.length;
@@ -87,7 +99,7 @@ import {createBadge} from './landing-badge.js';
   }
 
   const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText});
-  function render(){renderText();renderGallery();badge.update();}
+  function render(){renderText();renderGallery();badge.update();document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));}
 
   panels.forEach((panel,i)=>{
     const compactCaption=document.createElement('span');compactCaption.className='ds-compact-caption';compactCaption.setAttribute('aria-hidden','true');
@@ -111,7 +123,7 @@ import {createBadge} from './landing-badge.js';
 
   const resize=()=>{fitText();renderGallery();badge.layout();};
   addEventListener('resize',resize);new ResizeObserver(resize).observe(root);
-  addEventListener('pagehide',event=>{if(event.persisted)return;badge.destroy();currentAnimations.forEach(a=>a.cancel());});
+  addEventListener('pagehide',event=>{if(event.persisted)return;badge.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
   const api={
     getConfig:()=>({...config}),
     applyConfig(next,{animateReveal=false}={}){Object.assign(config,normalizeSettings(next,config));render();if(animateReveal)replay();},

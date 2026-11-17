@@ -2,6 +2,22 @@ export const defaults = {
   "line1": "HI 👋 THERE!",
   "line2": "😊 READY TO",
   "line3": "MAKE 🎨 SOMETHING GREAT?",
+  "line4": "",
+  "line5": "",
+  "line6": "",
+  "lineCount": 3,
+  "rotateEnabled": true,
+  "rotateTarget": "3:3",
+  "rotateWords": "GREAT, CLEAR, MEMORABLE",
+  "rotateInterval": 2600,
+  "rotateDuration": 650,
+  "rotateStagger": 22,
+  "rotateSplit": "characters",
+  "rotateFrom": "first",
+  "portfolioBlur": true,
+  "portfolioBlurStrength": 8,
+  "portfolioBlurHeight": 62,
+  "portfolioBlurDuration": 240,
   "bio": "I work across video, design, print, and photography to make things clear, intentional, and worth looking at.",
   "fontSize": 53,
   "fontWeight": 500,
@@ -79,6 +95,7 @@ export const defaults = {
   "badgeIdleTilt": true,
   "badgeIdleAngle": 1.1,
   "badgeIdlePeriod": 10,
+  "badgeIdleEase": 900,
   "verticalGalleryHeight": 320,
   "verticalGalleryCollapsed": 64,
   "verticalGalleryGap": 10,
@@ -91,6 +108,7 @@ export const defaults = {
 };
 export const controlGroups = {
     reveal: [
+      ['range','lineCount','Number of lines',1,6,1,''],
       ['range','fontSize','Text size',30,120,1,'px'], ['range','fontWeight','Text weight',100,900,100,''],
       ['range','lineHeight','Line spacing',1.05,1.5,.01,''],
       ['select','splitBy','Reveal by',['characters','words','lines']],
@@ -99,6 +117,20 @@ export const controlGroups = {
       ['select','direction','Reveal direction',[['alternating','Reference alternating'],['up','Up'],['down','Down']]],
       ['select','staggerFrom','Stagger origin',[['reference','Reference per line'],'first','last','center','random']],
       ['check','animate','Animate reveal']
+    ],
+    rotate: [
+      ['check','rotateEnabled','Rotate a headline word'],
+      ['range','rotateInterval','Time between words',1200,12000,100,'ms'],
+      ['range','rotateDuration','Word animation duration',250,1600,50,'ms'],
+      ['range','rotateStagger','Letter / word stagger',0,80,1,'ms'],
+      ['select','rotateSplit','Animate by',['characters','words','whole']],
+      ['select','rotateFrom','Stagger from',['first','last','center','random']]
+    ],
+    portfolioEffects: [
+      ['check','portfolioBlur','Progressive blur behind captions'],
+      ['range','portfolioBlurStrength','Maximum blur',0,24,.5,'px'],
+      ['range','portfolioBlurHeight','Blur height',20,100,1,'%'],
+      ['range','portfolioBlurDuration','Blur hover duration',100,800,20,'ms']
     ],
     ticketLayout: [
       ['select','ticketOrientation','Orientation',['horizontal','vertical']],
@@ -151,6 +183,7 @@ export const controlGroups = {
       ['check','badgeIdleTilt','Subtle idle tilt'],
       ['range','badgeIdleAngle','Idle tilt strength',0,30,.1,'°'],
       ['range','badgeIdlePeriod','Idle cycle length',.5,120,.5,'s']
+      ,['range','badgeIdleEase','Ease into idle',200,3000,50,'ms']
     ],
     gallery: [
       ['range','galleryHeight','Gallery height',240,500,1,'px'], ['range','expandRatio','Expanded width',35,75,1,'%'],
@@ -180,7 +213,7 @@ export function normalizeSettings(input, base = defaults) {
     if(!(key in defaults)) throw new Error('Unknown setting: '+key);
     if(typeof value!==typeof defaults[key]) throw new Error('Invalid setting: '+key);
     if(typeof value==='number'&&!Number.isFinite(value))throw new Error('Invalid number: '+key);
-    if(typeof value==='string'&&value.length>2000)throw new Error('Text is too long: '+key);
+    if(typeof value==='string'&&value.length>(key==='rotateWords'?6000:2000))throw new Error('Text is too long: '+key);
     if(colors.includes(key)&&!/^#[a-f0-9]{6}$/i.test(value))throw new Error('Invalid color: '+key);
     result[key]=value;
   }
@@ -189,5 +222,10 @@ export function normalizeSettings(input, base = defaults) {
     if(type==='select'&&!min.some(v=>(Array.isArray(v)?v[0]:v)===result[key]))throw new Error('Invalid choice: '+key);
   }
   result.activeIndex=Math.max(0,Math.min(4,Math.round(result.activeIndex)));
+  result.lineCount=Math.round(result.lineCount);
+  if(!/^[1-6]:\d{1,3}$/.test(result.rotateTarget))throw new Error('Choose a valid rotating word.');
+  const entries=result.rotateWords.split(',').map(s=>s.trim()).filter(Boolean);
+  if(entries.length>50)throw new Error('Use up to 50 comma-separated words or phrases.');
+  if(entries.some(s=>s.length>100))throw new Error('Keep each rotating entry within 100 characters.');
   return result;
 }

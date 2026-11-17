@@ -1,3 +1,4 @@
+import {targetChoices,rotationWords} from './landing-rotate.js';
 import {controlGroups,normalizeSettings} from './landing-schema.js';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
@@ -6,7 +7,7 @@ export function mountTune(api){
   const config={...api.getConfig()},baseline={...api.defaults};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';
-  ownerPortal.innerHTML="<button class=\"ds-config-launch\" type=\"button\" aria-label=\"Tune staging. Drag to move.\" aria-expanded=\"false\" aria-controls=\"dan-demo-config\"><span class=\"ds-config-grip\" aria-hidden=\"true\">⠿</span><span>Tune</span></button>\n  <aside class=\"ds-config\" id=\"dan-demo-config\" aria-label=\"Staging controls\" hidden>\n    <div class=\"ds-config-header\"><h2>Tune the homepage</h2><button type=\"button\" aria-label=\"Close staging controls\" data-close-config>×</button></div>\n    <details open><summary>Reveal text</summary>\n      <div class=\"ds-edit-fields\">\n        <label>Line 1<input type=\"text\" name=\"line1\" aria-label=\"Line 1\" value=\"HI 👋 THERE!\"></label>\n        <label>Line 2<input type=\"text\" name=\"line2\" aria-label=\"Line 2\" value=\"😊 READY TO\"></label>\n        <label>Line 3<input type=\"text\" name=\"line3\" aria-label=\"Line 3\" value=\"MAKE 🎨 SOMETHING?\"></label>\n      </div>\n      <div data-controls=\"reveal\"></div>\n      <div class=\"ds-config-buttons\"><button type=\"button\" data-replay>Replay reveal</button></div>\n    </details>\n    <details><summary>Headshot ticket</summary>\n      <div class=\"ds-edit-fields\">\n        <label>Name<input type=\"text\" name=\"ticketName\" aria-label=\"Ticket name\" value=\"Dan Smith\"></label>\n        <label>Heading<input type=\"text\" name=\"ticketHeading\" aria-label=\"Ticket heading\" value=\"Who is Dan?\"></label>\n        <label>Short bio<textarea name=\"bio\" aria-label=\"Short bio\">I work across video, design, print, and photography to make things clear, intentional, and worth looking at.</textarea></label>\n      </div>\n      <details open><summary>Layout</summary><div data-controls=\"ticketLayout\"></div></details>\n      <details><summary>Motion</summary><div data-controls=\"ticketMotion\"></div></details>\n      <details><summary>Badge behavior</summary><div data-controls=\"badge\"></div></details><details><summary>Appearance</summary><div data-controls=\"ticketAppearance\"></div></details>\n      <details><summary>Photo scrim</summary><div data-controls=\"ticketScrim\"></div></details>\n      <details><summary>Typography</summary><div data-controls=\"ticketTypography\"></div></details>\n      <details><summary>Drop shadow</summary><div data-controls=\"ticketShadow\"></div></details>\n    </details>\n    <details><summary>Featured work — horizontal</summary><div data-controls=\"gallery\"></div></details>\n    <details><summary>Featured work — vertical</summary><div data-controls=\"galleryVertical\"></div></details>\n    <details><summary>Copy / paste settings</summary>\n      <label>Settings<textarea aria-label=\"Settings JSON\" class=\"ds-config-json\" spellcheck=\"false\"></textarea></label>\n      <div class=\"ds-config-buttons\"><button type=\"button\" data-export>Copy settings</button><button type=\"button\" data-import>Apply settings</button></div>\n    </details>\n    <div class=\"ds-config-buttons\"><button type=\"button\" data-save>Save staging settings</button><button type=\"button\" data-reset>Restore starting settings</button></div>\n    <p class=\"ds-config-status\" role=\"status\"></p>\n  </aside>";document.body.append(ownerPortal);
+  ownerPortal.innerHTML="<button class=\"ds-config-launch\" type=\"button\" aria-label=\"Tune staging. Drag to move.\" aria-expanded=\"false\" aria-controls=\"dan-demo-config\"><span class=\"ds-config-grip\" aria-hidden=\"true\">⠿</span><span>Tune</span></button>\n  <aside class=\"ds-config\" id=\"dan-demo-config\" aria-label=\"Staging controls\" hidden>\n    <div class=\"ds-config-header\"><h2>Tune the homepage</h2><button type=\"button\" aria-label=\"Close staging controls\" data-close-config>×</button></div>\n    <details open><summary>Reveal text</summary>\n      <div class=\"ds-edit-fields\">\n        <label data-line-field=\"1\">Line 1<input type=\"text\" name=\"line1\" aria-label=\"Line 1\" value=\"\"></label>\n        <label data-line-field=\"2\">Line 2<input type=\"text\" name=\"line2\" aria-label=\"Line 2\" value=\"\"></label>\n        <label data-line-field=\"3\">Line 3<input type=\"text\" name=\"line3\" aria-label=\"Line 3\" value=\"\"></label>\n        <label data-line-field=\"4\">Line 4<input type=\"text\" name=\"line4\" aria-label=\"Line 4\" value=\"\"></label>\n        <label data-line-field=\"5\">Line 5<input type=\"text\" name=\"line5\" aria-label=\"Line 5\" value=\"\"></label>\n        <label data-line-field=\"6\">Line 6<input type=\"text\" name=\"line6\" aria-label=\"Line 6\" value=\"\"></label>\n      </div>\n      <div data-controls=\"reveal\"></div>\n      <div class=\"ds-config-buttons\"><button type=\"button\" data-replay>Replay reveal</button></div>\n    </details>\n    <details><summary>Rotating word</summary>\n      <label>Word to replace<select data-option=\"rotateTarget\" aria-label=\"Word to replace\"></select></label>\n      <label>Cycle through<input type=\"text\" data-rotate-words aria-label=\"Rotating words, comma separated\" maxlength=\"6000\" spellcheck=\"false\"></label>\n      <p class=\"ds-rotate-count\"></p>\n      <div data-controls=\"rotate\"></div>\n    </details>\n    <details><summary>Headshot ticket</summary>\n      <div class=\"ds-edit-fields\">\n        <label>Name<input type=\"text\" name=\"ticketName\" aria-label=\"Ticket name\" value=\"Dan Smith\"></label>\n        <label>Heading<input type=\"text\" name=\"ticketHeading\" aria-label=\"Ticket heading\" value=\"Who is Dan?\"></label>\n        <label>Short bio<textarea name=\"bio\" aria-label=\"Short bio\">I work across video, design, print, and photography to make things clear, intentional, and worth looking at.</textarea></label>\n      </div>\n      <details open><summary>Layout</summary><div data-controls=\"ticketLayout\"></div></details>\n      <details><summary>Motion</summary><div data-controls=\"ticketMotion\"></div></details>\n      <details><summary>Badge behavior</summary><div data-controls=\"badge\"></div></details><details><summary>Appearance</summary><div data-controls=\"ticketAppearance\"></div></details>\n      <details><summary>Photo scrim</summary><div data-controls=\"ticketScrim\"></div></details>\n      <details><summary>Typography</summary><div data-controls=\"ticketTypography\"></div></details>\n      <details><summary>Drop shadow</summary><div data-controls=\"ticketShadow\"></div></details>\n    </details>\n    <details><summary>Featured work — horizontal</summary><div data-controls=\"gallery\"></div></details>\n    <details><summary>Featured work — vertical</summary><div data-controls=\"galleryVertical\"></div></details>\n    <details><summary>Portfolio hover</summary><div data-controls=\"portfolioEffects\"></div></details>\n    <details><summary>Copy / paste settings</summary>\n      <label>Settings<textarea aria-label=\"Settings JSON\" class=\"ds-config-json\" spellcheck=\"false\"></textarea></label>\n      <div class=\"ds-config-buttons\"><button type=\"button\" data-export>Copy settings</button><button type=\"button\" data-import>Apply settings</button></div>\n    </details>\n    <div class=\"ds-config-buttons\"><button type=\"button\" data-save>Save staging settings</button><button type=\"button\" data-reset>Restore starting settings</button></div>\n    <p class=\"ds-config-status\" role=\"status\"></p>\n  </aside>";document.body.append(ownerPortal);
   const configPanel=ownerPortal.querySelector('.ds-config'),configLauncher=ownerPortal.querySelector('.ds-config-launch');
   const ownerPreview=true;
   let placementFrame=0,launcherPosition=saved.launcherPosition||null,visibleViewport=null,drag=null,suppressToggleUntil=0,liveTimer=0;
@@ -17,8 +18,8 @@ export function mountTune(api){
   const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const replay=()=>api.replay();
   function render(){
-    api.applyConfig(config);
-    for(const key of ['line1','line2','line3','bio','ticketName','ticketHeading']){
+    api.applyConfig(config);updateTextEditors();
+    for(const key of ['line1','line2','line3','line4','line5','line6','bio','ticketName','ticketHeading']){
       const input=configPanel.querySelector(`[name=${key}]`);if(input&&document.activeElement!==input)input.value=config[key];
     }
   }
@@ -37,8 +38,23 @@ export function mountTune(api){
     const serialized=JSON.stringify(config);
     if(serialized!==lastQueued){lastQueued=serialized;pending={...config};clearTimeout(saveTimer);saveTimer=setTimeout(flush,800);status.textContent='Changes apply now and save automatically.';}
   }
+  function updateTextEditors(){
+    configPanel.querySelectorAll('[data-line-field]').forEach(el=>el.hidden=Number(el.dataset.lineField)>config.lineCount);
+    const select=configPanel.querySelector('[data-option=rotateTarget]'),choices=targetChoices(config);
+    select.innerHTML=(!choices.some(c=>c.value===config.rotateTarget)?`<option value="${escapeHtml(config.rotateTarget)}" selected disabled>Choose a visible word</option>`:'')+choices.map(c=>`<option value="${c.value}"${c.value===config.rotateTarget?' selected':''}>${escapeHtml(c.label)}</option>`).join('');
+    select.disabled=!config.rotateEnabled;
+    const words=configPanel.querySelector('[data-rotate-words]');if(document.activeElement!==words)words.value=config.rotateWords;words.disabled=!config.rotateEnabled;
+    configPanel.querySelector('.ds-rotate-count').textContent=rotationWords(config).length+' / 50 entries · separate words or phrases with commas';
+  }
+  configPanel.querySelector('[data-rotate-words]').addEventListener('input',event=>{
+    const input=event.target;
+    try{normalizeSettings({rotateWords:input.value},config);input.setCustomValidity('');config.rotateWords=input.value;render();persist();}
+    catch(error){input.setCustomValidity(error.message);status.textContent=error.message;}
+  });
   function optionDisabled(key) {
-    if(['badgeIdleAngle','badgeIdlePeriod'].includes(key))return !config.badgeIdleTilt||!config.ticketTilt;
+    if(key.startsWith('rotate')&&key!=='rotateEnabled')return !config.rotateEnabled;
+    if(key.startsWith('portfolioBlur')&&key!=='portfolioBlur')return !config.portfolioBlur;
+    if(['badgeIdleAngle','badgeIdlePeriod','badgeIdleEase'].includes(key))return !config.badgeIdleTilt||!config.ticketTilt;
     if(['ticketTiltMax','ticketTiltReach','ticketParallax'].includes(key))return !config.ticketTilt;
     if(['ticketBorderWidth','ticketBorderColor','ticketBorderOpacity'].includes(key))return !config.ticketBorder;
     if(key==='ticketPanelBackground')return !config.ticketCustomPanelBackground;
@@ -55,7 +71,7 @@ export function mountTune(api){
       if(type==='color')return `<label>${label}<span class="ds-color-row"><input type="color" aria-label="${label}" data-option="${key}" value="${config[key]}"${disabled}><input type="text" aria-label="${label} hex" data-option="${key}" value="${config[key]}" spellcheck="false"${disabled}></span></label>`;
       return `<label>${label}<select aria-label="${label}" data-option="${key}"${disabled}>${min.map(option=>{const [value,text]=Array.isArray(option)?option:[option,option[0].toUpperCase()+option.slice(1)];return `<option value="${escapeHtml(value)}"${config[key]===value?' selected':''}>${text}</option>`;}).join('')}</select></label>`;
     }).join('');
-    schedulePlacement();
+    updateTextEditors();schedulePlacement();
   }
 
   function positionControls() {
@@ -132,6 +148,6 @@ export function mountTune(api){
   window.visualViewport?.addEventListener('resize',schedulePlacement);
   configPanel.hidden=location.hash==='#tune'?false:!saved.controlsOpen;
   configLauncher.setAttribute('aria-expanded',String(!configPanel.hidden));
-  for(const key of ['line1','line2','line3','bio','ticketName','ticketHeading'])configPanel.querySelector(`[name=${key}]`).value=config[key];
+  for(const key of ['line1','line2','line3','line4','line5','line6','bio','ticketName','ticketHeading'])configPanel.querySelector(`[name=${key}]`).value=config[key];
   renderControls();schedulePlacement();status.textContent='Changes save automatically to staging.';
 }

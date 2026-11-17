@@ -1,0 +1,18 @@
+/* Author-provided emoji, independent of the visitor's installed emoji font. */
+img.ms-emoji {display:inline-block!important;width:1.15em!important;height:1.15em!important;max-width:none!important;min-width:0;object-fit:contain;vertical-align:-.2em;margin:0 .025em;border:0!important;border-radius:0!important;box-shadow:none!important;transform:none;pointer-events:none;user-select:none}
+.ds-reveal img.ms-emoji {width:1.1em!important;height:1.1em!important}
+
+/* Fancy Text Rotate motion, in the portfolio's existing type and colors. */
+#dan-landing-home .ds-rotate {position:relative;display:inline-grid;vertical-align:baseline;white-space:pre}
+#dan-landing-home .ds-rotate-measure {grid-area:1/1;visibility:hidden;white-space:pre;pointer-events:none}
+#dan-landing-home .ds-rotate-clip {position:absolute;inset:-.18em 0;overflow:hidden;pointer-events:none}
+#dan-landing-home .ds-rotate-entry {position:absolute;inset:.18em 0 auto;display:block;white-space:pre;line-height:inherit}
+#dan-landing-home .ds-rotate-piece {display:inline-block;white-space:pre;will-change:transform,opacity}
+
+/* Only opacity animates; blur strength/masks stay fixed during hover. */
+.portfolio-blur {position:absolute;left:0;right:0;bottom:0;z-index:2;display:block;overflow:hidden;pointer-events:none;opacity:0;transition:opacity 240ms ease;border-radius:inherit}
+.portfolio-blur > span {position:absolute;inset:0;pointer-events:none;border-radius:inherit}
+.has-progressive-blur:hover .portfolio-blur,.has-progressive-blur:focus-visible .portfolio-blur {opacity:1}
+.rv-video-thumb,.rdp-project-media {position:relative}
+@media(hover:none){.ds-panel.has-progressive-blur[data-focused=true] .portfolio-blur {opacity:1}}
+@media(prefers-reduced-motion:reduce){.portfolio-blur {transition:none}.ds-rotate-piece {will-change:auto}}

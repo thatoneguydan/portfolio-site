@@ -1,4 +1,4 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,idleOrbit} from './badge-math.js';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose} from './badge-math.js';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');
@@ -20,8 +20,10 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let compact=false,firstLayout=true,opened=false,busy=false,closeRequested=false,drag=null,frame=0,lastTime=0,scrollFrame=0,morph=null;
   let scrollTop=0,scrollTilt=0,inlineGeometry=null,lastPointer=null,suppressClickUntil=0,previousOverflow='';
+  let morphParts=[];
   const motion={x:0,y:0,h:1,vx:0,vy:0,vh:0,tx:0,ty:0,th:1};
   let visible=false,idlePhase=0,idleWeight=0,lastPointerTime=0,hovering=false;
+  let idleTarget=0,idleFrom=0,idleTransition=0;
   const idleEnabled=()=>config.badgeIdleTilt&&config.ticketTilt&&!config.ticketDisabled&&(compact||opened)&&visible&&!document.hidden&&!reduced.matches&&!drag;
   function updateIdleVisibility(){animateMotion();}
   const visibilityObserver=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;updateIdleVisibility();});
@@ -32,7 +34,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   function paint(){
     const scale=Number(carrier.dataset.scale||1)*motion.h;
     const rotation=opened?0:config.ticketRotation;
-    const idle=idleOrbit(idlePhase,config.badgeIdleAngle*idleWeight),x=motion.x+idle.x,y=motion.y+idle.y;
+    const {x,y}=blendIdlePose(motion.x,motion.y,opened?0:scrollTilt,idlePhase,config.badgeIdleAngle,idleWeight);
     ticket.style.transform=`translate(-50%,-50%) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${x}deg) rotateY(${y}deg) scale(${scale})`;
     const depth=config.ticketTiltMax>0?config.ticketParallax/config.ticketTiltMax:0;
     const px=clamp(-y*depth,-config.ticketParallax,config.ticketParallax),py=clamp(x*depth,-config.ticketParallax,config.ticketParallax);
@@ -43,8 +45,14 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const dt=lastTime?Math.min((now-lastTime)/1000,.04):1/60;lastTime=now;
     const idle=idleEnabled();
     if(idle)idlePhase=(idlePhase+dt*Math.PI*2/config.badgeIdlePeriod)%(Math.PI*2);
-    const targetWeight=idle&&now-lastPointerTime>1000?1:0;
-    idleWeight+=(targetWeight-idleWeight)*(1-Math.exp(-dt*5));
+    const targetWeight=idle&&!busy&&now-lastPointerTime>1000?1:0;
+    if(targetWeight!==idleTarget){
+      idleFrom=idleWeight;idleTarget=targetWeight;idleTransition=now;
+      if(idleTarget&&idleFrom<.001)idlePhase=Math.atan2(motion.x-(opened?0:scrollTilt),motion.y);
+    }
+    const elapsed=clamp((now-idleTransition)/(idleTarget?config.badgeIdleEase:Math.min(400,config.badgeIdleEase)),0,1);
+    const ease=elapsed*elapsed*(3-2*elapsed);
+    idleWeight=idleFrom+(idleTarget-idleFrom)*ease;
     for(let step=0;step<3;step++)for(const axis of ['x','y','h']){
       const velocity='v'+axis,target='t'+axis;
       motion[velocity]+=(220*(motion[target]-motion[axis])-24*motion[velocity])/.6*(dt/3);
@@ -117,21 +125,31 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   function sizeCarrier(geometry){
     carrier.style.width=geometry.width+'px';carrier.style.height=geometry.height+'px';carrier.dataset.scale=geometry.scale;paint();
   }
-  function flip(start,end){
-    morph?.cancel();
+  function captureLook(){
+    const read=(element,properties)=>Object.fromEntries(properties.map(key=>[key,getComputedStyle(element)[key]]));
+    return {ticket:read(ticket,['width','height','borderRadius']),surface:read(surface,['gridTemplateColumns','gridTemplateRows']),photo:read(photoWindow,['height','top','left','right']),name:read(name,['fontSize'])};
+  }
+  function flip(start,end,from){
+    morphParts.forEach(a=>a.cancel());morphParts=[];
     if(reduced.matches)return Promise.resolve();
+    const to=captureLook();
     const dx=start.left+start.width/2-end.left-end.width/2,dy=start.top+start.height/2-end.top-end.height/2;
+    // Animate the card's layout dimensions, never scale X and Y independently.
+    // object-fit:cover keeps the portrait proportional as its crop changes.
+    const scale=(start.width/parseFloat(from.ticket.width))/(end.width/parseFloat(to.ticket.width));
+    const options={duration:config.badgeMorphDuration,easing:'cubic-bezier(.2,.85,.2,1)',fill:'none'};
     morph=carrier.animate([
-      {transform:`translate(${dx}px,${dy}px) scale(${start.width/Math.max(1,end.width)},${start.height/Math.max(1,end.height)})`},
-      {transform:'translate(0,0) scale(1,1)'}
-    ],{duration:config.badgeMorphDuration,easing:'cubic-bezier(.2,.85,.2,1)',fill:'none'});
-    return morph.finished.catch(()=>{});
+      {transform:`translate(${dx}px,${dy}px) scale(${scale})`},
+      {transform:'translate(0,0) scale(1)'}
+    ],options);
+    morphParts=[morph,...[[ticket,'ticket'],[surface,'surface'],[photoWindow,'photo'],[name,'name']].map(([el,key])=>el.animate([from[key],to[key]],options))];
+    return Promise.all(morphParts.map(a=>a.finished.catch(()=>{})));
   }
   function layout(animate=true){
-    const before=carrier.getBoundingClientRect(),heroWidth=hero.clientWidth;
+    const before=carrier.getBoundingClientRect(),from=captureLook(),heroWidth=hero.clientWidth;
     const gap=parseFloat(getComputedStyle(hero).columnGap)||32;
     const candidate=fitBadge(config.ticketWidth,config.ticketHeight,Math.max(100,(heroWidth-gap)/2.08-32),Infinity,config.ticketRotation);
-    const naturalTextHeight=config.fontSize*config.lineHeight*3+56;
+    const naturalTextHeight=config.fontSize*config.lineHeight*config.lineCount+56;
     const nextCompact=!!config.ticketResponsive&&candidate.height<naturalTextHeight*config.badgeCompactTextRatio;
     const changed=nextCompact!==compact;compact=nextCompact;
     hero.classList.toggle('is-compact',compact);
@@ -150,7 +168,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     ticketStage.style.setProperty('--badge-anchor-height',inlineGeometry.height+'px');
     if(!opened&&!busy){
       look(compact);sizeCarrier(inlineGeometry);
-      if(changed&&!firstLayout&&animate)flip(before,carrier.getBoundingClientRect());
+      if(changed&&!firstLayout&&animate)flip(before,carrier.getBoundingClientRect(),from);
     }else if(opened&&!busy){placeExpanded();}
     firstLayout=false;scrollTop=hero.getBoundingClientRect().top+window.scrollY;updateScroll();
   }
@@ -161,15 +179,15 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   }
   async function open(){
     if(opened||busy||!compact||config.ticketDisabled)return;
-    const start=carrier.getBoundingClientRect();busy=true;opened=true;
+    const start=carrier.getBoundingClientRect(),from=captureLook();busy=true;opened=true;
     previousOverflow=document.body.style.overflow;document.body.style.overflow='hidden';
     ticketStage.classList.add('is-badge-open');
     dialog.showModal();dialog.append(carrier);carrier.classList.add('is-portaled');
-    motion.th=1;motion.tx=motion.ty=0;motion.x=motion.y=0;placeExpanded();
+    motion.th=1;motion.tx=motion.ty=0;placeExpanded();
     activation.setAttribute('aria-expanded','true');
     requestAnimationFrame(()=>dialog.classList.add('is-open'));
     copy.animate([{opacity:0},{opacity:1}],{duration:config.badgeMorphDuration*.65,easing:'ease-out'});
-    await flip(start,carrier.getBoundingClientRect());busy=false;dragPlane.hidden=false;suppressClickUntil=performance.now()+150;
+    await flip(start,carrier.getBoundingClientRect(),from);busy=false;dragPlane.hidden=false;suppressClickUntil=performance.now()+150;
     targets();
     if(closeRequested){closeRequested=false;close();}
   }
@@ -177,7 +195,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     if(!opened)return;
     if(busy){closeRequested=true;return;}
     busy=true;
-    const start=carrier.getBoundingClientRect();
+    const start=carrier.getBoundingClientRect(),from=captureLook();
     // Remove the drag transform after capturing its actual screen position.
     carrier.style.transform='';drag=null;opened=false;motion.h=motion.th=1;
     const stage=ticketStage.getBoundingClientRect(),style=getComputedStyle(ticketStage);
@@ -185,7 +203,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     carrier.style.left=(stage.left+stage.width/2-inlineGeometry.width/2)+'px';
     carrier.style.top=(stage.top+parseFloat(style.paddingTop))+'px';
     dialog.classList.remove('is-open');updateScroll();
-    await flip(start,carrier.getBoundingClientRect());
+    await flip(start,carrier.getBoundingClientRect(),from);
     ticketStage.append(carrier);ticketStage.classList.remove('is-badge-open');carrier.classList.remove('is-portaled');carrier.style.left=carrier.style.top='';
     dialog.close();document.body.style.overflow=previousOverflow;activation.setAttribute('aria-expanded','false');
     busy=false;layout(false);activation.focus({preventScroll:true});
@@ -224,5 +242,5 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   window.addEventListener('scroll',()=>{if(!scrollFrame)scrollFrame=requestAnimationFrame(updateScroll);},{passive:true});
   window.visualViewport?.addEventListener('resize',()=>{if(opened&&!busy)placeExpanded();});
   reduced.addEventListener('change',targets);
-  return {layout,update:()=>{motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);morph?.cancel();visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);dialog.remove();}};
+  return {layout,update:()=>{motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);dialog.remove();}};
 }
