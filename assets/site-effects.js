@@ -1,15 +1,15 @@
-import {installAuthoredEmoji} from './site-emoji.js?v=20261117-refine2';
-import {setPaletteSaturation} from './palette-glyph.js?v=20261117-refine2';
-import {defaults} from './landing-schema.js?v=20261117-refine2';
+import {installAuthoredEmoji} from './site-emoji.js?v=20261117-refine4';
+import {setPaletteSaturation} from './palette-glyph.js?v=20261117-refine4';
+import {defaults} from './landing-schema.js?v=20261117-refine4';
 import {installSettledShelfText} from './settled-text.js';
-import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-refine2';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261117-refine2';
-import './site-runtime.js?v=20261117-refine2';
-import {installSiteInteractions} from './site-interactions.js?v=20261117-refine2';
-import {installProjectViews} from './project-views.js?v=20261117-refine2';
-import {installImageViewer} from './image-viewer.js?v=20261117-refine2';
+import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-refine4';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261117-refine4';
+import './site-runtime.js?v=20261117-refine4';
+import {installSiteInteractions} from './site-interactions.js?v=20261117-refine4';
+import {installProjectViews} from './project-views.js?v=20261117-refine4';
+import {installImageViewer} from './image-viewer.js?v=20261117-refine4';
 
-const href='/assets/site-effects.css?v=20261117-refine2';
+const href='/assets/site-effects.css?v=20261117-refine4';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
