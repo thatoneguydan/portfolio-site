@@ -8,6 +8,8 @@ img.ms-emoji {display:inline-block!important;width:1.15em!important;height:1.15e
 #dan-landing-home .ds-rotate-clip {position:absolute;inset:-.18em 0;overflow:hidden;pointer-events:none}
 #dan-landing-home .ds-rotate-entry {position:absolute;inset:.18em 0 auto;display:block;white-space:pre;line-height:inherit}
 #dan-landing-home .ds-rotate-piece {display:inline-block;white-space:pre;will-change:transform,opacity}
+#dan-landing-home .ds-long .ds-rotate {max-width:100%;grid-template-columns:minmax(0,1fr);white-space:normal}
+#dan-landing-home .ds-long .ds-rotate-measure,#dan-landing-home .ds-long .ds-rotate-entry {white-space:normal;overflow-wrap:anywhere}
 
 /* Only opacity animates; blur strength/masks stay fixed during hover. */
 .portfolio-blur {position:absolute;left:0;right:0;bottom:0;z-index:2;display:block;overflow:hidden;pointer-events:none;opacity:0;transition:opacity 240ms ease;border-radius:inherit}

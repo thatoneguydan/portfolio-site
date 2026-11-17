@@ -25,7 +25,14 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   let visible=false,idlePhase=0,idleWeight=0,lastPointerTime=0,hovering=false;
   let idleTarget=0,idleFrom=0,idleTransition=0;
   const idleEnabled=()=>config.badgeIdleTilt&&config.ticketTilt&&!config.ticketDisabled&&(compact||opened)&&visible&&!document.hidden&&!reduced.matches&&!drag;
-  function updateIdleVisibility(){animateMotion();}
+  function updateIdleVisibility(){
+    if(!visible||document.hidden){
+      const pose=blendIdlePose(motion.x,motion.y,opened?0:scrollTilt,idlePhase,config.badgeIdleAngle,idleWeight);
+      motion.x=motion.tx=pose.x;motion.y=motion.ty=pose.y;motion.vx=motion.vy=0;
+      idleWeight=idleFrom=idleTarget=0;idleTransition=performance.now();
+    }
+    animateMotion();
+  }
   const visibilityObserver=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;updateIdleVisibility();});
   visibilityObserver.observe(carrier);document.addEventListener('visibilitychange',updateIdleVisibility);
   const rgba=(hex,opacity)=>`rgba(${[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)).join(',')},${clamp(opacity,0,100)/100})`;

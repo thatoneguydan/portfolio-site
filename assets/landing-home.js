@@ -1,7 +1,7 @@
 import {defaults,normalizeSettings} from './landing-schema.js';
 import {createBadge} from './landing-badge.js';
 import {appendEmojiText,graphemes} from './site-emoji.js';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation} from './landing-rotate.js';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js';
 (() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
@@ -20,7 +20,7 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation} from '.
   }
   function renderText() {
     currentAnimations.forEach(a=>a.cancel()); currentAnimations=[];rotator?.destroy();rotator=null; h1.replaceChildren();
-    const lines = headlineLines(config); h1.setAttribute('aria-label',lines.join(' '));
+    const lines = headlineLines(config); h1.setAttribute('aria-label',accessibleHeadline(config));
     lines.forEach((text,index) => {
       const line=document.createElement('span'); line.className='ds-reveal-line'; line.dataset.line=index; line.setAttribute('aria-hidden','true');
       let wordIndex=0;

@@ -9,6 +9,19 @@ export function splitPunctuation(word){
 export function targetChoices(config){
   return headlineLines(config).flatMap((line,i)=>line.split(/\s+/).filter(Boolean).map((word,j)=>({value:`${i+1}:${j}`,label:`Line ${i+1} · ${j+1}: ${word}`})));
 }
+export function accessibleHeadline(config){
+  const first=rotationWords(config)[0];
+  return headlineLines(config).map((line,i)=>{
+    let wordIndex=0;
+    return line.split(/(\s+)/).map(word=>{
+      if(!word||/^\s+$/.test(word))return word;
+      const target=`${i+1}:${wordIndex++}`;
+      if(!config.rotateEnabled||!first||target!==config.rotateTarget)return word;
+      const {prefix,suffix}=splitPunctuation(word);
+      return prefix+first+(suffix&&!first.endsWith(suffix)?suffix:'');
+    }).join('');
+  }).join(' ');
+}
 export function createTextRotation(host,config,{suffix=''}={}){
   const words=rotationWords(config).map(word=>suffix&&!word.endsWith(suffix)?word+suffix:word),reduced=matchMedia('(prefers-reduced-motion: reduce)');
   host.classList.add('ds-rotate');
