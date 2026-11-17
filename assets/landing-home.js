@@ -20,7 +20,7 @@ import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20
     return graphemes(text);
   }
   function renderText() {
-    for(const [element,value]of [[name.querySelector('.ds-name-ink')||name,config.ticketName],[heading,config.ticketHeading],[bio,config.bio]])if(element.textContent!==value)element.textContent=value;
+    for(const [element,value]of [[name.querySelector('.ds-name-ink')||name,config.ticketName],[heading,config.ticketHeading],[bio,config.bio]])if(element.dataset.authoredCopy!==value){element.dataset.authoredCopy=value;element.replaceChildren();appendEmojiText(element,value);}
     const headlineSignature=JSON.stringify(Object.entries(config).filter(([key])=>/^line\d$/.test(key)||key==='lineCount'||key.startsWith('rotate')));
     if(headlineSignature===lastHeadline){fitText();return;}
     lastHeadline=headlineSignature;
