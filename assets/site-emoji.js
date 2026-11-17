@@ -1,4 +1,5 @@
 import {emojiPaths,emojiBase,localEmoji} from './fluent-emoji-map.js';
+import {createPaletteGlyph} from './palette-glyph.js?v=20261117-gallery4';
 
 export const graphemes=text=>typeof Intl.Segmenter==='function'?[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(String(text))].map(s=>s.segment):Array.from(String(text));
 export function emojiUrl(glyph){
@@ -12,6 +13,7 @@ export function appendEmojiText(parent,text){
   for(const glyph of graphemes(text)){
     const url=emojiUrl(glyph);
     if(url){
+      if(glyph.replace(/\uFE0F/g,'')==='🎨'){parent.append(createPaletteGlyph(url));continue;}
       const img=document.createElement('img');img.className='ms-emoji';img.src=url;img.alt=glyph;img.draggable=false;img.width=32;img.height=32;
       img.addEventListener('error',()=>{const fallback=document.createElement('span');fallback.dataset.nativeEmoji='';fallback.textContent=glyph;img.replaceWith(fallback);},{once:true});parent.append(img);
     }else parent.append(document.createTextNode(glyph));

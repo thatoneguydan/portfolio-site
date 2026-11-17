@@ -25,7 +25,7 @@ export function entranceDelay(position,lineTimes){
 }
 export function scalePixelStyles(styles,scale){return Object.fromEntries(Object.entries(styles).map(([key,value])=>[key,String(value).replace(/(-?\d*\.?\d+)px/g,(_,n)=>(Number(n)*scale)+'px')]))}
 export function badgeRadii(config,compact,scale){
-  const inset=compact?6:8;
+  const inset=(compact?6:8)+(config.ticketBorder?config.ticketBorderWidth:0);
   return {card:config.ticketRadius*scale,photo:(config.ticketAutoImageRadius?Math.max(0,config.ticketRadius-inset):config.ticketImageRadius)*scale};
 }
 export function photoScrimStops(config){

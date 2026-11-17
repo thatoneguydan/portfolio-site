@@ -1,4 +1,4 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix} from './badge-math.js';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix} from './badge-math.js?v=20261117-gallery4';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');
@@ -99,6 +99,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   function look(isCompact,geometry){
     // Paint physical dimensions once. Typography/insets scale as a single design.
     const {width,height,scale}=geometry;
+    const designFrame=config.ticketBorder?config.ticketBorderWidth:0,frameWidth=designFrame*scale;
     ticket.classList.toggle('is-compact',isCompact);
     ticket.style.width=width+'px';ticket.style.height=height+'px';ticket.style.minHeight='0';
     const panel=(isCompact?0:config.ticketPanelSize)*scale;
@@ -108,23 +109,25 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     ticket.dataset.disabled=String(config.ticketDisabled);activation.disabled=config.ticketDisabled;
     const radii=badgeRadii(config,isCompact,scale);
     ticket.style.borderRadius=radii.card+'px';
-    ticket.style.setProperty('--ticket-radius',ticket.style.borderRadius);
+    ticket.style.backgroundColor=config.ticketBorder?rgba(config.ticketBorderColor,config.ticketBorderOpacity):config.ticketBackground;
+    surface.style.inset=frameWidth+'px';surface.style.borderRadius=Math.max(0,radii.card-frameWidth)+'px';
+    surface.style.clipPath=`inset(0px round ${Math.max(0,radii.card-frameWidth)}px)`;
     ticket.style.setProperty('--ticket-bg',config.ticketBackground);ticket.style.setProperty('--ticket-ink',config.ticketColor);
     ticket.style.setProperty('--ticket-copy-bg',config.ticketCustomPanelBackground?config.ticketPanelBackground:config.ticketBackground);
     ticket.style.setProperty('--ticket-parallax',config.ticketParallax*scale+'px');
     photoWindow.style.borderRadius=radii.photo+'px';
-    photoWindow.style.setProperty('--photo-radius',photoWindow.style.borderRadius);
+    photoWindow.style.clipPath=`inset(0px round ${radii.photo}px)`;
     photoWindow.style.top=photoWindow.style.left=photoWindow.style.right=(isCompact?6:8)*scale+'px';
     photoWindow.style.height=`calc(${isCompact?76:78}% - ${(isCompact?6:16)*scale}px)`;
     photo.style.objectPosition=`50% ${config.photoPosition}%`;
     copy.style.padding='0';
     // Type is laid out in canonical design coordinates, then scaled as a plane.
-    copyLayout.style.width=(config.ticketOrientation==='vertical'?config.ticketWidth:config.ticketPanelSize)+'px';
+    copyLayout.style.width=(config.ticketOrientation==='vertical'?config.ticketWidth-2*designFrame:config.ticketPanelSize)+'px';
     copyLayout.style.padding=(config.ticketOrientation==='vertical'?[26,24]:[30,20,30,26]).map(n=>n+'px').join(' ');
     copyLayout.style.transform=`scale(${scale})`;
     copy.setAttribute('aria-hidden',String(isCompact));
     nameInk.style.fontSize=config.ticketNameSize+'px';nameInk.style.fontWeight=config.ticketNameWeight;
-    const bodyWidth=width-(config.ticketOrientation==='horizontal'?panel:0),bodyHeight=height-(config.ticketOrientation==='vertical'?panel:0);
+    const bodyWidth=width-2*frameWidth-(config.ticketOrientation==='horizontal'?panel:0),bodyHeight=height-2*frameWidth-(config.ticketOrientation==='vertical'?panel:0);
     const desiredNameScale=scale*(isCompact?Math.min(14,config.ticketNameSize)/config.ticketNameSize:1);
     const nameScale=Math.min(desiredNameScale,Math.max(.01,(bodyWidth-(isCompact?16:48)*scale)/Math.max(1,nameInk.offsetWidth)));
     const nameX=isCompact?(bodyWidth-nameInk.offsetWidth*nameScale)/2:24*scale;
@@ -138,7 +141,6 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     scrim.style.transform='none';
     scrim.style.mixBlendMode=config.scrimBlend;
     ticket.style.setProperty('--ticket-border-width',(config.ticketBorder?config.ticketBorderWidth*scale:0)+'px');
-    ticket.style.setProperty('--ticket-border-bleed',(config.ticketBorder?.7*scale:0)+'px');
     ticket.style.setProperty('--ticket-border-color',rgba(config.ticketBorderColor,config.ticketBorderOpacity));
     ticket.style.boxShadow=config.ticketShadow?`${config.shadowX*scale}px ${config.shadowY*scale}px ${config.shadowBlur*scale}px ${config.shadowSpread*scale}px ${rgba(config.shadowColor,config.shadowOpacity)}`:'none';
     ticket.setAttribute('aria-label',`${config.ticketName}: ID badge`);
@@ -154,8 +156,8 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const matrix=new DOMMatrixReadOnly(getComputedStyle(carrier).transform);
     const scale=motion.h*Math.hypot(matrix.a,matrix.b);
     const look=Object.fromEntries([
-      ['ticket',ticket,['width','height','borderRadius','boxShadow']],['surface',surface,['gridTemplateColumns','gridTemplateRows']],
-      ['photo',photoWindow,['height','top','left','right','borderRadius']]
+      ['ticket',ticket,['width','height','borderRadius','boxShadow']],['surface',surface,['gridTemplateColumns','gridTemplateRows','inset','borderRadius','clipPath']],
+      ['photo',photoWindow,['height','top','left','right','borderRadius','clipPath']]
     ].map(([key,el,properties])=>[key,scalePixelStyles(read(el,properties),scale)]));
     look.name={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(nameLayout).transform),scale)};
     look.copyLayout={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(copyLayout).transform),scale)};

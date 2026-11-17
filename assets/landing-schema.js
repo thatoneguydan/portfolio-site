@@ -16,7 +16,7 @@ export const defaults = {
   "rotateFrom": "first",
   "portfolioBlur": true,
   "portfolioBlurStrength": 8,
-  "portfolioBlurHeight": 62,
+  "portfolioBlurHeight": 33,
   "portfolioBlurDuration": 240,
   "paletteSaturation": 42,
   "bio": "I work across video, design, print, and photography to make things clear, intentional, and worth looking at.",
@@ -79,6 +79,7 @@ export const defaults = {
   "shadowOpacity": 68,
   "shadowColor": "#111111",
   "galleryHeight": 320,
+  "galleryAdaptive": true,
   "expandRatio": 52,
   "galleryGap": 10,
   "galleryRadius": 16,
@@ -106,6 +107,7 @@ export const defaults = {
   "badgeIdlePeriod": 10,
   "badgeIdleEase": 900,
   "verticalGalleryHeight": 320,
+  "verticalGalleryAdaptive": true,
   "verticalGalleryCollapsed": 64,
   "verticalGalleryGap": 10,
   "verticalGalleryRadius": 16,
@@ -213,12 +215,14 @@ export const controlGroups = {
       ['range','badgeEntranceBounce','Entrance bounce',0,18,1,'%']
     ],
     gallery: [
-      ['range','galleryHeight','Gallery height',240,500,1,'px'], ['range','expandRatio','Expanded width',35,75,1,'%'],
+      ['check','galleryAdaptive','Responsive 16:9 height'],
+      ['range','galleryHeight','Manual gallery height',240,500,1,'px'], ['range','expandRatio','Expanded width',35,75,1,'%'],
       ['range','galleryGap','Gallery gap',0,24,1,'px'], ['range','galleryRadius','Gallery radius',0,32,1,'px'],
       ['range','galleryDuration','Transition duration',200,1400,50,'ms'], ['check','grayscale','Grayscale inactive cards']
     ],
     galleryVertical: [
-      ['range','verticalGalleryHeight','Expanded card height',140,640,1,'px'],
+      ['check','verticalGalleryAdaptive','Responsive 16:9 height'],
+      ['range','verticalGalleryHeight','Manual expanded card height',140,640,1,'px'],
       ['range','verticalGalleryCollapsed','Collapsed card height',44,140,1,'px'],
       ['range','verticalGalleryGap','Vertical gallery gap',0,32,1,'px'],
       ['range','verticalGalleryRadius','Vertical gallery radius',0,40,1,'px'],

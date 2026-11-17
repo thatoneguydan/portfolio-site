@@ -1,7 +1,8 @@
-import {defaults,normalizeSettings} from './landing-schema.js';
-import {createBadge} from './landing-badge.js';
-import {appendEmojiText,graphemes} from './site-emoji.js';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-gallery4';
+import {createBadge} from './landing-badge.js?v=20261117-gallery4';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-gallery4';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-gallery4';
+import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-gallery4';
 (() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
@@ -91,24 +92,35 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
     config.activeIndex=(index+panels.length)%panels.length;
     const grayscale=gallery.dataset.layout==='vertical'?config.verticalGalleryGrayscale:config.grayscale;
     panels.forEach((el,i) => {const active=i===config.activeIndex;el.dataset.focused=String(active);el.style.flexGrow=active?config.expandRatio*(panels.length-1)/(100-config.expandRatio):1;el.querySelector('img').style.filter=grayscale&&!active?'grayscale(1)':'none';});
+    updateCaptions();
     if(save)persist();
+  }
+  function updateCaptions(){
+    const navToggle=document.querySelector('.site-nav-toggle');
+    const mobile=navToggle?getComputedStyle(navToggle).display!=='none':innerWidth<=720;
+    gallery.dataset.mobile=String(mobile);
+    panels.forEach((panel,i)=>{
+      const kind=galleryCaptionKind({active:i===config.activeIndex,vertical:gallery.dataset.layout==='vertical',mobile,hovered:panel.matches(':hover'),focused:panel.matches(':focus-visible')});
+      panel.dataset.captionKind=kind;panel.dataset.captionVisible=String(kind!=='none');
+    });
   }
   function renderGallery() {
     const vertical=root.clientWidth<=500;
     const gap=vertical?config.verticalGalleryGap:config.galleryGap;
     const settledWidth=vertical?gallery.clientWidth:(gallery.clientWidth-gap*(panels.length-1))*config.expandRatio/100;
+    const height=expandedGalleryHeight(config,vertical,settledWidth);
     gallery.dataset.layout=vertical?'vertical':'horizontal';
-    gallery.style.setProperty('--gallery-height',config.galleryHeight+'px');
+    gallery.style.setProperty('--gallery-height',height+'px');
     gallery.style.setProperty('--gallery-gap',gap+'px');
     gallery.style.setProperty('--gallery-radius',(vertical?config.verticalGalleryRadius:config.galleryRadius)+'px');
     gallery.style.setProperty('--gallery-duration',(vertical?config.verticalGalleryDuration:config.galleryDuration)+'ms');
-    gallery.style.setProperty('--mobile-expanded',config.verticalGalleryHeight+'px');
+    gallery.style.setProperty('--mobile-expanded',height+'px');
     gallery.style.setProperty('--mobile-collapsed',config.verticalGalleryCollapsed+'px');
     gallery.style.setProperty('--caption-inset',(vertical?config.verticalGalleryPadding:20)+'px');
     gallery.style.setProperty('--caption-width',Math.max(1,settledWidth-(vertical?config.verticalGalleryPadding*2:36))+'px');
     gallery.style.setProperty('--caption-title-size',(vertical?config.verticalGalleryTitleSize:20)+'px');
     gallery.style.setProperty('--compact-title-size',config.verticalGalleryCompactTitleSize+'px');
-    gallery.style.setProperty('--media-width',Math.max(140,settledWidth*1.22)+'px');selectPanel(config.activeIndex,false);
+    gallery.style.setProperty('--media-width',Math.max(1,settledWidth)+'px');selectPanel(config.activeIndex,false);
   }
 
   const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText});
@@ -121,7 +133,9 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
     let touchExpanding=false;
     panel.addEventListener('pointerdown',event=>{touchExpanding=event.pointerType==='touch'&&config.activeIndex!==i;});
     panel.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch')selectPanel(i);});
+    panel.addEventListener('pointerleave',updateCaptions);
     panel.addEventListener('focus',()=>selectPanel(i));
+    panel.addEventListener('blur',()=>requestAnimationFrame(updateCaptions));
     // Capture before the site's video-modal and project-shelf click handlers.
     panel.addEventListener('click',event=>{
       if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
@@ -161,7 +175,7 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
     requestAnimationFrame(replay);
     try{
       const response=await fetch('/api/owner',{credentials:'same-origin',cache:'no-store'});
-      if(response.ok&&(await response.json()).owner){api.owner=true;const module=await import('./landing-tune.js');module.mountTune(api);}
+      if(response.ok&&(await response.json()).owner){api.owner=true;const module=await import('./landing-tune.js?v=20261117-gallery4');module.mountTune(api);}
     }catch{}
   }
   loadSettings();

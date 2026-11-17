@@ -1,5 +1,5 @@
-import {targetChoices,rotationWords} from './landing-rotate.js';
-import {controlGroups,normalizeSettings} from './landing-schema.js';
+import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-gallery4';
+import {controlGroups,normalizeSettings} from './landing-schema.js?v=20261117-gallery4';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-groups1';document.head.append(stylesheet);
@@ -59,6 +59,8 @@ export function mountTune(api){
     output.textContent=n===0?'Before line 1':n===config.lineCount+1?'After last line':Number.isInteger(n)?'With line '+n:n<1?'Before line 1':n>config.lineCount?'During line '+config.lineCount:`Between lines ${Math.floor(n)}–${Math.ceil(n)}`;
   }
   function optionDisabled(key) {
+    if(key==='galleryHeight')return config.galleryAdaptive;
+    if(key==='verticalGalleryHeight')return config.verticalGalleryAdaptive;
     if(key==='badgeLinkNavBreakpoint')return !config.ticketResponsive;
     if(key==='badgeBreakpoint')return !config.ticketResponsive||config.badgeLinkNavBreakpoint;
     if(key.startsWith('badgeEntrance')&&key!=='badgeEntrance')return !config.badgeEntrance;
