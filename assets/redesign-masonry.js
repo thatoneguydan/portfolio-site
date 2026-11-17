@@ -1,4 +1,4 @@
-import {masonryLayout} from './masonry-layout.js?v=20261117-refine5';
+import {masonryLayout} from './masonry-layout.js?v=20261117-refine6';
 
 // Keep the portfolio's existing links, caption planes and inline project shelves.
 const grid=document.querySelector('.rdp-project-grid[data-masonry]');

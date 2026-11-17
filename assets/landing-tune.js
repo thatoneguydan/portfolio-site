@@ -1,8 +1,8 @@
-import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-refine5';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-refine5';
+import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-refine6';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-refine6';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
-  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-refine5';document.head.append(stylesheet);
+  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-refine6';document.head.append(stylesheet);
   const config={...api.getConfig()},baseline={...api.getConfig()};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';

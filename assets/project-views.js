@@ -4,13 +4,21 @@ const selector='.rdp-project-card,#featured-work .rd-work-card,.rv-video-card[da
 const titleFor=card=>card.dataset.videoTitle||card.querySelector('.rdp-project-title,.rd-work-title,.rv-video-title,strong')?.textContent.trim()||'Project';
 const slugFor=card=>card.dataset.shelfSlug||((card.dataset.youtubeId||card.dataset.videoId)?'video-'+(card.dataset.youtubeId||card.dataset.videoId):new URL(card.href,location.href).pathname.replace(/^\/+|\/+$/g,''))||'project';
 function close(state){
-  if(!state)return;state.card.classList.remove('is-active');state.card.setAttribute('aria-expanded','false');state.shelf.classList.remove('is-open');state.shelf.setAttribute('aria-hidden','true');state.shelf.inert=true;
+  if(!state)return;state.cancelInsert?.();state.card.classList.remove('is-active');state.card.setAttribute('aria-expanded','false');state.shelf.classList.remove('is-open');state.shelf.setAttribute('aria-hidden','true');state.shelf.inert=true;
   let removed=false;const remove=()=>{if(removed)return;removed=true;state.shelf.querySelectorAll('iframe').forEach(f=>f.src='about:blank');state.shelf.remove();};
   state.shelf.addEventListener('portfolio-panel-closed',remove,{once:true});setTimeout(remove,reduced.matches?100:1400);
   if(active===state)active=null;
 }
-function insert(card,shelf){
+function insert(card,shelf,force=false){
   const grid=card.closest('.rdp-project-grid,.ds-gallery,.rv-video-grid');
+  if(!force&&grid?.hasAttribute('data-masonry')&&grid.dataset.masonryReady!=='true'){
+    // A restored URL can open before the deferred masonry module has assigned
+    // row positions. Wait for its first plan so the shelf follows the whole row.
+    let done=false,timer;const cancel=()=>{done=true;observer.disconnect();clearTimeout(timer);};
+    const place=()=>{if(done)return;cancel();if(card.isConnected&&shelf.classList.contains('is-open'))insert(card,shelf,true);};
+    const observer=new MutationObserver(()=>{if(grid.dataset.masonryReady==='true')place();});
+    observer.observe(grid,{attributes:true,attributeFilter:['data-masonry-ready']});timer=setTimeout(place,1500);return cancel;
+  }
   if(grid?.matches('.is-masonry')){
     const top=Number(card.dataset.masonryY);const end=[...grid.querySelectorAll(':scope>.rdp-project-card')].filter(c=>Number(c.dataset.masonryY)<=top+.5).at(-1)||card;end.after(shelf);
   }else if(grid?.matches('.ds-gallery'))grid.after(shelf);
@@ -32,7 +40,7 @@ export function openProject(card,{hash=true}={}){
     const loading=document.createElement('div');loading.className='rdp-project-loading';loading.setAttribute('aria-label','Loading project');inner.append(loading);
     const frame=document.createElement('iframe');frame.className='rdp-project-frame';frame.title=title;frame.style.visibility='hidden';const url=new URL(card.href,location.href);url.searchParams.set('inlineShelf','1');frame.src=url.pathname+url.search;inner.append(frame);
   }
-  active={card,shelf};card.classList.add('is-active');card.setAttribute('aria-expanded','true');insert(card,shelf);
+  active={card,shelf};card.classList.add('is-active');card.setAttribute('aria-expanded','true');active.cancelInsert=insert(card,shelf);
   shelf.addEventListener('portfolio-panel-close',()=>{if(active?.shelf===shelf){close(active);history.replaceState(null,'',location.pathname+location.search);}});
   if(hash)history.replaceState(null,'',location.pathname+location.search+'#'+(card.closest('#featured-work')?'featured-':'project-')+slugFor(card));
 }

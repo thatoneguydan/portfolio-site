@@ -6,7 +6,7 @@
 
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261117-refine5';
+    navScript.src = '/assets/redesign-nav.js?v=20261117-refine6';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -16,7 +16,7 @@
      the redesign body classes are applied asynchronously. */
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-contact-shelf]')) {
     const shelfScript = document.createElement('script');
-    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20261117-refine5';
+    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20261117-refine6';
     shelfScript.dataset.redesignContactShelf = '';
     document.head.append(shelfScript);
   }
@@ -162,5 +162,5 @@
     }
   }, true);
 
-  import('/assets/image-viewer.js?v=20261117-refine5').then(module=>module.installImageViewer());
+  import('/assets/image-viewer.js?v=20261117-refine6').then(module=>module.installImageViewer());
 })();
