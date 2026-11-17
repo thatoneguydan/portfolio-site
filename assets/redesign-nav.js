@@ -31,7 +31,7 @@
   if (!document.querySelector(`link[href^="${stylesheetPath}"]`)) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `${stylesheetPath}?v=20261117-site9`;
+    link.href = `${stylesheetPath}?v=20261117-masonry1`;
     document.head.append(link);
   }
 
@@ -91,9 +91,45 @@
     toggle.setAttribute('aria-label', 'Open navigation');
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-controls', nav.id);
-    toggle.innerHTML = '<span></span><span></span><span></span>';
     header.insertBefore(toggle, nav);
   }
+
+  // EasyUI HamburgerMenu: rounded 24px strokes and springSnappy physics.
+  // Adapted without adding a React runtime. See THIRD-PARTY-NOTICES.txt.
+  toggle.innerHTML = '<span class="ds-hamburger" aria-hidden="true"><span></span><span></span><span></span></span>';
+  const lines = [...toggle.querySelectorAll('.ds-hamburger > span')];
+  const menuReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let menuProgress = 0, menuVelocity = 0, menuTarget = 0, menuFrame = 0, menuTime = 0;
+  const paintMenu = () => {
+    const gap = 24 * .28 * (1 - menuProgress);
+    lines[0].style.transform = `translateY(${-gap}px) rotate(${45 * menuProgress}deg)`;
+    lines[1].style.transform = `scaleX(${1 - .7 * menuProgress})`;
+    lines[1].style.opacity = 1 - menuProgress;
+    lines[2].style.transform = `translateY(${gap}px) rotate(${-45 * menuProgress}deg)`;
+  };
+  const tickMenu = now => {
+    menuFrame = 0;
+    const elapsed = Math.min(.04, (now - menuTime) / 1000);
+    menuTime = now;
+    const steps = Math.max(1, Math.ceil(elapsed * 240)), dt = elapsed / steps;
+    for (let i = 0; i < steps; i++) {
+      menuVelocity += ((menuTarget - menuProgress) * 380 - menuVelocity * 30) / .5 * dt;
+      menuProgress += menuVelocity * dt;
+    }
+    if (Math.abs(menuTarget - menuProgress) + Math.abs(menuVelocity) < .0005) {
+      menuProgress = menuTarget; menuVelocity = 0;
+    } else menuFrame = requestAnimationFrame(tickMenu);
+    paintMenu();
+  };
+  const morphMenu = open => {
+    menuTarget = open ? 1 : 0;
+    if (menuReducedMotion.matches) {
+      cancelAnimationFrame(menuFrame); menuFrame = 0; menuProgress = menuTarget; menuVelocity = 0; paintMenu();
+    } else if (!menuFrame && menuProgress !== menuTarget) {
+      menuTime = performance.now(); menuFrame = requestAnimationFrame(tickMenu);
+    }
+  };
+  paintMenu();
 
   header.classList.add('has-nav-toggle');
   const mobile = window.matchMedia('(max-width: 720px)');
@@ -103,6 +139,7 @@
     header.classList.toggle('nav-open', shouldOpen);
     toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
     toggle.setAttribute('aria-label', shouldOpen ? 'Close navigation' : 'Open navigation');
+    morphMenu(shouldOpen);
     if (restoreFocus) toggle.focus();
   };
 

@@ -3,7 +3,7 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20260910-live';
+    navScript.src = '/assets/redesign-nav.js?v=20261117-masonry1';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -20,11 +20,12 @@
   let suppressAnchorUntil = 0;
 
   const setImageHints = () => {
-    cards().forEach((card) => {
+    cards().forEach((card, index) => {
       const image = card.querySelector('img');
       if (!image) return;
       image.decoding = 'async';
-      image.fetchPriority = 'low';
+      image.fetchPriority = index < 2 ? 'high' : 'auto';
+      if (index < 4) image.loading = 'eager';
     });
   };
 
@@ -39,6 +40,10 @@
   };
 
   const findRowEnd = (card) => {
+    if (grid.dataset.masonryReady === 'true') {
+      const targetTop = Number(card.dataset.masonryY);
+      return cards().filter(candidate => Number(candidate.dataset.masonryY) <= targetTop + .5).at(-1) || card;
+    }
     const targetTop = card.getBoundingClientRect().top;
     let end = card;
 
