@@ -5,6 +5,7 @@ export function emojiUrl(glyph){
   // Keep text-style arrows, copyright symbols, etc. in the site's typeface.
   if(!/[\p{Emoji_Presentation}\uFE0F\u20E3]/u.test(glyph))return null;
   const key=glyph.replace(/\uFE0F/g,''),path=emojiPaths[key];
+  if(key==='🎨')return '/assets/fluent-emoji/1f3a8-yellow.png';
   return path?(localEmoji[key]||emojiBase+path.split('/').map(encodeURIComponent).join('/')):null;
 }
 export function appendEmojiText(parent,text){

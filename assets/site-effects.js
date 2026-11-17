@@ -1,7 +1,7 @@
 import {installAuthoredEmoji} from './site-emoji.js';
 import {defaults} from './landing-schema.js';
 
-const href='/assets/site-effects.css?v=20261116-emoji1';
+const href='/assets/site-effects.css?v=20261116-motion4';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
@@ -25,6 +25,8 @@ function ensure(card){
     const mask=`linear-gradient(180deg,${stops.join(',')})`;layer.style.maskImage=mask;layer.style.webkitMaskImage=mask;blur.append(layer);
   }
   media.append(blur);apply(card);
+  // Give the new layer its neutral painted frame before activating hover.
+  requestAnimationFrame(()=>requestAnimationFrame(()=>blur.classList.add('is-ready')));
 }
 function discover(root){
   if(root.nodeType!==1)return;

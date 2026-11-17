@@ -1,5 +1,6 @@
 Microsoft Fluent Emoji: assets/fluent-emoji/LICENSE
 Source: https://github.com/microsoft/fluentui-emoji
+The yellow-backed artist palette is a locally edited derivative of the Fluent 3D artist palette; the original is retained alongside it.
 
 Progressive blur adapted from Motion Primitives:
 https://github.com/ibelick/motion-primitives

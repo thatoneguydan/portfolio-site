@@ -125,6 +125,7 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 /* A clipped content surface inside an overlapping, unclipped frame. */
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket {display:block;overflow:visible;background:transparent;pointer-events:none;cursor:inherit}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-surface {position:absolute;inset:0;display:grid;overflow:hidden;isolation:isolate;border-radius:inherit;background:var(--ticket-bg);transform:translateZ(0)}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-body {min-height:0}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket::after {inset:-.7px;border-radius:calc(var(--ticket-radius,16px) + .7px);border-width:calc(var(--ticket-border-width,0px) + var(--ticket-border-bleed,0px));background:transparent}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-photo-window {isolation:isolate;transform:translateZ(0);clip-path:inset(0 round var(--photo-radius,8px));border:0;outline:0;box-shadow:none}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-photo-window::after {content:'';position:absolute;inset:-.2px;z-index:2;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--ticket-bg)}

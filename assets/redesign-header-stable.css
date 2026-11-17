@@ -5,6 +5,11 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Inverting through 50% makes the whole mark gray, the same as its changing
+   background. Switch these two colors together; keep arrow/underline motion. */
+.home-redesign .site-logo,.home-redesign .site-logo img {transition:none}
+.home-redesign .site-logo img {display:block;flex-shrink:0}
+
 @media (min-width: 981px) {
   .home-redesign .site-logo {
     width: 261px !important;
@@ -56,3 +61,4 @@ html {
     height: auto !important;
   }
 }
+

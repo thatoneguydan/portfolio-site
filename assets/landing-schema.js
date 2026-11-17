@@ -86,6 +86,13 @@ export const defaults = {
   "activeIndex": 0,
   "badgeScrollTilt": 20,
   "badgeCompactWidth": 92,
+  "badgeBreakpoint": 760,
+  "badgeExpandedWidth": 92,
+  "badgeExpandedHeight": 86,
+  "badgeEntrance": true,
+  "badgeEntrancePosition": 1,
+  "badgeEntranceDuration": 850,
+  "badgeEntranceBounce": 7,
   "badgeCompactScale": 1,
   "badgeCompactTextRatio": 1,
   "badgeHoverScale": 1.04,
@@ -176,7 +183,9 @@ export const controlGroups = {
       ['range','badgeScrollTilt','Scroll tilt',0,36,1,'°'],
       ['range','badgeCompactScale','Photo badge scale',.4,1.6,.01,'×'],
       ['range','badgeOverlap','Headline overlap',10,80,1,'%'],
-      ['range','badgeCompactTextRatio','Collapse threshold',.6,1.5,.05,'×'],
+      ['range','badgeBreakpoint','Badge below viewport width',320,1800,10,'px'],
+      ['range','badgeExpandedWidth','Expanded width',50,98,1,'%'],
+      ['range','badgeExpandedHeight','Expanded height limit',50,94,1,'%'],
       ['range','badgeHoverScale','Hover scale',1,1.12,.01,'×'],
       ['range','badgeMorphDuration','Open / close duration',200,1000,20,'ms'],
       ['range','badgeBackdropBlur','Background blur',0,24,1,'px'],
@@ -184,6 +193,12 @@ export const controlGroups = {
       ['range','badgeIdleAngle','Idle tilt strength',0,30,.1,'°'],
       ['range','badgeIdlePeriod','Idle cycle length',.5,120,.5,'s']
       ,['range','badgeIdleEase','Ease into idle',200,3000,50,'ms']
+    ],
+    badgeEntrance: [
+      ['check','badgeEntrance','Animate ID entrance'],
+      ['range','badgeEntrancePosition','Entrance in text sequence',0,7,.1,''],
+      ['range','badgeEntranceDuration','Entrance duration',250,1600,50,'ms'],
+      ['range','badgeEntranceBounce','Entrance bounce',0,18,1,'%']
     ],
     gallery: [
       ['range','galleryHeight','Gallery height',240,500,1,'px'], ['range','expandRatio','Expanded width',35,75,1,'%'],

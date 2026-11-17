@@ -55,10 +55,11 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
     lines.forEach(el=>el.style.removeProperty('width'));
   }
   function replay() {
-    currentAnimations.forEach(a=>a.cancel());currentAnimations=[];rotator?.pause();if(reduced.matches||!config.animate){rotator?.start();return;}
-    let revealEnd=0;
+    currentAnimations.forEach(a=>a.cancel());currentAnimations=[];rotator?.pause();if(reduced.matches||!config.animate){rotator?.start();badge.enter([{start:0,end:0}]);return;}
+    let revealEnd=0;const lineTimes=[],lead=config.badgeEntrance?220:0;
     [...h1.children].forEach((line,li) => {
       const glyphs=[...line.querySelectorAll('.ds-glyph')],words=[...line.querySelectorAll('.ds-word')],n=glyphs.length;
+      const timing={start:lead+li*config.lineDelay,end:lead+li*config.lineDelay};lineTimes.push(timing);
       const from=config.staggerFrom==='reference'?['first','last','center'][li]:config.staggerFrom;
       const start=config.direction==='down'?-112:config.direction==='up'?112:li===1?-112:112;
       const randomOrder=Array.from({length:config.splitBy==='words'?words.length:n},(_,i)=>i);
@@ -68,10 +69,11 @@ import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessib
         const count=config.splitBy==='lines'?1:config.splitBy==='words'?words.length:n;
         const order=from==='last'?count-1-position:from==='center'?Math.abs(position-(count-1)/2):from==='random'?randomOrder[position]||0:position;
         const frames=[];for(let i=0;i<=50;i++){const t=i/50*config.duration/1000,decay=Math.exp(-10.5*t)*(Math.cos(9.47365*t)+10.5/9.47365*Math.sin(9.47365*t));frames.push({transform:`translateY(${i===50?0:start*decay}%)`,offset:i/50});}
-        const delay=li*config.lineDelay+order*config.stagger;revealEnd=Math.max(revealEnd,config.duration+delay);
+        const delay=lead+li*config.lineDelay+order*config.stagger;revealEnd=Math.max(revealEnd,config.duration+delay);timing.end=Math.max(timing.end,config.duration+delay);
         currentAnimations.push(el.animate(frames,{duration:config.duration,delay,easing:'linear',fill:'both'}));
       });
     });
+    badge.enter(lineTimes);
     rotator?.start(revealEnd+config.rotateInterval);
   }
   function selectPanel(index,save=true) {
