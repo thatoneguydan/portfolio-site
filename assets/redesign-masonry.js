@@ -61,6 +61,7 @@ if(grid){
       }
       const target=`translate3d(${x}px,${y}px,0)`;
       el.style.width=w+'px';el.style.height=h+'px';
+      const source=states.get(el)?.image;if(source?.srcset)source.sizes=Math.ceil(w)+'px';
       el.dataset.masonryX=x;el.dataset.masonryY=y;
       if(!old||Math.abs(old.x-x)>.5||Math.abs(old.y-y)>.5){
         const current=old&&getComputedStyle(el).transform;motions.get(el)?.cancel();el.style.transform=target;
