@@ -50,22 +50,60 @@
     #dan-landing-home .ds-caption i{margin-left:auto;font-size:22px;font-style:normal}
 /* The site owns the header, page gutters, type family, project shelves and footer. */
 #dan-landing-home {isolation:auto; font-family:inherit}
-/* The percentage resolves against the same available width as the side
-   gutters, before the max-width cap centers the main column. */
-.landing-refresh .site-main:has(> #dan-landing-home) {padding-block-end:var(--site-side-gutter,4%)}
+@property --work-page-width {
+  syntax:"<length>";
+  inherits:true;
+  initial-value:0px;
+}
+/* Measure the paint area at the main's full-width parent so the backdrop
+   includes the scrollbar rail even when the cards reach their width cap. */
+.landing-refresh .portfolio-page-content {container-type:inline-size}
+.landing-refresh .site-main:has(> #dan-landing-home) {--work-page-width:100cqw}
 #dan-landing-home .ds-hero {--hero-base-top:clamp(52px,6vw,90px);--hero-column-gap:clamp(28px,3vw,48px);padding:calc(var(--hero-base-top) * var(--hero-top-space,1)) 0 clamp(62px,7vw,110px);gap:var(--hero-column-gap)}
 #dan-landing-home .ds-intro {container-type:inline-size}
-#dan-landing-home .ds-featured {padding:0 0 clamp(64px,7vw,112px)}
+#dan-landing-home .ds-featured {padding:0}
+#dan-landing-home .ds-work-section {
+  --work-section-surface:var(--work-section-background,var(--dan-paper));
+  --work-grid-line:color-mix(in srgb,var(--dan-ink) 13%,var(--work-section-surface));
+  --work-section-bleed:calc((100% - var(--work-page-width)) / 2);
+  --work-section-gutter:calc(var(--work-page-width) * .04);
+  --work-section-rise:var(--work-section-wave-height,0px);
+  position:relative;
+  isolation:isolate;
+  margin-block-start:calc(clamp(64px,7vw,112px) * var(--work-section-margin-before,1));
+  padding-block-start:calc(var(--work-section-rise) + var(--work-section-padding-before,0px));
+  padding-block-end:calc(var(--work-section-gutter) * var(--work-section-padding-after,1));
+}
+#dan-landing-home .ds-work-section::before {
+  content:"";
+  position:absolute;
+  inset-block:0 calc(-1 * var(--footer-wave-height,0px));
+  inset-inline:var(--work-section-bleed) calc(var(--work-section-bleed) - var(--page-content-gutter,0px));
+  z-index:-1;
+  background:var(--work-section-surface);
+  pointer-events:none;
+  /* The solid mask overlaps the base of the repeated curve. The same plane
+     extends under the entire footer wave, so its troughs always show this color. */
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V100H0Z'/%3E%3C/svg%3E"),linear-gradient(transparent var(--work-section-rise),#000 var(--work-section-rise));
+  mask-position:center top;
+  mask-size:var(--work-section-wave-length,320px) calc(var(--work-section-rise) + 1px),100% 100%;
+  mask-repeat:repeat-x,no-repeat;
+}
+/* Paint the footer above the section backdrop where their wave boxes overlap. */
+.landing-refresh .rd-footer-cta {position:relative}
+#dan-landing-home.featured-below-fold > .ds-work-section {grid-area:6 / 1}
 #dan-landing-home .ds-work-links {
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:1px;
   padding:1px;
-  background:var(--dan-line);
+  background:var(--work-grid-line);
 }
-#dan-landing-home.featured-below-fold > .ds-work-links {grid-area:6 / 1}
+#dan-landing-home [data-work-card=video] {--work-card-idle:var(--work-video-background,var(--dan-paper))}
+#dan-landing-home [data-work-card=design] {--work-card-idle:var(--work-design-background,var(--dan-paper))}
+#dan-landing-home [data-work-card=photo] {--work-card-idle:var(--work-photo-background,var(--dan-paper))}
 #dan-landing-home .ds-work-card {
-  --work-card-surface:var(--dan-paper);
+  --work-card-surface:var(--work-card-idle,var(--dan-paper));
   --work-card-rise:0px;
   --work-card-motion:230ms cubic-bezier(.2,.75,.2,1);
   --work-card-padding:clamp(20px,3.6cqw,56px);
@@ -92,8 +130,17 @@
   pointer-events:none;
   transition:inset-block-start var(--work-card-motion);
 }
-/* The grid paints the dividers outside the cards so each painted top edge
-   stays aligned with its own sides for the entire move. */
+#dan-landing-home .ds-work-card::after {
+  content:"";
+  position:absolute;
+  inset:-1px 0 auto;
+  block-size:1px;
+  z-index:1;
+  background:var(--work-grid-line);
+  pointer-events:none;
+}
+/* These separators occupy the grid's fixed gap. The animated face sits behind
+   them as it grows past its card's original top, including in stacked rows. */
 #dan-landing-home .ds-work-card-number {
   align-self:start;
   --work-card-number-base:clamp(54px,7.7cqw,132px);
@@ -175,7 +222,11 @@
   #dan-landing-home .ds-work-card::before {transition:none}
 }
 /* Keep the stacked navigation at the same breakpoint as the header menu. */
+@media (max-width:980px) {
+  #dan-landing-home .ds-work-section {--work-section-gutter:calc(var(--work-page-width) * .05)}
+}
 @media (max-width:720px) {
+  #dan-landing-home .ds-work-section {--work-section-gutter:var(--site-side-gutter,16px)}
   #dan-landing-home .ds-work-links {grid-template-columns:minmax(0,1fr)}
   #dan-landing-home .ds-work-card {
     --work-card-padding:min(var(--work-mobile-padding,32px),24cqw);

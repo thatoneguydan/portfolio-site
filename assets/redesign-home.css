@@ -348,11 +348,8 @@
   .rd-work-card:nth-child(n) { min-height: 118vw; }
 }
 
-/* The header borrows the same visual language as the homepage discipline
-   buttons: indexed cells, dividers, corner arrows, and black/white inversion.
-   On hover-capable devices the system compresses as the window narrows rather
-   than reverting to the old navigation. */
-@media (hover: hover) {
+/* Indexed desktop navigation cells. Compact navigation has its own geometry. */
+@media (width > 720px) {
   .home-redesign .site-header {
     min-height: 86px;
     padding: 0;
@@ -499,16 +496,7 @@
   }
 }
 
-@media (hover: hover) and (max-width: 980px) {
-  .home-redesign .site-logo {
-    padding-left: clamp(10px, 2vw, 20px);
-    padding-right: clamp(10px, 2vw, 20px);
-  }
-
-  .home-redesign .site-logo img {
-    width: clamp(140px, 19vw, 185px);
-  }
-
+@media (720px < width <= 980px) {
   .home-redesign .site-nav {
     flex: 1 1 auto;
   }
@@ -518,68 +506,6 @@
     flex: 1 1 0;
     padding: 22px clamp(5px, 1vw, 11px);
     font-size: clamp(9px, 1.35vw, 12px);
-  }
-}
-
-@media (hover: hover) and (max-width: 720px) {
-  .home-redesign .site-header {
-    min-height: 74px;
-    padding: 0;
-    gap: 0;
-  }
-
-  .home-redesign .site-logo {
-    min-height: 74px;
-    padding-left: clamp(6px, 1.8vw, 10px);
-    padding-right: clamp(6px, 1.8vw, 10px);
-  }
-
-  .home-redesign .site-logo img {
-    width: clamp(92px, 25vw, 135px);
-  }
-
-  .home-redesign .site-nav {
-    overflow: visible;
-  }
-
-  .home-redesign .site-nav a {
-    min-height: 74px;
-    padding: 19px 2px;
-    font-size: clamp(8px, 2vw, 10px);
-    letter-spacing: .025em;
-  }
-
-  .home-redesign .site-logo::before,
-  .home-redesign .site-nav a::before {
-    top: 7px;
-    left: 5px;
-    font-size: 7px;
-  }
-
-  .home-redesign .site-logo::after,
-  .home-redesign .site-nav a::after {
-    right: 5px;
-    bottom: 5px;
-    font-size: 13px;
-  }
-}
-
-/* Reserve the logo cell from first paint rather than letting its width depend
-   on late image/runtime geometry. This also pre-reserves the compact mobile
-   logo box before the hamburger controller adds its class. */
-@media (hover: hover) and (min-width: 981px) {
-  .home-redesign .site-logo {
-    width: 261px;
-    min-width: 261px;
-    flex: 0 0 261px;
-  }
-}
-
-@media (hover: hover) and (min-width: 721px) and (max-width: 980px) {
-  .home-redesign .site-logo {
-    width: calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px)));
-    min-width: calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px)));
-    flex: 0 0 calc(clamp(140px, 19vw, 185px) + (2 * clamp(10px, 2vw, 20px)));
   }
 }
 

@@ -13,8 +13,12 @@
     #dan-owner-controls .ds-config input[type=text],#dan-owner-controls .ds-config select,#dan-owner-controls .ds-config textarea{display:block;width:100%;margin-top:6px;padding:10px 11px;background:#fbfbf9;border:1px solid #cecec7;border-radius:7px;font-size:14px;color:var(--dan-ink)}
     #dan-owner-controls .ds-config textarea{resize:vertical;min-height:86px;line-height:1.5}
     #dan-owner-controls .ds-config input[type=range]{display:block;width:100%;margin:7px 0;accent-color:var(--dan-ink);cursor:ew-resize}
-    #dan-owner-controls .ds-control-label{display:flex;justify-content:space-between;gap:12px}
-    #dan-owner-controls .ds-control-label output{color:var(--dan-muted);font-variant-numeric:tabular-nums}
+    #dan-owner-controls .ds-range-control{font-size:12px;line-height:1.5;margin:12px 0}
+    #dan-owner-controls .ds-control-label{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    #dan-owner-controls .ds-control-label label{margin:0}
+    #dan-owner-controls .ds-control-value{display:flex;align-items:center;justify-content:end;gap:4px;max-width:52%;color:var(--dan-muted)}
+    #dan-owner-controls .ds-config .ds-control-value input{width:7ch;flex:none;margin-top:0;padding:3px 5px;text-align:right;font-variant-numeric:tabular-nums}
+    #dan-owner-controls .ds-range-note{color:var(--dan-muted)}
     #dan-owner-controls .ds-config .ds-check{display:flex;align-items:center;gap:9px;cursor:pointer}
     #dan-owner-controls .ds-check input{accent-color:var(--dan-ink);width:16px;height:16px}
     #dan-owner-controls .ds-config-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}

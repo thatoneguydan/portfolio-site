@@ -1,9 +1,9 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261118-hero3';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-sectioncards1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-cardnav1';
 import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261118-featured4';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
-  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-navlab1';document.head.append(stylesheet);
+  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261118-cardnav1';document.head.append(stylesheet);
   const config={...api.getConfig()},baseline={...api.getConfig()};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';
@@ -59,6 +59,8 @@ export function mountTune(api){
     </details>
     <details><summary>Section cards</summary>
       <div data-controls="workCardMotion"></div>
+      <details><summary>Section background &amp; spacing</summary><div data-controls="workSectionBackground"></div></details>
+      <details><summary>Card backgrounds</summary><div data-controls="workCardBackgrounds"></div></details>
       <details><summary>Number</summary><div data-controls="workCardNumber"></div></details>
       <details><summary>Title</summary><div data-controls="workCardTitle"></div></details>
       <details><summary>Description</summary><div data-controls="workCardDescription"></div></details>
@@ -134,14 +136,17 @@ export function mountTune(api){
     catch(error){input.setCustomValidity(error.message);status.textContent=error.message;}
   }));
   function updateEntranceLabel(){
-    const input=configPanel.querySelector('[data-option=badgeEntrancePosition]'),output=configPanel.querySelector('[data-output=badgeEntrancePosition]');
-    if(!input||!output)return;
-    input.max=config.lineCount+1;
+    const slider=configPanel.querySelector('[data-option=badgeEntrancePosition]');
+    if(!slider)return;
+    slider.max=config.lineCount+1;
     const n=Math.min(config.badgeEntrancePosition,config.lineCount+1);
+    syncNumber(slider,n,document.activeElement?.dataset.number==='badgeEntrancePosition');
+    const output=configPanel.querySelector('[data-output=badgeEntrancePosition]');
     output.textContent=n===0?'Before line 1':n===config.lineCount+1?'After last line':Number.isInteger(n)?'With line '+n:n<1?'Before line 1':n>config.lineCount?'During line '+config.lineCount:`Between lines ${Math.floor(n)}–${Math.ceil(n)}`;
   }
   function optionDisabled(key) {
     if(key==='footerWaveLength'||key==='footerWaveHeight')return !config.footerWaveEnabled;
+    if(key==='workSectionWaveLength'||key==='workSectionWaveHeight')return !config.workSectionWaveEnabled;
     if(key==='heroFeaturedAnchorOffset')return !config.heroFeaturedBelowFold;
     if(key==='galleryHeight')return config.galleryAdaptive;
     if(key==='verticalGalleryHeight')return config.verticalGalleryAdaptive;
@@ -165,13 +170,51 @@ export function mountTune(api){
       host.innerHTML=fields.map(([type,key,label,min,max,step,unit])=>{
       const disabled=optionDisabled(key)?' disabled':'';
       if(key==='badgeEntrancePosition')max=config.lineCount+1;
-      if(type==='range')return `<label><span class="ds-control-label"><span>${label}</span><output data-output="${key}">${config[key]}${unit}</output></span><input aria-label="${label}" data-option="${key}" type="range" min="${min}" max="${max}" step="${step}" value="${config[key]}"${disabled}></label>`;
+      if(type==='range')return `<div class="ds-range-control">
+        <div class="ds-control-label">
+          <label for="ds-range-${key}">${label}</label>
+          <span class="ds-control-value"><input aria-label="${label} value"${unit?` aria-describedby="ds-unit-${key}"`:''} data-number="${key}" type="text" inputmode="${min<0?'text':step<1?'decimal':'numeric'}" spellcheck="false" autocomplete="off" maxlength="20" enterkeyhint="done" value="${config[key]}"${disabled}>${unit?`<span id="ds-unit-${key}">${unit}</span>`:''}</span>
+        </div>
+        <input id="ds-range-${key}" data-option="${key}" data-range-step="${step}" type="range" min="${min}" max="${max}" step="${step}" value="${config[key]}"${disabled}>
+        ${key==='badgeEntrancePosition'?`<output class="ds-range-note" data-output="${key}"></output>`:''}
+      </div>`;
       if(type==='check')return `<label class="ds-check"><input aria-label="${label}" data-option="${key}" type="checkbox"${config[key]?' checked':''}${disabled}>${label}</label>`;
       if(type==='color')return `<label>${label}<span class="ds-color-row"><input type="color" aria-label="${label}" data-option="${key}" value="${config[key]}"${disabled}><input type="text" aria-label="${label} hex" data-option="${key}" value="${config[key]}" spellcheck="false"${disabled}></span></label>`;
       return `<label>${label}<select aria-label="${label}" data-option="${key}"${disabled}>${min.map(option=>{const [value,text]=Array.isArray(option)?option:[option,option[0].toUpperCase()+option.slice(1)];return `<option value="${escapeHtml(value)}"${config[key]===value?' selected':''}>${text}</option>`;}).join('')}</select></label>`;
     }).join('');
     }
+    configPanel.querySelectorAll('[data-range-step]').forEach(slider=>syncNumber(slider,config[slider.dataset.option]));
     updateTextEditors();updateEntranceLabel();refreshFeaturedRotation();schedulePlacement();
+  }
+
+  function syncNumber(slider,value,keepDraft=false){
+    const offset=(value-Number(slider.min))/Number(slider.dataset.rangeStep);
+    // Keep precise typed values at the right position between the slider's usual steps.
+    slider.step=Math.abs(offset-Math.round(offset))<1e-8?slider.dataset.rangeStep:'any';
+    slider.value=value;
+    const field=slider.closest('.ds-range-control').querySelector('[data-number]');
+    if(!keepDraft&&field.value!==String(value))field.value=value;
+  }
+
+  function readNumber(field){
+    const entered=field.value.trim().replace(',','.');
+    if(!/^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(entered))return NaN;
+    return Number(entered);
+  }
+
+  function applyNumber(slider,value,keepDraft=false){
+    const key=slider.dataset.option;
+    const bounded=clamp(/lineCount$/i.test(key)?Math.round(value):value,Number(slider.min),Number(slider.max));
+    syncNumber(slider,bounded,keepDraft);
+    if(config[key]!==bounded)applyOption(key,bounded);
+  }
+
+  function commitNumber(field){
+    const slider=field.closest('.ds-range-control').querySelector('[data-range-step]');
+    if(field.value===slider.value)return;
+    const value=readNumber(field);
+    if(Number.isFinite(value))applyNumber(slider,value);
+    else field.value=slider.value;
   }
 
   function positionControls() {
@@ -225,18 +268,53 @@ export function mountTune(api){
   const placementObserver=new ResizeObserver(schedulePlacement);placementObserver.observe(configPanel);placementObserver.observe(configLauncher);
   stylesheet.addEventListener('load',schedulePlacement);document.fonts?.ready.then(schedulePlacement);
   configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.addEventListener('input',()=>{config[input.name]=input.value;render();persist();if(input.closest('[data-headline-editor]')){clearTimeout(liveTimer);liveTimer=setTimeout(replay,700);}}));
-  configPanel.addEventListener('input',event=>{
-    const input=event.target,key=input.dataset.option;if(!key)return;
-    if(colorKeys.includes(key)&&!/^#[\da-f]{6}$/i.test(input.value))return;
-    config[key]=input.type==='checkbox'?input.checked:input.type==='range'?Number(input.value):input.value;
+  function applyOption(key,value,source){
+    config[key]=value;
     if(['projectTextColor','projectHeadingColor'].includes(key)){config.projectTextAutoContrast=false;configPanel.querySelector('[data-option=projectTextAutoContrast]').checked=false;}
-    const field=Object.values(controlGroups).flat().find(f=>f[1]===key),output=configPanel.querySelector(`[data-output=${key}]`);if(output)output.textContent=input.value+(field[6]||'');
-    if(colorKeys.includes(key))configPanel.querySelectorAll(`[data-option=${key}]`).forEach(other=>{if(other!==input)other.value=input.value;});
+    if(colorKeys.includes(key))configPanel.querySelectorAll(`[data-option=${key}]`).forEach(other=>{if(other!==source)other.value=value;});
     if(key==='ticketOrientation'){
       const vertical=config.ticketOrientation==='vertical';config.ticketWidth=vertical?300:460;config.ticketHeight=vertical?440:260;config.ticketPanelSize=vertical?130:150;renderControls();
     }
-    if(input.type==='checkbox')configPanel.querySelectorAll('[data-option]').forEach(control=>control.disabled=optionDisabled(control.dataset.option));
+    if(source?.type==='checkbox')configPanel.querySelectorAll('[data-option],[data-number]').forEach(control=>control.disabled=optionDisabled(control.dataset.option||control.dataset.number));
     if(key!=='paletteSaturation'&&[...controlGroups.reveal,...controlGroups.headlineTypography,...controlGroups.badgeEntrance,...headlineScopes.flatMap(scope=>[...controlGroups[scope+'Typography'],...controlGroups[scope+'Reveal']])].some(f=>f[1]===key)){render();replay();}else render();persist();
+  }
+  configPanel.addEventListener('input',event=>{
+    const input=event.target;
+    if(input.dataset.number){
+      const slider=input.closest('.ds-range-control').querySelector('[data-range-step]');
+      const value=readNumber(input);
+      if(value>=Number(slider.min)&&value<=Number(slider.max))applyNumber(slider,value,true);
+      return;
+    }
+    const key=input.dataset.option;if(!key)return;
+    if(input.type==='range'){
+      const step=Number(input.dataset.rangeStep),min=Number(input.min);
+      const value=min+Math.round((Number(input.value)-min)/step)*step;
+      applyNumber(input,Number(value.toFixed(12)));
+      return;
+    }
+    if(colorKeys.includes(key)&&!/^#[\da-f]{6}$/i.test(input.value))return;
+    applyOption(key,input.type==='checkbox'?input.checked:input.value,input);
+  });
+  configPanel.addEventListener('focusout',event=>{
+    if(event.target.dataset.number)commitNumber(event.target);
+  });
+  configPanel.addEventListener('keydown',event=>{
+    const input=event.target,isField=Boolean(input.dataset.number);
+    if(!isField&&!input.dataset.rangeStep)return;
+    if(isField&&event.key==='Enter'){
+      event.preventDefault();
+      commitNumber(input);
+      input.select();
+      return;
+    }
+    if(event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+    if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;
+    event.preventDefault();
+    const slider=isField?input.closest('.ds-range-control').querySelector('[data-range-step]'):input;
+    const draft=isField?readNumber(input):NaN;
+    const current=Number.isFinite(draft)?draft:Number(slider.value);
+    applyNumber(slider,Number((current+(event.key==='ArrowLeft'?-1:1)).toFixed(12)));
   });
   configPanel.querySelector('[data-export]').addEventListener('click',()=>{const area=configPanel.querySelector('.ds-config-json');area.value=JSON.stringify(config,null,2);area.focus();area.select();navigator.clipboard?.writeText(area.value).catch(()=>{});configPanel.querySelector('.ds-config-status').textContent='Settings ready to copy.';});
   configPanel.querySelector('[data-import]').addEventListener('click',()=>{try{const value=JSON.parse(configPanel.querySelector('.ds-config-json').value);if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Paste a settings object.');Object.assign(config,normalizeSettings(value,config));render();renderControls();replay();persist();configPanel.querySelector('.ds-config-status').textContent='Settings applied.';}catch(error){configPanel.querySelector('.ds-config-status').textContent=error.message;}});

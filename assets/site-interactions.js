@@ -109,6 +109,7 @@ function installPageScrollbar(){
 export function installSiteInteractions(){
   if(window.__portfolioInteractions)return;window.__portfolioInteractions=true;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)'),motions=new WeakMap(),pressed=new Map();
+  const navControls='.site-logo,.site-nav a,.site-nav-toggle';
   for(const cell of document.querySelectorAll('.site-logo,.site-nav a')){
     if(cell.querySelector('.ds-nav-label'))continue;
     const label=document.createElement('span');label.className='ds-nav-label';label.append(...cell.childNodes);cell.append(label);
@@ -118,24 +119,39 @@ export function installSiteInteractions(){
   function targetFor(node){
     const button=node.closest?.('button,a,[role="button"]');
     if(!button||button.matches(':disabled,[aria-disabled="true"],.ds-badge-activate,.ds-badge-drag-plane'))return null;
-    const nav=button.matches('.site-logo,.site-nav a');if(nav)return button.querySelector('.ds-nav-label');
+    if(button.matches(navControls))return button;
     const box=button.getBoundingClientRect(),radius=parseFloat(getComputedStyle(button).borderTopLeftRadius);
     return box.width>box.height*1.25&&radius>=box.height*.42?button:null;
   }
   function animate(target,down){
-    if(!target||reduced.matches)return;
+    if(!target)return;
+    if(target.matches(navControls)){
+      target.classList.toggle('is-nav-pressed',down);
+      return;
+    }
+    if(reduced.matches)return;
     const value=getComputedStyle(target).scale,current=value==='none'?1:parseFloat(value)||1;
     motions.get(target)?.cancel();
-    const nav=target.classList.contains('ds-nav-label');
-    const frames=down?[{scale:current},{scale:nav ? .82 : .955}]:[{scale:current},{scale:nav ? 1.055 : 1.018,offset:.62},{scale:1}];
+    const frames=down?[{scale:current},{scale:.955}]:[{scale:current},{scale:1.018,offset:.62},{scale:1}];
     const animation=target.animate(frames,{duration:down?110:470,easing:down?'ease-out':'cubic-bezier(.2,.75,.25,1)',fill:down?'forwards':'none'});
     motions.set(target,animation);animation.finished.catch(()=>{}).then(()=>{if(!down&&motions.get(target)===animation){animation.cancel();motions.delete(target);}});
   }
   document.addEventListener('pointerdown',event=>{if(event.button!==0)return;const target=targetFor(event.target);if(target){pressed.set(event.pointerId,target);animate(target,true);}},{capture:true});
   const release=event=>{const target=pressed.get(event.pointerId);if(target){pressed.delete(event.pointerId);animate(target,false);}};
   document.addEventListener('pointerup',release,{capture:true});document.addEventListener('pointercancel',release,{capture:true});
-  addEventListener('blur',()=>{for(const target of pressed.values())animate(target,false);pressed.clear();});
-  document.addEventListener('keydown',event=>{if(!event.repeat&&['Enter',' '].includes(event.key)&&!event.target.matches('input,textarea,select'))animate(targetFor(event.target),true);},{capture:true});
+  const clearPressed=()=>{
+    for(const target of pressed.values())animate(target,false);
+    pressed.clear();
+    document.querySelectorAll('.is-nav-pressed').forEach(target=>target.classList.remove('is-nav-pressed'));
+  };
+  addEventListener('blur',clearPressed);
+  addEventListener('pagehide',clearPressed);
+  document.addEventListener('keydown',event=>{
+    if(event.repeat||!['Enter',' '].includes(event.key)||event.target.matches('input,textarea,select'))return;
+    const target=targetFor(event.target);
+    if(event.key===' '&&target?.matches('a:is(.site-logo,.site-nav a)'))return;
+    animate(target,true);
+  },{capture:true});
   document.addEventListener('keyup',event=>{if(['Enter',' '].includes(event.key))animate(targetFor(event.target),false);},{capture:true});
 
   installPageScrollbar();

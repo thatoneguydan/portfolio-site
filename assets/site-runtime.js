@@ -1,5 +1,5 @@
-import {defaults,normalizeSettings,footerProperties} from './landing-schema.js?v=20261118-sectioncards1';
-import {mountHeadline} from './headline-view.js?v=20261118-sectioncards1';
+import {defaults,normalizeSettings,footerProperties,workSectionProperties} from './landing-schema.js?v=20261118-cardnav1';
+import {mountHeadline} from './headline-view.js?v=20261118-cardnav1';
 
 let config=normalizeSettings(window.portfolioLandingConfig||{}),revision=window.portfolioLandingRevision||null;
 const views=new Set();let pageHeadline=null;
@@ -10,7 +10,9 @@ export const siteAPI={
   getConfig:()=>({...config}),
   applyConfig(next,{animateReveal=false}={}){
     config=normalizeSettings(next,config);window.portfolioLandingConfig={...config};
-    for(const [name,value] of Object.entries(footerProperties(config)))document.documentElement.style.setProperty(name,value);
+    const properties=footerProperties(config);
+    if(document.body.classList.contains('landing-refresh'))Object.assign(properties,workSectionProperties(config));
+    for(const [name,value] of Object.entries(properties))document.documentElement.style.setProperty(name,value);
     for(const view of views)view.update(config);
     pageHeadline?.update(config,{animate:animateReveal});
     document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));
@@ -39,7 +41,7 @@ export const siteReady=(async()=>{
   }else siteAPI.ownerReady=(async()=>{
     try{
       const response=await fetch('/api/owner',{credentials:'same-origin',cache:'no-store'});
-      if(response.ok&&(await response.json()).owner){siteAPI.owner=true;const {mountTune}=await import('./landing-tune.js?v=20261118-sectioncards1');mountTune(siteAPI);}
+      if(response.ok&&(await response.json()).owner){siteAPI.owner=true;const {mountTune}=await import('./landing-tune.js?v=20261118-cardnav1');mountTune(siteAPI);}
     }catch(error){console.warn('Owner controls could not initialize.',error);}
   })();
   return siteAPI;

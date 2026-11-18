@@ -188,6 +188,16 @@ export const defaults = {
   "workVideoDescription": "Short edits, longer stories, and all the cuts in between.",
   "workDesignDescription": "Logos, layouts, and print that make ideas easier to see.",
   "workPhotoDescription": "Portraits, places, and the details worth a closer look.",
+  "workSectionBackground": "#f5f5f2",
+  "workSectionWaveEnabled": false,
+  "workSectionWaveLength": 320,
+  "workSectionWaveHeight": 36,
+  "workSectionMarginBefore": 100,
+  "workSectionPaddingBefore": 0,
+  "workSectionPaddingAfter": 100,
+  "workVideoBackground": "#f5f5f2",
+  "workDesignBackground": "#f5f5f2",
+  "workPhotoBackground": "#f5f5f2",
   "workCardHoverHeight": 24,
   "workDesktopHeight": 100,
   "workMobileHeight": 324,
@@ -390,6 +400,20 @@ export const controlGroups = {
       ['select','featuredHeadingAlign','Heading alignment',['left','center','right','justify']]
     ],
     featuredRotation: [['check','featuredRotateEnabled','Cycle words or phrases']],
+    workSectionBackground: [
+      ['color','workSectionBackground','Section background'],
+      ['check','workSectionWaveEnabled','Wave at the top of the section'],
+      ['range','workSectionWaveLength','Section wave length',16,4000,1,'px'],
+      ['range','workSectionWaveHeight','Section wave height',0,1000,1,'px'],
+      ['range','workSectionMarginBefore','Margin before cards',0,500,1,'%'],
+      ['range','workSectionPaddingBefore','Padding before cards',0,600,1,'px'],
+      ['range','workSectionPaddingAfter','Padding after cards',0,500,1,'%']
+    ],
+    workCardBackgrounds: [
+      ['color','workVideoBackground','Video background'],
+      ['color','workDesignBackground','Design background'],
+      ['color','workPhotoBackground','Photo background']
+    ],
     workCardMotion: [
       ['range','workCardHoverHeight','Hover growth',0,80,1,'px'],
       ['range','workDesktopHeight','Desktop card height',35,250,1,'%'],
@@ -516,6 +540,20 @@ export function footerProperties(config) {
     '--footer-button-scale': config.footerButtonScale / 100,
     '--footer-wave-length': config.footerWaveLength + 'px',
     '--footer-wave-height': (config.footerWaveEnabled ? config.footerWaveHeight : 0) + 'px'
+  };
+}
+
+export function workSectionProperties(config) {
+  return {
+    '--work-section-background': config.workSectionBackground,
+    '--work-section-wave-length': config.workSectionWaveLength + 'px',
+    '--work-section-wave-height': (config.workSectionWaveEnabled ? config.workSectionWaveHeight : 0) + 'px',
+    '--work-section-margin-before': config.workSectionMarginBefore / 100,
+    '--work-section-padding-before': config.workSectionPaddingBefore + 'px',
+    '--work-section-padding-after': config.workSectionPaddingAfter / 100,
+    '--work-video-background': config.workVideoBackground,
+    '--work-design-background': config.workDesignBackground,
+    '--work-photo-background': config.workPhotoBackground
   };
 }
 
