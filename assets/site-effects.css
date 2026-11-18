@@ -25,6 +25,17 @@
 #dan-landing-home .ds-long .ds-rotate-measure,#dan-landing-home .ds-long .ds-rotate-entry {white-space:normal;overflow-wrap:anywhere}
 
 /* Viewport blur sits above page content and below the site navigation and dialogs. */
+.portfolio-page-content {
+  margin-inline-end:calc(-1 * var(--page-content-gutter,0px));
+  padding-inline-end:var(--page-content-gutter,0px);
+}
+/* Paint the page and its filter into their own backdrop root. Floating
+   controls, the scroll thumb and dialogs are painted outside this surface. */
+.portfolio-page-content.has-page-blur {
+  isolation:isolate;
+  clip-path:inset(0);
+  background:inherit;
+}
 .portfolio-page-blur {
   position:fixed;inset:auto 0 0;z-index:40;
   --blur-depth:calc(var(--blur-height) * 1vh);
@@ -73,12 +84,9 @@ html {background-color:#f5f5f2}
 }
 .portfolio-scroll-rail {display:none}
 @media screen and (forced-colors:none){
-  html[data-page-scroll-rail] {scrollbar-width:none;scrollbar-gutter:auto}
+  html[data-page-scroll-rail] {scrollbar-width:none;scrollbar-gutter:auto;--page-content-gutter:var(--page-rail-space)}
   html[data-page-scroll-rail]::-webkit-scrollbar {display:none}
   html[data-page-scroll-rail] > body {padding-inline-end:var(--page-rail-space)}
-  html[data-page-scroll-rail] .rd-footer-cta {
-    margin-left:calc(50% - var(--site-viewport-width,100vw)/2 + var(--page-rail-space)/2);
-  }
   html[data-page-scroll-rail] .portfolio-scroll-rail:not([hidden]){
     display:block;position:fixed;inset:0 0 0 auto;width:var(--page-rail-space);
     z-index:12010;touch-action:none;user-select:none;background:transparent;

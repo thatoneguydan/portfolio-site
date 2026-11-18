@@ -1,15 +1,15 @@
 import {installAuthoredEmoji} from './site-emoji.js?v=20261117-navlab1';
 import {setPaletteSaturation} from './palette-glyph.js?v=20261117-navlab1';
-import {defaults} from './landing-schema.js?v=20261118-viewport1';
+import {defaults} from './landing-schema.js?v=20261118-featured1';
 import {installSettledShelfText} from './settled-text.js';
-import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-navlab1';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-viewport1';
-import './site-runtime.js?v=20261118-viewport1';
-import {installSiteInteractions} from './site-interactions.js?v=20261118-optical1';
-import {installProjectViews} from './project-views.js?v=20261118-viewport1';
+import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261118-featured1';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-featured1';
+import './site-runtime.js?v=20261118-featured1';
+import {installSiteInteractions} from './site-interactions.js?v=20261118-featured1';
+import {installProjectViews} from './project-views.js?v=20261118-featured1';
 import {installImageViewer} from './image-viewer.js?v=20261117-navlab1';
 
-const href='/assets/site-effects.css?v=20261118-optical1';
+const href='/assets/site-effects.css?v=20261118-featured1';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
@@ -18,6 +18,7 @@ let config={...defaults,...window.portfolioLandingConfig};
 setPaletteSaturation(config.paletteSaturation);
 const insideShelf=window.parent!==window&&new URLSearchParams(location.search).get('inlineShelf')==='1';
 const onLandingPage=!!document.getElementById('dan-landing-home');
+const pageContent=document.querySelector('.portfolio-page-content');
 function radiusAt(depth){
   const power=config.pageBlurFalloff==='bottom' ? 2.4 : config.pageBlurFalloff==='broad' ? .65 : 1;
   return config.pageBlurStrength*(depth*depth*(3-2*depth))**power;
@@ -105,12 +106,16 @@ function applyPageBlur(){
       defs.append(blurFilter);
       definitions.append(defs);
       pageBlur.append(definitions);
-      blurSurface.style.backdropFilter='url("#portfolio-depth-blur")';
+      // Capture the isolated page first. Run the custom graph on this finite
+      // image, so partial backdrop updates never crop the blur's sampling area.
+      blurSurface.style.backdropFilter='opacity(1)';
+      blurSurface.style.filter='url("#portfolio-depth-blur")';
     }
-    document.body.append(pageBlur);
+    (pageContent || document.body).append(pageBlur);
     new ResizeObserver(sizePageBlur).observe(blurSurface);
   }
   pageBlur.style.setProperty('--blur-height',config.pageBlurHeight);
+  pageContent?.classList.toggle('has-page-blur',enabled);
   pageBlur.classList.toggle('is-enabled',enabled);
   sizePageBlur();
 }

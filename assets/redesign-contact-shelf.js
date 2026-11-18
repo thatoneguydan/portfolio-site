@@ -8,17 +8,24 @@
     if(link.sheet)return Promise.resolve();
     return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261118-sizing1'),style('/assets/redesign-footer-contact.css?v=20261118-sizing1')]);
-  const runtime=import('/assets/site-runtime.js?v=20261118-viewport1').then(module=>module.siteReady);
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261118-featured1'),style('/assets/redesign-footer-contact.css?v=20261118-featured1')]);
+  const runtime=import('/assets/site-runtime.js?v=20261118-featured1').then(module=>module.siteReady);
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let active=null,sequence=0;
   const footerMarkup='<div class="rd-footer-cta-inner"><div class="rd-footer-cta-row"><h2>Have something in mind?</h2><a class="rd-footer-cta-button" href="/contact">Let\'s make it <span aria-hidden="true">↗</span></a></div></div>';
   function footers(root){
     const found=[...(root.matches?.('.rd-footer-cta')?[root]:[]),...(root.querySelectorAll?.('.rd-footer-cta')||[])];
-    for(const footer of found)if(footer.dataset.sharedContactFooter!=='true'){footer.dataset.sharedContactFooter='true';footer.innerHTML=footerMarkup;}
+    for(const footer of found){
+      // Legacy project pages create their CTA inside the narrow main at runtime.
+      const main=footer.parentElement;
+      if(main?.matches('.portfolio-page-content > .site-main'))main.after(footer);
+      if(footer.dataset.sharedContactFooter==='true')continue;
+      footer.dataset.sharedContactFooter='true';footer.innerHTML=footerMarkup;
+    }
   }
   footers(document);new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1)footers(node);}).observe(document.body,{childList:true,subtree:true});
   function anchorFor(source){
+    const footer=source.closest('.rd-footer-cta');if(footer)return footer;
     // The landing wrapper contains both hero and gallery. It is not a section
     // boundary for an action inside the hero.
     const hero=source.closest('.ds-hero');if(hero)return hero;

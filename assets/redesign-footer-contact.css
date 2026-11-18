@@ -6,12 +6,12 @@
   --footer-padding-y: clamp(92px, 9vw, 138px);
   --footer-type: clamp(60px, 6.2vw, 90px);
   box-sizing: border-box;
-  width: var(--site-viewport-width,100vw);
+  width: auto;
   min-height: calc(var(--footer-min-height) * var(--footer-height-scale, 1));
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: calc(50% - var(--site-viewport-width,100vw) / 2);
+  margin-inline: 0 calc(-1 * var(--page-content-gutter, 0px));
   padding: calc(var(--footer-padding-y) * var(--footer-height-scale, 1)) var(--footer-padding-x, 0px);
   background: #111;
   color: #fff;
@@ -69,6 +69,11 @@
   transition: background 160ms ease, color 160ms ease;
 }
 
+#dan-landing-home .ds-contact {
+  min-height: max(44px, calc(74px * var(--contact-button-scale, 1)));
+  font-size: max(12px, calc(18px * var(--contact-button-scale, 1)));
+}
+
 .rd-footer-cta .rd-footer-cta-button:hover,
 .rd-footer-cta .rd-footer-cta-button:focus-visible,
 #dan-landing-home .ds-contact:hover,
@@ -106,8 +111,7 @@
     max-width: 860px;
   }
 
-  .rd-footer-cta .rd-footer-cta-button,
-  #dan-landing-home .ds-contact {
+  .rd-footer-cta .rd-footer-cta-button {
     --pill-width: 250px;
     --pill-height: 72px;
     --pill-gap-above: 38px;
@@ -127,8 +131,7 @@
     max-width: 650px;
   }
 
-  .rd-footer-cta .rd-footer-cta-button,
-  #dan-landing-home .ds-contact {
+  .rd-footer-cta .rd-footer-cta-button {
     --pill-width: 240px;
     --pill-height: 70px;
     --pill-gap-above: 36px;
@@ -148,8 +151,7 @@
     max-width: 350px;
   }
 
-  .rd-footer-cta .rd-footer-cta-button,
-  #dan-landing-home .ds-contact {
+  .rd-footer-cta .rd-footer-cta-button {
     --pill-width: 230px;
     --pill-height: 68px;
     --pill-padding: 30px;

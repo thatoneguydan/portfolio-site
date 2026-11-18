@@ -1,4 +1,4 @@
-import {replaceProjectContent} from './project-panels.js?v=20261118-viewport1';
+import {replaceProjectContent} from './project-panels.js?v=20261118-featured1';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const selector='.rdp-project-card,#featured-work .rd-work-card,.rv-video-card[data-youtube-id]';
@@ -22,7 +22,10 @@ function insert(card,shelf,force=false){
   }
   if(grid?.matches('.is-masonry')){
     const top=Number(card.dataset.masonryY);const end=[...grid.querySelectorAll(':scope>.rdp-project-card')].filter(c=>Number(c.dataset.masonryY)<=top+.5).at(-1)||card;end.after(shelf);
-  }else if(grid?.matches('.ds-gallery'))grid.after(shelf);
+  }else if(grid?.matches('.ds-gallery')){
+    const controls=grid.nextElementSibling;
+    (controls?.matches('.ds-gallery-dots')?controls:grid).after(shelf);
+  }
   else if(grid?.matches('.rv-video-grid')){shelf.style.gridColumn='1 / -1';card.after(shelf);}
   else card.after(shelf);
 }
@@ -39,6 +42,7 @@ function contentFor(card,title){
   return inner;
 }
 export function openProject(card,{hash=true}={}){
+  if(card.matches('.ds-panel'))card.dispatchEvent(new CustomEvent('portfolio-featured-select',{bubbles:true}));
   const category=card.closest('.rv-shelf');if(category){const toggle=category.querySelector('.rv-shelf-toggle');if(toggle?.getAttribute('aria-expanded')!=='true')toggle?.click();}
   if(active?.card===card&&!active.pendingCard){close(active);if(hash)history.replaceState(null,'',location.pathname+location.search);return;}
   if(!card.id)card.id='project-source-'+(++serial);

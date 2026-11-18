@@ -1,5 +1,5 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-navlab1';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-viewport1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-featured1';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-navlab1';document.head.append(stylesheet);
@@ -48,7 +48,8 @@ export function mountTune(api){
       <details><summary>Idle tilt</summary><div data-controls="badgeIdle"></div></details>
     </details>
     <details><summary>Featured work</summary>
-      <details open><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
+      <details open><summary>Section heading</summary><div class="ds-edit-fields"><label>Heading text<input name="featuredHeading" type="text" aria-label="Featured work heading text"></label></div><div data-controls="featuredHeading"></div></details>
+      <details><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
       <details><summary>Vertical gallery</summary><div data-controls="galleryVertical"></div></details>
     </details>
     <details><summary>Thumbnails & captions</summary><details open><summary>Caption blur</summary><div data-controls="portfolioEffects"></div></details><details><summary>Design inner shadow</summary><div data-controls="designShadow"></div></details></details>

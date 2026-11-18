@@ -82,8 +82,6 @@ function installPageScrollbar(){
   function measure(){
     const gutter=innerWidth-root.clientWidth;
     if(!rail&&!embedded&&!nativeOnly.matches&&gutter>0)mount(gutter);
-    const width=root.clientWidth+'px';
-    if(root.style.getPropertyValue('--site-viewport-width')!==width)root.style.setProperty('--site-viewport-width',width);
     if(!rail)return;
     const height=root.clientHeight,total=root.scrollHeight;
     scrollRange=Math.max(0,total-height);

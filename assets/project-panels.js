@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261118-viewport1';
+import {defaults} from './landing-schema.js?v=20261118-featured1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {prepareProjectDocument} from './project-content.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
@@ -88,7 +88,16 @@ function trackPositions(duration){trackUntil=Math.max(trackUntil,performance.now
 function position(state){
   const {shelf,source}=state;if(!shelf.isConnected){dispose(state);return;}
   const gallery=source?.closest('.ds-gallery');
-  if(gallery){const sourceRect=source.getBoundingClientRect(),galleryRect=gallery.getBoundingClientRect();shelf.style.setProperty('margin-top',(sourceRect.bottom-galleryRect.bottom+14+config.projectPanelTailSize)+'px','important');shelf.style.marginBottom=Math.max(0,galleryRect.bottom-sourceRect.bottom-14-config.projectPanelTailSize-shelf.getBoundingClientRect().height)+'px';}
+  if(gallery){
+    const cutoff=Math.min(0,source.getBoundingClientRect().bottom-gallery.getBoundingClientRect().bottom);
+    const dots=shelf.previousElementSibling?.matches('.ds-gallery-dots')?shelf.previousElementSibling:null;
+    // The controls sit between the last visible thumbnail and the panel. Move
+    // the controls and panel together when lower mobile cards are covered.
+    if(dots)dots.style.setProperty('--gallery-source-offset',cutoff+'px');
+    const gap=14+config.projectPanelTailSize;
+    shelf.style.setProperty('margin-top',((dots?0:cutoff)+gap)+'px','important');
+    shelf.style.marginBottom=Math.max(0,-cutoff-gap-shelf.getBoundingClientRect().height)+'px';
+  }
   if(shelf.parentElement.matches('.is-masonry')&&source?.isConnected){const grid=shelf.parentElement.getBoundingClientRect();shelf.style.top=(source.getBoundingClientRect().bottom-grid.top+14+config.projectPanelTailSize)+'px';}
   const rect=shelf.getBoundingClientRect(),sourceRect=source?.getBoundingClientRect();let center=sourceRect?panelTailCenter(sourceRect,rect,config.projectPanelTailSize,config.projectPanelRadius):rect.width/2;
   if(state.tailBlend){const t=Math.min(1,(performance.now()-state.tailBlend.at)/400),ease=t*t*(3-2*t);center=state.tailBlend.from+(center-state.tailBlend.from)*ease;if(t===1)state.tailBlend=null;}state.tailCenter=center;

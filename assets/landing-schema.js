@@ -172,6 +172,10 @@ export const defaults = {
   "shadowSpread": 0,
   "shadowOpacity": 68,
   "shadowColor": "#111111",
+  "featuredHeading": "Here’s a what I can do:",
+  "featuredHeadingSize": 40,
+  "featuredHeadingWeight": 700,
+  "featuredHeadingGap": 25,
   "galleryHeight": 320,
   "galleryAdaptive": true,
   "expandRatio": 52,
@@ -341,9 +345,14 @@ export const controlGroups = {
       ['range','badgeEntranceHold','Hold at maximum size',0,2000,20,'ms'],
       ['range','badgeEntranceSettle','Rubber-band settling duration',200,3000,50,'ms']
     ],
+    featuredHeading: [
+      ['range','featuredHeadingSize','Heading size at a 1000px content width',12,160,1,'px'],
+      ['range','featuredHeadingWeight','Heading weight',100,1000,10,''],
+      ['range','featuredHeadingGap','Space before carousel',0,200,1,'px']
+    ],
     gallery: [
       ['check','galleryAdaptive','Responsive 16:9 height'],
-      ['range','galleryHeight','Manual gallery height',240,500,1,'px'], ['range','expandRatio','Expanded width',35,75,1,'%'],
+      ['range','galleryHeight','Manual gallery height',240,500,1,'px'], ['range','expandRatio','Base expanded width',35,75,1,'%'],
       ['range','galleryGap','Gallery gap',0,24,1,'px'], ['range','galleryRadius','Gallery radius',0,32,1,'px'],
       ['range','galleryDuration','Transition duration',200,1400,50,'ms'], ['check','grayscale','Grayscale inactive cards']
     ],
@@ -418,7 +427,7 @@ export const controlGroups = {
     galleryVertical: [
       ['check','verticalGalleryAdaptive','Responsive 16:9 height'],
       ['range','verticalGalleryHeight','Manual expanded card height',140,640,1,'px'],
-      ['range','verticalGalleryCollapsed','Collapsed card height',44,140,1,'px'],
+      ['range','verticalGalleryCollapsed','Nearest collapsed height',44,140,1,'px'],
       ['range','verticalGalleryGap','Vertical gallery gap',0,32,1,'px'],
       ['range','verticalGalleryRadius','Vertical gallery radius',0,40,1,'px'],
       ['range','verticalGalleryDuration','Vertical transition duration',200,1400,50,'ms'],
