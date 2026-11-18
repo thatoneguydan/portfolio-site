@@ -1,10 +1,10 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-worklinks2';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-sectioncards1';
 import {createBadge} from './landing-badge.js?v=20261118-tune2';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-hero3';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-worklinks2';
-import {siteReady} from './site-runtime.js?v=20261118-worklinks2';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-worklinks2';
+import {siteReady} from './site-runtime.js?v=20261118-sectioncards1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-sectioncards1';
 import {mountFeaturedHeading} from './featured-heading.js?v=20261118-featured4';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {
@@ -247,6 +247,9 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     }
     if(workLinks){
       workLinks.style.setProperty('--work-card-hover-height',config.workCardHoverHeight+'px');
+      workLinks.style.setProperty('--work-desktop-height',config.workDesktopHeight/100);
+      workLinks.style.setProperty('--work-mobile-height',config.workMobileHeight+'px');
+      workLinks.style.setProperty('--work-mobile-padding',config.workMobilePadding+'px');
       for(const [element,key] of [['number','Number'],['title','Title'],['description','Description'],['arrow','Arrow']]){
         workLinks.style.setProperty('--work-'+element+'-size',config['work'+key+'Size']/100);
         workLinks.style.setProperty('--work-'+element+'-weight',config['work'+key+'Weight']);

@@ -8,8 +8,8 @@
     if(link.sheet)return Promise.resolve();
     return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261118-featured1'),style('/assets/redesign-footer-contact.css?v=20261118-featured1')]);
-  const runtime=import('/assets/site-runtime.js?v=20261118-worklinks2').then(module=>module.siteReady);
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261118-featured1'),style('/assets/redesign-footer-contact.css?v=20261118-sectioncards1')]);
+  const runtime=import('/assets/site-runtime.js?v=20261118-sectioncards1').then(module=>module.siteReady);
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let active=null,sequence=0;
   const footerMarkup='<div class="rd-footer-cta-inner"><div class="rd-footer-cta-row"><h2>Have something in mind?</h2><a class="rd-footer-cta-button" href="/contact">Let\'s make it <span aria-hidden="true">↗</span></a></div></div>';

@@ -1,5 +1,5 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261118-hero3';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-worklinks2';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-sectioncards1';
 import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261118-featured4';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
@@ -57,7 +57,7 @@ export function mountTune(api){
       <details><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
       <details><summary>Vertical gallery</summary><div data-controls="galleryVertical"></div></details>
     </details>
-    <details><summary>Work links</summary>
+    <details><summary>Section cards</summary>
       <div data-controls="workCardMotion"></div>
       <details><summary>Number</summary><div data-controls="workCardNumber"></div></details>
       <details><summary>Title</summary><div data-controls="workCardTitle"></div></details>
@@ -141,6 +141,7 @@ export function mountTune(api){
     output.textContent=n===0?'Before line 1':n===config.lineCount+1?'After last line':Number.isInteger(n)?'With line '+n:n<1?'Before line 1':n>config.lineCount?'During line '+config.lineCount:`Between lines ${Math.floor(n)}–${Math.ceil(n)}`;
   }
   function optionDisabled(key) {
+    if(key==='footerWaveLength'||key==='footerWaveHeight')return !config.footerWaveEnabled;
     if(key==='heroFeaturedAnchorOffset')return !config.heroFeaturedBelowFold;
     if(key==='galleryHeight')return config.galleryAdaptive;
     if(key==='verticalGalleryHeight')return config.verticalGalleryAdaptive;

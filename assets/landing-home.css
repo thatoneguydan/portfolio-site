@@ -59,18 +59,25 @@
 #dan-landing-home .ds-work-links {
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
-  border:1px solid var(--dan-line);
+  gap:1px;
+  padding:1px;
+  background:var(--dan-line);
 }
 #dan-landing-home.featured-below-fold > .ds-work-links {grid-area:6 / 1}
 #dan-landing-home .ds-work-card {
   --work-card-surface:var(--dan-paper);
+  --work-card-rise:0px;
+  --work-card-motion:230ms cubic-bezier(.2,.75,.2,1);
+  --work-card-padding:clamp(20px,3.6cqw,56px);
+  --work-card-text-width:calc((100cqw - 4px) / 3 - 2 * var(--work-card-padding));
   position:relative;
   isolation:isolate;
   display:grid;
+  grid-template-columns:minmax(0,1fr);
   grid-template-rows:minmax(max-content,1fr) auto minmax(max-content,1fr);
-  row-gap:max(16px,var(--work-card-hover-height,24px));
-  min-block-size:clamp(28rem,70cqw,52rem);
-  padding:clamp(20px,3.6cqw,56px);
+  row-gap:16px;
+  min-block-size:calc(clamp(28rem,70cqw,52rem) * var(--work-desktop-height,1));
+  padding:var(--work-card-padding);
   color:var(--dan-ink);
   background:var(--work-card-surface);
   touch-action:manipulation;
@@ -79,45 +86,55 @@
   content:"";
   position:absolute;
   inset:0;
+  inset-block-start:calc(-1 * var(--work-card-rise));
   z-index:-1;
   background:var(--work-card-surface);
   pointer-events:none;
-  transition:inset-block-end 230ms cubic-bezier(.2,.75,.2,1);
+  transition:inset-block-start var(--work-card-motion);
 }
-#dan-landing-home .ds-work-card + .ds-work-card {border-inline-start:1px solid var(--dan-line)}
+/* The grid paints the dividers outside the cards so each painted top edge
+   stays aligned with its own sides for the entire move. */
 #dan-landing-home .ds-work-card-number {
   align-self:start;
-  font-size:calc(clamp(54px,7.7cqw,132px) * var(--work-number-size,1));
+  --work-card-number-base:clamp(54px,7.7cqw,132px);
+  font-size:min(calc(var(--work-card-number-base) * var(--work-number-size,1)),calc(.65 * var(--work-card-text-width)));
   font-weight:var(--work-number-weight,400);
   --work-card-element-color:var(--work-number-color,var(--dan-ink));
   line-height:.85;
   letter-spacing:.1em;
   font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+  transform:translateY(calc(-1 * var(--work-card-rise)));
 }
 #dan-landing-home .ds-work-card-title {
-  font-size:calc(clamp(31px,5cqw,78px) * var(--work-title-size,1));
+  --work-card-title-base:clamp(31px,5cqw,78px);
+  font-size:min(calc(var(--work-card-title-base) * var(--work-title-size,1)),calc(.9 * var(--work-card-text-width)));
   font-weight:var(--work-title-weight,600);
   --work-card-element-color:var(--work-title-color,var(--dan-ink));
   line-height:.94;
   letter-spacing:.08em;
   text-transform:uppercase;
   overflow-wrap:anywhere;
+  transform:translateY(calc(-.5 * var(--work-card-rise)));
 }
 #dan-landing-home .ds-work-card-footer {
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
   align-items:end;
   align-self:end;
+  container-type:inline-size;
+  font-size:clamp(15px,1.52cqw,22px);
   gap:clamp(12px,1.6cqw,24px);
 }
 #dan-landing-home .ds-work-card-arrow {
-  font-size:calc(clamp(20px,2.4cqw,32px) * var(--work-arrow-size,1));
+  justify-self:end;
+  font-size:min(calc(1.5em * var(--work-arrow-size,1)),50cqi);
   font-weight:var(--work-arrow-weight,400);
   --work-card-element-color:var(--work-arrow-color,var(--dan-ink));
   line-height:1;
 }
 #dan-landing-home .ds-work-card-description {
-  font-size:calc(clamp(15px,1.52cqw,22px) * var(--work-description-size,1));
+  font-size:min(calc(1em * var(--work-description-size,1)),40cqi);
   font-weight:var(--work-description-weight,400);
   --work-card-element-color:var(--work-description-color,var(--dan-ink));
   line-height:1.42;
@@ -128,43 +145,48 @@
   color:var(--work-card-highlight-color,var(--work-card-element-color));
 }
 #dan-landing-home .ds-work-card :is(.ds-work-card-number,.ds-work-card-title) {
-  transition:transform 250ms cubic-bezier(.2,.75,.25,1);
+  transition:transform var(--work-card-motion);
 }
 #dan-landing-home .ds-work-card:is(:focus-visible,:active,.is-work-pressed) {
   --work-card-surface:var(--dan-ink);
   --work-card-highlight-color:var(--dan-paper);
   color:var(--dan-paper);
 }
-#dan-landing-home .ds-work-card:focus-visible {outline-offset:-5px;z-index:1}
-#dan-landing-home .ds-work-card:focus-visible::before {inset-block-end:calc(-1 * var(--work-card-hover-height,24px))}
-#dan-landing-home .ds-work-card:is(:active,.is-work-pressed) :is(.ds-work-card-number,.ds-work-card-title) {
-  transform:translateY(var(--work-card-hover-height,24px));
-  transition-duration:85ms;
+#dan-landing-home .ds-work-card:focus-visible {
+  --work-card-rise:var(--work-card-hover-height,24px);
+  outline-offset:-5px;
+  z-index:1;
 }
 @media (hover:hover) {
   #dan-landing-home .ds-work-card:hover {
+    --work-card-rise:var(--work-card-hover-height,24px);
     --work-card-surface:var(--dan-ink);
     --work-card-highlight-color:var(--dan-paper);
     color:var(--dan-paper);
     z-index:1;
   }
-  #dan-landing-home .ds-work-card:hover::before {inset-block-end:calc(-1 * var(--work-card-hover-height,24px))}
+}
+#dan-landing-home .ds-work-card:is(:active,.is-work-pressed) {
+  --work-card-rise:0px;
+  --work-card-motion:120ms cubic-bezier(.2,.75,.2,1);
 }
 @media (prefers-reduced-motion:reduce) {
+  #dan-landing-home .ds-work-card {--work-card-rise:0px!important}
   #dan-landing-home .ds-work-card::before {transition:none}
-  #dan-landing-home .ds-work-card:is(:active,.is-work-pressed) :is(.ds-work-card-number,.ds-work-card-title) {transform:none}
 }
 /* Keep the stacked navigation at the same breakpoint as the header menu. */
 @media (max-width:720px) {
   #dan-landing-home .ds-work-links {grid-template-columns:minmax(0,1fr)}
-  #dan-landing-home .ds-work-card {min-block-size:clamp(17rem,84cqw,30rem)}
-  #dan-landing-home .ds-work-card + .ds-work-card {
-    border-inline-start:0;
-    border-block-start:1px solid var(--dan-line);
+  #dan-landing-home .ds-work-card {
+    --work-card-padding:min(var(--work-mobile-padding,32px),24cqw);
+    --work-card-text-width:calc(100cqw - 2px - 2 * var(--work-card-padding));
+    min-block-size:var(--work-mobile-height,324px);
+    padding-block:var(--work-mobile-padding,32px);
+    padding-inline:var(--work-card-padding);
   }
-  #dan-landing-home .ds-work-card-number {font-size:calc(clamp(54px,13cqw,88px) * var(--work-number-size,1))}
+  #dan-landing-home .ds-work-card-number {--work-card-number-base:clamp(54px,13cqw,88px)}
   #dan-landing-home .ds-work-card-title {
-    font-size:calc(clamp(36px,10cqw,60px) * var(--work-title-size,1));
+    --work-card-title-base:clamp(36px,10cqw,60px);
     letter-spacing:.06em;
   }
 }

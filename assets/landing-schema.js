@@ -106,6 +106,9 @@ export const defaults = {
   "footerHeadingScale": 100,
   "footerHeadingWeight": 700,
   "footerButtonScale": 100,
+  "footerWaveEnabled": false,
+  "footerWaveLength": 320,
+  "footerWaveHeight": 36,
   "paletteSaturation": 42,
   "bio": "I work across video, design, print, and photography to make things clear, intentional, and worth looking at.",
   "fontSize": 53,
@@ -186,6 +189,9 @@ export const defaults = {
   "workDesignDescription": "Logos, layouts, and print that make ideas easier to see.",
   "workPhotoDescription": "Portraits, places, and the details worth a closer look.",
   "workCardHoverHeight": 24,
+  "workDesktopHeight": 100,
+  "workMobileHeight": 324,
+  "workMobilePadding": 32,
   "workNumberSize": 100,
   "workNumberWeight": 400,
   "workNumberColor": "#111111",
@@ -384,24 +390,29 @@ export const controlGroups = {
       ['select','featuredHeadingAlign','Heading alignment',['left','center','right','justify']]
     ],
     featuredRotation: [['check','featuredRotateEnabled','Cycle words or phrases']],
-    workCardMotion: [['range','workCardHoverHeight','Hover height and press offset',0,80,1,'px']],
+    workCardMotion: [
+      ['range','workCardHoverHeight','Hover growth',0,80,1,'px'],
+      ['range','workDesktopHeight','Desktop card height',35,250,1,'%'],
+      ['range','workMobileHeight','Mobile card height',150,1400,1,'px'],
+      ['range','workMobilePadding','Mobile card padding',0,120,1,'px']
+    ],
     workCardNumber: [
-      ['range','workNumberSize','Number size',40,200,1,'%'],
+      ['range','workNumberSize','Number size',20,600,1,'%'],
       ['range','workNumberWeight','Number weight',100,1000,10,''],
       ['color','workNumberColor','Number color']
     ],
     workCardTitle: [
-      ['range','workTitleSize','Title size',40,200,1,'%'],
+      ['range','workTitleSize','Title size',20,600,1,'%'],
       ['range','workTitleWeight','Title weight',100,1000,10,''],
       ['color','workTitleColor','Title color']
     ],
     workCardDescription: [
-      ['range','workDescriptionSize','Description size',40,200,1,'%'],
+      ['range','workDescriptionSize','Description size',20,600,1,'%'],
       ['range','workDescriptionWeight','Description weight',100,1000,10,''],
       ['color','workDescriptionColor','Description color']
     ],
     workCardArrow: [
-      ['range','workArrowSize','Arrow size',40,200,1,'%'],
+      ['range','workArrowSize','Arrow size',20,1000,1,'%'],
       ['range','workArrowWeight','Arrow weight',100,1000,10,''],
       ['color','workArrowColor','Arrow color']
     ],
@@ -445,7 +456,10 @@ export const controlGroups = {
       ['range','footerHeight','Footer height',30,180,1,'%'],
       ['range','footerHeadingScale','Heading size',45,150,1,'%'],
       ['range','footerHeadingWeight','Heading weight',100,900,100,''],
-      ['range','footerButtonScale','Button size',55,150,1,'%']
+      ['range','footerButtonScale','Button size',55,150,1,'%'],
+      ['check','footerWaveEnabled','Wave at the top edge'],
+      ['range','footerWaveLength','Wave length',16,4000,1,'px'],
+      ['range','footerWaveHeight','Wave height',0,1000,1,'px']
     ],
     projectClose: [
       ['range','projectCloseSize','Close button size',24,100,1,'px'],
@@ -499,7 +513,9 @@ export function footerProperties(config) {
     '--footer-height-scale': config.footerHeight / 100,
     '--footer-heading-scale': config.footerHeadingScale / 100,
     '--footer-heading-weight': config.footerHeadingWeight,
-    '--footer-button-scale': config.footerButtonScale / 100
+    '--footer-button-scale': config.footerButtonScale / 100,
+    '--footer-wave-length': config.footerWaveLength + 'px',
+    '--footer-wave-height': (config.footerWaveEnabled ? config.footerWaveHeight : 0) + 'px'
   };
 }
 
