@@ -1,4 +1,4 @@
-import {replaceProjectContent} from './project-panels.js?v=20261118-hero3';
+import {replaceProjectContent} from './project-panels.js?v=20261118-featured4';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const selector='.rdp-project-card,#featured-work .rd-work-card,.rv-video-card[data-youtube-id]';
@@ -41,8 +41,11 @@ function contentFor(card,title){
   }
   return inner;
 }
+function selectFeatured(card){
+  card.dispatchEvent(new CustomEvent('portfolio-featured-select',{bubbles:true}));
+}
 export function openProject(card,{hash=true}={}){
-  if(card.matches('.ds-panel'))card.dispatchEvent(new CustomEvent('portfolio-featured-select',{bubbles:true}));
+  if(card.matches('.ds-panel'))selectFeatured(card);
   const category=card.closest('.rv-shelf');if(category){const toggle=category.querySelector('.rv-shelf-toggle');if(toggle?.getAttribute('aria-expanded')!=='true')toggle?.click();}
   if(active?.card===card&&!active.pendingCard){close(active);if(hash)history.replaceState(null,'',location.pathname+location.search);return;}
   if(!card.id)card.id='project-source-'+(++serial);
@@ -71,8 +74,13 @@ export function installProjectViews(){
   document.addEventListener('pointerdown',event=>{const card=event.target.closest('.ds-panel');touchExpand=card&&event.pointerType==='touch'&&card.dataset.focused!=='true'?card:null;},true);
   document.addEventListener('click',event=>{
     const card=event.target.closest(selector);if(!card||event.button||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.defaultPrevented)return;
-    if(card.matches('.ds-panel')&&(card===touchExpand||card.dataset.focused!=='true')){touchExpand=null;return;}touchExpand=null;
-    event.preventDefault();event.stopImmediatePropagation();openProject(card);
+    const expandOnly=card.matches('.ds-panel')&&(card===touchExpand||card.dataset.focused!=='true');
+    touchExpand=null;
+    event.preventDefault();event.stopImmediatePropagation();
+    // Consume the first tap on a collapsed thumbnail, including videos
+    // with a legacy per-card click handler.
+    if(expandOnly)selectFeatured(card);
+    else openProject(card);
   },true);
   document.addEventListener('portfolio-open-project',event=>openProject(event.detail.card));
   const slug=location.hash.replace(/^#(?:project|featured)-/,'');if(slug&&slug!==location.hash){const card=[...document.querySelectorAll(selector)].find(card=>slugFor(card)===slug);if(card)requestAnimationFrame(()=>openProject(card,{hash:false}));}

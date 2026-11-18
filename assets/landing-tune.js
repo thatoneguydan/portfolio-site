@@ -1,16 +1,16 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261118-hero3';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-hero3';
-import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261118-hero3';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-featured4';
+import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261118-featured4';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-navlab1';document.head.append(stylesheet);
   const config={...api.getConfig()},baseline={...api.getConfig()};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';
-  function headlineEditor(scope,label,open=false){
+  function headlineEditor(scope,label){
     const key=name=>scopedKey(scope,name);
-    return `<details data-headline-editor="${scope}"${open?' open':''}><summary>${label}</summary>
-      <details open><summary>Text & typography</summary><div class="ds-edit-fields">
+    return `<details data-headline-editor="${scope}"><summary>${label}</summary>
+      <details><summary>Text & typography</summary><div class="ds-edit-fields">
         ${Array.from({length:6},(_,i)=>`<label data-line-field="${i+1}">Line ${i+1}<input name="${key('line'+(i+1))}" type="text" aria-label="${scope?label+' ':''}Line ${i+1}"></label>`).join('')}
       </div><div data-controls="${scope?scope+'Typography':'headlineTypography'}"></div></details>
       <details><summary>Reveal animation</summary><div data-controls="${scope?scope+'Reveal':'reveal'}"></div><div class="ds-config-buttons"><button type="button" data-replay>Replay text animation</button></div></details>
@@ -23,12 +23,12 @@ export function mountTune(api){
   ownerPortal.innerHTML=`<button class="ds-config-launch" type="button" aria-label="Tune staging. Drag to move." aria-expanded="false" aria-controls="dan-demo-config"><span class="ds-config-grip" aria-hidden="true">⠿</span><span>Tune</span></button>
   <aside class="ds-config" id="dan-demo-config" aria-label="Staging controls" hidden>
     <div class="ds-config-header"><h2>Tune the website</h2><button type="button" aria-label="Close staging controls" data-close-config>×</button></div>
-    ${headlineEditor('','Home headline',!api.pageScope)}
+    ${headlineEditor('','Home headline')}
     <details><summary>Home layout &amp; action button</summary><div data-controls="heroLayout"></div></details>
-    <details${api.pageScope?' open':''}><summary>Page headlines</summary>${headlineScopes.map(scope=>headlineEditor(scope,scope[0].toUpperCase()+scope.slice(1)+' headline',scope===api.pageScope)).join('')}</details>
+    <details><summary>Page headlines</summary>${headlineScopes.map(scope=>headlineEditor(scope,scope[0].toUpperCase()+scope.slice(1)+' headline')).join('')}</details>
     <details><summary>ID card</summary>
-      <details open><summary>Content & typography</summary>
-        <details open><summary>Full ID name</summary><div class="ds-edit-fields"><label>Name<input name="ticketName" type="text" aria-label="Full ID name"></label></div><div data-controls="ticketNameType"></div></details>
+      <details><summary>Content & typography</summary>
+        <details><summary>Full ID name</summary><div class="ds-edit-fields"><label>Name<input name="ticketName" type="text" aria-label="Full ID name"></label></div><div data-controls="ticketNameType"></div></details>
         <details><summary>Badge name</summary><div class="ds-edit-fields"><label>Name<input name="badgeName" type="text" aria-label="Badge name" placeholder="Use full ID name"></label></div><p class="ds-control-help">Leave blank to use the full ID name.</p><div data-controls="badgeNameType"></div></details>
         <details><summary>Heading</summary><div class="ds-edit-fields"><label>Heading<input name="ticketHeading" type="text" aria-label="Ticket heading"></label></div><div data-controls="ticketHeadingType"></div></details>
         <details><summary>Short bio</summary><div class="ds-edit-fields"><label>Short bio<textarea name="bio" aria-label="Short bio"></textarea></label></div><div data-controls="ticketBodyType"></div></details>
@@ -40,16 +40,16 @@ export function mountTune(api){
       <details><summary>Drop shadow</summary><div data-controls="ticketShadow"></div></details>
     </details>
     <details><summary>Badge behavior</summary>
-      <details open><summary>Responsive layout</summary><div data-controls="badge"></div><p class="ds-control-help">Match navigation to switch at the same width as its hamburger menu, or choose a custom breakpoint.</p></details>
+      <details><summary>Responsive layout</summary><div data-controls="badge"></div><p class="ds-control-help">Match navigation to switch at the same width as its hamburger menu, or choose a custom breakpoint.</p></details>
       <details><summary>Fullscreen & transformations</summary><div data-controls="badgeFullscreen"></div></details>
     </details>
     <details><summary>ID animation</summary>
-      <details open><summary>Entrance</summary><div data-controls="badgeEntrance"></div><div class="ds-config-buttons"><button type="button" data-replay>Replay entrance</button></div></details>
+      <details><summary>Entrance</summary><div data-controls="badgeEntrance"></div><div class="ds-config-buttons"><button type="button" data-replay>Replay entrance</button></div></details>
       <details><summary>Pointer & scroll</summary><div data-controls="ticketMotion"></div></details>
       <details><summary>Idle tilt</summary><div data-controls="badgeIdle"></div></details>
     </details>
     <details><summary>Featured work</summary>
-      <details open><summary>Section heading</summary>
+      <details><summary>Section heading</summary>
         <div class="ds-edit-fields"><label>Heading text<input name="featuredHeading" type="text" aria-label="Featured work heading text"></label></div>
         <div data-controls="featuredHeading"></div>
         <details><summary>Rotating text</summary><div data-controls="featuredRotation"></div><div data-featured-rotation-editor></div></details>
@@ -57,9 +57,9 @@ export function mountTune(api){
       <details><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
       <details><summary>Vertical gallery</summary><div data-controls="galleryVertical"></div></details>
     </details>
-    <details><summary>Thumbnails & captions</summary><details open><summary>Caption blur</summary><div data-controls="portfolioEffects"></div></details><details><summary>Design inner shadow</summary><div data-controls="designShadow"></div></details></details>
+    <details><summary>Thumbnails & captions</summary><details><summary>Caption blur</summary><div data-controls="portfolioEffects"></div></details><details><summary>Design inner shadow</summary><div data-controls="designShadow"></div></details></details>
     <details><summary>Project panels</summary>
-      <details open><summary>Surface & tail</summary><div data-controls="projectPanel"></div></details>
+      <details><summary>Surface & tail</summary><div data-controls="projectPanel"></div></details>
       <details><summary>Text & content spacing</summary><div data-controls="projectText"></div></details><details><summary>Drop shadow</summary><div data-controls="projectShadow"></div></details>
       <details><summary>Floating close button</summary><div data-controls="projectClose"></div><details><summary>Button drop shadow</summary><div data-controls="projectCloseShadow"></div></details></details>
       <details><summary>Wave-bars loader</summary><div data-controls="projectLoader"></div><div class="ds-loader-preview"><span class="portfolio-wave-loader" role="status" aria-label="Loading preview">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span></div></details>
@@ -238,7 +238,8 @@ export function mountTune(api){
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!configPanel.hidden){toggleControls(false);configLauncher.focus();}});
   addEventListener('resize',schedulePlacement);
   window.visualViewport?.addEventListener('resize',schedulePlacement);
-  configPanel.hidden=location.hash==='#tune'?false:!saved.controlsOpen;
+  const refreshing=performance.getEntriesByType('navigation')[0]?.type==='reload';
+  configPanel.hidden=!(refreshing||location.hash==='#tune'||saved.controlsOpen);
   configLauncher.setAttribute('aria-expanded',String(!configPanel.hidden));
   configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.value=config[input.name]);
   configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.maxLength=2000);

@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261118-hero3';
+import {defaults} from './landing-schema.js?v=20261118-featured4';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
@@ -75,6 +75,8 @@ function surface(svg,width,height,center,tail,state){
   }
 }
 function dispose(state){
+  const dots=state.featuredDotBar;
+  if(dots&&!dots.nextElementSibling?.matches('.rdp-project-shelf'))dots.style.left='';
   state.initial.abort();state.pending?.abort.abort();state.observer.disconnect();state.mutation.disconnect();state.contentObserver?.disconnect();state.maskAnimation?.cancel();state.anchorMotions?.forEach(motion=>motion.cancel());clearMasks(state);state.loading?.remove();panels.delete(state);
 }
 function syncContent(state,content=state.content,inner=state.inner){
@@ -88,32 +90,103 @@ function featuredDots(shelf){
   const previous=shelf.previousElementSibling;
   return previous?.matches('.ds-gallery-dots')?previous:null;
 }
+const tailDotClearance=12;
+function featuredTail(state,source,panel,dots,bar,tail,gap,now){
+  const corner=Math.min(config.projectPanelRadius,panel.width/2);
+  const clearance=tailDotClearance+config.projectPanelBorderWidth/2;
+  const availableSide=panel.width-bar.width-tailDotClearance-corner;
+  // In very narrow layouts even an off-center pill may not leave room for
+  // the full tail. Scale the entire triangle down before choosing its side.
+  const sideLimit=(availableSide+gap-Math.SQRT2*clearance)/2;
+  const length=Math.max(0,Math.min(tail,panel.width/2-corner,sideLimit));
+  const inset=corner+length;
+  const first=inset,last=panel.width-inset;
+  const clamp=center=>Math.max(first,Math.min(last,center));
+  const desired=source.left+source.width/2-panel.left;
+  const middle=clamp(desired);
+  // The nearest obstruction is the bottom corner of the pill. Project the
+  // clearance onto the horizontal axis of the 45-degree tail.
+  const reach=length-gap+Math.SQRT2*clearance;
+  const baseLeft=(panel.width-bar.width)/2,baseRight=baseLeft+bar.width;
+  let shift=0,leftLimit=baseLeft-reach,rightLimit=baseRight+reach;
+  if(length&&leftLimit<first&&rightLimit>last){
+    // Move the pill only when a narrow panel has no room on either side.
+    const shiftRight=first-leftLimit,shiftLeft=last-rightLimit;
+    const canShiftRight=baseRight+shiftRight<=panel.width-tailDotClearance+.01;
+    const canShiftLeft=baseLeft+shiftLeft>=tailDotClearance-.01;
+    if(canShiftRight&&(!canShiftLeft||shiftRight<=-shiftLeft+.5))shift=shiftRight;
+    else if(canShiftLeft)shift=shiftLeft;
+    leftLimit+=shift;rightLimit+=shift;
+  }
+  const shiftStyle=shift?shift.toFixed(3)+'px':'';
+  if(dots.style.left!==shiftStyle)dots.style.left=shiftStyle;
+  const clear=x=>x>=first&&x<=last&&(x<=leftLimit||x>=rightLimit);
+  let target=middle;
+  if(length&&!clear(target)){
+    const thirds=[desired-source.width/6,desired+source.width/6].filter(clear);
+    const nearest=[Math.min(last,leftLimit),Math.max(first,rightLimit)].filter(clear);
+    const candidates=thirds.length?thirds:nearest;
+    candidates.sort((a,b)=>Math.abs(a-desired)-Math.abs(b-desired));
+    // There may still be no full-size fit at unusual combinations of narrow
+    // width, many dots and large corner radii. Keep the widest clear side.
+    target=candidates[0]??(baseLeft-first>=last-baseRight?first:last);
+  }
+  if(length&&!reduced.matches&&!state.tailBlend&&Number.isFinite(state.tailCenter)){
+    const pillCenter=(baseLeft+baseRight)/2+shift;
+    if((state.tailCenter-pillCenter)*(target-pillCenter)<0){
+      state.tailBlend={from:state.tailCenter,at:now};
+      trackPositions(400);
+    }
+  }
+  const center=clamp(blendTail(state,target,now));
+  const distance=Math.max(0,baseLeft+shift-center,center-baseRight-shift);
+  // When switching sides, the tip retracts as it passes under the pill and
+  // grows again after clearing it. Width follows height throughout the move.
+  const tipClearance=distance>=clearance/Math.SQRT2
+    ? Math.SQRT2*clearance-distance : Math.sqrt(clearance**2-distance**2);
+  return {center,tail:Math.max(0,Math.min(length,gap-tipClearance))};
+}
+function blendTail(state,target,now){
+  if(!state.tailBlend)return target;
+  const t=Math.min(1,(now-state.tailBlend.at)/400),ease=t*t*(3-2*t);
+  const center=state.tailBlend.from+(target-state.tailBlend.from)*ease;
+  if(t===1)state.tailBlend=null;
+  return center;
+}
 function position(state){
   const {shelf,source}=state;if(!shelf.isConnected){dispose(state);return;}
   const gallery=source?.closest('.ds-gallery');
   const sourceRect=source?.getBoundingClientRect();
-  let tail=config.projectPanelTailSize;
+  let tail=config.projectPanelTailSize,dots,bar,gap;
   if(gallery){
     const cutoff=Math.min(0,sourceRect.bottom-gallery.getBoundingClientRect().bottom);
-    const dots=featuredDots(shelf);
-    let gap=14+tail;
+    dots=featuredDots(shelf);
+    gap=14+tail;
     // The controls sit between the last visible thumbnail and the panel. Move
     // the controls and panel together when lower mobile cards are covered.
     if(dots){
+      state.featuredDotBar=dots;
+      bar=dots.getBoundingClientRect();
       const dotGap=parseFloat(getComputedStyle(dots).getPropertyValue('--gallery-dot-gap'))||0;
       const halfStroke=config.projectPanelBorderWidth/2;
-      gap=dotGap-halfStroke;
-      // The outline consumes half a stroke along the flat body and a diagonal
-      // half stroke at the tip. Keep the visible fill aligned on both edges.
-      if(tail)tail=dots.getBoundingClientRect().height+gap+Math.SQRT2*halfStroke;
+      gap=dotGap+halfStroke;
+      // Move the outside stroke to the former fill edge and extend the same
+      // 45-degree tail to keep its fill tip level with the top of the pill.
+      if(tail)tail=bar.height+gap+Math.SQRT2*halfStroke;
       dots.style.setProperty('--gallery-source-offset',cutoff+'px');
     }
     shelf.style.setProperty('margin-top',((dots?0:cutoff)+gap)+'px','important');
     shelf.style.marginBottom=Math.max(0,-cutoff-gap-shelf.getBoundingClientRect().height)+'px';
   }
   if(shelf.parentElement.matches('.is-masonry')&&source?.isConnected){const grid=shelf.parentElement.getBoundingClientRect();shelf.style.top=(source.getBoundingClientRect().bottom-grid.top+14+config.projectPanelTailSize)+'px';}
-  const rect=shelf.getBoundingClientRect();let center=sourceRect?panelTailCenter(sourceRect,rect,tail,config.projectPanelRadius):rect.width/2;
-  if(state.tailBlend){const t=Math.min(1,(performance.now()-state.tailBlend.at)/400),ease=t*t*(3-2*t);center=state.tailBlend.from+(center-state.tailBlend.from)*ease;if(t===1)state.tailBlend=null;}state.tailCenter=center;
+  const rect=shelf.getBoundingClientRect(),now=performance.now();
+  let center;
+  if(dots){
+    ({center,tail}=featuredTail(state,sourceRect,rect,dots,bar,tail,gap,now));
+  }else{
+    center=blendTail(state,sourceRect?panelTailCenter(sourceRect,rect,tail,config.projectPanelRadius):rect.width/2,now);
+  }
+  state.tailCenter=center;
   if(rect.width&&rect.height>0){surface(state.back,rect.width,rect.height,center,tail,state);surface(state.outline,rect.width,rect.height,center,tail,state);}
   shelf.dataset.projectVisible=String(rect.height>.5);state.controls.hidden=!state.open||rect.height<config.projectCloseSize+Math.max(0,config.projectCloseTop)*2;
   shelf.style.setProperty('--project-nav-bottom',Math.max(0,document.querySelector('.site-header')?.getBoundingClientRect().bottom||0)+'px');

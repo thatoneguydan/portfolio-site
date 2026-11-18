@@ -11,6 +11,40 @@ function headingRange(config){
 
 export function mountFeaturedHeading(heading,section){
   let rendered='',typography='',width=0,rotator=null;
+  const gallery=section.querySelector('.ds-gallery');
+  const viewport=window.visualViewport;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  let growth=0,growthFrame=0,scrollScale=1;
+  function applyScrollScale(scale){
+    if(scale===scrollScale)return;
+    scrollScale=scale;
+    heading.style.setProperty('--featured-scroll-scale',scale);
+    rotator?.syncWidth();
+  }
+  function scheduleGrowth(){
+    if(growthFrame)return;
+    growthFrame=requestAnimationFrame(()=>{
+      growthFrame=0;
+      if(!growth||heading.hidden||reduced.matches){applyScrollScale(1);return;}
+      const {top,height}=gallery.getBoundingClientRect();
+      const bottom=viewport?viewport.offsetTop+viewport.height:innerHeight;
+      // Grow across the gallery's entry into the viewport and stop once its
+      // bottom edge is visible. Quantize subpixel changes while scrolling.
+      const progress=height?Math.max(0,Math.min(1,(bottom-top)/height)):0;
+      applyScrollScale(1+growth*Math.round(progress*1000)/1000);
+    });
+  }
+  const galleryObserver=new ResizeObserver(scheduleGrowth);
+  function listenForGrowth(enabled){
+    const method=enabled?'addEventListener':'removeEventListener';
+    window[method]('scroll',scheduleGrowth,{passive:true});
+    window[method]('resize',scheduleGrowth);
+    viewport?.[method]('scroll',scheduleGrowth,{passive:true});
+    viewport?.[method]('resize',scheduleGrowth);
+    reduced[method]('change',scheduleGrowth);
+    if(enabled)galleryObserver.observe(gallery);
+    else galleryObserver.disconnect();
+  }
   const syncPhrase=()=>{
     width=heading.clientWidth;
     heading.style.setProperty('--featured-phrase-limit',width+'px');
@@ -21,6 +55,13 @@ export function mountFeaturedHeading(heading,section){
   });
   function update(config){
     const text=config.featuredHeading;
+    const nextGrowth=config.featuredHeadingScrollGrowth/100;
+    if(nextGrowth!==growth){
+      if(Boolean(nextGrowth)!==Boolean(growth))listenForGrowth(Boolean(nextGrowth));
+      growth=nextGrowth;
+      if(!growth)applyScrollScale(1);
+    }
+    if(growth)scheduleGrowth();
     const timing={
       rotateWords:config.featuredRotateWords,
       rotateInterval:config.rotateInterval,
@@ -77,7 +118,12 @@ export function mountFeaturedHeading(heading,section){
     observer.observe(heading);
     rotator.start();
   }
-  return {update,destroy(){observer.disconnect();rotator?.destroy();}};
+  return {update,destroy(){
+    listenForGrowth(false);
+    cancelAnimationFrame(growthFrame);
+    observer.disconnect();
+    rotator?.destroy();
+  }};
 }
 
 export function mountFeaturedRotationEditor(container,config,onChange){

@@ -180,6 +180,7 @@ export const defaults = {
   "featuredHeadingSize": 40,
   "featuredHeadingWeight": 700,
   "featuredHeadingGap": 25,
+  "featuredHeadingScrollGrowth": 0,
   "featuredHeadingAlign": "left",
   "featuredRotateEnabled": false,
   "featuredRotateStart": 0,
@@ -363,6 +364,7 @@ export const controlGroups = {
       ['range','featuredHeadingSize','Heading size at a 1000px content width',12,160,1,'px'],
       ['range','featuredHeadingWeight','Heading weight',100,1000,10,''],
       ['range','featuredHeadingGap','Space before carousel',0,200,1,'px'],
+      ['range','featuredHeadingScrollGrowth','Heading growth on scroll',0,150,1,'%'],
       ['select','featuredHeadingAlign','Heading alignment',['left','center','right','justify']]
     ],
     featuredRotation: [['check','featuredRotateEnabled','Cycle words or phrases']],

@@ -55,7 +55,7 @@
 #dan-landing-home .ds-featured {padding:0 0 clamp(64px,7vw,112px)}
 #dan-landing-home .ds-section-head {
   margin:0 0 var(--featured-heading-gap,25px);
-  font-size:calc(var(--featured-heading-size,40) * (0.5px + 0.05cqi));
+  font-size:calc(var(--featured-heading-size,40) * (0.5px + 0.05cqi) * var(--featured-scroll-scale,1));
   font-weight:var(--featured-heading-weight,700);
   line-height:1.1;
   letter-spacing:-.04em;
@@ -218,6 +218,7 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 /* Text is laid out at its final expanded width, never the animated card width. */
 #dan-landing-home .ds-gallery {height:var(--gallery-height,320px);gap:var(--gallery-gap,10px)}
 #dan-landing-home .ds-gallery > .ds-panel {border-radius:var(--gallery-radius,16px);transition-duration:var(--gallery-duration,600ms)}
+#dan-landing-home .ds-gallery.is-mouse-tracking > .ds-panel {transition-duration:min(var(--gallery-duration,600ms),150ms);transition-timing-function:cubic-bezier(.2,.75,.25,1)}
 #dan-landing-home .ds-gallery > .ds-panel::after {display:none}
 #dan-landing-home .ds-gallery .ds-caption {left:var(--caption-inset,20px);right:auto;width:var(--caption-width,500px);bottom:20px;transition:opacity 180ms ease,transform var(--gallery-duration,600ms) cubic-bezier(.16,1,.3,1)}
 #dan-landing-home .ds-caption > span {min-width:0;flex:1}
