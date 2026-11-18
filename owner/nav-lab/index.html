@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Dan Smith — Navigation lab</title>
+  <link rel="icon" href="/favicon.ico?v=20260910-original">
+  <link rel="stylesheet" href="./nav-lab.css?v=20261117-navlab1">
+  <script type="module" src="./nav-lab.js?v=20261117-navlab1"></script>
+</head>
+<body class="navlab-page" data-style="graphite">
+  <div class="navlab-device">
+    <header class="navlab-header">
+      <nav class="navlab-bar" aria-label="Navigation preview">
+        <a class="navlab-key navlab-home" href="/" data-page="home" aria-current="page" aria-label="Home, Dan Smith">
+          <span class="navlab-cap"><span class="navlab-number" aria-hidden="true">00</span><span class="navlab-led" aria-hidden="true"></span><span class="navlab-mark" aria-hidden="true"><img src="/assets/media/ac892c82fb108875fa5b331a6f0a9e8086fff50d681fa2d92f2e42ca5db03a70.png" alt="" decoding="async"></span><span class="navlab-label">Dan Smith</span></span>
+        </a>
+        <div class="navlab-pages" id="navlab-pages">
+          <a class="navlab-key" href="/video/" data-page="video"><span class="navlab-cap"><span class="navlab-number" aria-hidden="true">01</span><span class="navlab-led" aria-hidden="true"></span><span class="navlab-label">Video</span></span></a>
+          <a class="navlab-key" href="/design/" data-page="design"><span class="navlab-cap"><span class="navlab-number" aria-hidden="true">02</span><span class="navlab-led" aria-hidden="true"></span><span class="navlab-label">Design</span></span></a>
+          <a class="navlab-key" href="/photo/" data-page="photo"><span class="navlab-cap"><span class="navlab-number" aria-hidden="true">03</span><span class="navlab-led" aria-hidden="true"></span><span class="navlab-label">Photo</span></span></a>
+          <a class="navlab-key" href="/contact/" data-page="contact"><span class="navlab-cap"><span class="navlab-number" aria-hidden="true">04</span><span class="navlab-led" aria-hidden="true"></span><span class="navlab-label">Contact</span></span></a>
+        </div>
+        <button class="navlab-key navlab-menu" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="navlab-pages"><span class="navlab-cap"><span class="navlab-led" aria-hidden="true"></span><span class="navlab-hamburger" aria-hidden="true"><span></span><span></span><span></span></span><span class="navlab-label">Menu</span></span></button>
+      </nav>
+    </header>
+    <main class="navlab-preview" aria-label="Site page preview"><p class="navlab-loading" role="status">Opening Home…</p></main>
+  </div>
+  <div class="navlab-tools">
+    <button class="navlab-launcher" type="button" aria-expanded="false" aria-controls="navlab-controls" aria-label="Tune navigation. Drag to move."><span aria-hidden="true">⠿</span> Tune navigation</button>
+    <aside class="navlab-controls" id="navlab-controls" aria-label="Tune navigation" hidden>
+      <div class="navlab-controls-head"><h1>Tune navigation</h1><button type="button" class="navlab-close" aria-label="Close navigation controls">×</button></div>
+      <p class="navlab-note">A private playground for the nav. These settings affect this demo only.</p>
+      <label>Key style<select name="style"><option value="graphite">Graphite</option><option value="porcelain">Porcelain</option><option value="low-profile">Low profile</option></select></label>
+      <label>Preview width<select name="device"><option value="auto">Match this window</option><option value="390">Phone · 390px</option><option value="768">Tablet · 768px</option><option value="1280">Desktop · 1280px</option></select></label>
+      <details open><summary>Keys & bar</summary>
+        <label>Key height <output data-for="height"></output><input name="height" type="range" min="84" max="200" step="1"></label>
+        <label>Key depth <output data-for="depth"></output><input name="depth" type="range" min="2" max="20" step="0.5"></label>
+        <label>Key spacing <output data-for="gap"></output><input name="gap" type="range" min="0" max="24" step="1"></label>
+        <label>Corner radius <output data-for="radius"></output><input name="radius" type="range" min="4" max="32" step="1"></label>
+        <label>Label size <output data-for="text"></output><input name="text" type="range" min="10" max="28" step="0.5"></label>
+      </details>
+      <details open><summary>Selected-page LED</summary>
+        <label>Light color<input name="ledColor" type="color"></label>
+        <label>Light size <output data-for="ledSize"></output><input name="ledSize" type="range" min="3" max="12" step="0.5"></label>
+        <label>Glow reach <output data-for="glow"></output><input name="glow" type="range" min="0" max="36" step="1"></label>
+        <label>Glow strength <output data-for="strength"></output><input name="strength" type="range" min="0" max="100" step="1"></label>
+      </details>
+      <div class="navlab-tool-actions"><button type="button" data-reset>Reset demo</button><a data-open-page href="/" target="_blank" rel="noopener">Open page normally</a></div>
+    </aside>
+  </div>
+  <noscript>This navigation demo needs JavaScript. <a href="/">Return to the site.</a></noscript>
+</body>
+</html>

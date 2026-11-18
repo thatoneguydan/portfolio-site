@@ -1,5 +1,5 @@
-import {emojiPaths,emojiBase,localEmoji} from './fluent-emoji-map.js?v=20261117-local-assets1';
-import {createPaletteGlyph} from './palette-glyph.js?v=20261117-local-assets1';
+import {emojiPaths,emojiBase,localEmoji} from './fluent-emoji-map.js?v=20261117-navlab1';
+import {createPaletteGlyph} from './palette-glyph.js?v=20261117-navlab1';
 
 export const graphemes=text=>typeof Intl.Segmenter==='function'?[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(String(text))].map(s=>s.segment):Array.from(String(text));
 export function emojiUrl(glyph){
