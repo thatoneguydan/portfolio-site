@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261118-worklinks1';
+import {defaults} from './landing-schema.js?v=20261118-worklinks2';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
@@ -138,13 +138,9 @@ function featuredTail(state,source,panel,dots,bar,tail,gap,now){
       trackPositions(400);
     }
   }
-  const center=clamp(blendTail(state,target,now));
-  const distance=Math.max(0,baseLeft+shift-center,center-baseRight-shift);
-  // When switching sides, the tip retracts as it passes under the pill and
-  // grows again after clearing it. Width follows height throughout the move.
-  const tipClearance=distance>=clearance/Math.SQRT2
-    ? Math.SQRT2*clearance-distance : Math.sqrt(clearance**2-distance**2);
-  return {center,tail:Math.max(0,Math.min(length,gap-tipClearance))};
+  // The dot bar is stacked above the panel. Keep the tail at its settled
+  // size while it passes behind the bar and save clearance for the endpoint.
+  return {center:clamp(blendTail(state,target,now)),tail:length};
 }
 function blendTail(state,target,now){
   if(!state.tailBlend)return target;
@@ -182,7 +178,10 @@ function position(state){
   const rect=shelf.getBoundingClientRect(),now=performance.now();
   let center;
   if(dots){
-    ({center,tail}=featuredTail(state,sourceRect,rect,dots,bar,tail,gap,now));
+    // The pending card owns the tail during loading. The committed card
+    // keeps owning the current panel's vertical layout and edge masks.
+    const tailSource=state.pending?.source?.getBoundingClientRect()||sourceRect;
+    ({center,tail}=featuredTail(state,tailSource,rect,dots,bar,tail,gap,now));
   }else{
     center=blendTail(state,sourceRect?panelTailCenter(sourceRect,rect,tail,config.projectPanelRadius):rect.width/2,now);
   }
@@ -197,6 +196,11 @@ function position(state){
     Object.assign(state.loading.style,{left:(loadingRect.left+loadingRect.width/2)+'px',top:(loadingRect.top+loadingRect.height/2)+'px',maxWidth:Math.max(48,loadingRect.width-20)+'px',padding:padding+'px 20px'});
     state.loading.hidden=!state.open||(!state.pending&&state.allowed&&!state.loadingError);
   }
+}
+function moveTail(state){
+  if(reduced.matches||!Number.isFinite(state.tailCenter))return;
+  state.tailBlend={from:state.tailCenter,at:performance.now()};
+  trackPositions(Math.max(400,config.galleryDuration,config.verticalGalleryDuration)+100);
 }
 function finishClose(state){
   if(state.finishing||state.open)return;state.finishing=true;
@@ -296,6 +300,7 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
   if(!state||!state.open||!shelf.isConnected)return false;
   state.pending?.abort.abort();
   const pending={source,inner,abort:new AbortController()};state.pending=pending;state.loadingError=false;
+  moveTail(state);
   const {signal}=pending.abort;inner.querySelector('.rdp-project-loading')?.remove();inner.classList.add('portfolio-panel-incoming');inner.inert=true;inner.setAttribute('aria-hidden','true');state.clip.append(inner);loaderFor(state);position(state);
   try{
     const frame=inner.querySelector('.rdp-project-frame');let content=null;
@@ -305,10 +310,10 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
       frame.style.visibility='';
     }else{const player=inner.querySelector('.portfolio-inline-video>iframe');if(player)await frameReady(player,signal,false);}
     if(signal.aborted||state.pending!==pending||!state.open||!shelf.isConnected)return false;
-    const oldInner=state.inner,oldRect=shelf.getBoundingClientRect(),fromCenter=state.tailCenter,visible=oldRect.height>1;
+    const oldInner=state.inner,oldRect=shelf.getBoundingClientRect(),visible=oldRect.height>1;
     state.anchorMotions?.forEach(motion=>motion.cancel());state.anchorMotions=null;
     state.initial.abort();state.contentObserver?.disconnect();state.observer.unobserve(oldInner);state.observer.unobserve(state.source);
-    retireMasks(state);state.maskProgress=0;state.source=source;shelf.dataset.projectSource=source.id;shelf.setAttribute('aria-label',title+' details');state.tailBlend={from:fromCenter,at:performance.now()};
+    retireMasks(state);state.maskProgress=0;state.source=source;shelf.dataset.projectSource=source.id;shelf.setAttribute('aria-label',title+' details');
     Object.assign(oldInner.style,{position:'absolute',left:'0',top:'0',width:oldInner.getBoundingClientRect().width+'px',boxSizing:'border-box',pointerEvents:'none'});oldInner.inert=true;oldInner.setAttribute('aria-hidden','true');
     inner.classList.remove('portfolio-panel-incoming');inner.inert=false;inner.removeAttribute('aria-hidden');inner.style.width=state.clip.getBoundingClientRect().width+'px';
     state.inner=inner;state.content=content;state.ready=true;state.pending=null;state.preparing=visible;state.allowed=visible;shelf.dataset.projectReady='true';
@@ -329,7 +334,7 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
     return false;
   }finally{
     if(state.inner!==inner){inner.querySelectorAll('iframe').forEach(frame=>frame.src='about:blank');inner.remove();}
-    if(state.pending===pending){state.pending=null;measure(state);}
+    if(state.pending===pending){state.pending=null;if(state.open)moveTail(state);measure(state);}
   }
 }
 export function installProjectPanels(){

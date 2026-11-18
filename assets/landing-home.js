@@ -1,10 +1,10 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-worklinks1';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-worklinks2';
 import {createBadge} from './landing-badge.js?v=20261118-tune2';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-hero3';
-import {featuredGalleryLayout,featuredPointerPosition,galleryCaptionKind} from './gallery-layout.js?v=20261118-featured4';
-import {siteReady} from './site-runtime.js?v=20261118-worklinks1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-worklinks1';
+import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-worklinks2';
+import {siteReady} from './site-runtime.js?v=20261118-worklinks2';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-worklinks2';
 import {mountFeaturedHeading} from './featured-heading.js?v=20261118-featured4';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {
@@ -178,52 +178,42 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     return button;
   });
   if(panels.length>1)gallery.after(dots);
-  let galleryPlans=[],galleryGap=0,renderedPosition=-1,renderedIndex=-1;
-  let mouseTrack=null,mouseFrame=0;
+  let galleryWidth=gallery.getBoundingClientRect().width,renderedIndex=-1;
   const panelImages=panels.map(panel=>panel.querySelector('.ds-gallery-image'));
-  function paintGallery(position,{fromScrub=false}={}) {
-    if(!galleryPlans.length)return;
-    const index=Math.round(position),before=Math.floor(position),after=Math.ceil(position);
-    const changeSelection=index!==renderedIndex;
-    if(!fromScrub&&changeSelection)dotIndicator.select(dotButtons[index]);
-    if(renderedPosition!==position){
-      renderedPosition=position;
-      const progress=position-before;
-      panels.forEach((panel,i)=>{
-        const start=galleryPlans[before].extents[i],end=galleryPlans[after].extents[i];
-        panel.style.flexGrow=String(start+(end-start)*progress);
-      });
+  function selectPanel(index,{fromScrub=false,refresh=false}={}) {
+    if(!panels.length)return;
+    config.activeIndex=(index+panels.length)%panels.length;
+    if(!fromScrub)dotIndicator.select(dotButtons[config.activeIndex]);
+    if(renderedIndex===config.activeIndex&&!refresh){updateCaptions();return;}
+    renderedIndex=config.activeIndex;
+    const vertical=gallery.dataset.layout==='vertical';
+    const layout=featuredGalleryLayout(config,vertical,galleryWidth,panels.length,config.activeIndex);
+    const grayscale=vertical?config.verticalGalleryGrayscale:config.grayscale;
+    if(refresh){
+      gallery.style.setProperty('--gallery-height',layout.totalHeight+'px');
+      gallery.style.setProperty('--mobile-expanded',layout.height+'px');
+      gallery.style.setProperty('--media-width',layout.expandedWidth+'px');
+      gallery.style.setProperty('--caption-width',Math.max(1,layout.expandedWidth-(vertical?config.verticalGalleryPadding*2:36))+'px');
     }
-    if(changeSelection){
-      renderedIndex=index;
-      const grayscale=gallery.dataset.layout==='vertical'?config.verticalGalleryGrayscale:config.grayscale;
-      panels.forEach((panel,i)=>{
-        const active=i===index;
-        panel.dataset.focused=String(active);
-        panelImages[i].style.filter=grayscale&&!active?'grayscale(1)':'none';
+    panels.forEach((panel,i)=>{
+      const active=i===config.activeIndex;
+      if(panel.dataset.focused!==String(active))panel.dataset.focused=String(active);
+      panel.style.flexGrow=String(layout.extents[i]);
+      const image=panelImages[i];
+      image.style.filter=grayscale&&!active?'grayscale(1)':'none';
+      if(refresh&&image.srcset)image.sizes=Math.ceil(vertical?galleryWidth:layout.expandedWidth)+'px';
+      if(dotButtons[i].getAttribute('aria-current')!==String(active)){
         dotButtons[i].setAttribute('aria-current',String(active));
         dotButtons[i].tabIndex=active?0:-1;
-      });
-    }
+      }
+    });
     updateCaptions();
-  }
-  function clearMouseTrack(){
-    mouseTrack=null;
-    cancelAnimationFrame(mouseFrame);
-    mouseFrame=0;
-    gallery.classList.remove('is-mouse-tracking');
-  }
-  function selectPanel(index,{fromScrub=false}={}) {
-    if(!panels.length)return;
-    clearMouseTrack();
-    config.activeIndex=(index+panels.length)%panels.length;
-    paintGallery(config.activeIndex,{fromScrub});
   }
   function updateCaptions(){
     const mobile=gallery.dataset.layout==='vertical';
     panels.forEach((panel,i)=>{
-      const active=i===renderedIndex;
-      const kind=galleryCaptionKind({active,vertical:mobile,mobile,hovered:active&&!mobile&&(!!mouseTrack||panel.matches(':hover')),focused:active&&!mobile&&(panel.matches(':focus-visible')||dotButtons[i].matches(':focus-visible'))});
+      const active=i===config.activeIndex;
+      const kind=galleryCaptionKind({active,vertical:mobile,mobile,hovered:active&&!mobile&&panel.matches(':hover'),focused:active&&!mobile&&(panel.matches(':focus-visible')||dotButtons[i].matches(':focus-visible'))});
       if(panel.dataset.captionKind!==kind)panel.dataset.captionKind=kind;
       if(panel.dataset.captionVisible!==String(kind!=='none'))panel.dataset.captionVisible=String(kind!=='none');
     });
@@ -233,51 +223,19 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     const vertical=mobileNavigation();
     const layout=vertical?'vertical':'horizontal',changed=gallery.dataset.layout!==layout;
     if(changed)gallery.classList.add('is-switching-layout');
-    galleryGap=vertical?config.verticalGalleryGap:config.galleryGap;
-    const galleryWidth=gallery.getBoundingClientRect().width;
-    galleryPlans=panels.map((_,i)=>featuredGalleryLayout(config,vertical,galleryWidth,panels.length,i));
-    const layoutPlan=galleryPlans[0];
-    gallery.style.setProperty('--gallery-height',layoutPlan.totalHeight+'px');
-    gallery.style.setProperty('--mobile-expanded',layoutPlan.height+'px');
-    gallery.style.setProperty('--media-width',layoutPlan.expandedWidth+'px');
-    gallery.style.setProperty('--caption-width',Math.max(1,layoutPlan.expandedWidth-(vertical?config.verticalGalleryPadding*2:36))+'px');
-    for(const image of panelImages)if(image.srcset)image.sizes=Math.ceil(vertical?galleryWidth:layoutPlan.expandedWidth)+'px';
+    const gap=vertical?config.verticalGalleryGap:config.galleryGap;
+    galleryWidth=gallery.getBoundingClientRect().width;
     gallery.dataset.layout=layout;
     gallery.dataset.mobile=String(vertical);
-    gallery.style.setProperty('--gallery-gap',galleryGap+'px');
+    gallery.style.setProperty('--gallery-gap',gap+'px');
     gallery.style.setProperty('--gallery-radius',(vertical?config.verticalGalleryRadius:config.galleryRadius)+'px');
     gallery.style.setProperty('--gallery-duration',(vertical?config.verticalGalleryDuration:config.galleryDuration)+'ms');
     gallery.style.setProperty('--caption-inset',(vertical?config.verticalGalleryPadding:20)+'px');
     gallery.style.setProperty('--caption-title-size',(vertical?config.verticalGalleryTitleSize:20)+'px');
     gallery.style.setProperty('--compact-title-size',config.verticalGalleryCompactTitleSize+'px');
-    renderedIndex=renderedPosition=-1;
-    selectPanel(config.activeIndex);
+    selectPanel(config.activeIndex,{refresh:true});
     if(changed){void gallery.offsetHeight;requestAnimationFrame(()=>gallery.classList.remove('is-switching-layout'));}
   }
-  function updateMousePreview(event){
-    if(event.pointerType!=='mouse'||event.buttons||!galleryPlans.length)return;
-    if(!mouseTrack){
-      const vertical=gallery.dataset.layout==='vertical';
-      const bounds=gallery.getBoundingClientRect();
-      mouseTrack={vertical,start:vertical?bounds.top+scrollY:bounds.left+scrollX,extents:galleryPlans[config.activeIndex].extents};
-      gallery.classList.add('is-mouse-tracking');
-    }
-    const coordinate=mouseTrack.vertical?event.clientY+scrollY:event.clientX+scrollX;
-    if(coordinate===mouseTrack.coordinate)return;
-    mouseTrack.coordinate=coordinate;
-    if(mouseFrame)return;
-    mouseFrame=requestAnimationFrame(()=>{
-      mouseFrame=0;
-      const position=featuredPointerPosition(mouseTrack.extents,galleryGap,mouseTrack.coordinate-mouseTrack.start);
-      paintGallery(position);
-    });
-  }
-  gallery.addEventListener('pointerenter',updateMousePreview);
-  gallery.addEventListener('pointermove',updateMousePreview);
-  gallery.addEventListener('pointerleave',()=>{
-    if(mouseTrack)selectPanel(config.activeIndex);
-  });
-
   const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale:fullIDScale});
   function render(){
     applyHeroLayout();
@@ -286,6 +244,14 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     for(const description of workDescriptions){
       const text=config[description.dataset.workDescription];
       if(description.textContent!==text)description.textContent=text;
+    }
+    if(workLinks){
+      workLinks.style.setProperty('--work-card-hover-height',config.workCardHoverHeight+'px');
+      for(const [element,key] of [['number','Number'],['title','Title'],['description','Description'],['arrow','Arrow']]){
+        workLinks.style.setProperty('--work-'+element+'-size',config['work'+key+'Size']/100);
+        workLinks.style.setProperty('--work-'+element+'-weight',config['work'+key+'Weight']);
+        workLinks.style.setProperty('--work-'+element+'-color',config['work'+key+'Color']);
+      }
     }
     renderText();
     renderGallery();
@@ -334,6 +300,8 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     panel.addEventListener('pointerdown',event=>{
       if(event.pointerType==='mouse'&&event.button===0)selectPanel(i);
     });
+    panel.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch')selectPanel(i);});
+    panel.addEventListener('pointerleave',updateCaptions);
     panel.addEventListener('focus',()=>selectPanel(i));
     panel.addEventListener('blur',()=>requestAnimationFrame(updateCaptions));
     panel.addEventListener('keydown',event=>{

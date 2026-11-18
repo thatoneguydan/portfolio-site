@@ -24,24 +24,6 @@ export function featuredGalleryLayout(config,vertical,width,count,active){
   const extents=weights.map((weight,i)=>i===active?(vertical?height:expandedWidth):minimum+surplus*weight/totalWeight);
   return {expandedWidth,height,extents,totalHeight:vertical?height+collapsed+gap*(count-1):height};
 }
-// Give each card a settled zone and blend it with its neighbor on either
-// side of the gutter. Expanding a card cannot move this resting-layout rail.
-export function featuredPointerPosition(extents,gap,coordinate){
-  let edge=0;
-  for(let index=0;index<extents.length-1;index++){
-    edge+=extents[index];
-    const start=edge-Math.min(64,extents[index]*.48);
-    const end=edge+gap+Math.min(64,extents[index+1]*.48);
-    if(coordinate<start)return index;
-    if(coordinate<end){
-      const progress=(coordinate-start)/(end-start);
-      return index+progress*progress*(3-2*progress);
-    }
-    edge+=gap;
-  }
-  return extents.length-1;
-}
-
 export function galleryCaptionKind({active,vertical,mobile,hovered,focused}){
   if(active&&(mobile||hovered||focused))return 'full';
   return !active&&vertical&&mobile?'compact':'none';

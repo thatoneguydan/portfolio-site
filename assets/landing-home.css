@@ -50,80 +50,109 @@
     #dan-landing-home .ds-caption i{margin-left:auto;font-size:22px;font-style:normal}
 /* The site owns the header, page gutters, type family, project shelves and footer. */
 #dan-landing-home {isolation:auto; font-family:inherit}
+/* The percentage resolves against the same available width as the side
+   gutters, before the max-width cap centers the main column. */
+.landing-refresh .site-main:has(> #dan-landing-home) {padding-block-end:var(--site-side-gutter,4%)}
 #dan-landing-home .ds-hero {--hero-base-top:clamp(52px,6vw,90px);--hero-column-gap:clamp(28px,3vw,48px);padding:calc(var(--hero-base-top) * var(--hero-top-space,1)) 0 clamp(62px,7vw,110px);gap:var(--hero-column-gap)}
 #dan-landing-home .ds-intro {container-type:inline-size}
 #dan-landing-home .ds-featured {padding:0 0 clamp(64px,7vw,112px)}
 #dan-landing-home .ds-work-links {
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
-  margin-block-end:clamp(64px,7vw,112px);
   border:1px solid var(--dan-line);
 }
 #dan-landing-home.featured-below-fold > .ds-work-links {grid-area:6 / 1}
 #dan-landing-home .ds-work-card {
+  --work-card-surface:var(--dan-paper);
+  position:relative;
+  isolation:isolate;
   display:grid;
   grid-template-rows:minmax(max-content,1fr) auto minmax(max-content,1fr);
-  gap:16px;
+  row-gap:max(16px,var(--work-card-hover-height,24px));
   min-block-size:clamp(28rem,70cqw,52rem);
   padding:clamp(20px,3.6cqw,56px);
   color:var(--dan-ink);
-  background:var(--dan-paper);
+  background:var(--work-card-surface);
   touch-action:manipulation;
+}
+#dan-landing-home .ds-work-card::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:var(--work-card-surface);
+  pointer-events:none;
+  transition:inset-block-end 230ms cubic-bezier(.2,.75,.2,1);
 }
 #dan-landing-home .ds-work-card + .ds-work-card {border-inline-start:1px solid var(--dan-line)}
 #dan-landing-home .ds-work-card-number {
   align-self:start;
-  font-size:clamp(54px,7.7cqw,132px);
-  font-weight:400;
+  font-size:calc(clamp(54px,7.7cqw,132px) * var(--work-number-size,1));
+  font-weight:var(--work-number-weight,400);
+  --work-card-element-color:var(--work-number-color,var(--dan-ink));
   line-height:.85;
-  letter-spacing:-.07em;
+  letter-spacing:.1em;
   font-variant-numeric:tabular-nums;
 }
-#dan-landing-home .ds-work-card-label {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
 #dan-landing-home .ds-work-card-title {
-  font-size:clamp(31px,5cqw,78px);
-  font-weight:600;
+  font-size:calc(clamp(31px,5cqw,78px) * var(--work-title-size,1));
+  font-weight:var(--work-title-weight,600);
+  --work-card-element-color:var(--work-title-color,var(--dan-ink));
   line-height:.94;
-  letter-spacing:-.045em;
+  letter-spacing:.08em;
   text-transform:uppercase;
+  overflow-wrap:anywhere;
+}
+#dan-landing-home .ds-work-card-footer {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:end;
+  align-self:end;
+  gap:clamp(12px,1.6cqw,24px);
 }
 #dan-landing-home .ds-work-card-arrow {
-  font-size:clamp(20px,2.7cqw,36px);
+  font-size:calc(clamp(20px,2.4cqw,32px) * var(--work-arrow-size,1));
+  font-weight:var(--work-arrow-weight,400);
+  --work-card-element-color:var(--work-arrow-color,var(--dan-ink));
   line-height:1;
 }
 #dan-landing-home .ds-work-card-description {
-  align-self:end;
-  font-size:clamp(15px,1.52cqw,22px);
+  font-size:calc(clamp(15px,1.52cqw,22px) * var(--work-description-size,1));
+  font-weight:var(--work-description-weight,400);
+  --work-card-element-color:var(--work-description-color,var(--dan-ink));
   line-height:1.42;
   white-space:pre-wrap;
   overflow-wrap:anywhere;
 }
-#dan-landing-home .ds-work-card :is(.ds-work-card-title,.ds-work-card-description) {
-  transform-origin:left center;
+#dan-landing-home .ds-work-card :is(.ds-work-card-number,.ds-work-card-title,.ds-work-card-description,.ds-work-card-arrow) {
+  color:var(--work-card-highlight-color,var(--work-card-element-color));
+}
+#dan-landing-home .ds-work-card :is(.ds-work-card-number,.ds-work-card-title) {
   transition:transform 250ms cubic-bezier(.2,.75,.25,1);
 }
 #dan-landing-home .ds-work-card:is(:focus-visible,:active,.is-work-pressed) {
-  background:var(--dan-ink);
+  --work-card-surface:var(--dan-ink);
+  --work-card-highlight-color:var(--dan-paper);
   color:var(--dan-paper);
 }
-#dan-landing-home .ds-work-card:focus-visible {outline-offset:-5px}
-#dan-landing-home .ds-work-card:is(:active,.is-work-pressed) :is(.ds-work-card-title,.ds-work-card-description) {
-  transform:scale(.95);
+#dan-landing-home .ds-work-card:focus-visible {outline-offset:-5px;z-index:1}
+#dan-landing-home .ds-work-card:focus-visible::before {inset-block-end:calc(-1 * var(--work-card-hover-height,24px))}
+#dan-landing-home .ds-work-card:is(:active,.is-work-pressed) :is(.ds-work-card-number,.ds-work-card-title) {
+  transform:translateY(var(--work-card-hover-height,24px));
   transition-duration:85ms;
 }
 @media (hover:hover) {
   #dan-landing-home .ds-work-card:hover {
-    background:var(--dan-ink);
+    --work-card-surface:var(--dan-ink);
+    --work-card-highlight-color:var(--dan-paper);
     color:var(--dan-paper);
+    z-index:1;
   }
+  #dan-landing-home .ds-work-card:hover::before {inset-block-end:calc(-1 * var(--work-card-hover-height,24px))}
 }
 @media (prefers-reduced-motion:reduce) {
-  #dan-landing-home .ds-work-card:is(:active,.is-work-pressed) :is(.ds-work-card-title,.ds-work-card-description) {transform:none}
+  #dan-landing-home .ds-work-card::before {transition:none}
+  #dan-landing-home .ds-work-card:is(:active,.is-work-pressed) :is(.ds-work-card-number,.ds-work-card-title) {transform:none}
 }
 /* Keep the stacked navigation at the same breakpoint as the header menu. */
 @media (max-width:720px) {
@@ -133,8 +162,11 @@
     border-inline-start:0;
     border-block-start:1px solid var(--dan-line);
   }
-  #dan-landing-home .ds-work-card-number {font-size:clamp(54px,13cqw,88px)}
-  #dan-landing-home .ds-work-card-title {font-size:clamp(36px,10cqw,60px)}
+  #dan-landing-home .ds-work-card-number {font-size:calc(clamp(54px,13cqw,88px) * var(--work-number-size,1))}
+  #dan-landing-home .ds-work-card-title {
+    font-size:calc(clamp(36px,10cqw,60px) * var(--work-title-size,1));
+    letter-spacing:.06em;
+  }
 }
 #dan-landing-home .ds-section-head {
   margin:0 0 var(--featured-heading-gap,25px);
@@ -301,7 +333,6 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 /* Text is laid out at its final expanded width, never the animated card width. */
 #dan-landing-home .ds-gallery {height:var(--gallery-height,320px);gap:var(--gallery-gap,10px)}
 #dan-landing-home .ds-gallery > .ds-panel {border-radius:var(--gallery-radius,16px);transition-duration:var(--gallery-duration,600ms)}
-#dan-landing-home .ds-gallery.is-mouse-tracking > .ds-panel {transition-duration:min(var(--gallery-duration,600ms),150ms);transition-timing-function:cubic-bezier(.2,.75,.25,1)}
 #dan-landing-home .ds-gallery > .ds-panel::after {display:none}
 #dan-landing-home .ds-gallery .ds-caption {left:var(--caption-inset,20px);right:auto;width:var(--caption-width,500px);bottom:20px;transition:opacity 180ms ease,transform var(--gallery-duration,600ms) cubic-bezier(.16,1,.3,1)}
 #dan-landing-home .ds-caption > span {min-width:0;flex:1}

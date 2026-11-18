@@ -1,4 +1,4 @@
-import {replaceProjectContent} from './project-panels.js?v=20261118-worklinks1';
+import {replaceProjectContent} from './project-panels.js?v=20261118-worklinks2';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const selector='.rdp-project-card,#featured-work .rd-work-card,.rv-video-card[data-youtube-id]';
@@ -83,5 +83,12 @@ export function installProjectViews(){
     else openProject(card);
   },true);
   document.addEventListener('portfolio-open-project',event=>openProject(event.detail.card));
-  const slug=location.hash.replace(/^#(?:project|featured)-/,'');if(slug&&slug!==location.hash){const card=[...document.querySelectorAll(selector)].find(card=>slugFor(card)===slug);if(card)requestAnimationFrame(()=>openProject(card,{hash:false}));}
+  const slug=location.hash.replace(/^#(?:project|featured)-/,'');
+  if(slug&&slug!==location.hash){
+    const card=[...document.querySelectorAll(selector)].find(card=>slugFor(card)===slug);
+    const refreshing=performance.getEntriesByType('navigation')[0]?.type==='reload';
+    if(refreshing&&(location.hash.startsWith('#featured-')||card?.matches('.ds-panel'))){
+      history.replaceState(history.state,'',location.pathname+location.search);
+    }else if(card)requestAnimationFrame(()=>openProject(card,{hash:false}));
+  }
 }
