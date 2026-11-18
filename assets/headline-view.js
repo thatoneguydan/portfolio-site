@@ -1,6 +1,6 @@
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-navlab1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-navlab1';
-import {headlineSettings} from './landing-schema.js?v=20261117-navlab1';
+import {headlineSettings} from './landing-schema.js?v=20261118-sizing1';
 
 export function revealOffset(clipHeight,glyphHeight,fontSize,direction){
   return Math.sign(direction)*(Math.max(clipHeight,glyphHeight)+fontSize*.6+2);
@@ -12,7 +12,7 @@ export function revealFrames(start,duration,unit='%'){
   });
 }
 
-export function mountHeadline(h1,scope,initial){
+export function mountHeadline(h1,scope,initial,{deferReveal=false}={}){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let config,signature='',animations=[],rotator=null,fitFrame=0,initialFrame=0;
   h1.setAttribute('data-headline-pending','');h1.classList.add('ds-authored-reveal');h1.dataset.headlineScope=scope;
@@ -75,6 +75,7 @@ export function mountHeadline(h1,scope,initial){
     fit();if(animate)replay();else if(!h1.hasAttribute('data-headline-pending'))rotator?.start();
   }
   const observer=new ResizeObserver(()=>{if(!fitFrame)fitFrame=requestAnimationFrame(fit);});observer.observe(h1.parentElement);
-  update(initial);initialFrame=requestAnimationFrame(()=>{initialFrame=0;replay();});
+  update(initial);
+  if(!deferReveal)initialFrame=requestAnimationFrame(()=>{initialFrame=0;replay();});
   return {update,replay,destroy(){observer.disconnect();cancelAnimationFrame(initialFrame);cancelAnimationFrame(fitFrame);animations.forEach(a=>a.cancel());rotator?.destroy();}};
 }

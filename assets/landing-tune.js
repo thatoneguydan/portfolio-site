@@ -1,5 +1,5 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-navlab1';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-navlab1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-sizing1';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-navlab1';document.head.append(stylesheet);
@@ -23,6 +23,7 @@ export function mountTune(api){
   <aside class="ds-config" id="dan-demo-config" aria-label="Staging controls" hidden>
     <div class="ds-config-header"><h2>Tune the website</h2><button type="button" aria-label="Close staging controls" data-close-config>×</button></div>
     ${headlineEditor('','Home headline',!api.pageScope)}
+    <details><summary>Home layout &amp; action button</summary><div data-controls="heroLayout"></div></details>
     <details${api.pageScope?' open':''}><summary>Page headlines</summary>${headlineScopes.map(scope=>headlineEditor(scope,scope[0].toUpperCase()+scope.slice(1)+' headline',scope===api.pageScope)).join('')}</details>
     <details><summary>ID card</summary>
       <details open><summary>Content & typography</summary>
@@ -59,6 +60,7 @@ export function mountTune(api){
     </details>
     <details><summary>Image lightbox</summary><div data-controls="lightbox"></div></details>
     <details><summary>Navigation</summary><div data-controls="navShadow"></div></details>
+    <details><summary>Footer</summary><div data-controls="footer"></div><div class="ds-config-buttons"><button type="button" data-reset-footer>Restore original footer</button></div></details>
     <details><summary>Design demos</summary><p class="ds-control-help">Try alternate navigation treatments on a separate page.</p><a class="ds-saved-version" href="/owner/nav-lab/" target="_blank" rel="noopener">Navigation lab <span aria-hidden="true">↗</span></a></details>
     <details><summary>Saved versions</summary><p class="ds-control-help">A frozen copy of the landing page and its settings before the hierarchy update.</p><a class="ds-saved-version" href="/owner/landing-before-hierarchy/" target="_blank" rel="noopener">Previous landing page <span aria-hidden="true">↗</span></a></details>
     <details><summary>Copy / paste settings</summary><label>Settings<textarea aria-label="Settings JSON" class="ds-config-json" spellcheck="false"></textarea></label><div class="ds-config-buttons"><button type="button" data-export>Copy settings</button><button type="button" data-import>Apply settings</button></div></details>
@@ -214,6 +216,10 @@ export function mountTune(api){
   configPanel.querySelector('[data-export]').addEventListener('click',()=>{const area=configPanel.querySelector('.ds-config-json');area.value=JSON.stringify(config,null,2);area.focus();area.select();navigator.clipboard?.writeText(area.value).catch(()=>{});configPanel.querySelector('.ds-config-status').textContent='Settings ready to copy.';});
   configPanel.querySelector('[data-import]').addEventListener('click',()=>{try{const value=JSON.parse(configPanel.querySelector('.ds-config-json').value);if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Paste a settings object.');Object.assign(config,normalizeSettings(value,config));render();renderControls();replay();persist();configPanel.querySelector('.ds-config-status').textContent='Settings applied.';}catch(error){configPanel.querySelector('.ds-config-status').textContent=error.message;}});
   configPanel.querySelector('[data-reset]').addEventListener('click',()=>{Object.assign(config,baseline);render();renderControls();replay();persist();configPanel.querySelector('.ds-config-status').textContent='Your starting settings restored.';});
+  configPanel.querySelector('[data-reset-footer]').addEventListener('click',()=>{
+    for(const [,key] of controlGroups.footer)config[key]=api.defaults[key];
+    render();renderControls();persist();
+  });
 
 
   configPanel.querySelector('[data-save]').addEventListener('click',()=>{pending={...config};flush();});

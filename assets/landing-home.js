@@ -1,15 +1,25 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-navlab1';
-import {createBadge} from './landing-badge.js?v=20261117-navlab1';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-sizing1';
+import {createBadge} from './landing-badge.js?v=20261118-sizing1';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-navlab1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-navlab1';
 import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-navlab1';
-import {siteReady} from './site-runtime.js?v=20261117-navlab1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261117-navlab1';
+import {siteReady} from './site-runtime.js?v=20261118-sizing1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-sizing1';
 (async() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
   const api=await siteReady,config=api.getConfig();
   const h1=root.querySelector('.ds-reveal'),intro=root.querySelector('.ds-intro');
+  const hero=root.querySelector('.ds-hero'),cta=intro.querySelector('.ds-contact');
+  // The reference composition has a 920 CSS-pixel content area inside the site gutters.
+  function fullHeroScale(){return config.heroScaleWithWidth ? Math.max(1,hero.clientWidth)/920 : 1;}
+  function applyHeroLayout(){
+    hero.classList.toggle('scales-with-width',config.heroScaleWithWidth);
+    hero.style.setProperty('--hero-width-scale',fullHeroScale());
+    cta.style.setProperty('--contact-button-scale',config.heroCtaScale/100);
+    root.style.setProperty('--hero-cta-offset',config.heroCtaOffset+'px');
+    root.style.setProperty('--hero-featured-spacing',config.heroFeaturedSpacing/100);
+  }
   const ticket=root.querySelector('.ds-ticket'),ticketStage=root.querySelector('.ds-ticket-stage');
   const headshot=root.querySelector('.ds-headshot'),photoWindow=root.querySelector('.ds-photo-window');
   const name=root.querySelector('.ds-ticket-footer'),heading=root.querySelector('.ds-ticket-heading');
@@ -47,7 +57,7 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261117-navlab1';
     if(!h1.hasAttribute('data-headline-pending'))rotator?.start();
   }
   function fitText() {
-    const max=config.fontSize,compact=root.querySelector('.ds-hero').classList.contains('is-compact');
+    const compact=hero.classList.contains('is-compact'),max=config.fontSize*(compact?1:fullHeroScale());
     const signature=JSON.stringify([intro.clientWidth,compact,max,config.fontWeight,config.lineHeight,lastHeadline]);
     if(signature===lastFit)return;lastFit=signature;
     h1.style.fontSize=max+'px';h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
@@ -132,8 +142,8 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261117-navlab1';
     if(changed){void gallery.offsetHeight;requestAnimationFrame(()=>gallery.classList.remove('is-switching-layout'));}
   }
 
-  const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText});
-  function render(){renderText();renderGallery();badge.update();document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));}
+  const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale});
+  function render(){applyHeroLayout();renderText();renderGallery();badge.update();document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));}
 
   panels.forEach((panel,i)=>{
     const compactCaption=document.createElement('span');compactCaption.className='ds-compact-caption';compactCaption.setAttribute('aria-hidden','true');
@@ -157,7 +167,7 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261117-navlab1';
     });
   });
 
-  const resize=()=>{fitText();renderGallery();badge.layout();};
+  const resize=()=>{applyHeroLayout();fitText();renderGallery();badge.layout();};
   addEventListener('resize',resize);let lastRootWidth=0;new ResizeObserver(()=>{if(root.clientWidth!==lastRootWidth){lastRootWidth=root.clientWidth;resize();}}).observe(root);
   addEventListener('pagehide',event=>{if(event.persisted)return;badge.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
   window.portfolioLanding=api;

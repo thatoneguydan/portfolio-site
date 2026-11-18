@@ -9,6 +9,10 @@ export const defaults = {
   "heroIntroLines": 2,
   "heroIntroScale": 64,
   "heroClosingScale": 120,
+  "heroScaleWithWidth": true,
+  "heroCtaScale": 100,
+  "heroCtaOffset": 0,
+  "heroFeaturedSpacing": 100,
   "rotateEnabled": true,
   "rotateTarget": "3:3",
   "rotateWords": "GREAT, CLEAR, MEMORABLE",
@@ -86,6 +90,10 @@ export const defaults = {
   "navShadowY": 8,
   "navShadowBlur": 14,
   "navShadowSpread": 0,
+  "footerHeight": 100,
+  "footerHeadingScale": 100,
+  "footerHeadingWeight": 700,
+  "footerButtonScale": 100,
   "paletteSaturation": 42,
   "bio": "I work across video, design, print, and photography to make things clear, intentional, and worth looking at.",
   "fontSize": 53,
@@ -198,6 +206,12 @@ export const defaults = {
   "verticalGalleryPadding": 17
 };
 export const controlGroups = {
+    heroLayout: [
+      ['check','heroScaleWithWidth','Scale headline and full ID with available width'],
+      ['range','heroCtaScale','Button size',40,200,1,'%'],
+      ['range','heroCtaOffset','Button vertical offset',-160,320,1,'px'],
+      ['range','heroFeaturedSpacing','Space before Featured work',0,400,1,'%']
+    ],
     landingHierarchy: [
       ['range','heroIntroLines','Introductory lines',0,5,1,''],
       ['range','heroIntroScale','Introductory text size',40,100,1,'%'],
@@ -352,6 +366,12 @@ export const controlGroups = {
       ['check','navShadow','Navigation hover shadow'], ['color','navShadowColor','Navigation shadow color'], ['range','navShadowOpacity','Navigation shadow opacity',0,100,1,'%'],
       ['range','navShadowX','Navigation shadow horizontal offset',-60,60,1,'px'], ['range','navShadowY','Navigation shadow vertical offset',-40,80,1,'px'], ['range','navShadowBlur','Navigation shadow blur',0,100,1,'px'], ['range','navShadowSpread','Navigation shadow spread',-30,40,1,'px']
     ],
+    footer: [
+      ['range','footerHeight','Footer height',30,180,1,'%'],
+      ['range','footerHeadingScale','Heading size',45,150,1,'%'],
+      ['range','footerHeadingWeight','Heading weight',100,900,100,''],
+      ['range','footerButtonScale','Button size',55,150,1,'%']
+    ],
     projectClose: [
       ['range','projectCloseSize','Close button size',24,100,1,'px'],
       ['color','projectCloseBackground','Close button background'], ['color','projectCloseColor','Close icon color'],
@@ -390,6 +410,16 @@ export const controlGroups = {
       ['check','verticalGalleryGrayscale','Grayscale inactive vertical cards']
     ]
   };
+
+// Both the first paint and live Tune edits use the same responsive CSS factors.
+export function footerProperties(config) {
+  return {
+    '--footer-height-scale': config.footerHeight / 100,
+    '--footer-heading-scale': config.footerHeadingScale / 100,
+    '--footer-heading-weight': config.footerHeadingWeight,
+    '--footer-button-scale': config.footerButtonScale / 100
+  };
+}
 
 // Every page uses the same reveal/rotation engine and validation contract.
 export const headlineScopes=['contact','video','design','photo'];

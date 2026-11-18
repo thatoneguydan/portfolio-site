@@ -1,14 +1,18 @@
 /* Shared bottom-of-page contact treatment. Every redesign route uses the same
    homepage CTA markup and this single style source. */
 .rd-footer-cta {
+  --contact-button-scale: var(--footer-button-scale, 1);
+  --footer-min-height: clamp(540px, 62vh, 740px);
+  --footer-padding-y: clamp(92px, 9vw, 138px);
+  --footer-type: clamp(60px, 6.2vw, 90px);
   box-sizing: border-box;
   width: var(--site-viewport-width,100vw);
-  min-height: clamp(540px, 62vh, 740px);
+  min-height: calc(var(--footer-min-height) * var(--footer-height-scale, 1));
   display: flex;
   align-items: center;
   justify-content: center;
   margin-left: calc(50% - var(--site-viewport-width,100vw) / 2);
-  padding: clamp(92px, 9vw, 138px) 0;
+  padding: calc(var(--footer-padding-y) * var(--footer-height-scale, 1)) var(--footer-padding-x, 0px);
   background: #111;
   color: #fff;
   text-align: center;
@@ -32,8 +36,8 @@
   max-width: 1200px;
   margin: 0;
   color: #fff;
-  font-size: clamp(60px, 6.2vw, 90px);
-  font-weight: 700;
+  font-size: calc(var(--footer-type) * var(--footer-heading-scale, 1));
+  font-weight: var(--footer-heading-weight, 700);
   line-height: .9;
   letter-spacing: -.055em;
   text-align: center;
@@ -42,20 +46,21 @@
 
 .rd-footer-cta .rd-footer-cta-button,
 #dan-landing-home .ds-contact {
-  min-width: 260px;
-  min-height: 74px;
+  box-sizing: border-box;
+  min-width: min(100%, calc(var(--pill-width, 260px) * var(--contact-button-scale, 1)));
+  min-height: calc(var(--pill-height, 74px) * var(--contact-button-scale, 1));
   display: inline-flex;
   align-items: center;
   justify-content: center;
   align-self: center;
-  gap: 16px;
-  margin-top: clamp(34px, 3.4vw, 46px);
-  padding: 0 42px;
+  gap: calc(16px * var(--contact-button-scale, 1));
+  margin-top: var(--pill-gap-above, clamp(34px, 3.4vw, 46px));
+  padding: 0 calc(var(--pill-padding, 42px) * var(--contact-button-scale, 1));
   border: 1px solid var(--contact-button-background, #fff);
   border-radius: 999px;
   background: var(--contact-button-background, #fff);
   color: var(--contact-button-ink, #111);
-  font-size: 18px;
+  font-size: calc(var(--pill-font, 18px) * var(--contact-button-scale, 1));
   font-weight: 700;
   line-height: 1;
   letter-spacing: .02em;
@@ -74,7 +79,7 @@
 
 .rd-footer-cta .rd-footer-cta-button span,
 #dan-landing-home .ds-contact span {
-  font-size: 24px;
+  font-size: calc(24px * var(--contact-button-scale, 1));
   line-height: 1;
   transition: transform 160ms ease;
 }
@@ -88,8 +93,9 @@
 
 @media (max-width: 900px) {
   .rd-footer-cta {
-    min-height: 560px;
-    padding: 82px 0;
+    --footer-min-height: 560px;
+    --footer-padding-y: 82px;
+    --footer-type: clamp(56px, 7.4vw, 70px);
   }
 
   .rd-footer-cta-inner {
@@ -98,57 +104,56 @@
 
   .rd-footer-cta h2 {
     max-width: 860px;
-    font-size: clamp(56px, 7.4vw, 70px);
   }
 
   .rd-footer-cta .rd-footer-cta-button,
   #dan-landing-home .ds-contact {
-    min-width: 250px;
-    min-height: 72px;
-    margin-top: 38px;
-    padding: 0 38px;
-    font-size: 17px;
+    --pill-width: 250px;
+    --pill-height: 72px;
+    --pill-gap-above: 38px;
+    --pill-padding: 38px;
+    --pill-font: 17px;
   }
 }
 
 @media (max-width: 720px) {
   .rd-footer-cta {
-    min-height: 560px;
-    padding: 84px 20px;
+    --footer-padding-y: 84px;
+    --footer-padding-x: 20px;
+    --footer-type: clamp(52px, 9vw, 64px);
   }
 
   .rd-footer-cta h2 {
     max-width: 650px;
-    font-size: clamp(52px, 9vw, 64px);
   }
 
   .rd-footer-cta .rd-footer-cta-button,
   #dan-landing-home .ds-contact {
-    min-width: 240px;
-    min-height: 70px;
-    margin-top: 36px;
-    padding: 0 34px;
-    font-size: 17px;
+    --pill-width: 240px;
+    --pill-height: 70px;
+    --pill-gap-above: 36px;
+    --pill-padding: 34px;
   }
 }
 
 @media (max-width: 500px) {
+  .rd-footer-cta {
+    --footer-type: clamp(52px, 15vw, 64px);
+  }
   .rd-footer-cta-inner {
     width: calc(100% - 32px);
   }
 
   .rd-footer-cta h2 {
     max-width: 350px;
-    font-size: clamp(52px, 15vw, 64px);
   }
 
   .rd-footer-cta .rd-footer-cta-button,
   #dan-landing-home .ds-contact {
-    min-width: 230px;
-    min-height: 68px;
-    margin-top: 36px;
-    padding: 0 30px;
-    font-size: 16px;
+    --pill-width: 230px;
+    --pill-height: 68px;
+    --pill-padding: 30px;
+    --pill-font: 16px;
   }
 }
 

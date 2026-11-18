@@ -18,7 +18,7 @@
     #dan-landing-home .ds-reveal.is-revealing .ds-glyph{will-change:transform}
     #dan-landing-home .ds-space{white-space:pre}
     #dan-landing-home .ds-reveal.ds-long .ds-word{white-space:normal;max-width:100%;overflow-wrap:anywhere}
-    #dan-landing-home .ds-intro-actions{display:flex;gap:18px;align-items:center;margin-top:30px;flex-wrap:wrap}
+    #dan-landing-home .ds-intro-actions{display:flex;gap:18px;align-items:center;margin-top:calc(30px + var(--hero-cta-offset,0px));flex-wrap:wrap}
     #dan-landing-home .ds-contact{--contact-button-background:var(--dan-ink);--contact-button-ink:var(--dan-paper);margin-top:0}
     #dan-landing-home .ds-ticket-stage{min-width:0;display:flex;align-items:center;justify-content:center;padding:26px 16px;align-self:stretch;perspective:1000px}
     #dan-landing-home .ds-ticket{--ticket-bg:#111;--ticket-ink:#f5f5f2;--ticket-copy-bg:#111;--ticket-parallax:6px;position:relative;width:min(100%,460px);display:grid;grid-template-columns:minmax(0,1fr) 150px;min-height:260px;border-radius:16px;background:var(--ticket-bg);color:var(--ticket-ink);transform:rotate(4deg);transform-style:preserve-3d;overflow:hidden;flex-shrink:0;border:0;box-shadow:0 12px 22px #11111114;will-change:transform}
@@ -71,7 +71,7 @@
 }
 @container (max-width:640px) {
   #dan-landing-home .ds-hero {padding:42px 0 52px;gap:24px}
-  #dan-landing-home .ds-intro-actions {margin-top:20px}
+  #dan-landing-home .ds-intro-actions {margin-top:calc(20px + var(--hero-cta-offset,0px))}
   #dan-landing-home .ds-section-head {align-items:start;flex-direction:column;gap:10px;margin-bottom:24px}
   #dan-landing-home .ds-section-head h2 {font-size:32px}
   #dan-landing-home .ds-section-head p {font-size:15px}
@@ -90,7 +90,18 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 #dan-landing-home .ds-hero.is-compact {position:relative;grid-template-columns:minmax(0,1fr);gap:0;align-items:start}
 #dan-landing-home .ds-hero.is-compact .ds-ticket-stage {position:absolute;z-index:1;top:var(--badge-top,0px);right:0;width:var(--badge-compact-width,92px);align-self:auto;justify-self:auto;padding:0;margin:0}
 #dan-landing-home .ds-hero.is-compact .ds-ticket-stage.is-badge-open {height:var(--badge-anchor-height)}
-#dan-landing-home .ds-hero.is-compact .ds-intro-actions {margin-top:24px}
+#dan-landing-home .ds-hero.is-compact .ds-intro-actions {margin-top:calc(24px + var(--hero-cta-offset,0px))}
+#dan-landing-home .ds-hero.scales-with-width:not(.is-compact) {gap:calc(20px * var(--hero-width-scale,1))}
+#dan-landing-home .ds-hero.scales-with-width:not(.is-compact) .ds-ticket-stage {padding-inline:calc(16px * var(--hero-width-scale,1))}
+/* Featured owns the adjustable space. The contact shelf opens at its own
+   fixed hero inset and consumes the original gap as its height animates. */
+#dan-landing-home .ds-hero {padding-bottom:0}
+#dan-landing-home .ds-featured {--hero-base-clearance:clamp(62px,7vw,110px);padding-top:calc(var(--hero-base-clearance) * var(--hero-featured-spacing,1))}
+@container (max-width:640px) {
+  #dan-landing-home .ds-featured {--hero-base-clearance:52px}
+}
+#dan-landing-home .rc-inline-contact-shelf + .ds-featured {transition:padding-top 460ms cubic-bezier(.2,.72,.2,1)}
+#dan-landing-home .rc-inline-contact-shelf.is-open + .ds-featured {padding-top:calc(var(--hero-base-clearance) * max(0,var(--hero-featured-spacing,1) - 1))}
 .ds-ticket-carrier {position:relative;flex:none;transform-origin:50% 50%}
 .ds-ticket-carrier.is-portaled {position:fixed;z-index:2}
 .ds-ticket-idle {position:absolute;inset:0;transform-style:preserve-3d}

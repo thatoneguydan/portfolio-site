@@ -1,9 +1,9 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-navlab1';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261118-sizing1';
 import {appendEmojiText} from './site-emoji.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-navlab1';
 
-export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
+export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale}){
   const hero=root.querySelector('.ds-hero');
   const photo=ticket.querySelector('.ds-headshot'),photoWindow=ticket.querySelector('.ds-photo-window');
   const name=ticket.querySelector('.ds-ticket-footer'),heading=ticket.querySelector('.ds-ticket-heading');
@@ -29,6 +29,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   let compact=false,firstLayout=true,opened=false,busy=false,closeRequested=false,drag=null,frame=0,lastTime=0,scrollFrame=0,morph=null;
   let scrollTop=0,scrollTilt=0,inlineGeometry=null,lastPointer=null,suppressClickUntil=0,previousOverflow='';
   let morphParts=[],morphGeneration=0,morphing=false,entrance=null,hasEntered=false;
+  let morphStartPose=null,paintedPose={x:0,y:0,rotation:0,parallaxScale:1},dragReturn=null;
   carrier.style.visibility='hidden';
   const motion={x:0,y:0,h:1,vx:0,vy:0,vh:0,tx:0,ty:0,th:1};
   let visible=false,idlePhase=0,idleWeight=0,lastPointerTime=0,hovering=false;
@@ -49,10 +50,18 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
 
   function paint(){
     const scale=motion.h;
-    const rotation=opened?0:config.ticketRotation;
-    const {x,y}=blendIdlePose(motion.x,motion.y,opened?0:scrollTilt,idlePhase,config.badgeIdleAngle,idleWeight);
+    const pose=blendIdlePose(motion.x,motion.y,opened?0:scrollTilt,idlePhase,config.badgeIdleAngle,idleWeight);
+    pose.rotation=opened?0:config.ticketRotation;
+    pose.parallaxScale=Number(carrier.dataset.scale||1);
+    if(morphStartPose){
+      // Use the size animation's own eased clock, including its pending first frame.
+      const progress=morph.effect.getComputedTiming().progress??(morph.playState==='finished'?1:0);
+      for(const key of Object.keys(pose))pose[key]=morphStartPose[key]+(pose[key]-morphStartPose[key])*progress;
+    }
+    paintedPose=pose;
+    const {rotation,x,y,parallaxScale}=pose;
     ticket.style.transform=`translate(-50%,-50%) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${x}deg) rotateY(${y}deg) scale(${scale})`;
-    const parallax=config.ticketParallax*Number(carrier.dataset.scale||1);
+    const parallax=config.ticketParallax*parallaxScale;
     const depth=config.ticketTiltMax>0?parallax/config.ticketTiltMax:0;
     const px=clamp(-y*depth,-parallax,parallax),py=clamp(x*depth,-parallax,parallax);
     photo.style.transform=`translate3d(${px}px,${py}px,0)`;
@@ -80,7 +89,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     }
     paint();
     const resting=['x','y','h'].every(axis=>Math.abs(motion['t'+axis]-motion[axis])+Math.abs(motion['v'+axis])<.008);
-    if(resting&&!idle&&idleWeight<.001){for(const axis of ['x','y','h']){motion[axis]=motion['t'+axis];motion['v'+axis]=0;}idleWeight=0;paint();frame=0;lastTime=0;}
+    if(resting&&!idle&&idleWeight<.001&&!morphStartPose){for(const axis of ['x','y','h']){motion[axis]=motion['t'+axis];motion['v'+axis]=0;}idleWeight=0;paint();frame=0;lastTime=0;}
     else frame=requestAnimationFrame(tick);
   }
   function animateMotion(){
@@ -180,12 +189,15 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     look.badgeName={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(badgeNameLayout).transform),scale),opacity:getComputedStyle(badgeNameLayout).opacity};
     look.copyLayout={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(copyLayout).transform),scale)};
     look.copy={opacity:getComputedStyle(copy).opacity,visibility:'visible'};
+    // A swipe turns the carrier around the same center as the painted card.
+    look.pose={...paintedPose,rotation:paintedPose.rotation+Math.atan2(matrix.b,matrix.a)*180/Math.PI,parallaxScale:paintedPose.parallaxScale*scale};
     return look;
   }
   function cancelEntrance(){entrance?.cancel();entrance=null;if(hasEntered)carrier.style.visibility='visible';}
   function settleHover(){hovering=carrier.matches(':hover');motion.th=!busy&&!morphing&&hovering?config.badgeHoverScale:1;animateMotion();}
   function flip(start,end,from){
     const generation=++morphGeneration;cancelEntrance();
+    morphStartPose=null;
     morphParts.forEach(a=>a.cancel());morphParts=[];motion.h=motion.th=1;motion.vh=0;paint();
     if(reduced.matches){morphing=false;return Promise.resolve();}
     end=carrier.getBoundingClientRect();
@@ -193,13 +205,14 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const to=captureLook();
     const dx=start.left+start.width/2-end.left-end.width/2,dy=start.top+start.height/2-end.top-end.height/2;
     // One direct physical size interpolation prevents the old size*scale bulge.
-    const options={duration:config.badgeMorphDuration,easing:'cubic-bezier(.2,.85,.2,1)',fill:'none'};
+    const options={duration:config.badgeMorphDuration,easing:'cubic-bezier(.2,.85,.2,1)',fill:'backwards'};
     morph=carrier.animate([
       {transform:`translate(${dx}px,${dy}px)`},
       {transform:'translate(0,0)'}
     ],options);
     morphParts=[morph,...[[ticket,'ticket'],[surface,'surface'],[photoWindow,'photo'],[nameLayout,'name'],[badgeNameLayout,'badgeName'],[copyLayout,'copyLayout'],[copy,'copy']].map(([el,key])=>el.animate([from[key],to[key]],options))];
-    return Promise.all(morphParts.map(a=>a.finished.catch(()=>{}))).then(()=>{if(generation===morphGeneration){morphing=false;settleHover();}});
+    morphStartPose=from.pose;paint();animateMotion();
+    return Promise.all(morphParts.map(a=>a.finished.catch(()=>{}))).then(()=>{if(generation===morphGeneration){morphStartPose=null;morphing=false;paint();settleHover();}});
   }
   function layout(animate=true){
     const before=carrier.getBoundingClientRect(),from=captureLook(),heroWidth=hero.clientWidth;
@@ -218,7 +231,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     }
     hero.style.setProperty('--badge-compact-width',(compactGeometry?.width||0)+'px');
     const style=getComputedStyle(ticketStage),available=Math.max(1,ticketStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight));
-    inlineGeometry=compact?compactGeometry:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation);
+    inlineGeometry=compact?compactGeometry:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation,true,fullHeroScale());
     // The empty anchor keeps its real geometry while the badge is in the dialog.
     ticketStage.style.setProperty('--badge-anchor-height',inlineGeometry.height+'px');
     if(!opened&&!busy){
@@ -252,6 +265,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     busy=true;
     const start=carrier.getBoundingClientRect(),from=captureLook();
     // Remove the drag transform after capturing its actual screen position.
+    dragReturn?.cancel();dragReturn=null;carrier.classList.remove('is-dragging');
     carrier.style.transform='';drag=null;opened=false;motion.h=motion.th=1;
     const stage=ticketStage.getBoundingClientRect(),style=getComputedStyle(ticketStage);
     look(compact,inlineGeometry);sizeCarrier(inlineGeometry);
@@ -271,7 +285,9 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   carrier.addEventListener('pointerleave',()=>{hovering=false;if(!busy&&!morphing){motion.th=1;animateMotion();}});
   dragPlane.addEventListener('pointerdown',event=>{
     if(!opened||busy||event.button!==0)return;
-    drag={id:event.pointerId,x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,lastTime:performance.now(),speed:0,dx:0,dy:0};
+    const matrix=new DOMMatrixReadOnly(getComputedStyle(carrier).transform);
+    carrier.style.transform=matrix.toString();dragReturn?.cancel();dragReturn=null;
+    drag={id:event.pointerId,x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,lastTime:performance.now(),speed:0,dx:0,dy:0,startX:matrix.e,startY:matrix.f,startAngle:Math.atan2(matrix.b,matrix.a)*180/Math.PI};
     dragPlane.setPointerCapture(event.pointerId);carrier.classList.add('is-dragging');
   });
   dragPlane.addEventListener('pointermove',event=>{
@@ -279,14 +295,14 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const now=performance.now(),elapsed=Math.max(1,now-drag.lastTime);
     drag.speed=Math.hypot(event.clientX-drag.lastX,event.clientY-drag.lastY)/elapsed;
     drag.lastX=event.clientX;drag.lastY=event.clientY;drag.lastTime=now;drag.dx=event.clientX-drag.x;drag.dy=event.clientY-drag.y;
-    carrier.style.transform=`translate(${drag.dx}px,${drag.dy}px) rotate(${clamp(drag.dx/35,-8,8)}deg)`;
+    carrier.style.transform=`translate(${drag.startX+drag.dx}px,${drag.startY+drag.dy}px) rotate(${clamp(drag.startAngle+drag.dx/35,-8,8)}deg)`;
   });
   function release(event){
     if(!drag||event.pointerId!==drag.id)return;
     const dismiss=event.type!=='pointercancel'&&shouldDismiss(Math.hypot(drag.dx,drag.dy),drag.speed);
     carrier.classList.remove('is-dragging');suppressClickUntil=performance.now()+300;
     if(dismiss){drag=null;close();}
-    else{const from=carrier.style.transform;carrier.style.transform='';drag=null;carrier.animate([{transform:from},{transform:'none'}],{duration:300,easing:'cubic-bezier(.2,.85,.2,1)'});targets();}
+    else{const from=carrier.style.transform;carrier.style.transform='';drag=null;if(!reduced.matches)dragReturn=carrier.animate([{transform:from},{transform:'none'}],{duration:300,easing:'cubic-bezier(.2,.85,.2,1)',fill:'backwards'});targets();}
   }
   dragPlane.addEventListener('pointerup',release);dragPlane.addEventListener('pointercancel',release);
   document.addEventListener('pointermove',event=>{
@@ -304,5 +320,5 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
     const animation=carrier.animate(sequence.frames,{duration:sequence.duration,delay:entranceDelay(config.badgeEntrancePosition,lineTimes),easing:'linear',fill:'backwards'});
     entrance=animation;animation.finished.catch(()=>{}).then(()=>{if(entrance===animation)entrance=null;});
   }
-  return {layout,enter,update:()=>{if(!busy&&!morphing)motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);unlockOverlayScroll(dialog);dialog.remove();}};
+  return {layout,enter,update:()=>{if(!busy&&!morphing)motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){++morphGeneration;morphStartPose=null;cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();dragReturn?.cancel();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);unlockOverlayScroll(dialog);dialog.remove();}};
 }

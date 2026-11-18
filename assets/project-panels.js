@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261117-navlab1';
+import {defaults} from './landing-schema.js?v=20261118-sizing1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {prepareProjectDocument} from './project-content.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';

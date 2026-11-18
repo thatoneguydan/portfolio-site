@@ -1,12 +1,12 @@
 import {installAuthoredEmoji} from './site-emoji.js?v=20261117-navlab1';
 import {setPaletteSaturation} from './palette-glyph.js?v=20261117-navlab1';
-import {defaults} from './landing-schema.js?v=20261117-navlab1';
+import {defaults} from './landing-schema.js?v=20261118-sizing1';
 import {installSettledShelfText} from './settled-text.js';
 import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-navlab1';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261117-navlab1';
-import './site-runtime.js?v=20261117-navlab1';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-sizing1';
+import './site-runtime.js?v=20261118-sizing1';
 import {installSiteInteractions} from './site-interactions.js?v=20261117-navlab1';
-import {installProjectViews} from './project-views.js?v=20261117-navlab1';
+import {installProjectViews} from './project-views.js?v=20261118-sizing1';
 import {installImageViewer} from './image-viewer.js?v=20261117-navlab1';
 
 const href='/assets/site-effects.css?v=20261117-navlab1';

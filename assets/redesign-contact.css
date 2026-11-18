@@ -210,11 +210,10 @@
 }
 
 @container(max-width:820px){.rc-contact{grid-template-columns:1fr}.rc-form-wrap{position:static}}
-.rc-inline-contact-placeholder {container-type:inline-size}
 html.contact-inline-embed {scrollbar-gutter:auto;overflow:hidden;min-height:0}
 .contact-inline-embed body,body.contact-inline-embed {min-height:0!important;overflow:hidden}
 .contact-inline-embed .site-main {width:100%!important;margin:0!important}
-.contact-inline-embed .rc-form-wrap,.rc-inline-contact-placeholder .rc-form-wrap {position:static}
+.contact-inline-embed .rc-form-wrap {position:static}
 
 @media (max-width: 500px) {
   .contact-redesign .site-main {
