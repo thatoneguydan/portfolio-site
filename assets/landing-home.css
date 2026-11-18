@@ -50,7 +50,7 @@
     #dan-landing-home .ds-caption i{margin-left:auto;font-size:22px;font-style:normal}
 /* The site owns the header, page gutters, type family, project shelves and footer. */
 #dan-landing-home {isolation:auto; font-family:inherit}
-#dan-landing-home .ds-hero {--hero-base-top:clamp(52px,6vw,90px);padding:calc(var(--hero-base-top) * var(--hero-top-space,1)) 0 clamp(62px,7vw,110px);gap:clamp(28px,3vw,48px)}
+#dan-landing-home .ds-hero {--hero-base-top:clamp(52px,6vw,90px);--hero-column-gap:clamp(28px,3vw,48px);padding:calc(var(--hero-base-top) * var(--hero-top-space,1)) 0 clamp(62px,7vw,110px);gap:var(--hero-column-gap)}
 #dan-landing-home .ds-intro {container-type:inline-size}
 #dan-landing-home .ds-featured {padding:0 0 clamp(64px,7vw,112px)}
 #dan-landing-home .ds-section-head {
@@ -78,12 +78,12 @@
 #dan-landing-home .ds-reveal {font-size:var(--landing-font-size,53px);font-weight:500}
 #dan-landing-home .ds-ticket {width:480px;min-height:380px}
 @container (max-width:1000px) {
-  #dan-landing-home .ds-hero {grid-template-columns:1fr;gap:20px;--hero-base-top:50px}
+  #dan-landing-home .ds-hero {grid-template-columns:1fr;--hero-column-gap:20px;--hero-base-top:50px}
   #dan-landing-home .ds-intro {width:100%;max-width:760px}
   #dan-landing-home .ds-ticket-stage {width:100%;max-width:560px;justify-self:center;padding:24px 20px}
 }
 @container (max-width:640px) {
-  #dan-landing-home .ds-hero {--hero-base-top:42px;padding-bottom:52px;gap:24px}
+  #dan-landing-home .ds-hero {--hero-base-top:42px;padding-bottom:52px;--hero-column-gap:24px}
   #dan-landing-home .ds-intro-actions {margin-top:calc(20px + var(--hero-cta-offset,0px))}
 }
 @media(prefers-reduced-motion:reduce) {
@@ -93,18 +93,22 @@
 
 /* Responsive ID badge */
 html:has(#dan-landing-home) {scrollbar-gutter:stable}
-#dan-landing-home .ds-hero {grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);align-items:center;min-height:0}
+#dan-landing-home .ds-hero {grid-template-columns:minmax(0,var(--hero-text-track,1.08fr)) minmax(0,var(--hero-id-track,1fr));align-items:center;min-height:0}
+#dan-landing-home .ds-hero:not(.is-compact) {
+  --hero-id-travel:calc((100cqi - var(--hero-column-gap)) * var(--hero-id-share,.481) * var(--hero-id-overlap,0));
+  column-gap:calc(var(--hero-column-gap) + max(0px,-1 * var(--hero-id-travel)));
+}
 #dan-landing-home .ds-intro {max-width:none}
 #dan-landing-home .ds-ticket-stage {width:100%;max-width:none;min-height:0;align-self:center;justify-self:stretch;padding:26px 16px}
 #dan-landing-home .ds-ticket-stage.is-badge-open {height:calc(var(--badge-anchor-height) + 52px)}
 #dan-landing-home .ds-hero:not(.is-compact) > .ds-intro {align-self:start;margin-block-start:var(--id-headroom,0px)}
-#dan-landing-home .ds-hero:not(.is-compact) > .ds-ticket-stage {align-self:start;margin-block-start:calc(var(--id-stage-offset,0px) + var(--id-headroom,0px))}
+#dan-landing-home .ds-hero:not(.is-compact) > .ds-ticket-stage {position:relative;inset-inline-start:calc(-1 * max(0px,var(--hero-id-travel)));align-self:start;margin-block-start:calc(var(--id-stage-offset,0px) + var(--id-headroom,0px))}
 #dan-landing-home .ds-hero.is-compact {position:relative;grid-template-columns:minmax(0,1fr);gap:0;align-items:start}
 #dan-landing-home .ds-hero.is-compact .ds-ticket-stage {position:absolute;z-index:1;top:var(--badge-top,0px);right:0;width:var(--badge-compact-width,92px);align-self:auto;justify-self:auto;padding:0;margin:0}
 #dan-landing-home .ds-hero.is-centered.is-compact .ds-ticket-stage {grid-area:1 / 1}
 #dan-landing-home .ds-hero.is-compact .ds-ticket-stage.is-badge-open {height:var(--badge-anchor-height)}
 #dan-landing-home .ds-hero.is-compact .ds-intro-actions {margin-top:calc(24px + var(--hero-cta-offset,0px))}
-#dan-landing-home .ds-hero.scales-with-width:not(.is-compact) {gap:calc(20px * var(--hero-width-scale,1))}
+#dan-landing-home .ds-hero.scales-with-width:not(.is-compact) {--hero-column-gap:calc(20px * var(--hero-width-scale,1))}
 #dan-landing-home .ds-hero.scales-with-width:not(.is-compact) .ds-ticket-stage {padding-inline:calc(16px * var(--hero-width-scale,1))}
 /* Featured owns the adjustable space. The contact shelf opens at its own
    fixed hero inset and consumes the original gap as its height animates. */
@@ -127,8 +131,8 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 }
 #dan-landing-home.featured-below-fold::before {
   content:"";grid-area:1 / 1 / 5 / 2;visibility:hidden;pointer-events:none;
-  min-height:calc(100vh - var(--landing-document-top,0px) + var(--featured-anchor-offset,0px) + 1px);
-  min-height:calc(100dvh - var(--landing-document-top,0px) + var(--featured-anchor-offset,0px) + 1px);
+  min-height:calc(100vh - var(--landing-document-top,0px) + var(--featured-anchor-offset,0px) - var(--featured-anchor-height,0px));
+  min-height:calc(100dvh - var(--landing-document-top,0px) + var(--featured-anchor-offset,0px) - var(--featured-anchor-height,0px));
 }
 #dan-landing-home.featured-below-fold > .ds-hero {grid-area:1 / 1}
 #dan-landing-home.featured-below-fold > .rc-inline-contact-shelf {grid-area:2 / 1}
@@ -234,10 +238,11 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 
 #dan-landing-home .ds-gallery-dots {
   --dot-ink:#fff;
-  position:relative;z-index:16;display:flex;width:max-content;max-width:100%;margin:12px auto 0;
+  --gallery-dot-gap:12px;
+  position:relative;z-index:16;display:flex;width:max-content;max-width:100%;margin:var(--gallery-dot-gap) auto 0;
   align-items:center;justify-content:center;padding:4px;border-radius:99px;background:#111;color:#fff;touch-action:none;
 }
-#dan-landing-home .ds-gallery-dots:has(+ .rdp-project-shelf) {margin-top:calc(12px + var(--gallery-source-offset,0px))}
+#dan-landing-home .ds-gallery-dots:has(+ .rdp-project-shelf) {margin-top:calc(var(--gallery-dot-gap) + var(--gallery-source-offset,0px))}
 #dan-landing-home .ds-gallery-dots button {display:grid;place-items:center;width:24px;height:24px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;color:inherit}
 #dan-landing-home .ds-gallery-dots button::after {content:'';width:6px;height:6px;border-radius:50%;background:#929292}
 #dan-landing-home .ds-gallery-dots button:focus-visible {outline:none}

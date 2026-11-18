@@ -12,6 +12,8 @@ export const defaults = {
   "heroDesktopTopSpace": 100,
   "heroMobileTopSpace": 100,
   "heroScaleWithWidth": true,
+  "heroTextSizeOffset": 0,
+  "heroDesktopIdOverlap": 0,
   "heroCtaScale": 100,
   "heroCtaOffset": 0,
   "heroFeaturedSpacing": 100,
@@ -230,11 +232,13 @@ export const controlGroups = {
       ['range','heroDesktopTopSpace','Space below desktop navigation',0,400,1,'%'],
       ['range','heroMobileTopSpace','Space below mobile navigation',0,400,1,'%'],
       ['check','heroScaleWithWidth','Scale headline and full ID with available width'],
+      ['range','heroTextSizeOffset','Hero text size adjustment',-40,40,1,'%'],
+      ['range','heroDesktopIdOverlap','Desktop ID overlap',-50,50,1,'%'],
       ['range','heroCtaScale','Button size',40,200,1,'%'],
       ['range','heroCtaOffset','Button vertical offset',-160,320,1,'px'],
       ['range','heroFeaturedSpacing','Space before Featured work',0,400,1,'%'],
       ['check','heroFeaturedBelowFold','Anchor Featured work to the bottom of the first screen'],
-      ['range','heroFeaturedAnchorOffset','Offset from bottom of first screen',-600,600,1,'px'],
+      ['range','heroFeaturedAnchorOffset','Featured heading bottom offset',-600,600,1,'px'],
       ['check','heroCenterVertically','Center the hero vertically']
     ],
     landingHierarchy: [

@@ -1,4 +1,4 @@
-import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261118-tune2';
+import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261118-hero3';
 import {appendEmojiText} from './site-emoji.js?v=20261118-perf1';
 
 function headingRange(config){

@@ -3,12 +3,13 @@
 .ds-reveal .ms-emoji {width:1.1em!important;height:1.1em!important}
 
 /* Fancy Text Rotate motion, in the portfolio's existing type and colors. */
-.ds-rotate {position:relative;display:inline-grid;vertical-align:baseline;white-space:pre}
+.ds-rotate {--rotate-ink-overhang:.07em;position:relative;display:inline-grid;vertical-align:baseline;white-space:pre}
 :is(#dan-landing-home,.ds-authored-reveal) .ds-glyph.ds-rotate {display:inline-grid}
 .ds-rotate-measure {grid-area:1/1;visibility:hidden;white-space:pre;pointer-events:none}
-.ds-rotate-clip {position:absolute;inset:-.18em 0;overflow:hidden;pointer-events:none}
-.ds-rotate-entry {position:absolute;inset:.18em 0 auto;display:block;white-space:pre;line-height:inherit}
+.ds-rotate-clip {position:absolute;inset:-.18em calc(-1 * var(--rotate-ink-overhang));overflow:hidden;pointer-events:none}
+.ds-rotate-entry {position:absolute;inset:.18em var(--rotate-ink-overhang) auto;display:block;white-space:pre;line-height:inherit}
 .ds-rotate-piece {display:inline-block;white-space:pre;will-change:transform,opacity}
+.ds-rotate-measure .ds-rotate-piece {will-change:auto}
 .ds-rotate-word {display:inline-block;white-space:nowrap}
 .ds-rotate-dynamic {grid-template-columns:minmax(0,1fr);min-width:0}
 .ds-rotate-dynamic .ds-rotate-measure {position:absolute;inset:0 auto auto 0;width:max-content;max-width:none}

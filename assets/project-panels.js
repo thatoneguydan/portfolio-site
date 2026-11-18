@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261118-tune2';
+import {defaults} from './landing-schema.js?v=20261118-hero3';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
@@ -58,8 +58,8 @@ function animateMask(state,target,duration){
   const tick=now=>{const t=Math.min(1,(now-start)/duration),ease=t*t*(3-2*t);state.maskProgress=from+(target-from)*ease;position(state);if(t<1)frame=requestAnimationFrame(tick);else{if(state.maskAnimation===animation)state.maskAnimation=null;resolve();}};
   frame=requestAnimationFrame(tick);return done;
 }
-function surface(svg,width,height,center,state){
-  const back=svg===state.back,tail=config.projectPanelTailSize;
+function surface(svg,width,height,center,tail,state){
+  const back=svg===state.back;
   const padding=back&&config.projectPanelShadow?Math.ceil(3*config.projectShadowBlur+Math.max(Math.abs(config.projectShadowX),Math.abs(config.projectShadowY))+config.projectPanelBorderWidth+4):Math.ceil(config.projectPanelBorderWidth+2);
   const signature=[width,height,center,tail,config.projectPanelRadius,padding,config.projectPanelShadow,config.projectShadowX,config.projectShadowY,config.projectShadowBlur,config.projectShadowColor,config.projectShadowOpacity].join(',');if(svg.dataset.geometry===signature)return;
   svg.dataset.geometry=signature;
@@ -75,7 +75,7 @@ function surface(svg,width,height,center,state){
   }
 }
 function dispose(state){
-  state.initial.abort();state.pending?.abort.abort();state.observer.disconnect();state.mutation.disconnect();state.contentObserver?.disconnect();state.maskAnimation?.cancel();clearMasks(state);state.loading?.remove();panels.delete(state);
+  state.initial.abort();state.pending?.abort.abort();state.observer.disconnect();state.mutation.disconnect();state.contentObserver?.disconnect();state.maskAnimation?.cancel();state.anchorMotions?.forEach(motion=>motion.cancel());clearMasks(state);state.loading?.remove();panels.delete(state);
 }
 function syncContent(state,content=state.content,inner=state.inner){
   if(!content)return;variables(content.doc.documentElement);const padding=config.projectPanelSpacing,left=state.shelf.clientWidth-config.projectCloseRight-config.projectCloseSize-padding;
@@ -84,23 +84,37 @@ function syncContent(state,content=state.content,inner=state.inner){
 }
 function observeContent(state){state.contentObserver?.disconnect();if(!state.content)return;state.contentObserver=new state.content.doc.defaultView.ResizeObserver(()=>measure(state));state.contentObserver.observe(state.content.main);}
 function trackPositions(duration){trackUntil=Math.max(trackUntil,performance.now()+duration);if(!trackFrame){const tick=now=>{for(const state of panels)position(state);trackFrame=now<trackUntil?requestAnimationFrame(tick):0;};trackFrame=requestAnimationFrame(tick);}}
+function featuredDots(shelf){
+  const previous=shelf.previousElementSibling;
+  return previous?.matches('.ds-gallery-dots')?previous:null;
+}
 function position(state){
   const {shelf,source}=state;if(!shelf.isConnected){dispose(state);return;}
   const gallery=source?.closest('.ds-gallery');
+  const sourceRect=source?.getBoundingClientRect();
+  let tail=config.projectPanelTailSize;
   if(gallery){
-    const cutoff=Math.min(0,source.getBoundingClientRect().bottom-gallery.getBoundingClientRect().bottom);
-    const dots=shelf.previousElementSibling?.matches('.ds-gallery-dots')?shelf.previousElementSibling:null;
+    const cutoff=Math.min(0,sourceRect.bottom-gallery.getBoundingClientRect().bottom);
+    const dots=featuredDots(shelf);
+    let gap=14+tail;
     // The controls sit between the last visible thumbnail and the panel. Move
     // the controls and panel together when lower mobile cards are covered.
-    if(dots)dots.style.setProperty('--gallery-source-offset',cutoff+'px');
-    const gap=14+config.projectPanelTailSize;
+    if(dots){
+      const dotGap=parseFloat(getComputedStyle(dots).getPropertyValue('--gallery-dot-gap'))||0;
+      const halfStroke=config.projectPanelBorderWidth/2;
+      gap=dotGap-halfStroke;
+      // The outline consumes half a stroke along the flat body and a diagonal
+      // half stroke at the tip. Keep the visible fill aligned on both edges.
+      if(tail)tail=dots.getBoundingClientRect().height+gap+Math.SQRT2*halfStroke;
+      dots.style.setProperty('--gallery-source-offset',cutoff+'px');
+    }
     shelf.style.setProperty('margin-top',((dots?0:cutoff)+gap)+'px','important');
     shelf.style.marginBottom=Math.max(0,-cutoff-gap-shelf.getBoundingClientRect().height)+'px';
   }
   if(shelf.parentElement.matches('.is-masonry')&&source?.isConnected){const grid=shelf.parentElement.getBoundingClientRect();shelf.style.top=(source.getBoundingClientRect().bottom-grid.top+14+config.projectPanelTailSize)+'px';}
-  const rect=shelf.getBoundingClientRect(),sourceRect=source?.getBoundingClientRect();let center=sourceRect?panelTailCenter(sourceRect,rect,config.projectPanelTailSize,config.projectPanelRadius):rect.width/2;
+  const rect=shelf.getBoundingClientRect();let center=sourceRect?panelTailCenter(sourceRect,rect,tail,config.projectPanelRadius):rect.width/2;
   if(state.tailBlend){const t=Math.min(1,(performance.now()-state.tailBlend.at)/400),ease=t*t*(3-2*t);center=state.tailBlend.from+(center-state.tailBlend.from)*ease;if(t===1)state.tailBlend=null;}state.tailCenter=center;
-  if(rect.width&&rect.height>0){surface(state.back,rect.width,rect.height,center,state);surface(state.outline,rect.width,rect.height,center,state);}
+  if(rect.width&&rect.height>0){surface(state.back,rect.width,rect.height,center,tail,state);surface(state.outline,rect.width,rect.height,center,tail,state);}
   shelf.dataset.projectVisible=String(rect.height>.5);state.controls.hidden=!state.open||rect.height<config.projectCloseSize+Math.max(0,config.projectCloseTop)*2;
   shelf.style.setProperty('--project-nav-bottom',Math.max(0,document.querySelector('.site-header')?.getBoundingClientRect().bottom||0)+'px');
   updateMasks(state,sourceRect);
@@ -196,7 +210,7 @@ function frameReady(frame,signal,project,timeout=15000){
 }
 async function prepareFrame(frame,signal,timeout){
   const [{prepareProjectDocument}]=await Promise.all([
-    import('./project-content.js?v=20261118-tune2'),
+    import('./project-content.js?v=20261118-hero3'),
     frameReady(frame,signal,true,timeout)
   ]);
   if(signal.aborted)throw new DOMException('Cancelled','AbortError');
@@ -219,6 +233,7 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
     }else{const player=inner.querySelector('.portfolio-inline-video>iframe');if(player)await frameReady(player,signal,false);}
     if(signal.aborted||state.pending!==pending||!state.open||!shelf.isConnected)return false;
     const oldInner=state.inner,oldRect=shelf.getBoundingClientRect(),fromCenter=state.tailCenter,visible=oldRect.height>1;
+    state.anchorMotions?.forEach(motion=>motion.cancel());state.anchorMotions=null;
     state.initial.abort();state.contentObserver?.disconnect();state.observer.unobserve(oldInner);state.observer.unobserve(state.source);
     retireMasks(state);state.maskProgress=0;state.source=source;shelf.dataset.projectSource=source.id;shelf.setAttribute('aria-label',title+' details');state.tailBlend={from:fromCenter,at:performance.now()};
     Object.assign(oldInner.style,{position:'absolute',left:'0',top:'0',width:oldInner.getBoundingClientRect().width+'px',boxSizing:'border-box',pointerEvents:'none'});oldInner.inert=true;oldInner.setAttribute('aria-hidden','true');
@@ -229,7 +244,11 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
     const delta=oldRect.top-shelf.getBoundingClientRect().top;
     const options={duration:reduced.matches?0:360,easing:'cubic-bezier(.2,.75,.2,1)',fill:'both'},oldStyle=getComputedStyle(oldInner);
     const motions=reduced.matches?[]:[oldInner.animate([{opacity:oldStyle.opacity,transform:oldStyle.transform},{opacity:0,transform:'translateY(-10px) scale(.985)'}],options),inner.animate([{opacity:0,transform:'translateY(10px) scale(.985)'},{opacity:1,transform:'none'}],options)];
-    if(!reduced.matches&&Math.abs(delta)>1)motions.push(shelf.animate([{translate:`0px ${delta}px`},{translate:'0px 0px'}],options));
+    if(!reduced.matches&&Math.abs(delta)>1){
+      const anchors=[shelf,featuredDots(shelf)].filter(Boolean);
+      state.anchorMotions=anchors.map(anchor=>anchor.animate([{translate:`0px ${delta}px`},{translate:'0px 0px'}],options));
+      motions.push(...state.anchorMotions);
+    }
     await Promise.all(motions.map(motion=>motion.finished.catch(()=>{})));motions.forEach(motion=>motion.cancel());
     oldInner.querySelectorAll('iframe').forEach(frame=>frame.src='about:blank');oldInner.remove();if(state.inner===inner){inner.style.width='';measure(state);}return true;
   }catch(error){

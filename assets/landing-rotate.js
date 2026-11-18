@@ -26,9 +26,11 @@ export function createTextRotation(host,config,{suffix='',dynamicWidth=false,wra
   const words=rotationWords(config).map(word=>suffix&&!word.endsWith(suffix)?word+suffix:word),reduced=matchMedia('(prefers-reduced-motion: reduce)');
   host.classList.add('ds-rotate');
   const measures=wrapEntries?[]:words.map(word=>{
-    const measure=document.createElement('span');
+    // Shape the sizing swatch with exactly the same word and glyph boundaries
+    // as the painted entry. A single text run can kern across those boundaries.
+    const measure=entry(word);
     measure.className='ds-rotate-measure';
-    appendEmojiText(measure,word);
+    measure.setAttribute('aria-hidden','true');
     host.append(measure);
     return measure;
   });

@@ -1,22 +1,25 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-tune2';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-hero3';
 import {createBadge} from './landing-badge.js?v=20261118-tune2';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-tune2';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-hero3';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-featured1';
-import {siteReady} from './site-runtime.js?v=20261118-tune2';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-tune2';
-import {mountFeaturedHeading} from './featured-heading.js?v=20261118-tune2';
-import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
+import {siteReady} from './site-runtime.js?v=20261118-hero3';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-hero3';
+import {mountFeaturedHeading} from './featured-heading.js?v=20261118-hero3';
+import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
   const api=await siteReady,config=api.getConfig();
   const featured=root.querySelector('#featured-work');
-  const featuredTitle=mountFeaturedHeading(featured.querySelector('#featured-heading'),featured);
+  const featuredHeading=featured.querySelector('#featured-heading');
+  const featuredTitle=mountFeaturedHeading(featuredHeading,featured);
   const h1=root.querySelector('.ds-reveal'),intro=root.querySelector('.ds-intro');
   const hero=root.querySelector('.ds-hero'),cta=intro.querySelector('.ds-contact');
   // The reference composition has a 920 CSS-pixel content area inside the site gutters.
   function fullHeroScale(){return config.heroScaleWithWidth ? Math.max(1,hero.clientWidth)/920 : 1;}
+  function textSizeAdjustment(){return config.heroTextSizeOffset/100;}
+  function fullIDScale(){return fullHeroScale()*(1-textSizeAdjustment());}
   // Document coordinates keep the fold at the original page position while scrolling.
   function measureLandingOrigin(){
     if(config.heroFeaturedBelowFold)root.style.setProperty('--landing-document-top',(root.getBoundingClientRect().top+window.scrollY)+'px');
@@ -24,6 +27,11 @@ import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
   const header=document.querySelector('.site-header');
   const headerObserver=new ResizeObserver(measureLandingOrigin);
   if(header)headerObserver.observe(header);
+  function measureFeaturedHeading(){
+    if(config.heroFeaturedBelowFold)root.style.setProperty('--featured-anchor-height',featuredHeading.getBoundingClientRect().height+'px');
+  }
+  const featuredHeadingObserver=new ResizeObserver(measureFeaturedHeading);
+  featuredHeadingObserver.observe(featuredHeading,{box:'border-box'});
   function mobileNavigation(){
     const toggle=document.querySelector('.site-nav-toggle');
     return toggle?getComputedStyle(toggle).display!=='none':innerWidth<=720;
@@ -33,6 +41,11 @@ import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
     hero.style.setProperty('--hero-top-space',topSpace/100);
     hero.classList.toggle('scales-with-width',config.heroScaleWithWidth);
     hero.style.setProperty('--hero-width-scale',fullHeroScale());
+    const textTrack=1.08*(1+textSizeAdjustment()),idTrack=2.08-textTrack;
+    hero.style.setProperty('--hero-text-track',textTrack+'fr');
+    hero.style.setProperty('--hero-id-track',idTrack+'fr');
+    hero.style.setProperty('--hero-id-share',idTrack/2.08);
+    hero.style.setProperty('--hero-id-overlap',config.heroDesktopIdOverlap/100);
     root.style.setProperty('--hero-cta-offset',config.heroCtaOffset+'px');
     root.style.setProperty('--hero-featured-spacing',config.heroFeaturedSpacing/100);
     root.style.setProperty('--featured-anchor-offset',config.heroFeaturedAnchorOffset+'px');
@@ -77,21 +90,23 @@ import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
     if(!h1.hasAttribute('data-headline-pending'))rotator?.start();
   }
   function fitText() {
-    const compact=hero.classList.contains('is-compact'),max=config.fontSize*(compact?1:fullHeroScale());
-    const signature=JSON.stringify([intro.clientWidth,compact,max,config.fontWeight,config.lineHeight,config.heroCtaScale,lastHeadline]);
+    const compact=hero.classList.contains('is-compact');
+    const baseSize=config.fontSize*(compact?1:fullHeroScale());
+    const adjustment=textSizeAdjustment();
+    const signature=JSON.stringify([intro.clientWidth,compact,baseSize,adjustment,config.fontWeight,config.lineHeight,config.heroCtaScale,lastHeadline]);
     if(signature===lastFit)return;lastFit=signature;
-    h1.style.fontSize=max+'px';h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
+    h1.style.fontSize=baseSize+'px';h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
     const lines=[...h1.children];
     h1.classList.remove('ds-long');lines.forEach(el=>{el.style.whiteSpace='nowrap';el.style.width='max-content';});
     const widths=lines.map(line=>line.getBoundingClientRect().width);
     const width=Math.max(...widths,1),available=Math.max(1,intro.clientWidth-4);
     h1.dataset.longestLine=String(widths.indexOf(Math.max(...widths)));
-    const floor=Math.min(max,18),fitted=max*available/width;
-    const finalSize=compact||width>available?Math.max(floor,fitted):max;
-    if(compact||width>available){
-      h1.style.fontSize=finalSize+'px';
-      if(fitted<floor){h1.classList.add('ds-long');lines.forEach(el=>el.style.whiteSpace='normal');}
-    }
+    const fitted=baseSize*available/width;
+    const desired=(compact?fitted:baseSize)*(1+adjustment);
+    const floor=Math.min(compact?baseSize*(1+adjustment):desired,18);
+    const finalSize=compact?Math.max(floor,desired):Math.max(floor,Math.min(desired,fitted));
+    h1.style.fontSize=finalSize+'px';
+    if(finalSize>fitted+.01){h1.classList.add('ds-long');lines.forEach(el=>el.style.whiteSpace='normal');}
     // Match the settled type size, including compact fitting and authored copy edits.
     // At the reference headline size, Tune's percentage applies to the original 260px pill.
     const buttonScale=config.heroCtaScale/100*finalSize/defaults.fontSize;
@@ -129,7 +144,7 @@ import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
   }
   const dots=document.createElement('nav');
   dots.className='ds-gallery-dots';dots.setAttribute('aria-label','Choose a featured project');
-  const setActiveDot=createDotIndicator(dots);
+  const dotIndicator=createDotIndicator(dots);
   const dotButtons=panels.map((panel,i)=>{
     const button=document.createElement('button');
     button.type='button';button.dataset.index=String(i);
@@ -141,34 +156,44 @@ import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
   });
   if(panels.length>1)gallery.after(dots);
   let galleryWidth=gallery.getBoundingClientRect().width;
-  function selectPanel(index) {
+  let renderedIndex=-1;
+  const panelImages=panels.map(panel=>panel.querySelector('.ds-gallery-image'));
+  function selectPanel(index,{fromScrub=false,refresh=false}={}) {
     if(!panels.length)return;
     config.activeIndex=(index+panels.length)%panels.length;
+    if(!fromScrub)dotIndicator.select(dotButtons[config.activeIndex]);
+    if(renderedIndex===config.activeIndex&&!refresh){updateCaptions();return;}
+    renderedIndex=config.activeIndex;
     const vertical=gallery.dataset.layout==='vertical';
     const layout=featuredGalleryLayout(config,vertical,galleryWidth,panels.length,config.activeIndex);
     const grayscale=vertical?config.verticalGalleryGrayscale:config.grayscale;
-    gallery.style.setProperty('--gallery-height',layout.totalHeight+'px');
-    gallery.style.setProperty('--mobile-expanded',layout.height+'px');
-    gallery.style.setProperty('--media-width',layout.expandedWidth+'px');
-    gallery.style.setProperty('--caption-width',Math.max(1,layout.expandedWidth-(vertical?config.verticalGalleryPadding*2:36))+'px');
+    if(refresh){
+      gallery.style.setProperty('--gallery-height',layout.totalHeight+'px');
+      gallery.style.setProperty('--mobile-expanded',layout.height+'px');
+      gallery.style.setProperty('--media-width',layout.expandedWidth+'px');
+      gallery.style.setProperty('--caption-width',Math.max(1,layout.expandedWidth-(vertical?config.verticalGalleryPadding*2:36))+'px');
+    }
     panels.forEach((panel,i)=>{
       const active=i===config.activeIndex;
-      panel.dataset.focused=String(active);panel.style.flexGrow=String(layout.extents[i]);
-      const image=panel.querySelector('.ds-gallery-image');
+      if(panel.dataset.focused!==String(active))panel.dataset.focused=String(active);
+      panel.style.flexGrow=String(layout.extents[i]);
+      const image=panelImages[i];
       image.style.filter=grayscale&&!active?'grayscale(1)':'none';
-      if(image.srcset)image.sizes=Math.ceil(vertical?galleryWidth:layout.expandedWidth)+'px';
-      dotButtons[i].setAttribute('aria-current',String(active));
-      dotButtons[i].tabIndex=active?0:-1;
+      if(refresh&&image.srcset)image.sizes=Math.ceil(vertical?galleryWidth:layout.expandedWidth)+'px';
+      if(dotButtons[i].getAttribute('aria-current')!==String(active)){
+        dotButtons[i].setAttribute('aria-current',String(active));
+        dotButtons[i].tabIndex=active?0:-1;
+      }
     });
-    setActiveDot(dotButtons[config.activeIndex]);
     updateCaptions();
   }
   function updateCaptions(){
-    const mobile=mobileNavigation();
-    gallery.dataset.mobile=String(mobile);
+    const mobile=gallery.dataset.layout==='vertical';
     panels.forEach((panel,i)=>{
-      const kind=galleryCaptionKind({active:i===config.activeIndex,vertical:gallery.dataset.layout==='vertical',mobile,hovered:panel.matches(':hover'),focused:panel.matches(':focus-visible')||dotButtons[i].matches(':focus-visible')});
-      panel.dataset.captionKind=kind;panel.dataset.captionVisible=String(kind!=='none');
+      const active=i===config.activeIndex;
+      const kind=galleryCaptionKind({active,vertical:mobile,mobile,hovered:active&&!mobile&&panel.matches(':hover'),focused:active&&!mobile&&(panel.matches(':focus-visible')||dotButtons[i].matches(':focus-visible'))});
+      if(panel.dataset.captionKind!==kind)panel.dataset.captionKind=kind;
+      if(panel.dataset.captionVisible!==String(kind!=='none'))panel.dataset.captionVisible=String(kind!=='none');
     });
   }
   function renderGallery() {
@@ -178,18 +203,19 @@ import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
     const gap=vertical?config.verticalGalleryGap:config.galleryGap;
     galleryWidth=gallery.getBoundingClientRect().width;
     gallery.dataset.layout=layout;
+    gallery.dataset.mobile=String(vertical);
     gallery.style.setProperty('--gallery-gap',gap+'px');
     gallery.style.setProperty('--gallery-radius',(vertical?config.verticalGalleryRadius:config.galleryRadius)+'px');
     gallery.style.setProperty('--gallery-duration',(vertical?config.verticalGalleryDuration:config.galleryDuration)+'ms');
     gallery.style.setProperty('--caption-inset',(vertical?config.verticalGalleryPadding:20)+'px');
     gallery.style.setProperty('--caption-title-size',(vertical?config.verticalGalleryTitleSize:20)+'px');
     gallery.style.setProperty('--compact-title-size',config.verticalGalleryCompactTitleSize+'px');
-    selectPanel(config.activeIndex);
+    selectPanel(config.activeIndex,{refresh:true});
     if(changed){void gallery.offsetHeight;requestAnimationFrame(()=>gallery.classList.remove('is-switching-layout'));}
   }
 
-  const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale});
-  function render(){applyHeroLayout();featuredTitle.update(config);renderText();renderGallery();badge.update();document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));}
+  const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale:fullIDScale});
+  function render(){applyHeroLayout();featuredTitle.update(config);measureFeaturedHeading();renderText();renderGallery();badge.update();document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));}
 
   function commitDot(index){
     const target=panels[index],section=gallery.closest('#featured-work');
@@ -215,22 +241,13 @@ import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
   });
   dots.addEventListener('focusin',updateCaptions);
   dots.addEventListener('focusout',()=>requestAnimationFrame(updateCaptions));
-  let scrubPointer=null;
-  function scrub(clientX){
-    const start=dotButtons[0].getBoundingClientRect();
-    const i=Math.max(0,Math.min(panels.length-1,Math.floor((clientX-start.left)/start.width)));
-    if(i!==config.activeIndex)selectPanel(i);
-  }
-  dots.addEventListener('pointerdown',event=>{
-    if(!event.isPrimary||event.button!==0)return;
-    event.preventDefault();scrubPointer=event.pointerId;dots.setPointerCapture(event.pointerId);scrub(event.clientX);
+  bindDotScrubber(dots,()=>dotButtons,dotIndicator,{
+    preview:index=>selectPanel(index,{fromScrub:true}),
+    commit:index=>{
+      dotButtons[index].focus({preventScroll:true});
+      commitDot(index);
+    }
   });
-  dots.addEventListener('pointermove',event=>{if(scrubPointer===event.pointerId)scrub(event.clientX);});
-  dots.addEventListener('pointerup',event=>{
-    if(scrubPointer!==event.pointerId)return;
-    scrub(event.clientX);scrubPointer=null;dotButtons[config.activeIndex].focus({preventScroll:true});commitDot(config.activeIndex);
-  });
-  dots.addEventListener('lostpointercapture',()=>{scrubPointer=null;});
   gallery.addEventListener('portfolio-featured-select',event=>{
     const i=panels.indexOf(event.target);if(i!==-1)selectPanel(i);
   });
@@ -263,7 +280,7 @@ import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
   };
   addEventListener('resize',resize);
   new ResizeObserver(()=>{if(root.clientWidth!==lastRootWidth)resize();}).observe(root);
-  addEventListener('pagehide',event=>{if(event.persisted)return;headerObserver.disconnect();badge.destroy();featuredTitle.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
+  addEventListener('pagehide',event=>{if(event.persisted)return;headerObserver.disconnect();featuredHeadingObserver.disconnect();badge.destroy();featuredTitle.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
   window.portfolioLanding=api;
   api.register({update(next){Object.assign(config,next);render();},replay});
   const restored=panels.findIndex(panel=>panel.classList.contains('is-active'));
