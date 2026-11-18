@@ -32,15 +32,15 @@ html {
   .home-redesign .site-header {
     --compact-nav-height: 72px;
     --compact-nav-border: 1px;
+    --compact-nav-rule: rgb(0 0 0 / .12);
     --compact-logo-drop: 6px;
     position: sticky;
     isolation: isolate;
     overflow: visible;
-    border-inline: var(--compact-nav-border) solid #1112;
     width: calc(100% - 32px) !important;
     min-height: var(--compact-nav-height) !important;
     height: var(--compact-nav-height) !important;
-    padding: 0 !important;
+    padding: 0 var(--compact-nav-border) !important;
     gap: 0 !important;
     align-items: stretch !important;
   }
@@ -69,7 +69,9 @@ html {
   .home-redesign .site-header .site-nav {
     position: absolute;
     inset-block: 100% auto;
-    inset-inline: calc(-1 * var(--compact-nav-border));
+    /* Anchor to the header's outer edges. A layout border plus a matching
+       negative inset diverges when the browser rounds the border at zoom. */
+    inset-inline: 0;
     width: auto;
     height: auto;
     min-height: 0;

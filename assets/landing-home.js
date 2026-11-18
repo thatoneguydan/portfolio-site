@@ -1,10 +1,10 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-cardnav1';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-cardedge1';
 import {createBadge} from './landing-badge.js?v=20261118-tune2';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-hero3';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-worklinks2';
-import {siteReady} from './site-runtime.js?v=20261118-cardnav1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-cardnav1';
+import {siteReady} from './site-runtime.js?v=20261118-cardedge1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-cardedge1';
 import {mountFeaturedHeading} from './featured-heading.js?v=20261118-featured4';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {

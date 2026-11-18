@@ -193,7 +193,7 @@ export const defaults = {
   "workSectionWaveLength": 320,
   "workSectionWaveHeight": 36,
   "workSectionMarginBefore": 100,
-  "workSectionPaddingBefore": 0,
+  "workSectionPaddingBeforePercent": 0,
   "workSectionPaddingAfter": 100,
   "workVideoBackground": "#f5f5f2",
   "workDesignBackground": "#f5f5f2",
@@ -406,7 +406,7 @@ export const controlGroups = {
       ['range','workSectionWaveLength','Section wave length',16,4000,1,'px'],
       ['range','workSectionWaveHeight','Section wave height',0,1000,1,'px'],
       ['range','workSectionMarginBefore','Margin before cards',0,500,1,'%'],
-      ['range','workSectionPaddingBefore','Padding before cards',0,600,1,'px'],
+      ['range','workSectionPaddingBeforePercent','Padding before cards',0,1000,1,'%'],
       ['range','workSectionPaddingAfter','Padding after cards',0,500,1,'%']
     ],
     workCardBackgrounds: [
@@ -549,7 +549,7 @@ export function workSectionProperties(config) {
     '--work-section-wave-length': config.workSectionWaveLength + 'px',
     '--work-section-wave-height': (config.workSectionWaveEnabled ? config.workSectionWaveHeight : 0) + 'px',
     '--work-section-margin-before': config.workSectionMarginBefore / 100,
-    '--work-section-padding-before': config.workSectionPaddingBefore + 'px',
+    '--work-section-padding-before': config.workSectionPaddingBeforePercent / 100,
     '--work-section-padding-after': config.workSectionPaddingAfter / 100,
     '--work-video-background': config.workVideoBackground,
     '--work-design-background': config.workDesignBackground,
@@ -576,6 +576,15 @@ for(const scope of headlineScopes){
 }
 export function normalizeSettings(input, base = defaults) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Settings must be an object.');
+  if(Object.hasOwn(input,'workSectionPaddingBefore')){
+    const {workSectionPaddingBefore,...current}=input;
+    if(!Number.isFinite(workSectionPaddingBefore))throw new Error('Invalid number: workSectionPaddingBefore');
+    // At the 1000px reference width, the responsive spacing base is 70px.
+    if(!Object.hasOwn(current,'workSectionPaddingBeforePercent')){
+      current.workSectionPaddingBeforePercent=Math.round(Math.min(600,Math.max(0,workSectionPaddingBefore))*10000/70)/100;
+    }
+    input=current;
+  }
   const result={...defaults,...base};
   const colors=Object.values(controlGroups).flat().filter(field=>field[0]==='color').map(field=>field[1]);
   // Old saved settings keep their vertical appearance when first upgraded.

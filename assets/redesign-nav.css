@@ -19,7 +19,7 @@
     gap: 0;
     align-items: stretch;
     overflow: visible;
-    border-bottom: 1px solid rgba(0, 0, 0, .12);
+    border-bottom: var(--compact-nav-border) solid var(--compact-nav-rule);
     isolation: isolate;
   }
 
@@ -85,10 +85,12 @@
     grid-template-columns: 1fr;
     gap: 0;
     margin: 0;
-    border: var(--compact-nav-border) solid rgba(0, 0, 0, .12);
+    border: var(--compact-nav-border) solid var(--compact-nav-rule);
     background: #f5f5f2;
     overflow: hidden;
-    clip-path: inset(0 0 100% 0);
+    /* Clip only in the reveal direction. Leave the fractional device pixels
+       at each side to the menu's own border painter. */
+    clip-path: inset(0 -1px 100% -1px);
     transition: opacity 150ms ease, clip-path 220ms ease, visibility 0s linear 220ms;
   }
 
@@ -96,7 +98,7 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    clip-path: inset(0);
+    clip-path: inset(0 -1px 0 -1px);
     transition: opacity 150ms ease, clip-path 220ms ease, visibility 0s;
   }
 
@@ -226,7 +228,16 @@
 
 @media(max-width:720px){
   .ds-nav-shadow{display:none}
-  .home-redesign .site-header::before{content:'';position:absolute;inset:0;z-index:2;background:#f5f5f2;border-bottom:1px solid #1112;pointer-events:none}
+  .home-redesign .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: #f5f5f2;
+    border-inline: var(--compact-nav-border) solid var(--compact-nav-rule);
+    border-bottom: var(--compact-nav-border) solid var(--compact-nav-rule);
+    pointer-events: none;
+  }
   .home-redesign .site-header .site-logo,.home-redesign .site-header .site-nav-toggle{position:relative;z-index:3}
 }
 
