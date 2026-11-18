@@ -57,19 +57,21 @@ function drawBackdropFilter(filter,width,height){
 
 function drawBackdropBands(surface,height){
   // Other engines can parse an SVG backdrop reference without painting it.
-  // Give each strip its own radius and clip its output after backdrop sampling.
-  const bands=document.createDocumentFragment(),count=16,step=height/count;
+  // Native backdrop blurs compose in order. Gaussian variances add, so each
+  // level contributes only the increase in variance from the preceding level.
+  const bands=document.createDocumentFragment(),count=12,step=height/count;
+  let variance=0;
   for(let index=1;index<=count;index++){
     const band=document.createElement('span');
-    const start=step*(index-1),end=Math.min(height,step*(index+1));
-    const radius=radiusAt(index/count),padding=Math.ceil(3*radius)+2;
-    band.style.top=(start-padding)+'px';
-    band.style.height=(end-start+2*padding)+'px';
-    band.style.clipPath=`inset(${padding}px 0)`;
+    const next=radiusAt(index/count)**2,radius=Math.sqrt(next-variance);
+    const padding=Math.ceil(3*radius)+2,start=step*(index-1),top=start-padding;
+    band.style.top=top+'px';
+    band.style.bottom='0';
     const feather=`linear-gradient(to bottom,transparent ${padding}px,#000 ${padding+step}px)`;
     band.style.maskImage=band.style.webkitMaskImage=feather;
     band.style.backdropFilter=band.style.webkitBackdropFilter=`blur(${radius}px)`;
     bands.append(band);
+    variance=next;
   }
   surface.replaceChildren(bands);
 }
