@@ -1,10 +1,10 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-featured4';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-worklinks1';
 import {createBadge} from './landing-badge.js?v=20261118-tune2';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-hero3';
 import {featuredGalleryLayout,featuredPointerPosition,galleryCaptionKind} from './gallery-layout.js?v=20261118-featured4';
-import {siteReady} from './site-runtime.js?v=20261118-featured4';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-featured4';
+import {siteReady} from './site-runtime.js?v=20261118-worklinks1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-worklinks1';
 import {mountFeaturedHeading} from './featured-heading.js?v=20261118-featured4';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {
@@ -14,6 +14,29 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
   const featured=root.querySelector('#featured-work');
   const featuredHeading=featured.querySelector('#featured-heading');
   const featuredTitle=mountFeaturedHeading(featuredHeading,featured);
+  const workDescriptions=root.querySelectorAll('[data-work-description]');
+  const workLinks=root.querySelector('.ds-work-links');
+  if(workLinks){
+    let pressedWorkCard=null,workPointer=null;
+    function releaseWorkCard(event){
+      if(event&&'pointerId' in event&&event.pointerId!==workPointer)return;
+      pressedWorkCard?.classList.remove('is-work-pressed');
+      pressedWorkCard=workPointer=null;
+    }
+    workLinks.addEventListener('pointerdown',event=>{
+      if(event.button!==0||!event.isPrimary)return;
+      const card=event.target.closest('.ds-work-card');
+      if(!card)return;
+      releaseWorkCard();
+      pressedWorkCard=card;
+      workPointer=event.pointerId;
+      card.classList.add('is-work-pressed');
+    },{passive:true});
+    addEventListener('pointerup',releaseWorkCard,{capture:true,passive:true});
+    addEventListener('pointercancel',releaseWorkCard,{capture:true,passive:true});
+    addEventListener('blur',releaseWorkCard);
+    addEventListener('pagehide',releaseWorkCard);
+  }
   const h1=root.querySelector('.ds-reveal'),intro=root.querySelector('.ds-intro');
   const hero=root.querySelector('.ds-hero'),cta=intro.querySelector('.ds-contact');
   // The reference composition has a 920 CSS-pixel content area inside the site gutters.
@@ -256,7 +279,19 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
   });
 
   const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale:fullIDScale});
-  function render(){applyHeroLayout();featuredTitle.update(config);measureFeaturedHeading();renderText();renderGallery();badge.update();document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));}
+  function render(){
+    applyHeroLayout();
+    featuredTitle.update(config);
+    measureFeaturedHeading();
+    for(const description of workDescriptions){
+      const text=config[description.dataset.workDescription];
+      if(description.textContent!==text)description.textContent=text;
+    }
+    renderText();
+    renderGallery();
+    badge.update();
+    document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));
+  }
 
   function commitDot(index){
     const target=panels[index],section=gallery.closest('#featured-work');

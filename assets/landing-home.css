@@ -53,6 +53,89 @@
 #dan-landing-home .ds-hero {--hero-base-top:clamp(52px,6vw,90px);--hero-column-gap:clamp(28px,3vw,48px);padding:calc(var(--hero-base-top) * var(--hero-top-space,1)) 0 clamp(62px,7vw,110px);gap:var(--hero-column-gap)}
 #dan-landing-home .ds-intro {container-type:inline-size}
 #dan-landing-home .ds-featured {padding:0 0 clamp(64px,7vw,112px)}
+#dan-landing-home .ds-work-links {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  margin-block-end:clamp(64px,7vw,112px);
+  border:1px solid var(--dan-line);
+}
+#dan-landing-home.featured-below-fold > .ds-work-links {grid-area:6 / 1}
+#dan-landing-home .ds-work-card {
+  display:grid;
+  grid-template-rows:minmax(max-content,1fr) auto minmax(max-content,1fr);
+  gap:16px;
+  min-block-size:clamp(28rem,70cqw,52rem);
+  padding:clamp(20px,3.6cqw,56px);
+  color:var(--dan-ink);
+  background:var(--dan-paper);
+  touch-action:manipulation;
+}
+#dan-landing-home .ds-work-card + .ds-work-card {border-inline-start:1px solid var(--dan-line)}
+#dan-landing-home .ds-work-card-number {
+  align-self:start;
+  font-size:clamp(54px,7.7cqw,132px);
+  font-weight:400;
+  line-height:.85;
+  letter-spacing:-.07em;
+  font-variant-numeric:tabular-nums;
+}
+#dan-landing-home .ds-work-card-label {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+#dan-landing-home .ds-work-card-title {
+  font-size:clamp(31px,5cqw,78px);
+  font-weight:600;
+  line-height:.94;
+  letter-spacing:-.045em;
+  text-transform:uppercase;
+}
+#dan-landing-home .ds-work-card-arrow {
+  font-size:clamp(20px,2.7cqw,36px);
+  line-height:1;
+}
+#dan-landing-home .ds-work-card-description {
+  align-self:end;
+  font-size:clamp(15px,1.52cqw,22px);
+  line-height:1.42;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+#dan-landing-home .ds-work-card :is(.ds-work-card-title,.ds-work-card-description) {
+  transform-origin:left center;
+  transition:transform 250ms cubic-bezier(.2,.75,.25,1);
+}
+#dan-landing-home .ds-work-card:is(:focus-visible,:active,.is-work-pressed) {
+  background:var(--dan-ink);
+  color:var(--dan-paper);
+}
+#dan-landing-home .ds-work-card:focus-visible {outline-offset:-5px}
+#dan-landing-home .ds-work-card:is(:active,.is-work-pressed) :is(.ds-work-card-title,.ds-work-card-description) {
+  transform:scale(.95);
+  transition-duration:85ms;
+}
+@media (hover:hover) {
+  #dan-landing-home .ds-work-card:hover {
+    background:var(--dan-ink);
+    color:var(--dan-paper);
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  #dan-landing-home .ds-work-card:is(:active,.is-work-pressed) :is(.ds-work-card-title,.ds-work-card-description) {transform:none}
+}
+/* Keep the stacked navigation at the same breakpoint as the header menu. */
+@media (max-width:720px) {
+  #dan-landing-home .ds-work-links {grid-template-columns:minmax(0,1fr)}
+  #dan-landing-home .ds-work-card {min-block-size:clamp(17rem,84cqw,30rem)}
+  #dan-landing-home .ds-work-card + .ds-work-card {
+    border-inline-start:0;
+    border-block-start:1px solid var(--dan-line);
+  }
+  #dan-landing-home .ds-work-card-number {font-size:clamp(54px,13cqw,88px)}
+  #dan-landing-home .ds-work-card-title {font-size:clamp(36px,10cqw,60px)}
+}
 #dan-landing-home .ds-section-head {
   margin:0 0 var(--featured-heading-gap,25px);
   font-size:calc(var(--featured-heading-size,40) * (0.5px + 0.05cqi) * var(--featured-scroll-scale,1));

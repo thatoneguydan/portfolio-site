@@ -1,5 +1,5 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261118-hero3';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-featured4';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-worklinks1';
 import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261118-featured4';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
@@ -57,6 +57,11 @@ export function mountTune(api){
       <details><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
       <details><summary>Vertical gallery</summary><div data-controls="galleryVertical"></div></details>
     </details>
+    <details><summary>Work links</summary><div class="ds-edit-fields">
+      <label>Video description<textarea name="workVideoDescription"></textarea></label>
+      <label>Design description<textarea name="workDesignDescription"></textarea></label>
+      <label>Photo description<textarea name="workPhotoDescription"></textarea></label>
+    </div></details>
     <details><summary>Thumbnails & captions</summary><details><summary>Caption blur</summary><div data-controls="portfolioEffects"></div></details><details><summary>Design inner shadow</summary><div data-controls="designShadow"></div></details></details>
     <details><summary>Project panels</summary>
       <details><summary>Surface & tail</summary><div data-controls="projectPanel"></div></details>
