@@ -1,5 +1,5 @@
-import {imageDimensions} from './project-image-dimensions.js?v=20261117-polish2a';
-import {bindImageDocument} from './image-viewer.js?v=20261117-polish2a';
+import {imageDimensions} from './project-image-dimensions.js?v=20261117-lightbox2';
+import {bindImageDocument} from './image-viewer.js?v=20261117-lightbox2';
 
 const prepared=new WeakMap();
 const css=`

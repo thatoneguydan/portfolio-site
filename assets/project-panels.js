@@ -1,7 +1,7 @@
-import {defaults} from './landing-schema.js?v=20261117-polish2a';
-import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-polish2a';
-import {prepareProjectDocument} from './project-content.js?v=20261117-polish2a';
-import {filledControlIcon} from './filled-controls.js?v=20261117-polish2a';
+import {defaults} from './landing-schema.js?v=20261117-lightbox2';
+import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-lightbox2';
+import {prepareProjectDocument} from './project-content.js?v=20261117-lightbox2';
+import {filledControlIcon} from './filled-controls.js?v=20261117-lightbox2';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
 const panels=new Set(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const rgba=(hex,opacity)=>`rgba(${hex.match(/\w\w/g).map(s=>parseInt(s,16))},${opacity/100})`;
@@ -12,6 +12,7 @@ function variables(root){
   for(const [key,value]of Object.entries(values))root.style.setProperty('--'+key,String(value));
   root.style.setProperty('--project-panel-shadow',config.projectPanelShadow?`drop-shadow(${config.projectShadowX}px ${config.projectShadowY}px ${config.projectShadowBlur}px ${rgba(config.projectShadowColor,config.projectShadowOpacity)})`:'none');root.style.setProperty('--nav-shadow-enabled',config.navShadow?'1':'0');
   root.style.setProperty('--project-close-shadow',config.projectCloseShadow?`${config.projectCloseShadowX}px ${config.projectCloseShadowY}px ${config.projectCloseShadowBlur}px ${config.projectCloseShadowSpread}px ${rgba(config.projectCloseShadowColor,config.projectCloseShadowOpacity)}`:'none');
+  root.style.setProperty('--lightbox-blur',config.lightboxBlur+'px');root.style.setProperty('--lightbox-backdrop',rgba(config.lightboxColor,config.lightboxOpacity));root.style.setProperty('--lightbox-clear',rgba(config.lightboxColor,0));
 }
 const maskCards=new Map();let panelSerial=0;
 function liftCaption(card,value){const before=card.style.getPropertyValue('--project-caption-lift');if(before===value)return;value?card.style.setProperty('--project-caption-lift',value):card.style.removeProperty('--project-caption-lift');card.dispatchEvent(new CustomEvent('portfolio-caption-position',{bubbles:true}));}
@@ -23,7 +24,8 @@ function paintMasks(card){
   }
   const gradients=[...record.layers.values()].map(({start,end,amount})=>{
     const alpha=(1-amount).toFixed(4);
-    return `linear-gradient(to bottom,#000 ${start.toFixed(2)}px,rgba(0,0,0,${alpha}) ${end.toFixed(2)}px,rgba(0,0,0,${alpha}) 100%)`;
+    const stops=Array.from({length:17},(_,i)=>{const t=i/16,smooth=t*t*t*(t*(t*6-15)+10);return `rgba(0,0,0,${(1-amount*smooth).toFixed(4)}) ${(start+(end-start)*t).toFixed(2)}px`;});
+    return `linear-gradient(to bottom,#000 ${start.toFixed(2)}px,${stops.join(',')},rgba(0,0,0,${alpha}) 100%)`;
   }).join(',');
   card.style.maskImage=gradients;card.style.maskComposite='intersect';
   const caption=card.querySelector('.rdp-project-meta');if(caption){const padding=Number.parseFloat(getComputedStyle(caption).paddingBottom)||24,bounds=[...caption.children].map(el=>el.getBoundingClientRect()).filter(r=>r.height>0),textHeight=bounds.length?Math.max(...bounds.map(r=>r.bottom))-Math.min(...bounds.map(r=>r.top)):0,maxLift=Math.max(0,card.clientHeight-textHeight-padding*2),lift=Math.min(maxLift,Math.max(0,...[...record.layers.values()].map(({start,amount})=>(card.clientHeight-padding-start+10)*amount)));liftCaption(card,lift.toFixed(2)+'px');}

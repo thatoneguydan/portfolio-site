@@ -1,4 +1,4 @@
-import {siteReady} from './site-runtime.js?v=20261117-polish2a';
+import {siteReady} from './site-runtime.js?v=20261117-lightbox2';
 const inline=new URLSearchParams(location.search).get('inlineShelf')==='1'&&parent!==window;
 if(inline){
   document.documentElement.classList.add('contact-inline-embed');document.body.classList.add('contact-inline-embed');

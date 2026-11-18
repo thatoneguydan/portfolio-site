@@ -1,15 +1,15 @@
-import {installAuthoredEmoji} from './site-emoji.js?v=20261117-polish2a';
-import {setPaletteSaturation} from './palette-glyph.js?v=20261117-polish2a';
-import {defaults} from './landing-schema.js?v=20261117-polish2a';
+import {installAuthoredEmoji} from './site-emoji.js?v=20261117-lightbox2';
+import {setPaletteSaturation} from './palette-glyph.js?v=20261117-lightbox2';
+import {defaults} from './landing-schema.js?v=20261117-lightbox2';
 import {installSettledShelfText} from './settled-text.js';
-import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-polish2a';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261117-polish2a';
-import './site-runtime.js?v=20261117-polish2a';
-import {installSiteInteractions} from './site-interactions.js?v=20261117-polish2a';
-import {installProjectViews} from './project-views.js?v=20261117-polish2a';
-import {installImageViewer} from './image-viewer.js?v=20261117-polish2a';
+import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-lightbox2';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261117-lightbox2';
+import './site-runtime.js?v=20261117-lightbox2';
+import {installSiteInteractions} from './site-interactions.js?v=20261117-lightbox2';
+import {installProjectViews} from './project-views.js?v=20261117-lightbox2';
+import {installImageViewer} from './image-viewer.js?v=20261117-lightbox2';
 
-const href='/assets/site-effects.css?v=20261117-polish2a';
+const href='/assets/site-effects.css?v=20261117-lightbox2';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
@@ -36,8 +36,14 @@ function innerShadow(card){
 function apply(card){
   innerShadow(card);
   const enabled=!!config.portfolioBlur;
+  const visible=captionVisible(card);
+  if(!card.matches('.ds-panel')){
+    if(card.dataset.captionVisible!==String(visible))card.dataset.captionVisible=String(visible);
+    const media=card.querySelector('.rdp-project-media');
+    if(media&&!media.querySelector('.portfolio-caption-shade')){const shade=document.createElement('span');shade.className='portfolio-caption-shade';shade.setAttribute('aria-hidden','true');media.append(shade);}
+  }
   if(card.classList.contains('has-progressive-blur')!==enabled)card.classList.toggle('has-progressive-blur',enabled);
-  const active=String(enabled&&captionVisible(card));if(card.dataset.blurActive!==active)card.dataset.blurActive=active;
+  const active=String(enabled&&visible);if(card.dataset.blurActive!==active)card.dataset.blurActive=active;
   const blur=card.querySelector('.portfolio-blur');
   const source=card.querySelector('img:not([data-blur-copy])');
   const caption=card.querySelector(card.dataset.captionKind==='compact'?'.ds-compact-caption':'.ds-caption,.rdp-project-meta');
@@ -50,7 +56,9 @@ function apply(card){
   const geometry=captionBlurGeometry({height:card.clientHeight,captionHeight:Math.max(0,bottom-top),bottom:Math.max(0,plane.bottom-lift-bottom),fontSize:parseFloat(style.fontSize)||20,coverage:config.portfolioBlurHeight,strength:config.portfolioBlurStrength,compact:card.dataset.captionKind==='compact'});
   const height=geometry.percent;
   for(const [key,value]of [['--caption-solid-height',geometry.solid+'px'],['--caption-cover-height',geometry.cover+'px']])if(card.style.getPropertyValue(key)!==value)card.style.setProperty(key,value);
-  const shade=captionShadeGradient(geometry);if(card.style.getPropertyValue('--caption-shade')!==shade)card.style.setProperty('--caption-shade',shade);
+  // The shade always reaches the image edge. Lifting text must never expose
+  // the opaque lower edge of a translated background plane.
+  const shade=captionShadeGradient({...geometry,solid:geometry.solid+lift,shadeCover:geometry.shadeCover+lift});if(card.style.getPropertyValue('--caption-shade')!==shade)card.style.setProperty('--caption-shade',shade);
   if(!blur)return;
   blur.style.setProperty('--blur-duration',config.portfolioBlurDuration+'ms');
   [...blur.children].forEach((layer,i)=>{

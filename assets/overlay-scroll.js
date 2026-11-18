@@ -22,5 +22,6 @@ export function unlockOverlayScroll(owner){
   scrollTo(previous.x,previous.y);
   restore(document.documentElement.style,previous.root.filter(([key])=>key==='scroll-behavior'));
 }
-document.addEventListener('wheel',event=>{if(owners.size&&!event.ctrlKey)event.preventDefault();},{passive:false,capture:true});
-document.addEventListener('touchmove',event=>{if(owners.size)event.preventDefault();},{passive:false,capture:true});
+const tuning=event=>!!event.target?.closest?.('#dan-owner-controls');
+document.addEventListener('wheel',event=>{if(owners.size&&!event.ctrlKey&&!tuning(event))event.preventDefault();},{passive:false,capture:true});
+document.addEventListener('touchmove',event=>{if(owners.size&&!tuning(event))event.preventDefault();},{passive:false,capture:true});

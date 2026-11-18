@@ -56,8 +56,8 @@
 .portfolio-image-viewer.portfolio-lightbox{display:flex;align-items:center;justify-content:center;padding:60px 48px 70px;opacity:0;background:transparent;transition:opacity 280ms;z-index:10000;overscroll-behavior:contain}
 .portfolio-image-viewer.portfolio-lightbox[hidden]{display:none}
 .portfolio-image-viewer.is-open{opacity:1}
-.portfolio-viewer-blur{position:absolute;inset:0;background:rgba(55,59,53,0);backdrop-filter:blur(0);transition:background 300ms,backdrop-filter 300ms;pointer-events:auto}
-.portfolio-image-viewer.is-open .portfolio-viewer-blur{background:rgba(55,59,53,.55);backdrop-filter:blur(12px)}
+.portfolio-viewer-blur{position:absolute;inset:0;background:var(--lightbox-clear,rgba(0,0,0,0));backdrop-filter:blur(0);transition:background 300ms,backdrop-filter 300ms;pointer-events:auto}
+.portfolio-image-viewer.is-open .portfolio-viewer-blur{background:var(--lightbox-backdrop,rgba(0,0,0,.55));backdrop-filter:blur(var(--lightbox-blur,12px))}
 .portfolio-viewer-stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;margin:0;max-width:100%;pointer-events:none}
 .portfolio-viewer-photo{display:grid;place-items:center;touch-action:pan-y;pointer-events:auto}
 .portfolio-image-viewer .portfolio-lightbox__image{display:block;object-fit:contain;max-width:none;max-height:none;border-radius:8px;box-shadow:0 16px 40px #0004;user-select:none;-webkit-user-select:none;will-change:transform}

@@ -1,4 +1,4 @@
-import {replaceProjectContent} from './project-panels.js?v=20261117-polish2a';
+import {replaceProjectContent} from './project-panels.js?v=20261117-lightbox2';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const selector='.rdp-project-card,#featured-work .rd-work-card,.rv-video-card[data-youtube-id]';

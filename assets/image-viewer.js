@@ -1,5 +1,5 @@
-import {filledControlIcon} from './filled-controls.js?v=20261117-polish2a';
-import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-polish2a';
+import {filledControlIcon} from './filled-controls.js?v=20261117-lightbox2';
+import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-lightbox2';
 let viewer,photo,stage,dots,prev,next,closeButton,items=[],index=0,focusBack,drag=null,closing=0,token=0;
 const bound=new WeakSet(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const icon=name=>filledControlIcon(name);
@@ -18,7 +18,13 @@ function create(){
   stage.addEventListener('pointermove',event=>{if(!drag)return;const dx=event.clientX-drag.x;drag.dx=dx;const edge=(index===0&&dx>0)||(index===items.length-1&&dx<0);photo.style.transform=`translateX(${edge?dx*.22:dx}px)`;});
   const release=()=>{if(!drag)return;const {dx,at}=drag;drag=null;photo.style.transform='';if(Math.abs(dx)>Math.min(80,stage.clientWidth*.16)||(Math.abs(dx)>25&&performance.now()-at<220))show(index+(dx<0?1:-1));else bounce(dx*.2);};
   stage.addEventListener('pointerup',release);stage.addEventListener('pointercancel',release);
-  document.addEventListener('keydown',event=>{if(viewer.hidden)return;if(event.key==='Escape'){event.preventDefault();close();}else if(event.key==='ArrowLeft'){event.preventDefault();show(index-1);}else if(event.key==='ArrowRight'){event.preventDefault();show(index+1);}else if(event.key==='Tab'){const targets=[...viewer.querySelectorAll('button:not([hidden])')];let at=targets.indexOf(document.activeElement)+(event.shiftKey?-1:1);if(at<0)at=targets.length-1;if(at>=targets.length)at=0;event.preventDefault();targets[at]?.focus();}});
+  document.addEventListener('keydown',event=>{
+    if(viewer.hidden||event.target?.closest?.('#dan-owner-controls'))return;
+    if(event.key==='Escape'){event.preventDefault();close();}
+    else if(event.key==='ArrowLeft'){event.preventDefault();show(index-1);}
+    else if(event.key==='ArrowRight'){event.preventDefault();show(index+1);}
+    else if(event.key==='Tab'){const targets=[...viewer.querySelectorAll('button:not([hidden])')];let at=targets.indexOf(document.activeElement)+(event.shiftKey?-1:1);if(at<0)at=targets.length-1;if(at>=targets.length)at=0;event.preventDefault();targets[at]?.focus();}
+  });
 }
 function bounce(offset){if(!reduced.matches)photo.animate([{transform:`translateX(${offset||20}px)`},{transform:'translateX(-3px)',offset:.55},{transform:'none'}],{duration:420,easing:'cubic-bezier(.2,.75,.2,1)'});}
 function geometry(){

@@ -18,6 +18,9 @@ export const defaults = {
   "portfolioBlurStrength": 8,
   "portfolioBlurHeight": 33,
   "portfolioBlurDuration": 240,
+  "lightboxBlur": 12,
+  "lightboxColor": "#000000",
+  "lightboxOpacity": 55,
   "designInnerShadow": true,
   "designShadowColor": "#111111",
   "designShadowBlend": "multiply",
@@ -348,6 +351,11 @@ export const controlGroups = {
       ['range','projectCloseRight','Close offset from right',-60,120,1,'px'],
       ['range','projectCloseTop','Close offset from top',-60,120,1,'px'],
       ['range','projectCloseNavGap','Close spacing below navigation',0,120,1,'px']
+    ],
+    lightbox: [
+      ['range','lightboxBlur','Backdrop blur',0,60,0.5,'px'],
+      ['color','lightboxColor','Backdrop color'],
+      ['range','lightboxOpacity','Backdrop color opacity',0,100,1,'%']
     ],
     projectCloseShadow: [
       ['check','projectCloseShadow','Close button drop shadow'],['color','projectCloseShadowColor','Close shadow color'],['range','projectCloseShadowOpacity','Close shadow opacity',0,100,1,'%'],

@@ -42,3 +42,6 @@
 #dan-owner-controls .ds-config > details > summary{font-size:15px;font-weight:600}
 #dan-owner-controls .ds-config details details{margin-left:10px}
 #dan-owner-controls .ds-control-help{font-size:12px;line-height:1.5;color:var(--dan-muted);margin:12px 0}
+/* Keep the authenticated editor usable while previewing the image lightbox. */
+#dan-owner-controls .ds-config-launch{z-index:12001}
+#dan-owner-controls .ds-config{z-index:12000}
