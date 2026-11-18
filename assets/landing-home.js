@@ -1,10 +1,10 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-hierarchy3';
-import {createBadge} from './landing-badge.js?v=20261117-hierarchy3';
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-hierarchy3';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-hierarchy3';
-import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-hierarchy3';
-import {siteReady} from './site-runtime.js?v=20261117-hierarchy3';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261117-hierarchy3';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261117-restore1';
+import {createBadge} from './landing-badge.js?v=20261117-restore1';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-restore1';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-restore1';
+import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-restore1';
+import {siteReady} from './site-runtime.js?v=20261117-restore1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261117-restore1';
 (async() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
@@ -23,14 +23,14 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261117-hierarchy
   }
   function renderText() {
     for(const [element,value]of [[heading,config.ticketHeading],[bio,config.bio]])if(element.dataset.authoredCopy!==value){element.dataset.authoredCopy=value;element.replaceChildren();appendEmojiText(element,value);}
-    const headlineSignature=JSON.stringify(Object.entries(config).filter(([key])=>/^line\d$/.test(key)||key==='lineCount'||key.startsWith('rotate')||key.startsWith('hero')));
+    const headlineSignature=JSON.stringify(Object.entries(config).filter(([key])=>/^line\d$/.test(key)||key==='lineCount'||key.startsWith('rotate')));
     if(headlineSignature===lastHeadline){fitText();return;}
     lastHeadline=headlineSignature;
     currentAnimations.forEach(a=>a.cancel()); currentAnimations=[];rotator?.destroy();rotator=null; h1.replaceChildren();
     h1.classList.remove('is-revealing');
     const lines = headlineLines(config); h1.setAttribute('aria-label',accessibleHeadline(config));
     lines.forEach((text,index) => {
-      const line=document.createElement('span'); line.className='ds-reveal-line';line.classList.toggle('ds-intro-line',index<Math.min(config.heroIntroLines,lines.length-1));line.classList.toggle('ds-closing-line',lines.length>1&&index===lines.length-1);line.style.setProperty('--intro-line-scale',config.heroIntroScale/100);line.style.setProperty('--closing-line-scale',config.heroClosingScale/100); line.dataset.line=index; line.setAttribute('aria-hidden','true');
+      const line=document.createElement('span'); line.className='ds-reveal-line'; line.dataset.line=index; line.setAttribute('aria-hidden','true');
       let wordIndex=0;
       String(text).split(/(\s+)/).filter(Boolean).forEach(word => {
         const wrap=document.createElement('span'); wrap.className=/^\s+$/.test(word)?'ds-space':'ds-word';

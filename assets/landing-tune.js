@@ -1,8 +1,8 @@
-import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-hierarchy3';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-hierarchy3';
+import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-restore1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-restore1';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
-  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-hierarchy3';document.head.append(stylesheet);
+  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-restore1';document.head.append(stylesheet);
   const config={...api.getConfig()},baseline={...api.getConfig()};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';
@@ -11,7 +11,7 @@ export function mountTune(api){
     return `<details data-headline-editor="${scope}"${open?' open':''}><summary>${label}</summary>
       <details open><summary>Text & typography</summary><div class="ds-edit-fields">
         ${Array.from({length:6},(_,i)=>`<label data-line-field="${i+1}">Line ${i+1}<input name="${key('line'+(i+1))}" type="text" aria-label="${scope?label+' ':''}Line ${i+1}"></label>`).join('')}
-      </div><div data-controls="${scope?scope+'Typography':'headlineTypography'}"></div>${scope?'':'<div data-controls="landingHierarchy"></div><p class="ds-control-help">Introductory lines use a quieter scale; the closing lines carry the main message.</p>'}</details>
+      </div><div data-controls="${scope?scope+'Typography':'headlineTypography'}"></div></details>
       <details><summary>Reveal animation</summary><div data-controls="${scope?scope+'Reveal':'reveal'}"></div><div class="ds-config-buttons"><button type="button" data-replay>Replay text animation</button></div></details>
       <details><summary>Rotating text</summary>
         <label>Word to replace<select data-option="${key('rotateTarget')}" data-rotate-target="${scope}" aria-label="${scope?label+' ':''}Word to replace"></select></label>
@@ -132,7 +132,9 @@ export function mountTune(api){
     return false;
   }
   function renderControls() {
-    for(const [group,fields] of Object.entries(controlGroups))configPanel.querySelector(`[data-controls=${group}]`).innerHTML=fields.map(([type,key,label,min,max,step,unit])=>{
+    for(const [group,fields] of Object.entries(controlGroups)){
+      const host=configPanel.querySelector(`[data-controls=${group}]`);if(!host)continue;
+      host.innerHTML=fields.map(([type,key,label,min,max,step,unit])=>{
       const disabled=optionDisabled(key)?' disabled':'';
       if(key==='badgeEntrancePosition')max=config.lineCount+1;
       if(type==='range')return `<label><span class="ds-control-label"><span>${label}</span><output data-output="${key}">${config[key]}${unit}</output></span><input aria-label="${label}" data-option="${key}" type="range" min="${min}" max="${max}" step="${step}" value="${config[key]}"${disabled}></label>`;
@@ -140,6 +142,7 @@ export function mountTune(api){
       if(type==='color')return `<label>${label}<span class="ds-color-row"><input type="color" aria-label="${label}" data-option="${key}" value="${config[key]}"${disabled}><input type="text" aria-label="${label} hex" data-option="${key}" value="${config[key]}" spellcheck="false"${disabled}></span></label>`;
       return `<label>${label}<select aria-label="${label}" data-option="${key}"${disabled}>${min.map(option=>{const [value,text]=Array.isArray(option)?option:[option,option[0].toUpperCase()+option.slice(1)];return `<option value="${escapeHtml(value)}"${config[key]===value?' selected':''}>${text}</option>`;}).join('')}</select></label>`;
     }).join('');
+    }
     updateTextEditors();updateEntranceLabel();schedulePlacement();
   }
 
