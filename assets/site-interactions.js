@@ -18,46 +18,87 @@ function installLogoInkAlignment(){
   addEventListener('resize',()=>cells.forEach(align),{passive:true});
 }
 
-export function pageBlurWeight(progress,falloff){
-  const u=Math.max(0,Math.min(1,progress));
-  const power=falloff==='bottom' ? 2.4 : falloff==='broad' ? .65 : 1;
-  return (u*u*(3-2*u))**power;
-}
+// Keep window as the sole scroll owner. On systems with a classic gutter, put
+// the thumb over the page so imagery, the footer and the blur continue behind it.
+function installPageScrollbar(){
+  const root=document.documentElement,body=document.body;
+  const embedded=window.parent!==window&&new URLSearchParams(location.search).get('inlineShelf')==='1';
+  const nativeOnly=matchMedia('(forced-colors: active), print');
+  const timeline=CSS.supports('animation-timeline: scroll(root block)');
+  let rail,thumb,scrollRange=0,thumbTravel=0,grab=null;
 
-// A classic scrollbar is painted outside the root scrollport. Extend the
-// blurred colors of the full-bleed surfaces into its native track. The thumb
-// and OS scrolling stay on their own layer. A Gaussian-filtered color boundary
-// is the cumulative normal curve, tabulated here in half-radius increments.
-const normalCdf=[.5,.69146,.84134,.93319,.97725,.99379,.99865,.99977,1];
-function blurredStep(distance){
-  const index=Math.min(Math.abs(distance)*2,normalCdf.length-1),lo=Math.floor(index);
-  const amount=normalCdf[lo]+(normalCdf[Math.ceil(index)]-normalCdf[lo])*(index-lo);
-  return distance<0?1-amount:amount;
-}
-function blurredTrackLayer(surfaces,height,band,radius,falloff){
-  const edges=surfaces.flatMap(({rect})=>[rect.top,rect.bottom]).filter(y=>y>0&&y<height&&y>band.top-4*radius);
-  if(!edges.length)return '';
-  const rows=new Set();
-  for(let i=0;i<=16;i++)rows.add(band.top+band.height*i/16);
-  for(const edge of edges){
-    for(let i=-8;i<=8;i++){
-      const y=edge+radius*i/2;
-      if(y>=band.top&&y<=height)rows.add(y);
-    }
+  function jump(y){window.scrollTo({top:y,behavior:'instant'});}
+  function syncValue(){
+    if(!rail||rail.hidden)return;
+    const progress=scrollRange?Math.max(0,Math.min(1,window.scrollY/scrollRange)):0;
+    const percent=String(Math.round(100*progress));
+    if(rail.getAttribute('aria-valuenow')!==percent)rail.setAttribute('aria-valuenow',percent);
+    if(!timeline)thumb.style.transform='translateY('+progress*thumbTravel+'px)';
   }
-  const paper=[245,245,242];
-  const colors=surfaces.map(({rect,color})=>({rect,rgb:color.match(/[\d.]+/g).slice(0,3).map(Number)}));
-  const stops=[...rows].sort((a,b)=>a-b).map(y=>{
-    const rgb=[...paper];
-    for(const {rect,rgb:color} of colors){
-      const start=rect.top<=0?1:blurredStep((y-rect.top)/radius);
-      const end=rect.bottom>=height?0:blurredStep((y-rect.bottom)/radius);
-      for(let c=0;c<3;c++)rgb[c]+=(color[c]-paper[c])*(start-end);
-    }
-    const alpha=pageBlurWeight((y-band.top)/band.height,falloff).toFixed(4);
-    return `rgb(${rgb.map(Math.round).join(' ')} / calc(var(--track-blur-opacity) * ${alpha})) ${y.toFixed(2)}px`;
-  });
-  return 'linear-gradient(to bottom,'+stops.join(',')+'),';
+  function mount(gutter){
+    root.style.setProperty('--page-rail-space',gutter+'px');
+    root.dataset.pageScrollRail='';
+    rail=document.createElement('div');rail.className='portfolio-scroll-rail';rail.tabIndex=0;
+    rail.setAttribute('role','scrollbar');rail.setAttribute('aria-label','Scroll page');
+    rail.setAttribute('aria-orientation','vertical');
+    rail.setAttribute('aria-valuemin','0');rail.setAttribute('aria-valuemax','100');
+    if(!body.id)body.id='portfolio-page';
+    rail.setAttribute('aria-controls',body.id);rail.setAttribute('aria-valuenow','0');
+    thumb=document.createElement('span');thumb.className='portfolio-scroll-thumb';
+    rail.append(thumb);body.append(rail);
+
+    rail.addEventListener('pointerdown',event=>{
+      if(event.button!==0||!event.isPrimary||rail.hidden)return;
+      event.preventDefault();
+      rail.focus({preventScroll:true});
+      const bounds=thumb.getBoundingClientRect();
+      if(event.target===thumb||event.shiftKey){
+        grab={id:event.pointerId,offset:event.shiftKey?bounds.height/2:event.clientY-bounds.top};
+        rail.setPointerCapture(event.pointerId);
+        if(event.shiftKey&&thumbTravel)jump((event.clientY-grab.offset)/thumbTravel*scrollRange);
+      }else{
+        jump(scrollY+(event.clientY<bounds.top?-1:1)*root.clientHeight*.9);
+      }
+    });
+    rail.addEventListener('pointermove',event=>{
+      if(grab?.id===event.pointerId&&thumbTravel&&!rail.hidden)jump((event.clientY-grab.offset)/thumbTravel*scrollRange);
+    });
+    const release=event=>{if(grab?.id===event.pointerId)grab=null;};
+    rail.addEventListener('lostpointercapture',release);
+    rail.addEventListener('pointerup',release);rail.addEventListener('pointercancel',release);
+    rail.addEventListener('keydown',event=>{
+      const page=root.clientHeight*.9;
+      const destination={ArrowUp:scrollY-40,ArrowDown:scrollY+40,PageUp:scrollY-page,PageDown:scrollY+page,Home:0,End:scrollRange,' ':scrollY+(event.shiftKey?-page:page)}[event.key];
+      if(destination!==undefined&&!event.altKey&&!event.metaKey&&!event.ctrlKey){event.preventDefault();jump(destination);}
+    });
+    addEventListener('scroll',syncValue,{passive:true});
+    // The shared modal lock changes the root overflow without changing its size.
+    let overflow=root.style.overflowY;
+    new MutationObserver(()=>{
+      if(overflow===root.style.overflowY)return;
+      overflow=root.style.overflowY;measure();
+    }).observe(root,{attributes:true,attributeFilter:['style']});
+  }
+  function measure(){
+    const gutter=innerWidth-root.clientWidth;
+    if(!rail&&!embedded&&!nativeOnly.matches&&gutter>0)mount(gutter);
+    const width=root.clientWidth+'px';
+    if(root.style.getPropertyValue('--site-viewport-width')!==width)root.style.setProperty('--site-viewport-width',width);
+    if(!rail)return;
+    const height=root.clientHeight,total=root.scrollHeight;
+    scrollRange=Math.max(0,total-height);
+    rail.hidden=!scrollRange||nativeOnly.matches||['hidden','clip'].includes(getComputedStyle(root).overflowY);
+    if(rail.hidden){grab=null;return;}
+    const thumbHeight=Math.min(height,Math.max(28,height*height/total));
+    thumbTravel=height-thumbHeight;
+    rail.style.setProperty('--thumb-height',thumbHeight+'px');
+    rail.style.setProperty('--thumb-travel',thumbTravel+'px');
+    syncValue();
+  }
+  const size=new ResizeObserver(measure);
+  size.observe(root);size.observe(body);
+  addEventListener('resize',measure,{passive:true});
+  nativeOnly.addEventListener('change',measure);measure();
 }
 export function installSiteInteractions(){
   if(window.__portfolioInteractions)return;window.__portfolioInteractions=true;
@@ -91,33 +132,5 @@ export function installSiteInteractions(){
   document.addEventListener('keydown',event=>{if(!event.repeat&&['Enter',' '].includes(event.key)&&!event.target.matches('input,textarea,select'))animate(targetFor(event.target),true);},{capture:true});
   document.addEventListener('keyup',event=>{if(['Enter',' '].includes(event.key))animate(targetFor(event.target),false);},{capture:true});
 
-  // Native tracks remain transparent inside local surfaces. The root gutter
-  // follows full-bleed sections, including the dark contact footer.
-  let scheduled=0;
-  function syncTrack(){
-    scheduled=0;const root=document.documentElement,height=innerHeight,width=root.clientWidth;
-    root.style.setProperty('--site-viewport-width',width+'px');
-    const gutter=Math.max(0,innerWidth-width);
-    root.toggleAttribute('data-native-gutter',gutter>0);
-    root.style.setProperty('--native-gutter-width',gutter+'px');
-    const surfaces=[...document.querySelectorAll('.rd-footer-cta,.rcompat-footer')].map(el=>({rect:el.getBoundingClientRect(),color:getComputedStyle(el).backgroundColor})).filter(({rect,color})=>rect.bottom>0&&rect.top<height&&rect.left<4&&rect.right>=width-4&&color!=='rgba(0, 0, 0, 0)');
-    const stops=['#f5f5f2 0px'];let last=0;
-    for(const {rect,color}of surfaces.sort((a,b)=>a.rect.top-b.rect.top)){
-      const top=Math.max(last,Math.min(height,rect.top)),bottom=Math.max(top,Math.min(height,rect.bottom));
-      stops.push(`#f5f5f2 ${top}px`,`${color} ${top}px`,`${color} ${bottom}px`);last=bottom;
-    }
-    stops.push(`#f5f5f2 ${last}px`,`#f5f5f2 ${height}px`);
-    const band=document.querySelector('.portfolio-page-blur')?.getBoundingClientRect();
-    const config=window.portfolioLandingConfig;
-    const soft=gutter&&band?.height&&config?.pageBlurStrength>0?
-      blurredTrackLayer(surfaces,height,band,config.pageBlurStrength,config.pageBlurFalloff):'';
-    const track=soft+`linear-gradient(to bottom,${stops.join(',')})`;
-    if(root.style.getPropertyValue('--root-scrollbar-track')!==track)root.style.setProperty('--root-scrollbar-track',track);
-    const center=surfaces.find(({rect})=>rect.top<=height/2&&rect.bottom>=height/2)?.color||'#f5f5f2';
-    root.style.setProperty('--scrollbar-surface',center);
-  }
-  const schedule=()=>{if(!scheduled)scheduled=requestAnimationFrame(syncTrack);};
-  addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule,{passive:true});
-  document.addEventListener('portfolio-appearance',schedule);
-  new ResizeObserver(schedule).observe(document.body);schedule();
+  installPageScrollbar();
 }

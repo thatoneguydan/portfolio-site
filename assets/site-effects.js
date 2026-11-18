@@ -5,11 +5,11 @@ import {installSettledShelfText} from './settled-text.js';
 import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-navlab1';
 import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-viewport1';
 import './site-runtime.js?v=20261118-viewport1';
-import {installSiteInteractions,pageBlurWeight} from './site-interactions.js?v=20261118-videoblur1';
+import {installSiteInteractions} from './site-interactions.js?v=20261118-optical1';
 import {installProjectViews} from './project-views.js?v=20261118-viewport1';
 import {installImageViewer} from './image-viewer.js?v=20261117-navlab1';
 
-const href='/assets/site-effects.css?v=20261118-videoblur1';
+const href='/assets/site-effects.css?v=20261118-optical1';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
@@ -18,28 +18,99 @@ let config={...defaults,...window.portfolioLandingConfig};
 setPaletteSaturation(config.paletteSaturation);
 const insideShelf=window.parent!==window&&new URLSearchParams(location.search).get('inlineShelf')==='1';
 const onLandingPage=!!document.getElementById('dan-landing-home');
-let pageBlur;
+function radiusAt(depth){
+  const power=config.pageBlurFalloff==='bottom' ? 2.4 : config.pageBlurFalloff==='broad' ? .65 : 1;
+  return config.pageBlurStrength*(depth*depth*(3-2*depth))**power;
+}
+
+function svgNode(name,attributes){
+  const node=document.createElementNS('http://www.w3.org/2000/svg',name);
+  for(const [key,value] of Object.entries(attributes))node.setAttribute(key,value);
+  return node;
+}
+
+// All levels read the same live backdrop. The ramp chooses neighboring Gaussian
+// radii at each depth, so sharp details disappear earlier than broad features.
+const depthRamp='data:image/svg+xml,'+encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 256" preserveAspectRatio="none">'+
+  '<linearGradient id="a" x2="0" y2="1"><stop stop-opacity="0"/><stop offset="1"/></linearGradient>'+
+  '<rect width="1" height="256" fill="url(#a)"/></svg>');
+
+function drawBackdropFilter(filter,width,height){
+  const region={x:0,y:0,width,height};
+  filter.setAttribute('width',width);
+  filter.setAttribute('height',height);
+  const nodes=document.createDocumentFragment();
+  nodes.append(svgNode('feImage',{...region,href:depthRamp,preserveAspectRatio:'none',result:'depth'}));
+  const levels=8;
+  let previous='SourceGraphic';
+  for(let i=1;i<=levels;i++){
+    const weight=svgNode('feComponentTransfer',{...region,in:'depth',result:'weight'});
+    weight.append(svgNode('feFuncA',{type:'linear',slope:levels,intercept:1-i}));
+    const level=svgNode('feGaussianBlur',{...region,in:'SourceGraphic',stdDeviation:radiusAt(i/levels),edgeMode:'duplicate',result:'level'});
+    const masked=svgNode('feComposite',{...region,in:'level',in2:'weight',operator:'in',result:'weighted'});
+    nodes.append(weight,level,masked,svgNode('feComposite',{...region,in:'weighted',in2:previous,operator:'over',result:'mix'+i}));
+    previous='mix'+i;
+  }
+  filter.replaceChildren(nodes);
+}
+
+function drawBackdropBands(surface,height){
+  // Other engines can parse an SVG backdrop reference without painting it.
+  // Give each strip its own radius and clip its output after backdrop sampling.
+  const bands=document.createDocumentFragment(),count=16,step=height/count;
+  for(let index=1;index<=count;index++){
+    const band=document.createElement('span');
+    const start=step*(index-1),end=Math.min(height,step*(index+1));
+    const radius=radiusAt(index/count),padding=Math.ceil(3*radius)+2;
+    band.style.top=(start-padding)+'px';
+    band.style.height=(end-start+2*padding)+'px';
+    band.style.clipPath=`inset(${padding}px 0)`;
+    const feather=`linear-gradient(to bottom,transparent ${padding}px,#000 ${padding+step}px)`;
+    band.style.maskImage=band.style.webkitMaskImage=feather;
+    band.style.backdropFilter=band.style.webkitBackdropFilter=`blur(${radius}px)`;
+    bands.append(band);
+  }
+  surface.replaceChildren(bands);
+}
+
+let pageBlur,blurSurface,blurFilter,filterGeometry='';
+function sizePageBlur(){
+  if(!pageBlur?.classList.contains('is-enabled'))return;
+  const {width,height}=blurSurface.getBoundingClientRect();
+  const geometry=[width,height,config.pageBlurStrength,config.pageBlurFalloff].join('/');
+  if(!width||!height||geometry===filterGeometry)return;
+  filterGeometry=geometry;
+  if(blurFilter)drawBackdropFilter(blurFilter,width,height);
+  else drawBackdropBands(blurSurface,height);
+}
+
 function applyPageBlur(){
   if(insideShelf)return;
-  const enabled=onLandingPage?config.pageBlurHome:config.pageBlurOther;
+  const enabled=(onLandingPage?config.pageBlurHome:config.pageBlurOther)&&config.pageBlurStrength>0;
   if(!pageBlur){
     if(!enabled)return;
-    pageBlur=document.createElement('div');pageBlur.className='portfolio-page-blur';pageBlur.setAttribute('aria-hidden','true');
+    pageBlur=document.createElement('div');
+    pageBlur.className='portfolio-page-blur';
+    pageBlur.setAttribute('aria-hidden','true');
+    blurSurface=document.createElement('div');
+    blurSurface.className='portfolio-page-blur__surface';
+    pageBlur.append(blurSurface);
+    if(/(?:Chrome|Chromium)\//.test(navigator.userAgent)&&CSS.supports('backdrop-filter','url("#filter")')){
+      const definitions=svgNode('svg',{width:0,height:0,'aria-hidden':'true',focusable:'false'});
+      const defs=svgNode('defs',{});
+      blurFilter=svgNode('filter',{id:'portfolio-depth-blur',x:0,y:0,filterUnits:'userSpaceOnUse','color-interpolation-filters':'sRGB'});
+      defs.append(blurFilter);
+      definitions.append(defs);
+      pageBlur.append(definitions);
+      blurSurface.style.backdropFilter='url("#portfolio-depth-blur")';
+    }
     document.body.append(pageBlur);
+    new ResizeObserver(sizePageBlur).observe(blurSurface);
   }
   pageBlur.style.setProperty('--blur-height',config.pageBlurHeight);
-  pageBlur.style.setProperty('--blur-radius',config.pageBlurStrength+'px');
-  // Feather one filtered snapshot. Overlapping backdrop filters resample each
-  // other's output and can retain rectangular damage regions during scrolling.
-  if(pageBlur.dataset.falloff!==config.pageBlurFalloff){
-    const stops=Array.from({length:17},(_,i)=>{
-      const progress=i/16,alpha=pageBlurWeight(progress,config.pageBlurFalloff);
-      return `rgba(0,0,0,${alpha.toFixed(4)}) calc(var(--blur-depth) * ${progress})`;
-    });
-    pageBlur.style.setProperty('--blur-mask',`linear-gradient(to bottom,${stops.join(',')})`);
-    pageBlur.dataset.falloff=config.pageBlurFalloff;
-  }
-  pageBlur.classList.toggle('is-enabled',enabled&&config.pageBlurStrength>0);
+  pageBlur.classList.toggle('is-enabled',enabled);
+  sizePageBlur();
 }
 applyPageBlur();
 applyProjectConfig(config);

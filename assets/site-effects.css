@@ -28,22 +28,14 @@
 .portfolio-page-blur {
   position:fixed;inset:auto 0 0;z-index:40;
   --blur-depth:calc(var(--blur-height) * 1vh);
-  height:var(--blur-depth);overflow:clip;pointer-events:none;user-select:none;
-  visibility:hidden;transition:visibility 0s linear 180ms;
+  height:var(--blur-depth);pointer-events:none;user-select:none;
+  visibility:hidden;
 }
 @supports(height:1dvh){.portfolio-page-blur {--blur-depth:calc(var(--blur-height) * 1dvh)}}
-.portfolio-page-blur::before {
-  /* Keep the fractional mask raster's last texel outside the visible band. */
-  content:"";position:absolute;inset:0 -2px -2px;pointer-events:none;
-  -webkit-mask-image:var(--blur-mask);mask-image:var(--blur-mask);
-  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
-  -webkit-backdrop-filter:blur(var(--blur-radius));backdrop-filter:blur(var(--blur-radius));
-  opacity:0;transition:opacity 180ms ease;
-}
-.portfolio-page-blur.is-enabled {visibility:visible;transition-delay:0s}
-.portfolio-page-blur.is-enabled::before {opacity:1}
-@starting-style {.portfolio-page-blur.is-enabled::before {opacity:0}}
-@media (prefers-reduced-motion:reduce){.portfolio-page-blur,.portfolio-page-blur::before {transition:none}}
+.portfolio-page-blur__surface {position:absolute;inset:0}
+.portfolio-page-blur__surface > span {position:absolute;left:0;right:0}
+.portfolio-page-blur > svg {position:absolute;pointer-events:none}
+.portfolio-page-blur.is-enabled {visibility:visible}
 @media print,(forced-colors:active),(prefers-reduced-transparency:reduce){.portfolio-page-blur {display:none}}
 
 /* A masked copy of the thumbnail prevents sampling the page at image edges. */
@@ -68,29 +60,36 @@ html.portfolio-js [data-headline-pending] {visibility:hidden}
 .video-redesign .rv-shelf-panel > .rv-video-grid {padding-left:18px;padding-right:18px;transition-property:padding-top,padding-bottom}
 @media(prefers-reduced-motion:reduce){.portfolio-blur,.portfolio-blur > span,.portfolio-caption-shade {transition:none}.ds-rotate-piece {will-change:auto}}
 
-/* Local scroll tracks reveal their actual surface instead of a white strip. */
-/* An inset gallery can throw colored blur into the otherwise empty outer
-   margin. Bring that spill gently back to the native track's painted surface
-   within the margin. Overlay scrollbars reserve zero width and need no join. */
-.portfolio-page-blur::after {
-  content:"";position:absolute;inset:0 0 0 auto;opacity:var(--track-blur-opacity);
-  width:min(16px,var(--blur-radius),calc(2 * var(--native-gutter-width,0px)));
-  background-image:var(--root-scrollbar-track);background-repeat:no-repeat;
-  background-size:100% 100vh;background-size:100% 100dvh;background-position:center bottom;
-  --gutter-mask:linear-gradient(to right,transparent,rgba(0,0,0,.15) 25%,rgba(0,0,0,.85) 75%,black);
-  -webkit-mask-image:var(--gutter-mask);mask-image:var(--gutter-mask);
-}
-@property --track-blur-opacity {syntax:"<number>";inherits:true;initial-value:0}
-html {--track-blur-opacity:0;transition:--track-blur-opacity 180ms ease}
-html:has(.portfolio-page-blur.is-enabled) {--track-blur-opacity:1}
-@media(prefers-reduced-motion:reduce){html {transition:none}}
-@media print,(forced-colors:active),(prefers-reduced-transparency:reduce){html:has(.portfolio-page-blur.is-enabled) {--track-blur-opacity:0}}
+/* Local scroll areas use their native controls. Standalone pages keep native
+   window scrolling, including with a draggable thumb over the full-width page. */
 * {scrollbar-width:thin;scrollbar-color:#92928b transparent}
-*::-webkit-scrollbar {width:9px;height:9px;background:transparent}
-*::-webkit-scrollbar-track,*::-webkit-scrollbar-corner {background:transparent}
-*::-webkit-scrollbar-thumb {background:#92928b;border:2px solid transparent;background-clip:padding-box;border-radius:20px}
-*::-webkit-scrollbar-button {display:none}
-html {background-color:#f5f5f2;background-image:var(--root-scrollbar-track,none);background-attachment:fixed;background-size:100% 100vh;background-repeat:no-repeat;scrollbar-color:#92928b transparent}
-html[data-native-gutter]::-webkit-scrollbar-track,html[data-native-gutter] body::-webkit-scrollbar-track {background:var(--root-scrollbar-track,#f5f5f2)}
-@supports selector(::-webkit-scrollbar){*{scrollbar-color:auto;scrollbar-width:auto}html{scrollbar-color:auto;scrollbar-width:auto}}
+html {background-color:#f5f5f2}
+@supports selector(::-webkit-scrollbar) {
+  :where(*:not(html,body)) {scrollbar-color:auto;scrollbar-width:auto}
+  :where(*:not(html,body))::-webkit-scrollbar {width:9px;height:9px;background:transparent}
+  :where(*:not(html,body))::-webkit-scrollbar-track,:where(*:not(html,body))::-webkit-scrollbar-corner {background:transparent}
+  :where(*:not(html,body))::-webkit-scrollbar-thumb {background:#92928b;border:2px solid transparent;background-clip:padding-box;border-radius:20px}
+  :where(*:not(html,body))::-webkit-scrollbar-button {display:none}
+}
+.portfolio-scroll-rail {display:none}
+@media screen and (forced-colors:none){
+  html[data-page-scroll-rail] {scrollbar-width:none;scrollbar-gutter:auto}
+  html[data-page-scroll-rail]::-webkit-scrollbar {display:none}
+  html[data-page-scroll-rail] > body {padding-inline-end:var(--page-rail-space)}
+  html[data-page-scroll-rail] .rd-footer-cta {
+    margin-left:calc(50% - var(--site-viewport-width,100vw)/2 + var(--page-rail-space)/2);
+  }
+  html[data-page-scroll-rail] .portfolio-scroll-rail:not([hidden]){
+    display:block;position:fixed;inset:0 0 0 auto;width:var(--page-rail-space);
+    z-index:12010;touch-action:none;user-select:none;background:transparent;
+  }
+  .portfolio-scroll-thumb {position:absolute;inset:0 0 auto;height:var(--thumb-height);will-change:transform}
+  .portfolio-scroll-thumb::before {content:"";position:absolute;inset:2px;border-radius:99px;background:#92928b}
+  .portfolio-scroll-rail:focus-visible {outline:2px solid currentColor;outline-offset:-2px}
+  @supports(animation-timeline: scroll(root block)){
+    .portfolio-scroll-thumb {animation:portfolio-scroll-thumb linear both;animation-timeline:scroll(root block)}
+    @keyframes portfolio-scroll-thumb {from{transform:translateY(0)}to{transform:translateY(var(--thumb-travel))}}
+  }
+}
+@media(forced-colors:active){* {scrollbar-color:auto}}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-heading,:is(#dan-landing-home,#dan-badge-dialog) .ds-bio {hyphens:none;word-break:normal}

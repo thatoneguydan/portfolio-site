@@ -6,7 +6,7 @@
 
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261118-videoblur1';
+    navScript.src = '/assets/redesign-nav.js?v=20261118-optical1';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }

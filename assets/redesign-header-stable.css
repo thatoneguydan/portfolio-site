@@ -74,10 +74,10 @@ html {
 /* Apply the compact silhouette before the deferred menu controller runs. */
 @media(max-width:720px){
   .home-redesign .site-header{position:sticky;isolation:isolate;overflow:visible;border-left:1px solid #1112;border-right:1px solid #1112}
-  .home-redesign .site-header .site-logo{width:80px!important;min-width:80px!important;max-width:80px!important;flex:0 0 80px!important;padding:0 16px!important;box-sizing:border-box;justify-content:center;background:transparent!important}
+  .home-redesign .site-header .site-logo{width:80px!important;min-width:80px!important;max-width:80px!important;flex:0 0 80px!important;padding:0 16px!important;box-sizing:border-box;justify-content:center;background:var(--compact-logo-background,transparent)!important}
   .home-redesign .site-header .site-logo::before,.home-redesign .site-header .site-logo::after{display:none!important}
-  .home-redesign .site-header .site-logo img{filter:none!important}
-  .home-redesign .site-header .site-logo[aria-current=page]{box-shadow:inset 0 -3px #111}
+  .home-redesign .site-header .site-logo img{filter:var(--compact-logo-filter,none)!important}
+  .home-redesign .site-header .site-logo:is(:hover,:focus-visible,[aria-current=page]){--compact-logo-background:#111;--compact-logo-filter:invert(1);box-shadow:none}
   .home-redesign .site-header .site-nav{position:absolute;top:100%!important;bottom:auto!important;left:-1px;right:-1px;height:auto!important;min-height:0;opacity:0;visibility:hidden;pointer-events:none}
 }
 
