@@ -47,7 +47,14 @@ export const defaults = {
   "projectLoaderWidth": 5,
   "projectLoaderHeight": 32,
   "projectLoaderGap": 4,
-  "projectLoaderPadding": 40,
+  "projectLoaderPadding": 14,
+  "projectCloseShadow": true,
+  "projectCloseShadowColor": "#111111",
+  "projectCloseShadowOpacity": 24,
+  "projectCloseShadowX": 0,
+  "projectCloseShadowY": 4,
+  "projectCloseShadowBlur": 10,
+  "projectCloseShadowSpread": 0,
   "projectPanelSpacing": 24,
   "projectImageRadius": 12,
   "projectEdgeFade": true,
@@ -342,13 +349,17 @@ export const controlGroups = {
       ['range','projectCloseTop','Close offset from top',-60,120,1,'px'],
       ['range','projectCloseNavGap','Close spacing below navigation',0,120,1,'px']
     ],
+    projectCloseShadow: [
+      ['check','projectCloseShadow','Close button drop shadow'],['color','projectCloseShadowColor','Close shadow color'],['range','projectCloseShadowOpacity','Close shadow opacity',0,100,1,'%'],
+      ['range','projectCloseShadowX','Close shadow horizontal offset',-60,60,1,'px'],['range','projectCloseShadowY','Close shadow vertical offset',-60,80,1,'px'],['range','projectCloseShadowBlur','Close shadow blur',0,100,1,'px'],['range','projectCloseShadowSpread','Close shadow spread',-20,40,1,'px']
+    ],
     projectLoader: [
       ['color','projectLoaderColor1','Loader bar 1'], ['color','projectLoaderColor2','Loader bar 2'],
       ['color','projectLoaderColor3','Loader bar 3'], ['color','projectLoaderColor4','Loader bar 4'], ['color','projectLoaderColor5','Loader bar 5'],
       ['range','projectLoaderWidth','Loader bar width',1,24,1,'px'],
       ['range','projectLoaderHeight','Loader bar height',8,160,1,'px'],
       ['range','projectLoaderGap','Loader bar spacing',0,40,1,'px'],
-      ['range','projectLoaderPadding','Loader vertical breathing room',12,160,1,'px']
+      ['range','projectLoaderPadding','Loader background padding',12,160,1,'px']
     ],
     galleryVertical: [
       ['check','verticalGalleryAdaptive','Responsive 16:9 height'],

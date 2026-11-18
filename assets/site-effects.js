@@ -1,15 +1,15 @@
-import {installAuthoredEmoji} from './site-emoji.js?v=20261117-refine6';
-import {setPaletteSaturation} from './palette-glyph.js?v=20261117-refine6';
-import {defaults} from './landing-schema.js?v=20261117-refine6';
+import {installAuthoredEmoji} from './site-emoji.js?v=20261117-polish2a';
+import {setPaletteSaturation} from './palette-glyph.js?v=20261117-polish2a';
+import {defaults} from './landing-schema.js?v=20261117-polish2a';
 import {installSettledShelfText} from './settled-text.js';
-import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-refine6';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261117-refine6';
-import './site-runtime.js?v=20261117-refine6';
-import {installSiteInteractions} from './site-interactions.js?v=20261117-refine6';
-import {installProjectViews} from './project-views.js?v=20261117-refine6';
-import {installImageViewer} from './image-viewer.js?v=20261117-refine6';
+import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-polish2a';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261117-polish2a';
+import './site-runtime.js?v=20261117-polish2a';
+import {installSiteInteractions} from './site-interactions.js?v=20261117-polish2a';
+import {installProjectViews} from './project-views.js?v=20261117-polish2a';
+import {installImageViewer} from './image-viewer.js?v=20261117-polish2a';
 
-const href='/assets/site-effects.css?v=20261117-refine6';
+const href='/assets/site-effects.css?v=20261117-polish2a';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
@@ -46,8 +46,8 @@ function apply(card){
   const plane=(card.querySelector('.rdp-masonry-face')||card).getBoundingClientRect();
   const bounds=[...caption.children].map(el=>el.getBoundingClientRect()).filter(r=>r.height>0);
   const top=bounds.length?Math.min(...bounds.map(r=>r.top)):plane.bottom;
-  const bottom=bounds.length?Math.max(...bounds.map(r=>r.bottom)):plane.bottom;
-  const geometry=captionBlurGeometry({height:card.clientHeight,captionHeight:Math.max(0,bottom-top),bottom:Math.max(0,plane.bottom-bottom),fontSize:parseFloat(style.fontSize)||20,coverage:config.portfolioBlurHeight,strength:config.portfolioBlurStrength,compact:card.dataset.captionKind==='compact'});
+  const bottom=bounds.length?Math.max(...bounds.map(r=>r.bottom)):plane.bottom,lift=Number.parseFloat(card.style.getPropertyValue('--project-caption-lift'))||0;
+  const geometry=captionBlurGeometry({height:card.clientHeight,captionHeight:Math.max(0,bottom-top),bottom:Math.max(0,plane.bottom-lift-bottom),fontSize:parseFloat(style.fontSize)||20,coverage:config.portfolioBlurHeight,strength:config.portfolioBlurStrength,compact:card.dataset.captionKind==='compact'});
   const height=geometry.percent;
   for(const [key,value]of [['--caption-solid-height',geometry.solid+'px'],['--caption-cover-height',geometry.cover+'px']])if(card.style.getPropertyValue(key)!==value)card.style.setProperty(key,value);
   const shade=captionShadeGradient(geometry);if(card.style.getPropertyValue('--caption-shade')!==shade)card.style.setProperty('--caption-shade',shade);
@@ -55,8 +55,8 @@ function apply(card){
   blur.style.setProperty('--blur-duration',config.portfolioBlurDuration+'ms');
   [...blur.children].forEach((layer,i)=>{
     layer.style.setProperty('--layer-blur',geometry.strength*(i+1)/6+'px');
-    const full=geometry.solid*Math.max(.25,1-i*.1);
-    const mask=`linear-gradient(to top,#000 0px,#000 ${full}px,transparent ${geometry.cover}px)`;layer.style.maskImage=mask;layer.style.webkitMaskImage=mask;
+    const full=geometry.solid*Math.max(.25,1-i*.1)+lift;
+    const mask=`linear-gradient(to top,#000 0px,#000 ${full}px,transparent ${geometry.cover+lift}px)`;layer.style.maskImage=mask;layer.style.webkitMaskImage=mask;
     const image=layer.querySelector('img');if(source&&image&&image.style.filter!==source.style.filter)image.style.filter=source.style.filter;
   });
 }
@@ -103,5 +103,6 @@ new MutationObserver(records=>{
 }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-caption-visible','data-caption-kind','data-focused','class','style','src']});
 function update(next){config={...defaults,...next};setPaletteSaturation(config.paletteSaturation);applyProjectConfig(config);for(const card of cards)sync(card);}
 document.addEventListener('portfolio-appearance',event=>update(event.detail));
+document.addEventListener('portfolio-caption-position',event=>schedule(event.target.closest('.rdp-project-card')));
 addEventListener('resize',()=>{for(const card of cards)schedule(card);},{passive:true});
 if(!document.getElementById('dan-landing-home'))fetch('/api/landing-settings',{credentials:'same-origin',cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{if(data?.config)update(data.config);}).catch(()=>{});

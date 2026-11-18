@@ -1,5 +1,5 @@
-import {filledControlIcon} from './filled-controls.js?v=20261117-refine6';
-import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-refine6';
+import {filledControlIcon} from './filled-controls.js?v=20261117-polish2a';
+import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-polish2a';
 let viewer,photo,stage,dots,prev,next,closeButton,items=[],index=0,focusBack,drag=null,closing=0,token=0;
 const bound=new WeakSet(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const icon=name=>filledControlIcon(name);
@@ -25,7 +25,7 @@ function geometry(){
   const item=items[index];if(!item||viewer.hidden)return;
   const style=getComputedStyle(viewer),number=key=>parseFloat(style[key])||0;
   const availableWidth=Math.max(1,viewer.clientWidth-number('paddingLeft')-number('paddingRight'));
-  const availableHeight=Math.max(1,viewer.clientHeight-number('paddingTop')-number('paddingBottom')-(dots.hidden?0:dots.offsetHeight+16));
+  const availableHeight=Math.max(1,viewer.clientHeight-number('paddingTop')-number('paddingBottom'));
   const width=Math.min(availableWidth,availableHeight*item.ratio),height=width/item.ratio;
   stage.style.width=photo.style.width=width+'px';stage.style.height=photo.style.height=height+'px';
 }

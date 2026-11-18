@@ -1,8 +1,8 @@
-import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-refine6';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-refine6';
+import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-polish2a';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-polish2a';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
-  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-refine6';document.head.append(stylesheet);
+  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-polish2a';document.head.append(stylesheet);
   const config={...api.getConfig()},baseline={...api.getConfig()};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';
@@ -54,7 +54,7 @@ export function mountTune(api){
     <details><summary>Project panels</summary>
       <details open><summary>Surface & tail</summary><div data-controls="projectPanel"></div></details>
       <details><summary>Text & content spacing</summary><div data-controls="projectText"></div></details><details><summary>Drop shadow</summary><div data-controls="projectShadow"></div></details>
-      <details><summary>Floating close button</summary><div data-controls="projectClose"></div></details>
+      <details><summary>Floating close button</summary><div data-controls="projectClose"></div><details><summary>Button drop shadow</summary><div data-controls="projectCloseShadow"></div></details></details>
       <details><summary>Wave-bars loader</summary><div data-controls="projectLoader"></div><div class="ds-loader-preview"><span class="portfolio-wave-loader" role="status" aria-label="Loading preview">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span></div></details>
     </details>
     <details><summary>Navigation</summary><div data-controls="navShadow"></div></details>

@@ -8,9 +8,9 @@
     if(link.sheet)return Promise.resolve();
     return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261117-site9'),style('/assets/redesign-contact.css?v=20261117-refine6'),style('/assets/redesign-footer-contact.css?v=20261117-site9')]);
-  const runtime=import('/assets/site-runtime.js?v=20261117-refine6');
-  const headline=import('/assets/headline-view.js?v=20261117-refine6');
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261117-site9'),style('/assets/redesign-contact.css?v=20261117-polish2a'),style('/assets/redesign-footer-contact.css?v=20261117-site9')]);
+  const runtime=import('/assets/site-runtime.js?v=20261117-polish2a');
+  const headline=import('/assets/headline-view.js?v=20261117-polish2a');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let active=null,sequence=0;
   const footerMarkup='<div class="rd-footer-cta-inner"><div class="rd-footer-cta-row"><h2>Have something in mind?</h2><a class="rd-footer-cta-button" href="/contact">Let\'s make it <span aria-hidden="true">↗</span></a></div></div>';
@@ -55,7 +55,7 @@
     runtime.then(({siteAPI})=>state.frame.contentWindow?.postMessage({type:'portfolio-contact-settings',config:siteAPI.getConfig(),revision:siteAPI.revision},location.origin));
   }
   const previewMarkup=`<div class="rc-inline-contact-placeholder contact-redesign" aria-hidden="true"><section class="rc-contact">
-    <div class="rc-contact-copy"><div><p class="rd-eyebrow">Contact</p><h1></h1><p class="rc-contact-lede">Whether you need help with a single project, ongoing creative support, or someone to join your team, tell me what you're working toward and where I could help.</p></div><dl class="rc-contact-details"><div class="rc-contact-detail"><dt>Phone</dt><dd><span class="rc-placeholder-detail"></span></dd></div><div class="rc-contact-detail"><dt>Email</dt><dd><span class="rc-placeholder-detail"></span></dd></div></dl></div>
+    <div class="rc-contact-copy"><div><p class="rd-eyebrow">Contact</p><h1 data-headline-pending></h1><p class="rc-contact-lede">Whether you need help with a single project, ongoing creative support, or someone to join your team, tell me what you're working toward and where I could help.</p></div><dl class="rc-contact-details"><div class="rc-contact-detail"><dt>Phone</dt><dd><span class="rc-placeholder-detail"></span></dd></div><div class="rc-contact-detail"><dt>Email</dt><dd><span class="rc-placeholder-detail"></span></dd></div></dl></div>
     <div class="rc-form-wrap"><header class="rc-form-head"><h2>Tell me what you're looking for.</h2></header><div class="contact-form"><div class="form-field"><label>Your name *</label><input placeholder="Name" disabled></div><div class="form-field"><label>Your email *</label><input placeholder="Email" disabled></div><div class="form-field"><label>Message *</label><textarea placeholder="A project, an idea, an role on your team? I'm all ears!" disabled></textarea></div><div data-contact-turnstile></div><button class="portfolio-button" disabled>Start the conversation</button><p class="form-status"></p></div></div>
   </section></div>`;
   async function open(source){

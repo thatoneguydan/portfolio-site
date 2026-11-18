@@ -7,12 +7,12 @@ function installLogoInkAlignment(){
       const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;let left=canvas.width,right=0,top=canvas.height,bottom=0;
       for(let y=0;y<canvas.height;y++)for(let x=0;x<canvas.width;x++)if(data[(y*canvas.width+x)*4+3]>24){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}
       ink={x:left,y:top,w:right-left+1,h:bottom-top+1};bounds.set(image,ink);
-    }catch{return;}
+    }catch{cell.dataset.logoReady='true';return;}
     const compact=getComputedStyle(document.querySelector('.site-nav-toggle')||cell).display!=='none'&&innerWidth<=720;
     const crop={...ink,w:compact?ink.h:ink.w},available=compact?48:Math.min(205,Math.max(32,cell.clientWidth-48)),scale=Math.min(available/crop.w,48/crop.h);
     Object.assign(label.style,{display:'block',position:'relative',overflow:'hidden',width:crop.w*scale+'px',height:crop.h*scale+'px',flexBasis:'auto'});
     Object.assign(image.style,{position:'absolute',left:-crop.x*scale+'px',top:-crop.y*scale+'px',maxWidth:'none'});image.style.setProperty('width',image.naturalWidth*scale+'px','important');image.style.setProperty('height',image.naturalHeight*scale+'px','important');
-    cell.style.justifyContent='center';cell.dataset.logoInkBounds=[ink.x,ink.y,ink.w,ink.h].join(',');
+    cell.style.justifyContent='center';cell.dataset.logoInkBounds=[ink.x,ink.y,ink.w,ink.h].join(',');cell.dataset.logoReady='true';
   }
   for(const cell of cells){cell.querySelector('img')?.addEventListener('load',()=>align(cell));align(cell);}
   addEventListener('resize',()=>cells.forEach(align),{passive:true});
@@ -37,7 +37,8 @@ export function installSiteInteractions(){
     if(!target||reduced.matches)return;
     const value=getComputedStyle(target).scale,current=value==='none'?1:parseFloat(value)||1;
     motions.get(target)?.cancel();
-    const frames=down?[{scale:current},{scale:.955}]:[{scale:current},{scale:1.018,offset:.62},{scale:1}];
+    const nav=target.classList.contains('ds-nav-label');
+    const frames=down?[{scale:current},{scale:nav ? .82 : .955}]:[{scale:current},{scale:nav ? 1.055 : 1.018,offset:.62},{scale:1}];
     const animation=target.animate(frames,{duration:down?110:470,easing:down?'ease-out':'cubic-bezier(.2,.75,.25,1)',fill:down?'forwards':'none'});
     motions.set(target,animation);animation.finished.catch(()=>{}).then(()=>{if(!down&&motions.get(target)===animation){animation.cancel();motions.delete(target);}});
   }

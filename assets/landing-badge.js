@@ -1,7 +1,7 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-refine6';
-import {appendEmojiText} from './site-emoji.js?v=20261117-refine6';
-import {filledControlIcon} from './filled-controls.js?v=20261117-refine6';
-import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-refine6';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-polish2a';
+import {appendEmojiText} from './site-emoji.js?v=20261117-polish2a';
+import {filledControlIcon} from './filled-controls.js?v=20261117-polish2a';
+import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-polish2a';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');

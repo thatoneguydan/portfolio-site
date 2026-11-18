@@ -1,7 +1,7 @@
-import {defaults} from './landing-schema.js?v=20261117-refine6';
-import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-refine6';
-import {prepareProjectDocument} from './project-content.js?v=20261117-refine6';
-import {filledControlIcon} from './filled-controls.js?v=20261117-refine6';
+import {defaults} from './landing-schema.js?v=20261117-polish2a';
+import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-polish2a';
+import {prepareProjectDocument} from './project-content.js?v=20261117-polish2a';
+import {filledControlIcon} from './filled-controls.js?v=20261117-polish2a';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
 const panels=new Set(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const rgba=(hex,opacity)=>`rgba(${hex.match(/\w\w/g).map(s=>parseInt(s,16))},${opacity/100})`;
@@ -11,32 +11,40 @@ function variables(root){
   for(let i=1;i<=5;i++)values['loader-color-'+i]=config['projectLoaderColor'+i];
   for(const [key,value]of Object.entries(values))root.style.setProperty('--'+key,String(value));
   root.style.setProperty('--project-panel-shadow',config.projectPanelShadow?`drop-shadow(${config.projectShadowX}px ${config.projectShadowY}px ${config.projectShadowBlur}px ${rgba(config.projectShadowColor,config.projectShadowOpacity)})`:'none');root.style.setProperty('--nav-shadow-enabled',config.navShadow?'1':'0');
+  root.style.setProperty('--project-close-shadow',config.projectCloseShadow?`${config.projectCloseShadowX}px ${config.projectCloseShadowY}px ${config.projectCloseShadowBlur}px ${config.projectCloseShadowSpread}px ${rgba(config.projectCloseShadowColor,config.projectCloseShadowOpacity)}`:'none');
 }
 const maskCards=new Map();let panelSerial=0;
+function liftCaption(card,value){const before=card.style.getPropertyValue('--project-caption-lift');if(before===value)return;value?card.style.setProperty('--project-caption-lift',value):card.style.removeProperty('--project-caption-lift');card.dispatchEvent(new CustomEvent('portfolio-caption-position',{bubbles:true}));}
 function paintMasks(card){
   const record=maskCards.get(card);if(!record)return;
   if(!record.layers.size){
     for(const [property,value]of Object.entries(record.saved))card.style[property]=value;
-    maskCards.delete(card);return;
+    liftCaption(card,record.savedLift||'');maskCards.delete(card);return;
   }
   const gradients=[...record.layers.values()].map(({start,end,amount})=>{
     const alpha=(1-amount).toFixed(4);
     return `linear-gradient(to bottom,#000 ${start.toFixed(2)}px,rgba(0,0,0,${alpha}) ${end.toFixed(2)}px,rgba(0,0,0,${alpha}) 100%)`;
   }).join(',');
   card.style.maskImage=gradients;card.style.maskComposite='intersect';
+  const caption=card.querySelector('.rdp-project-meta');if(caption){const padding=Number.parseFloat(getComputedStyle(caption).paddingBottom)||24,bounds=[...caption.children].map(el=>el.getBoundingClientRect()).filter(r=>r.height>0),textHeight=bounds.length?Math.max(...bounds.map(r=>r.bottom))-Math.min(...bounds.map(r=>r.top)):0,maxLift=Math.max(0,card.clientHeight-textHeight-padding*2),lift=Math.min(maxLift,Math.max(0,...[...record.layers.values()].map(({start,amount})=>(card.clientHeight-padding-start+10)*amount)));liftCaption(card,lift.toFixed(2)+'px');}
 }
 function clearMasks(state){
   for(const card of state.masked){maskCards.get(card)?.layers.delete(state);paintMasks(card);}state.masked.clear();
+  for(const entry of state.retiringMasks||[]){maskCards.get(entry.card)?.layers.delete(entry.key);paintMasks(entry.card);}state.retiringMasks=[];
+}
+function retireMasks(state){
+  state.retiringMasks||=[];for(const card of state.masked){const record=maskCards.get(card),layer=record?.layers.get(state);if(!layer)continue;const key={};record.layers.delete(state);record.layers.set(key,layer);state.retiringMasks.push({card,key,layer,at:performance.now()});}state.masked.clear();
 }
 function updateMasks(state,sourceRect){
-  if(state.maskProgress<=0||!sourceRect){clearMasks(state);return;}
+  state.retiringMasks=(state.retiringMasks||[]).filter(entry=>{const record=maskCards.get(entry.card);if(!record)return false;const t=Math.min(1,(performance.now()-entry.at)/240);if(t===1)record.layers.delete(entry.key);else record.layers.set(entry.key,{...entry.layer,amount:entry.layer.amount*(1-t*t*(3-2*t))});paintMasks(entry.card);return t<1;});
+  if(state.maskProgress<=0||!sourceRect){for(const card of state.masked){maskCards.get(card)?.layers.delete(state);paintMasks(card);}state.masked.clear();return;}
   const grid=state.source.closest('.is-masonry,.ds-gallery');if(!grid){clearMasks(state);return;}
   const candidates=[...grid.children].filter(card=>card!==state.source&&card.matches('.rdp-project-card,.ds-panel')&&(grid.matches('.ds-gallery')||!!(card.compareDocumentPosition(state.shelf)&Node.DOCUMENT_POSITION_FOLLOWING)));
   const current=new Set();
   for(const card of candidates){
     const rect=card.getBoundingClientRect(),bounds=neighborMaskBounds(sourceRect,rect,grid.dataset.layout==='vertical');if(!bounds)continue;current.add(card);
     let record=maskCards.get(card);
-    if(!record){record={saved:{maskImage:card.style.maskImage,maskComposite:card.style.maskComposite},layers:new Map()};maskCards.set(card,record);}
+    if(!record){record={saved:{maskImage:card.style.maskImage,maskComposite:card.style.maskComposite},savedLift:card.style.getPropertyValue('--project-caption-lift'),layers:new Map()};maskCards.set(card,record);}
     record.layers.set(state,{...bounds,amount:state.maskProgress});paintMasks(card);
   }
   for(const card of state.masked)if(!current.has(card)){maskCards.get(card)?.layers.delete(state);paintMasks(card);}state.masked=current;
@@ -66,37 +74,49 @@ function surface(svg,width,height,center,state){
   }
 }
 function dispose(state){
-  state.observer.disconnect();state.mutation.disconnect();state.contentObserver?.disconnect();state.maskAnimation?.cancel();clearMasks(state);state.loading?.remove();panels.delete(state);
+  state.pending?.abort.abort();state.observer.disconnect();state.mutation.disconnect();state.contentObserver?.disconnect();state.maskAnimation?.cancel();clearMasks(state);state.loading?.remove();panels.delete(state);
 }
+function syncContent(state,content=state.content,inner=state.inner){
+  if(!content)return;variables(content.doc.documentElement);const padding=config.projectPanelSpacing,left=state.shelf.clientWidth-config.projectCloseRight-config.projectCloseSize-padding;
+  content.clearCloseButton({left,right:left+config.projectCloseSize,top:config.projectCloseTop-padding,bottom:config.projectCloseTop-padding+config.projectCloseSize});
+  inner.querySelector('.rdp-project-frame').style.height=content.height()+'px';
+}
+function observeContent(state){state.contentObserver?.disconnect();if(!state.content)return;state.contentObserver=new state.content.doc.defaultView.ResizeObserver(()=>measure(state));state.contentObserver.observe(state.content.main);}
+function trackPositions(duration){trackUntil=Math.max(trackUntil,performance.now()+duration);if(!trackFrame){const tick=now=>{for(const state of panels)position(state);trackFrame=now<trackUntil?requestAnimationFrame(tick):0;};trackFrame=requestAnimationFrame(tick);}}
 function position(state){
   const {shelf,source}=state;if(!shelf.isConnected){dispose(state);return;}
   const gallery=source?.closest('.ds-gallery');
   if(gallery){const sourceRect=source.getBoundingClientRect(),galleryRect=gallery.getBoundingClientRect();shelf.style.setProperty('margin-top',(sourceRect.bottom-galleryRect.bottom+14+config.projectPanelTailSize)+'px','important');shelf.style.marginBottom=Math.max(0,galleryRect.bottom-sourceRect.bottom-14-config.projectPanelTailSize-shelf.getBoundingClientRect().height)+'px';}
   if(shelf.parentElement.matches('.is-masonry')&&source?.isConnected){const grid=shelf.parentElement.getBoundingClientRect();shelf.style.top=(source.getBoundingClientRect().bottom-grid.top+14+config.projectPanelTailSize)+'px';}
-  const rect=shelf.getBoundingClientRect(),sourceRect=source?.getBoundingClientRect(),center=sourceRect?panelTailCenter(sourceRect,rect,config.projectPanelTailSize,config.projectPanelRadius):rect.width/2;
+  const rect=shelf.getBoundingClientRect(),sourceRect=source?.getBoundingClientRect();let center=sourceRect?panelTailCenter(sourceRect,rect,config.projectPanelTailSize,config.projectPanelRadius):rect.width/2;
+  if(state.tailBlend){const t=Math.min(1,(performance.now()-state.tailBlend.at)/400),ease=t*t*(3-2*t);center=state.tailBlend.from+(center-state.tailBlend.from)*ease;if(t===1)state.tailBlend=null;}state.tailCenter=center;
   if(rect.width&&rect.height>0){surface(state.back,rect.width,rect.height,center,state);surface(state.outline,rect.width,rect.height,center,state);}
   shelf.dataset.projectVisible=String(rect.height>.5);state.controls.hidden=!state.open||rect.height<config.projectCloseSize+Math.max(0,config.projectCloseTop)*2;
   shelf.style.setProperty('--project-nav-bottom',Math.max(0,document.querySelector('.site-header')?.getBoundingClientRect().bottom||0)+'px');
   updateMasks(state,sourceRect);
-  if(state.loading&&sourceRect){
-    const padding=Math.min(config.projectLoaderPadding,Math.max(12,(sourceRect.height-config.projectLoaderHeight)/2-12));
-    Object.assign(state.loading.style,{left:(sourceRect.left+sourceRect.width/2)+'px',top:(sourceRect.top+sourceRect.height/2)+'px',maxWidth:Math.max(48,sourceRect.width-20)+'px',padding:padding+'px 20px'});
-    state.loading.hidden=!state.open||state.allowed;
+  const loadingRect=state.pending?.source?.getBoundingClientRect()||sourceRect;
+  if(state.loading&&loadingRect){
+    const padding=Math.min(config.projectLoaderPadding,Math.max(8,(loadingRect.height-config.projectLoaderHeight)/2-8));
+    Object.assign(state.loading.style,{left:(loadingRect.left+loadingRect.width/2)+'px',top:(loadingRect.top+loadingRect.height/2)+'px',maxWidth:Math.max(48,loadingRect.width-20)+'px',padding:padding+'px 20px'});
+    state.loading.hidden=!state.open||(!state.pending&&state.allowed&&!state.loadingError);
   }
 }
 function finishClose(state){
   if(state.finishing||state.open)return;state.finishing=true;
-  setTimeout(()=>animateMask(state,0,reduced.matches?0:220).then(()=>{if(!state.open)state.shelf.dispatchEvent(new CustomEvent('portfolio-panel-closed'));}),reduced.matches?0:150);
+  Promise.resolve(state.closeMask).then(()=>{if(!state.open)state.shelf.dispatchEvent(new CustomEvent('portfolio-panel-closed'));});
 }
 function measure(state){
   if(!state.shelf.isConnected){dispose(state);return;}
-  if(state.content){const frame=state.shelf.querySelector('.rdp-project-frame'),height=state.content.height()+'px';if(frame.style.height!==height)frame.style.height=height;}
-  const {shelf,inner}=state;state.open=shelf.classList.contains('is-open');
+  if(state.content)syncContent(state);
+  const {shelf,inner}=state,wasOpen=state.open;state.open=shelf.classList.contains('is-open');
+  if(wasOpen&&!state.open){state.pending?.abort.abort();state.loadVersion++;state.closeMask=animateMask(state,0,360);}
   if(state.open&&state.ready&&!state.allowed&&!state.preparing){
     state.preparing=true;
     animateMask(state,config.projectEdgeFade?1:0,config.projectEdgeFade?180:0).then(()=>{if(!state.open||!shelf.isConnected)return;state.allowed=true;measure(state);state.content?.reveal();});
   }
-  const target=state.open&&state.ready&&state.allowed?Math.ceil(inner.getBoundingClientRect().height):0;
+  // The content plane can be proportionately scaled during a morph. Measure
+  // its settled layout box, never that currently painted transform.
+  const target=state.open&&state.ready&&state.allowed?inner.offsetHeight:0;
   if(state.target!==target){
     const from=shelf.getBoundingClientRect().height;state.target=target;state.motion?.cancel();state.motion=null;shelf.style.height=target+'px';
     if(!reduced.matches&&Math.abs(from-target)>.5){
@@ -115,25 +135,74 @@ function mount(shelf){
   const back=makeSurface('is-backing'),outline=makeSurface('is-outline'),controls=document.createElement('div');controls.className='portfolio-panel-controls';
   const button=document.createElement('button');button.type='button';button.className='portfolio-panel-close';button.setAttribute('aria-label','Close project');button.innerHTML=filledControlIcon('circle-x');controls.append(button);shelf.append(controls);
   const loading=shelf.querySelector('.rdp-project-loading');if(loading){loading.classList.add('portfolio-project-loading');loading.innerHTML=`<span class="portfolio-wave-loader" role="status" aria-label="Loading project">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span>`;document.body.append(loading);}
-  const frames=[...shelf.querySelectorAll('.rdp-project-frame')],state={shelf,source,inner,clip,back,outline,controls,loading,ready:!frames.length,allowed:false,preparing:false,target:null,open:shelf.classList.contains('is-open'),motion:null,observer:null,content:null,masked:new Set(),maskProgress:0};panels.add(state);
+  const frames=[...shelf.querySelectorAll('.rdp-project-frame')],state={shelf,source,inner,clip,back,outline,controls,loading,ready:!frames.length,allowed:false,preparing:false,target:null,open:shelf.classList.contains('is-open'),motion:null,observer:null,content:null,masked:new Set(),maskProgress:0,loadVersion:0,retiringMasks:[]};panels.add(state);
   button.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();if(shelf.matches('.rv-shelf-panel'))source?.click();else shelf.dispatchEvent(new CustomEvent('portfolio-panel-close'));});
-  state.observer=new ResizeObserver(entries=>{if(entries.some(e=>e.target===inner)&&state.ready)measure(state);position(state);});state.observer.observe(inner);state.observer.observe(shelf);if(source)state.observer.observe(source);
+  state.observer=new ResizeObserver(entries=>{if(entries.some(e=>e.target===state.inner)&&state.ready)measure(state);position(state);});state.observer.observe(inner);state.observer.observe(shelf);if(source)state.observer.observe(source);
   state.mutation=new MutationObserver(()=>measure(state));state.mutation.observe(shelf,{attributes:true,attributeFilter:['class']});
-  for(const frame of frames){let preparing=false;const prepare=async()=>{if(preparing||!shelf.isConnected||!frame.contentDocument?.querySelector('.site-main'))return;preparing=true;try{
-    variables(frame.contentDocument.documentElement);state.content=await prepareProjectDocument(frame);if(!shelf.isConnected)return;
+  for(const frame of frames){let preparing=false;const prepare=async()=>{if(preparing||!shelf.isConnected||!frame.contentDocument?.querySelector('.site-main'))return;preparing=true;const version=state.loadVersion;try{
+    variables(frame.contentDocument.documentElement);const content=await prepareProjectDocument(frame);if(!shelf.isConnected||version!==state.loadVersion)return;state.content=content;syncContent(state);
     frame.style.height=state.content.height()+'px';state.ready=true;shelf.dataset.projectReady='true';frame.style.visibility='';measure(state);
-    state.contentObserver?.disconnect();state.contentObserver=new frame.contentWindow.ResizeObserver(()=>{if(!shelf.isConnected)return;frame.style.height=state.content.height()+'px';measure(state);});state.contentObserver.observe(state.content.main);
+    observeContent(state);
   }catch(error){if(loading){loading.textContent='This project could not load. Close it and try again.';loading.setAttribute('role','status');}console.warn(error);}};
     frame.addEventListener('load',prepare);if(frame.contentDocument?.readyState==='complete'&&frame.contentDocument.querySelector('.site-main'))prepare();
   }measure(state);
 }
-export function applyProjectConfig(next){config={...defaults,...next};variables(document.documentElement);for(const state of panels){if(state.content){variables(state.content.doc.documentElement);state.shelf.querySelector('.rdp-project-frame').style.height=state.content.height()+'px';}if(state.allowed)animateMask(state,config.projectEdgeFade?1:0,180);measure(state);}document.dispatchEvent(new CustomEvent('portfolio-project-config'));}
+export function applyProjectConfig(next){config={...defaults,...next};variables(document.documentElement);for(const state of panels){if(state.content)syncContent(state);if(state.allowed)animateMask(state,config.projectEdgeFade?1:0,180);measure(state);}document.dispatchEvent(new CustomEvent('portfolio-project-config'));}
+function loaderFor(state){
+  const loading=state.loading||document.createElement('div');loading.className='rdp-project-loading portfolio-project-loading';loading.setAttribute('aria-label','Loading project');
+  loading.innerHTML=`<span class="portfolio-wave-loader" role="status" aria-label="Loading project">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span>`;if(!loading.isConnected)document.body.append(loading);state.loading=loading;return loading;
+}
+function abortable(promise,signal){return new Promise((resolve,reject)=>{const abort=()=>reject(new DOMException('Cancelled','AbortError'));if(signal.aborted)return abort();signal.addEventListener('abort',abort,{once:true});Promise.resolve(promise).then(resolve,reject).finally(()=>signal.removeEventListener('abort',abort));});}
+function frameLoaded(frame,signal,project=true){
+  return abortable(new Promise((resolve,reject)=>{
+    const done=()=>{if(project&&!frame.contentDocument?.querySelector('.site-main'))return;clearTimeout(timer);frame.removeEventListener('load',done);resolve();};
+    const timer=setTimeout(()=>{frame.removeEventListener('load',done);reject(Error('The project is taking too long to load.'));},15000);
+    signal.addEventListener('abort',()=>{clearTimeout(timer);frame.removeEventListener('load',done);},{once:true});frame.addEventListener('load',done);if(project)done();
+  }),signal);
+}
+export async function replaceProjectContent(shelf,{source,inner,title,onCommit}){
+  await Promise.resolve();let state=[...panels].find(item=>item.shelf===shelf);
+  if(!state){await new Promise(requestAnimationFrame);state=[...panels].find(item=>item.shelf===shelf);}
+  if(!state||!state.open||!shelf.isConnected)return false;
+  state.pending?.abort.abort();state.loadVersion++;
+  const pending={source,inner,abort:new AbortController()};state.pending=pending;state.loadingError=false;
+  const {signal}=pending.abort;inner.querySelector('.rdp-project-loading')?.remove();inner.classList.add('portfolio-panel-incoming');inner.inert=true;inner.setAttribute('aria-hidden','true');state.clip.append(inner);loaderFor(state);position(state);
+  try{
+    const frame=inner.querySelector('.rdp-project-frame');let content=null;
+    if(frame){
+      await frameLoaded(frame,signal);variables(frame.contentDocument.documentElement);content=await abortable(prepareProjectDocument(frame),signal);syncContent(state,content,inner);
+      const hero=content.main.querySelector('img');if(hero){hero.loading='eager';if(hero.decode)await abortable(hero.decode().catch(()=>{}),signal);}
+      frame.style.visibility='';
+    }else{const player=inner.querySelector('.portfolio-inline-video>iframe');if(player)await frameLoaded(player,signal,false);}
+    if(signal.aborted||state.pending!==pending||!state.open||!shelf.isConnected)return false;
+    const oldInner=state.inner,oldRect=shelf.getBoundingClientRect(),fromCenter=state.tailCenter,visible=oldRect.height>1;
+    state.contentObserver?.disconnect();state.observer.unobserve(oldInner);state.observer.unobserve(state.source);
+    retireMasks(state);state.maskProgress=0;state.source=source;shelf.dataset.projectSource=source.id;shelf.setAttribute('aria-label',title+' details');state.tailBlend={from:fromCenter,at:performance.now()};
+    Object.assign(oldInner.style,{position:'absolute',left:'0',top:'0',width:oldInner.getBoundingClientRect().width+'px',boxSizing:'border-box',pointerEvents:'none'});oldInner.inert=true;oldInner.setAttribute('aria-hidden','true');
+    inner.classList.remove('portfolio-panel-incoming');inner.inert=false;inner.removeAttribute('aria-hidden');inner.style.width=state.clip.getBoundingClientRect().width+'px';
+    state.inner=inner;state.content=content;state.ready=true;state.pending=null;state.preparing=visible;state.allowed=visible;shelf.dataset.projectReady='true';
+    state.observer.observe(inner);state.observer.observe(source);observeContent(state);onCommit?.();
+    measure(state);content?.reveal();if(visible)animateMask(state,config.projectEdgeFade?1:0,240);trackPositions(Math.max(650,config.galleryDuration,config.verticalGalleryDuration)+100);
+    const delta=oldRect.top-shelf.getBoundingClientRect().top;
+    const options={duration:reduced.matches?0:360,easing:'cubic-bezier(.2,.75,.2,1)',fill:'both'},oldStyle=getComputedStyle(oldInner);
+    const motions=reduced.matches?[]:[oldInner.animate([{opacity:oldStyle.opacity,transform:oldStyle.transform},{opacity:0,transform:'translateY(-10px) scale(.985)'}],options),inner.animate([{opacity:0,transform:'translateY(10px) scale(.985)'},{opacity:1,transform:'none'}],options)];
+    if(!reduced.matches&&Math.abs(delta)>1)motions.push(shelf.animate([{translate:`0px ${delta}px`},{translate:'0px 0px'}],options));
+    await Promise.all(motions.map(motion=>motion.finished.catch(()=>{})));motions.forEach(motion=>motion.cancel());
+    oldInner.querySelectorAll('iframe').forEach(frame=>frame.src='about:blank');oldInner.remove();if(state.inner===inner){inner.style.width='';measure(state);}return true;
+  }catch(error){
+    if(error.name!=='AbortError'&&state.pending===pending){state.loadingError=true;loaderFor(state).textContent='This project could not load. Choose it again to retry.';console.warn(error);}
+    return false;
+  }finally{
+    if(state.inner!==inner){inner.querySelectorAll('iframe').forEach(frame=>frame.src='about:blank');inner.remove();}
+    if(state.pending===pending){state.pending=null;position(state);}
+  }
+}
 export function installProjectPanels(){
   if(installed)return;installed=true;variables(document.documentElement);
   const discover=root=>{if(root.nodeType!==1&&root.nodeType!==9)return;const selector='.rdp-project-shelf,.rv-shelf-panel';if(root.matches?.(selector))mount(root);root.querySelectorAll(selector).forEach(mount);};
   discover(document);new MutationObserver(records=>{for(const r of records)for(const node of r.addedNodes)discover(node);for(const state of panels)if(!state.shelf.isConnected)dispose(state);}).observe(document.body,{childList:true,subtree:true});
   addEventListener('scroll',()=>{for(const state of panels)position(state);},{passive:true});
-  addEventListener('resize',()=>{for(const state of panels){if(state.content)state.shelf.querySelector('.rdp-project-frame').style.height=state.content.height()+'px';measure(state);}},{passive:true});
+  addEventListener('resize',()=>{for(const state of panels)measure(state);},{passive:true});
   document.addEventListener('portfolio-masonry-motion',()=>{for(const state of panels)position(state);});
-  document.addEventListener('transitionrun',event=>{if(!event.target.closest('.ds-gallery'))return;trackUntil=performance.now()+Math.max(config.galleryDuration,config.verticalGalleryDuration)+100;if(!trackFrame){const track=now=>{for(const state of panels)position(state);trackFrame=now<trackUntil?requestAnimationFrame(track):0;};trackFrame=requestAnimationFrame(track);}});
+  document.addEventListener('transitionrun',event=>{if(event.target.closest('.ds-gallery'))trackPositions(Math.max(config.galleryDuration,config.verticalGalleryDuration)+100);});
 }

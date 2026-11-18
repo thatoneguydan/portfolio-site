@@ -1,6 +1,9 @@
 /* Critical navigation geometry. Loaded synchronously on redesign entry pages so
    the logo cell has its final dimensions before first paint. */
 
+html.portfolio-js .site-header .site-logo:not([data-logo-ready=true]) img{visibility:hidden}
+html.portfolio-js [data-headline-pending]{visibility:hidden!important}
+
 html {
   scrollbar-gutter: stable;
   overflow-x: clip;
@@ -66,5 +69,15 @@ html {
     max-width: none !important;
     height: auto !important;
   }
+}
+
+/* Apply the compact silhouette before the deferred menu controller runs. */
+@media(max-width:720px){
+  .home-redesign .site-header{position:sticky;isolation:isolate;overflow:visible;border-left:1px solid #1112;border-right:1px solid #1112}
+  .home-redesign .site-header .site-logo{width:80px!important;min-width:80px!important;max-width:80px!important;flex:0 0 80px!important;padding:0 16px!important;box-sizing:border-box;justify-content:center;background:transparent!important}
+  .home-redesign .site-header .site-logo::before,.home-redesign .site-header .site-logo::after{display:none!important}
+  .home-redesign .site-header .site-logo img{filter:none!important}
+  .home-redesign .site-header .site-logo[aria-current=page]{box-shadow:inset 0 -3px #111}
+  .home-redesign .site-header .site-nav{position:absolute;top:100%!important;bottom:auto!important;left:-1px;right:-1px;height:auto!important;min-height:0;opacity:0;visibility:hidden;pointer-events:none}
 }
 

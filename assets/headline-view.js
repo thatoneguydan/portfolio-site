@@ -1,6 +1,6 @@
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-refine6';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-refine6';
-import {headlineSettings} from './landing-schema.js?v=20261117-refine6';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-polish2a';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-polish2a';
+import {headlineSettings} from './landing-schema.js?v=20261117-polish2a';
 
 export function revealOffset(clipHeight,glyphHeight,fontSize,direction){
   return Math.sign(direction)*(Math.max(clipHeight,glyphHeight)+fontSize*.6+2);
@@ -14,8 +14,8 @@ export function revealFrames(start,duration,unit='%'){
 
 export function mountHeadline(h1,scope,initial){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let config,signature='',animations=[],rotator=null,fitFrame=0;
-  h1.classList.add('ds-authored-reveal');h1.dataset.headlineScope=scope;
+  let config,signature='',animations=[],rotator=null,fitFrame=0,initialFrame=0;
+  h1.setAttribute('data-headline-pending','');h1.classList.add('ds-authored-reveal');h1.dataset.headlineScope=scope;
   function fit(){
     fitFrame=0;if(!config)return;
     const available=Math.max(1,h1.parentElement.clientWidth-8);
@@ -75,6 +75,6 @@ export function mountHeadline(h1,scope,initial){
     fit();if(animate)replay();else if(!h1.hasAttribute('data-headline-pending'))rotator?.start();
   }
   const observer=new ResizeObserver(()=>{if(!fitFrame)fitFrame=requestAnimationFrame(fit);});observer.observe(h1.parentElement);
-  update(initial);
-  return {update,replay,destroy(){observer.disconnect();cancelAnimationFrame(fitFrame);animations.forEach(a=>a.cancel());rotator?.destroy();}};
+  update(initial);initialFrame=requestAnimationFrame(()=>{initialFrame=0;replay();});
+  return {update,replay,destroy(){observer.disconnect();cancelAnimationFrame(initialFrame);cancelAnimationFrame(fitFrame);animations.forEach(a=>a.cancel());rotator?.destroy();}};
 }
