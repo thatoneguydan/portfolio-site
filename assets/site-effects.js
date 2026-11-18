@@ -1,13 +1,13 @@
 import {installAuthoredEmoji} from './site-emoji.js?v=20261118-perf1';
 import {setPaletteSaturation} from './palette-glyph.js?v=20261117-navlab1';
-import {defaults} from './landing-schema.js?v=20261118-featured1';
+import {defaults} from './landing-schema.js?v=20261118-tune2';
 import {installSettledShelfText} from './settled-text.js';
 import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261118-featured1';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-perf1';
-import './site-runtime.js?v=20261118-perf1';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-tune2';
+import './site-runtime.js?v=20261118-tune2';
 import {installSiteInteractions} from './site-interactions.js?v=20261118-perf1';
-import {installProjectViews} from './project-views.js?v=20261118-perf1';
-import {installImageViewer} from './image-viewer.js?v=20261118-perf1';
+import {installProjectViews} from './project-views.js?v=20261118-tune2';
+import {installImageViewer} from './image-viewer.js?v=20261118-tune2';
 
 const href='/assets/site-effects.css?v=20261118-featured1';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');

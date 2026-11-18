@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261118-featured1';
+import {defaults} from './landing-schema.js?v=20261118-tune2';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
@@ -196,7 +196,7 @@ function frameReady(frame,signal,project,timeout=15000){
 }
 async function prepareFrame(frame,signal,timeout){
   const [{prepareProjectDocument}]=await Promise.all([
-    import('./project-content.js?v=20261118-perf1'),
+    import('./project-content.js?v=20261118-tune2'),
     frameReady(frame,signal,true,timeout)
   ]);
   if(signal.aborted)throw new DOMException('Cancelled','AbortError');

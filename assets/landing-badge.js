@@ -179,7 +179,6 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     ticket.setAttribute('aria-label',`${config.ticketName}: ID badge`);
     activation.setAttribute('aria-label',`${config.ticketName}: open ID badge`);
     activation.hidden=opened||busy;dragPlane.hidden=!opened||busy;
-    dialog.style.setProperty('--badge-blur',config.badgeBackdropBlur+'px');
   }
   function sizeCarrier(geometry){
     carrier.style.width=geometry.width+'px';carrier.style.height=geometry.height+'px';carrier.dataset.scale=geometry.scale;paint();
@@ -230,7 +229,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     // Oversized IDs may use the space above the text. Only add headroom when
     // the stage would cross the hero's boundary into the site navigation.
     const headroom=Math.max(0,-stageOffset-parseFloat(getComputedStyle(hero).paddingTop));
-    hero.style.setProperty('--id-stage-offset',stageOffset+'px');
+    hero.style.setProperty('--id-stage-offset',(stageOffset+(config.ticketVerticalOffset||0))+'px');
     hero.style.setProperty('--id-headroom',headroom+'px');
   }
   const introObserver=new ResizeObserver(alignFullID);
@@ -251,7 +250,10 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
       const textRect=h1.getBoundingClientRect(),line=h1.children[Number(h1.dataset.longestLine)]||h1;
       const lineHeight=parseFloat(getComputedStyle(h1).lineHeight);
       compactGeometry=compactBadge(lineHeight,line.getBoundingClientRect().top-textRect.top,config.badgeOverlap,config.badgeCompactScale);
-      hero.style.setProperty('--badge-top',(textRect.top-hero.getBoundingClientRect().top-compactGeometry.lift)+'px');
+      // A centered badge is positioned in the intro's grid area, so both
+      // move together when the available space above Featured changes.
+      const anchor=hero.classList.contains('is-centered')?intro:hero;
+      hero.style.setProperty('--badge-top',(textRect.top-anchor.getBoundingClientRect().top-compactGeometry.lift)+'px');
     }
     hero.style.setProperty('--badge-compact-width',(compactGeometry?.width||0)+'px');
     const style=getComputedStyle(ticketStage),available=Math.max(1,ticketStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight));

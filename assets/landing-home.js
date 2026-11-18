@@ -1,34 +1,18 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-featured1';
-import {createBadge} from './landing-badge.js?v=20261118-perf1';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-tune2';
+import {createBadge} from './landing-badge.js?v=20261118-tune2';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-perf1';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-tune2';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-featured1';
-import {siteReady} from './site-runtime.js?v=20261118-perf1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-perf1';
+import {siteReady} from './site-runtime.js?v=20261118-tune2';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-tune2';
+import {mountFeaturedHeading} from './featured-heading.js?v=20261118-tune2';
+import {createDotIndicator} from './dot-indicator.js?v=20261118-tune2';
 (async() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
   const api=await siteReady,config=api.getConfig();
   const featured=root.querySelector('#featured-work');
-  const featuredHeading=featured.querySelector('#featured-heading');
-  function applyFeaturedHeading(){
-    const text=config.featuredHeading;
-    if(featuredHeading.dataset.authoredCopy!==text){
-      featuredHeading.dataset.authoredCopy=text;
-      if(featuredHeading.textContent!==text)featuredHeading.textContent=text;
-    }
-    featuredHeading.hidden=!text.trim();
-    if(featuredHeading.hidden){
-      featured.removeAttribute('aria-labelledby');
-      featured.setAttribute('aria-label','Featured work');
-    }else{
-      featured.setAttribute('aria-labelledby',featuredHeading.id);
-      featured.removeAttribute('aria-label');
-    }
-    featuredHeading.style.setProperty('--featured-heading-size',config.featuredHeadingSize);
-    featuredHeading.style.setProperty('--featured-heading-weight',config.featuredHeadingWeight);
-    featuredHeading.style.setProperty('--featured-heading-gap',config.featuredHeadingGap+'px');
-  }
+  const featuredTitle=mountFeaturedHeading(featured.querySelector('#featured-heading'),featured);
   const h1=root.querySelector('.ds-reveal'),intro=root.querySelector('.ds-intro');
   const hero=root.querySelector('.ds-hero'),cta=intro.querySelector('.ds-contact');
   // The reference composition has a 920 CSS-pixel content area inside the site gutters.
@@ -51,7 +35,9 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-perf1';
     hero.style.setProperty('--hero-width-scale',fullHeroScale());
     root.style.setProperty('--hero-cta-offset',config.heroCtaOffset+'px');
     root.style.setProperty('--hero-featured-spacing',config.heroFeaturedSpacing/100);
+    root.style.setProperty('--featured-anchor-offset',config.heroFeaturedAnchorOffset+'px');
     root.classList.toggle('featured-below-fold',config.heroFeaturedBelowFold);
+    hero.classList.toggle('is-centered',config.heroCenterVertically);
     measureLandingOrigin();
   }
   const ticket=root.querySelector('.ds-ticket'),ticketStage=root.querySelector('.ds-ticket-stage');
@@ -143,6 +129,7 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-perf1';
   }
   const dots=document.createElement('nav');
   dots.className='ds-gallery-dots';dots.setAttribute('aria-label','Choose a featured project');
+  const setActiveDot=createDotIndicator(dots);
   const dotButtons=panels.map((panel,i)=>{
     const button=document.createElement('button');
     button.type='button';button.dataset.index=String(i);
@@ -173,6 +160,7 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-perf1';
       dotButtons[i].setAttribute('aria-current',String(active));
       dotButtons[i].tabIndex=active?0:-1;
     });
+    setActiveDot(dotButtons[config.activeIndex]);
     updateCaptions();
   }
   function updateCaptions(){
@@ -201,7 +189,7 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-perf1';
   }
 
   const badge=createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale});
-  function render(){applyHeroLayout();applyFeaturedHeading();renderText();renderGallery();badge.update();document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));}
+  function render(){applyHeroLayout();featuredTitle.update(config);renderText();renderGallery();badge.update();document.dispatchEvent(new CustomEvent('portfolio-appearance',{detail:{...config}}));}
 
   function commitDot(index){
     const target=panels[index],section=gallery.closest('#featured-work');
@@ -275,7 +263,7 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-perf1';
   };
   addEventListener('resize',resize);
   new ResizeObserver(()=>{if(root.clientWidth!==lastRootWidth)resize();}).observe(root);
-  addEventListener('pagehide',event=>{if(event.persisted)return;headerObserver.disconnect();badge.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
+  addEventListener('pagehide',event=>{if(event.persisted)return;headerObserver.disconnect();badge.destroy();featuredTitle.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
   window.portfolioLanding=api;
   api.register({update(next){Object.assign(config,next);render();},replay});
   const restored=panels.findIndex(panel=>panel.classList.contains('is-active'));

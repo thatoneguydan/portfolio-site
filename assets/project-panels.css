@@ -71,8 +71,7 @@
 .portfolio-image-viewer [aria-disabled=true]{opacity:.55}
 .portfolio-viewer-dots{display:flex;gap:0;align-items:center;justify-content:center;max-width:calc(100vw - 100px);overflow:auto;pointer-events:auto;touch-action:none;padding:5px;border-radius:40px;background:#373b3566}
 .portfolio-viewer-dots button{position:relative;display:block;flex:0 0 20px;width:20px;height:20px;background:none;padding:0;border:0;border-radius:50%;cursor:pointer}
-.portfolio-viewer-dots button::after{content:'';position:absolute;inset:7px;border-radius:50%;background:#f5f5f280;transition:background 180ms,transform 180ms}
-.portfolio-viewer-dots button.is-current::after{background:#f5f5f2;transform:scale(1.4)}
+.portfolio-viewer-dots button::after{content:'';position:absolute;inset:7px;border-radius:50%;background:#a4a4a4}
 @media(prefers-reduced-motion:reduce){.portfolio-panel-surface,.portfolio-panel-edge-fade,.portfolio-viewer-blur,.portfolio-image-viewer{transition:none!important}}
 
 /* Filter the path inside a padded user-space region, never an SVG viewport. */
@@ -95,10 +94,24 @@
 .portfolio-viewer-photo{overflow:hidden;border-radius:8px;touch-action:none}
 .portfolio-image-viewer .portfolio-lightbox__image{border:0}
 .portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close){transform:none}
-.portfolio-viewer-dots{max-width:calc(100vw - 148px);background:#fff;box-shadow:0 3px 12px #0002}
-.portfolio-viewer-dots button::after{background:#a4a4a4}
-.portfolio-viewer-dots button.is-current::after{background:#111}
+.portfolio-viewer-dots{--dot-ink:#111;max-width:calc(100vw - 148px);background:#fff;box-shadow:0 3px 12px #0002}
 .portfolio-viewer-dots{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3}
+.portfolio-dot-indicator {
+  position:absolute;top:50%;width:8.4px;height:8.4px;transform:translateY(-50%);
+  border-radius:999px;background:var(--dot-ink);pointer-events:none;
+}
+:is(.ds-gallery-dots,.portfolio-viewer-dots) button {
+  position:relative;outline:none;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+:is(.ds-gallery-dots,.portfolio-viewer-dots) button:focus-visible::before {
+  content:'';position:absolute;top:calc(50% + 6px);left:50%;width:10px;height:2px;
+  transform:translateX(-50%);border-radius:2px;background:var(--dot-ink);pointer-events:none;
+}
+@media(forced-colors:active) {
+  .portfolio-dot-indicator,:is(.ds-gallery-dots,.portfolio-viewer-dots) button:focus-visible::before {
+    forced-color-adjust:none;background:Highlight;
+  }
+}
 .portfolio-image-viewer.portfolio-lightbox{padding-bottom:86px}
 .portfolio-panel-close::before{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;box-shadow:var(--project-close-shadow,none);pointer-events:none}
 .portfolio-project-panel .portfolio-panel-incoming{position:absolute!important;left:0;top:0;width:100%;visibility:hidden;opacity:0;pointer-events:none}

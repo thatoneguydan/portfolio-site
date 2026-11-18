@@ -16,6 +16,8 @@ export const defaults = {
   "heroCtaOffset": 0,
   "heroFeaturedSpacing": 100,
   "heroFeaturedBelowFold": false,
+  "heroFeaturedAnchorOffset": 0,
+  "heroCenterVertically": false,
   "rotateEnabled": true,
   "rotateTarget": "3:3",
   "rotateWords": "GREAT, CLEAR, MEMORABLE",
@@ -176,6 +178,11 @@ export const defaults = {
   "featuredHeadingSize": 40,
   "featuredHeadingWeight": 700,
   "featuredHeadingGap": 25,
+  "featuredHeadingAlign": "left",
+  "featuredRotateEnabled": false,
+  "featuredRotateStart": 0,
+  "featuredRotateEnd": 0,
+  "featuredRotateWords": "",
   "galleryHeight": 320,
   "galleryAdaptive": true,
   "expandRatio": 52,
@@ -201,6 +208,7 @@ export const defaults = {
   "badgeHoverScale": 1.04,
   "badgeMorphDuration": 520,
   "badgeBackdropBlur": 10,
+  "ticketVerticalOffset": 0,
   "badgeOverlap": 32,
   "badgeIdleTilt": true,
   "badgeIdleAngle": 1.1,
@@ -225,7 +233,9 @@ export const controlGroups = {
       ['range','heroCtaScale','Button size',40,200,1,'%'],
       ['range','heroCtaOffset','Button vertical offset',-160,320,1,'px'],
       ['range','heroFeaturedSpacing','Space before Featured work',0,400,1,'%'],
-      ['check','heroFeaturedBelowFold','Start Featured work below the first screen']
+      ['check','heroFeaturedBelowFold','Anchor Featured work to the bottom of the first screen'],
+      ['range','heroFeaturedAnchorOffset','Offset from bottom of first screen',-600,600,1,'px'],
+      ['check','heroCenterVertically','Center the hero vertically']
     ],
     landingHierarchy: [
       ['range','heroIntroLines','Introductory lines',0,5,1,''],
@@ -323,13 +333,13 @@ export const controlGroups = {
       ['check','badgeLinkNavBreakpoint','Match hamburger-menu breakpoint'],
       ['range','badgeBreakpoint','Custom badge breakpoint',320,1800,10,'px'],
       ['range','badgeCompactScale','Photo badge scale',.4,1.6,.01,'×'],
-      ['range','badgeOverlap','Headline overlap',10,80,1,'%']
+      ['range','badgeOverlap','Headline overlap',10,80,1,'%'],
+      ['range','ticketVerticalOffset','Full ID vertical offset',-400,400,1,'px']
     ],
     badgeFullscreen: [
       ['range','badgeExpandedWidth','Expanded width',50,98,1,'%'],
       ['range','badgeExpandedHeight','Expanded height limit',50,94,1,'%'],
-      ['range','badgeMorphDuration','Open / close duration',200,1000,20,'ms'],
-      ['range','badgeBackdropBlur','Background blur',0,24,1,'px']
+      ['range','badgeMorphDuration','Open / close duration',200,1000,20,'ms']
     ],
     badgeIdle: [
       ['check','badgeIdleTilt','Subtle idle tilt'],
@@ -348,8 +358,10 @@ export const controlGroups = {
     featuredHeading: [
       ['range','featuredHeadingSize','Heading size at a 1000px content width',12,160,1,'px'],
       ['range','featuredHeadingWeight','Heading weight',100,1000,10,''],
-      ['range','featuredHeadingGap','Space before carousel',0,200,1,'px']
+      ['range','featuredHeadingGap','Space before carousel',0,200,1,'px'],
+      ['select','featuredHeadingAlign','Heading alignment',['left','center','right','justify']]
     ],
+    featuredRotation: [['check','featuredRotateEnabled','Cycle words or phrases']],
     gallery: [
       ['check','galleryAdaptive','Responsive 16:9 height'],
       ['range','galleryHeight','Manual gallery height',240,500,1,'px'], ['range','expandRatio','Base expanded width',35,75,1,'%'],
@@ -485,12 +497,21 @@ export function normalizeSettings(input, base = defaults) {
     if(type==='select'&&!min.some(v=>(Array.isArray(v)?v[0]:v)===result[key]))throw new Error('Invalid choice: '+key);
   }
   result.activeIndex=Math.max(0,Math.min(4,Math.round(result.activeIndex)));
+  const rotationEntries=['featuredRotateWords'];
   for(const scope of ['',...headlineScopes]){
     result[scopedKey(scope,'lineCount')]=Math.round(result[scopedKey(scope,'lineCount')]);
     if(!/^[1-6]:\d{1,3}$/.test(result[scopedKey(scope,'rotateTarget')]))throw new Error('Choose a valid rotating word.');
-    const entries=result[scopedKey(scope,'rotateWords')].split(',').map(s=>s.trim()).filter(Boolean);
+    rotationEntries.push(scopedKey(scope,'rotateWords'));
+  }
+  for(const key of rotationEntries){
+    const entries=result[key].split(',').map(s=>s.trim()).filter(Boolean);
     if(entries.length>50)throw new Error('Use up to 50 comma-separated words or phrases.');
     if(entries.some(s=>s.length>100))throw new Error('Keep each rotating entry within 100 characters.');
   }
+  for(const key of ['featuredRotateStart','featuredRotateEnd']){
+    result[key]=Math.max(0,Math.min(1999,Math.round(result[key])));
+  }
+  result.featuredRotateEnd=Math.max(result.featuredRotateStart,result.featuredRotateEnd);
+  result.badgeBackdropBlur=Math.max(0,Math.min(24,result.badgeBackdropBlur));
   return result;
 }

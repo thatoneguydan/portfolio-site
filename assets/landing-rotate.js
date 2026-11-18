@@ -22,20 +22,45 @@ export function accessibleHeadline(config){
     }).join('');
   }).join(' ');
 }
-export function createTextRotation(host,config,{suffix='',dynamicWidth=false}={}){
+export function createTextRotation(host,config,{suffix='',dynamicWidth=false,wrapEntries=false}={}){
   const words=rotationWords(config).map(word=>suffix&&!word.endsWith(suffix)?word+suffix:word),reduced=matchMedia('(prefers-reduced-motion: reduce)');
   host.classList.add('ds-rotate');
-  const measures=[];for(const word of words){const measure=document.createElement('span');measure.className='ds-rotate-measure';appendEmojiText(measure,word);host.append(measure);measures.push(measure);}
+  const measures=wrapEntries?[]:words.map(word=>{
+    const measure=document.createElement('span');
+    measure.className='ds-rotate-measure';
+    appendEmojiText(measure,word);
+    host.append(measure);
+    return measure;
+  });
   if(dynamicWidth){host.classList.add('ds-rotate-dynamic');const sizer=document.createElement('span');sizer.className='ds-rotate-sizer';sizer.textContent='Ag';host.append(sizer);}
   const clip=document.createElement('span');clip.className='ds-rotate-clip';host.append(clip);
   let index=0,timer=0,visible=false,running=false,destroyed=false,notBefore=0,animations=[],generation=0,widthMotion=null;
   const measureWidth=i=>measures[i]?.getBoundingClientRect().width||0;
-  function syncWidth(){if(!dynamicWidth)return;widthMotion?.cancel();widthMotion=null;host.style.width=measureWidth(index)+'px';}
-  function prepareFit(){if(!dynamicWidth)return;widthMotion?.cancel();widthMotion=null;host.style.width=Math.max(...measures.map((_,i)=>measureWidth(i)))+'px';}
+  function setEntrySize(){
+    // A wrapping entry measures itself at its final line width. Outgoing
+    // entries keep their settled size while the host follows the new one.
+    if(wrapEntries)current.style.removeProperty('width');
+    const size=(wrapEntries?current:measures[index]).getBoundingClientRect();
+    host.style.width=size.width+'px';
+    if(wrapEntries){
+      current.style.width=size.width+'px';
+      host.style.height=size.height+'px';
+    }
+    return size;
+  }
+  function syncWidth(){if(!dynamicWidth)return;widthMotion?.cancel();widthMotion=null;setEntrySize();}
+  function prepareFit(){if(!dynamicWidth||wrapEntries)return;widthMotion?.cancel();widthMotion=null;host.style.width=Math.max(...measures.map((_,i)=>measureWidth(i)))+'px';}
   function morphWidth(){
-    if(!dynamicWidth)return;const from=host.getBoundingClientRect().width,to=measureWidth(index);
-    widthMotion?.cancel();host.style.width=to+'px';
-    if(!reduced.matches){const motion=host.animate([{width:from+'px'},{width:to+'px'}],{duration:config.rotateDuration,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});widthMotion=motion;motion.finished.catch(()=>{}).then(()=>{if(widthMotion===motion){motion.cancel();widthMotion=null;}});}
+    if(!dynamicWidth)return;
+    const previous=host.getBoundingClientRect();
+    widthMotion?.cancel();
+    const settled=setEntrySize();
+    if(!reduced.matches){
+      const size=box=>wrapEntries?{width:box.width+'px',height:box.height+'px'}:{width:box.width+'px'};
+      const motion=host.animate([size(previous),size(settled)],{duration:config.rotateDuration,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});
+      widthMotion=motion;
+      motion.finished.catch(()=>{}).then(()=>{if(widthMotion===motion){motion.cancel();widthMotion=null;}});
+    }
   }
   function entry(text){
     const el=document.createElement('span');el.className='ds-rotate-entry';

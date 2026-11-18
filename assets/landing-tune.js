@@ -1,5 +1,6 @@
-import {targetChoices,rotationWords} from './landing-rotate.js?v=20261118-perf1';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-featured1';
+import {targetChoices,rotationWords} from './landing-rotate.js?v=20261118-tune2';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-tune2';
+import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261118-tune2';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-navlab1';document.head.append(stylesheet);
@@ -48,7 +49,11 @@ export function mountTune(api){
       <details><summary>Idle tilt</summary><div data-controls="badgeIdle"></div></details>
     </details>
     <details><summary>Featured work</summary>
-      <details open><summary>Section heading</summary><div class="ds-edit-fields"><label>Heading text<input name="featuredHeading" type="text" aria-label="Featured work heading text"></label></div><div data-controls="featuredHeading"></div></details>
+      <details open><summary>Section heading</summary>
+        <div class="ds-edit-fields"><label>Heading text<input name="featuredHeading" type="text" aria-label="Featured work heading text"></label></div>
+        <div data-controls="featuredHeading"></div>
+        <details><summary>Rotating text</summary><div data-controls="featuredRotation"></div><div data-featured-rotation-editor></div></details>
+      </details>
       <details><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
       <details><summary>Vertical gallery</summary><div data-controls="galleryVertical"></div></details>
     </details>
@@ -73,12 +78,16 @@ export function mountTune(api){
   let placementFrame=0,launcherPosition=saved.launcherPosition||null,visibleViewport=null,drag=null,suppressToggleUntil=0,liveTimer=0;
   let saveTimer=0,pending=null,saving=false,lastQueued=JSON.stringify(config);
   const status=configPanel.querySelector('.ds-config-status');
+  const refreshFeaturedRotation=mountFeaturedRotationEditor(configPanel.querySelector('[data-featured-rotation-editor]'),config,changes=>{
+    try{Object.assign(config,normalizeSettings(changes,config));render();persist();return '';}
+    catch(error){status.textContent=error.message;return error.message;}
+  });
   const colorKeys=Object.values(controlGroups).flat().filter(field=>field[0]==='color').map(field=>field[1]);
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const replay=()=>api.replay();
   function render(){
-    api.applyConfig(config);updateTextEditors();updateEntranceLabel();
+    api.applyConfig(config);updateTextEditors();updateEntranceLabel();refreshFeaturedRotation();
     configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>{if(document.activeElement!==input)input.value=config[input.name];});
   }
   async function flush(){
@@ -120,6 +129,7 @@ export function mountTune(api){
     output.textContent=n===0?'Before line 1':n===config.lineCount+1?'After last line':Number.isInteger(n)?'With line '+n:n<1?'Before line 1':n>config.lineCount?'During line '+config.lineCount:`Between lines ${Math.floor(n)}–${Math.ceil(n)}`;
   }
   function optionDisabled(key) {
+    if(key==='heroFeaturedAnchorOffset')return !config.heroFeaturedBelowFold;
     if(key==='galleryHeight')return config.galleryAdaptive;
     if(key==='verticalGalleryHeight')return config.verticalGalleryAdaptive;
     if(key==='badgeLinkNavBreakpoint')return !config.ticketResponsive;
@@ -148,7 +158,7 @@ export function mountTune(api){
       return `<label>${label}<select aria-label="${label}" data-option="${key}"${disabled}>${min.map(option=>{const [value,text]=Array.isArray(option)?option:[option,option[0].toUpperCase()+option.slice(1)];return `<option value="${escapeHtml(value)}"${config[key]===value?' selected':''}>${text}</option>`;}).join('')}</select></label>`;
     }).join('');
     }
-    updateTextEditors();updateEntranceLabel();schedulePlacement();
+    updateTextEditors();updateEntranceLabel();refreshFeaturedRotation();schedulePlacement();
   }
 
   function positionControls() {
