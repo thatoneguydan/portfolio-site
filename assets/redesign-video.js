@@ -3,20 +3,10 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261118-viewport1';
+    navScript.src = '/assets/redesign-nav.js?v=20261118-videoblur1';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
-
-  const ensureStylesheet = (href) => {
-    if (document.querySelector(`link[href^="${href.split('?')[0]}"]`)) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    document.head.append(link);
-  };
-
-  ensureStylesheet('/assets/redesign-video-refine.css?v=20260909-b');
 
   const descriptions = {
     o8DPtyrcZ5o: "This was an edit for LifeBUILDERS Detroit. Their goal was to showcase the fun energy of camp, explore it's lasting impact, and offer people a chance to donate.",

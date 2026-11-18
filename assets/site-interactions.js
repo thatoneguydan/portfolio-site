@@ -17,6 +17,48 @@ function installLogoInkAlignment(){
   for(const cell of cells){cell.querySelector('img')?.addEventListener('load',()=>align(cell));align(cell);}
   addEventListener('resize',()=>cells.forEach(align),{passive:true});
 }
+
+export function pageBlurWeight(progress,falloff){
+  const u=Math.max(0,Math.min(1,progress));
+  const power=falloff==='bottom' ? 2.4 : falloff==='broad' ? .65 : 1;
+  return (u*u*(3-2*u))**power;
+}
+
+// A classic scrollbar is painted outside the root scrollport. Extend the
+// blurred colors of the full-bleed surfaces into its native track. The thumb
+// and OS scrolling stay on their own layer. A Gaussian-filtered color boundary
+// is the cumulative normal curve, tabulated here in half-radius increments.
+const normalCdf=[.5,.69146,.84134,.93319,.97725,.99379,.99865,.99977,1];
+function blurredStep(distance){
+  const index=Math.min(Math.abs(distance)*2,normalCdf.length-1),lo=Math.floor(index);
+  const amount=normalCdf[lo]+(normalCdf[Math.ceil(index)]-normalCdf[lo])*(index-lo);
+  return distance<0?1-amount:amount;
+}
+function blurredTrackLayer(surfaces,height,band,radius,falloff){
+  const edges=surfaces.flatMap(({rect})=>[rect.top,rect.bottom]).filter(y=>y>0&&y<height&&y>band.top-4*radius);
+  if(!edges.length)return '';
+  const rows=new Set();
+  for(let i=0;i<=16;i++)rows.add(band.top+band.height*i/16);
+  for(const edge of edges){
+    for(let i=-8;i<=8;i++){
+      const y=edge+radius*i/2;
+      if(y>=band.top&&y<=height)rows.add(y);
+    }
+  }
+  const paper=[245,245,242];
+  const colors=surfaces.map(({rect,color})=>({rect,rgb:color.match(/[\d.]+/g).slice(0,3).map(Number)}));
+  const stops=[...rows].sort((a,b)=>a-b).map(y=>{
+    const rgb=[...paper];
+    for(const {rect,rgb:color} of colors){
+      const start=rect.top<=0?1:blurredStep((y-rect.top)/radius);
+      const end=rect.bottom>=height?0:blurredStep((y-rect.bottom)/radius);
+      for(let c=0;c<3;c++)rgb[c]+=(color[c]-paper[c])*(start-end);
+    }
+    const alpha=pageBlurWeight((y-band.top)/band.height,falloff).toFixed(4);
+    return `rgb(${rgb.map(Math.round).join(' ')} / calc(var(--track-blur-opacity) * ${alpha})) ${y.toFixed(2)}px`;
+  });
+  return 'linear-gradient(to bottom,'+stops.join(',')+'),';
+}
 export function installSiteInteractions(){
   if(window.__portfolioInteractions)return;window.__portfolioInteractions=true;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)'),motions=new WeakMap(),pressed=new Map();
@@ -55,6 +97,9 @@ export function installSiteInteractions(){
   function syncTrack(){
     scheduled=0;const root=document.documentElement,height=innerHeight,width=root.clientWidth;
     root.style.setProperty('--site-viewport-width',width+'px');
+    const gutter=Math.max(0,innerWidth-width);
+    root.toggleAttribute('data-native-gutter',gutter>0);
+    root.style.setProperty('--native-gutter-width',gutter+'px');
     const surfaces=[...document.querySelectorAll('.rd-footer-cta,.rcompat-footer')].map(el=>({rect:el.getBoundingClientRect(),color:getComputedStyle(el).backgroundColor})).filter(({rect,color})=>rect.bottom>0&&rect.top<height&&rect.left<4&&rect.right>=width-4&&color!=='rgba(0, 0, 0, 0)');
     const stops=['#f5f5f2 0px'];let last=0;
     for(const {rect,color}of surfaces.sort((a,b)=>a.rect.top-b.rect.top)){
@@ -62,12 +107,17 @@ export function installSiteInteractions(){
       stops.push(`#f5f5f2 ${top}px`,`${color} ${top}px`,`${color} ${bottom}px`);last=bottom;
     }
     stops.push(`#f5f5f2 ${last}px`,`#f5f5f2 ${height}px`);
-    const track=`linear-gradient(to bottom,${stops.join(',')})`;
+    const band=document.querySelector('.portfolio-page-blur')?.getBoundingClientRect();
+    const config=window.portfolioLandingConfig;
+    const soft=gutter&&band?.height&&config?.pageBlurStrength>0?
+      blurredTrackLayer(surfaces,height,band,config.pageBlurStrength,config.pageBlurFalloff):'';
+    const track=soft+`linear-gradient(to bottom,${stops.join(',')})`;
     if(root.style.getPropertyValue('--root-scrollbar-track')!==track)root.style.setProperty('--root-scrollbar-track',track);
     const center=surfaces.find(({rect})=>rect.top<=height/2&&rect.bottom>=height/2)?.color||'#f5f5f2';
     root.style.setProperty('--scrollbar-surface',center);
   }
   const schedule=()=>{if(!scheduled)scheduled=requestAnimationFrame(syncTrack);};
   addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule,{passive:true});
+  document.addEventListener('portfolio-appearance',schedule);
   new ResizeObserver(schedule).observe(document.body);schedule();
 }

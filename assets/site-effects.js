@@ -5,11 +5,11 @@ import {installSettledShelfText} from './settled-text.js';
 import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-navlab1';
 import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-viewport1';
 import './site-runtime.js?v=20261118-viewport1';
-import {installSiteInteractions} from './site-interactions.js?v=20261117-navlab1';
+import {installSiteInteractions,pageBlurWeight} from './site-interactions.js?v=20261118-videoblur1';
 import {installProjectViews} from './project-views.js?v=20261118-viewport1';
 import {installImageViewer} from './image-viewer.js?v=20261117-navlab1';
 
-const href='/assets/site-effects.css?v=20261118-viewport1';
+const href='/assets/site-effects.css?v=20261118-videoblur1';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
@@ -25,21 +25,20 @@ function applyPageBlur(){
   if(!pageBlur){
     if(!enabled)return;
     pageBlur=document.createElement('div');pageBlur.className='portfolio-page-blur';pageBlur.setAttribute('aria-hidden','true');
-    // Each pass introduces a finer or coarser blur over a feathered band.
-    // Keep the parent clear so every layer can sample the actual page behind it.
-    for(let i=0;i<5;i++){
-      const layer=document.createElement('span'),start=i*20;
-      const mask=`linear-gradient(to bottom, transparent ${start}%, black ${start+20}%, black ${start+40}%, transparent ${start+60}%)`;
-      layer.style.setProperty('--band-mask',mask);
-      pageBlur.append(layer);
-    }
     document.body.append(pageBlur);
   }
   pageBlur.style.setProperty('--blur-height',config.pageBlurHeight);
-  const exponent={even:1,bottom:2.4,broad:.65}[config.pageBlurFalloff];
-  [...pageBlur.children].forEach((layer,i)=>{
-    layer.style.setProperty('--band-radius',config.pageBlurStrength*((i+1)/5)**exponent+'px');
-  });
+  pageBlur.style.setProperty('--blur-radius',config.pageBlurStrength+'px');
+  // Feather one filtered snapshot. Overlapping backdrop filters resample each
+  // other's output and can retain rectangular damage regions during scrolling.
+  if(pageBlur.dataset.falloff!==config.pageBlurFalloff){
+    const stops=Array.from({length:17},(_,i)=>{
+      const progress=i/16,alpha=pageBlurWeight(progress,config.pageBlurFalloff);
+      return `rgba(0,0,0,${alpha.toFixed(4)}) calc(var(--blur-depth) * ${progress})`;
+    });
+    pageBlur.style.setProperty('--blur-mask',`linear-gradient(to bottom,${stops.join(',')})`);
+    pageBlur.dataset.falloff=config.pageBlurFalloff;
+  }
   pageBlur.classList.toggle('is-enabled',enabled&&config.pageBlurStrength>0);
 }
 applyPageBlur();
