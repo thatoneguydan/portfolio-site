@@ -1,0 +1,50 @@
+/* Homepage vertical rhythm: each section owns one deliberate spacing interval.
+   The earlier generic .rd-section rules stacked top/bottom padding and divider
+   lines, which made the page feel like separated wireframe bands. */
+
+.rd-about--home {
+  padding-top: clamp(28px, 3.6vw, 52px);
+  padding-bottom: clamp(72px, 6.5vw, 96px);
+  border-bottom: 0;
+}
+
+.home-redesign .rd-section {
+  border-bottom: 0;
+}
+
+/* Featured Work now transitions directly into the shared Contact close. Keep a
+   deliberate breath after the work, but not a second footer-sized gap. */
+.rd-featured {
+  padding-top: 0;
+  padding-bottom: clamp(56px, 5vw, 76px);
+}
+
+@media (max-width: 900px) {
+  .rd-about--home {
+    padding-bottom: 72px;
+  }
+
+  .rd-featured {
+    padding-bottom: 62px;
+  }
+}
+
+@media (max-width: 720px) {
+  .rd-about--home {
+    padding-bottom: 58px;
+  }
+
+  .rd-featured {
+    padding-bottom: 54px;
+  }
+}
+
+@media (max-width: 500px) {
+  .rd-about--home {
+    padding-bottom: 52px;
+  }
+
+  .rd-featured {
+    padding-bottom: 46px;
+  }
+}

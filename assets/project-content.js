@@ -1,5 +1,5 @@
 import {imageDimensions} from './project-image-dimensions.js?v=20261117-navlab1';
-import {bindImageDocument} from './image-viewer.js?v=20261117-navlab1';
+import {bindImageDocument} from './image-viewer.js?v=20261118-perf1';
 
 const prepared=new WeakMap();
 const css=`
@@ -36,9 +36,30 @@ export async function prepareProjectDocument(frame){
     const button=image.closest('button[data-lightbox-src]');
     if(button&&!image.parentElement.classList.contains('rdp-shelf-image-viewport')){const viewport=doc.createElement('span');viewport.className='rdp-shelf-image-viewport';image.before(viewport);viewport.append(image);}
   }
-  bindImageDocument(doc);
-  await doc.fonts?.ready;await raf();await raf();
   const main=doc.querySelector('.site-main');
+  // The first image gates the Featured content morph. A standalone 100vw
+  // hint can be several times wider than its embedded column. Select for
+  // the settled CSS width (and the browser's DPR) before starting decode.
+  const hero=frame.closest('.portfolio-panel-incoming') && main.querySelector('img');
+  if(hero){
+    hero.fetchPriority='high';
+    if(hero.srcset){
+      const setWidth=width=>{
+        const size=Math.ceil(width)+'px';
+        if(width>0 && hero.sizes!==size)hero.sizes=size;
+      };
+      setWidth(hero.offsetWidth);
+      const observer=new doc.defaultView.ResizeObserver(([entry])=>setWidth(entry.contentRect.width));
+      observer.observe(hero);
+      doc.defaultView.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
+    }
+    hero.loading='eager';
+  }
+  bindImageDocument(doc);
+  // Resolve the embedded typography and image boxes before asking for the
+  // font-ready promise; font discovery depends on the applied parent styles.
+  void main.offsetHeight;
+  await doc.fonts?.ready;await raf();await raf();
   const height=()=>Math.ceil(main.getBoundingClientRect().height);
   frame.style.height=height()+'px';
   let clearanceKey='',adjusted=[];

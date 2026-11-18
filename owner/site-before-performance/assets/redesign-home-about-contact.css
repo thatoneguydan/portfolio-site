@@ -1,0 +1,187 @@
+/* Homepage About: one dominant title, supporting copy and action, with the
+   portrait left visually clean so text systems do not compete across the split. */
+
+.rd-about-panel {
+  height: auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 39%);
+  align-items: stretch;
+  overflow: hidden;
+  background: #111;
+  color: #fff;
+}
+
+.rd-about--home .rd-about-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(44px, 5vw, 76px);
+}
+
+.rd-about--home .rd-about-copy h1 {
+  max-width: 760px;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(68px, 8vw, 118px);
+  font-weight: 700;
+  line-height: .83;
+  letter-spacing: -.065em;
+}
+
+.rd-about--home .rd-about-copy .rd-about-lede {
+  max-width: 610px;
+  margin: clamp(28px, 2.6vw, 36px) 0 0;
+  color: rgba(255, 255, 255, .72);
+  font-size: clamp(17px, 1.4vw, 21px);
+  line-height: 1.55;
+}
+
+.rd-about-action {
+  min-height: 56px;
+  margin-top: clamp(28px, 2.5vw, 36px);
+  padding: 0 24px;
+  gap: 14px;
+  font-size: 14px;
+}
+
+/* A 4:5 frame is still decisively vertical, but preserves materially more of
+   the original portrait width than the earlier 2:3 crop. This keeps both ears
+   and the sides of the head from being sacrificed as the viewport changes. */
+.rd-about--home .rd-about-photo {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  align-self: start;
+  overflow: hidden;
+}
+
+.rd-about--home .rd-about-photo img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+}
+
+/* The old large statement over the portrait competed directly with the page
+   title. The portrait now acts as the visual counterweight instead. */
+.rd-about--home .rd-about-photo::after,
+.rd-about-statement {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .rd-about-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 39%);
+  }
+
+  .rd-about--home .rd-about-copy {
+    padding: clamp(36px, 4.3vw, 54px);
+  }
+
+  .rd-about--home .rd-about-copy h1 {
+    font-size: clamp(62px, 7.6vw, 92px);
+  }
+
+  .rd-about--home .rd-about-copy .rd-about-lede {
+    font-size: clamp(16px, 1.5vw, 19px);
+  }
+}
+
+@media (max-width: 900px) {
+  .rd-about-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 40%);
+  }
+
+  .rd-about--home .rd-about-copy {
+    padding: 34px;
+  }
+
+  .rd-about--home .rd-about-copy h1 {
+    font-size: clamp(58px, 8vw, 78px);
+    line-height: .84;
+  }
+
+  .rd-about--home .rd-about-copy .rd-about-lede {
+    margin-top: 26px;
+    font-size: 15px;
+    line-height: 1.52;
+  }
+
+  .rd-about-action {
+    min-height: 52px;
+    margin-top: 28px;
+    padding: 0 20px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 720px) and (min-width: 601px) {
+  .rd-about-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 40%);
+  }
+
+  .rd-about--home .rd-about-copy {
+    padding: 28px 26px;
+  }
+
+  .rd-about--home .rd-about-copy h1 {
+    font-size: clamp(50px, 7.4vw, 58px);
+  }
+
+  .rd-about--home .rd-about-copy .rd-about-lede {
+    margin-top: 22px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .rd-about-action {
+    min-height: 48px;
+    margin-top: 24px;
+    padding: 0 18px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .rd-about-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rd-about--home .rd-about-photo {
+    order: 1;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+  }
+
+  .rd-about--home .rd-about-copy {
+    order: 2;
+    justify-content: flex-start;
+    padding: 34px 24px 38px;
+  }
+
+  .rd-about--home .rd-about-copy h1 {
+    font-size: clamp(54px, 15vw, 70px);
+    line-height: .84;
+  }
+
+  .rd-about--home .rd-about-copy .rd-about-lede {
+    margin-top: 24px;
+    font-size: 15px;
+    line-height: 1.52;
+  }
+
+  .rd-about-action {
+    min-height: 52px;
+    margin-top: 28px;
+    padding: 0 20px;
+    font-size: 12px;
+  }
+}

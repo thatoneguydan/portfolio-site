@@ -1,0 +1,173 @@
+/* Homepage archive navigation: use the same image-first language as the work
+   itself instead of a separate typographic/menu system. */
+
+.rd-explore .rd-section-head {
+  margin-bottom: clamp(24px, 3vw, 38px);
+}
+
+.rd-explore .rd-section-head p {
+  max-width: 420px;
+}
+
+.rd-explore .rd-disciplines {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  border: 0;
+}
+
+.rd-explore .rd-discipline {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 16 / 9;
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: #111;
+  color: #fff;
+  text-decoration: none;
+  isolation: isolate;
+}
+
+.rd-explore .rd-discipline::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, .76) 0%, rgba(0, 0, 0, .18) 52%, rgba(0, 0, 0, .02) 76%);
+  pointer-events: none;
+}
+
+.rd-discipline-media,
+.rd-discipline-media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.rd-discipline-media img {
+  object-fit: cover;
+  transition: transform 380ms cubic-bezier(.2, .7, .2, 1), filter 220ms ease;
+}
+
+.rd-explore .rd-discipline:hover .rd-discipline-media img,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-media img {
+  transform: scale(1.025);
+  filter: brightness(.9);
+}
+
+.rd-explore .rd-discipline:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 4px;
+}
+
+.rd-discipline-meta {
+  position: absolute;
+  z-index: 2;
+  left: clamp(18px, 2.2vw, 30px);
+  right: clamp(48px, 5vw, 72px);
+  bottom: clamp(18px, 2.2vw, 28px);
+  display: block;
+}
+
+.rd-explore .rd-discipline strong {
+  display: block;
+  color: #fff;
+  font-size: clamp(30px, 3.1vw, 48px);
+  font-weight: 700;
+  line-height: .94;
+  letter-spacing: -.045em;
+}
+
+.rd-discipline-description {
+  display: block;
+  max-width: 360px;
+  margin-top: 8px;
+  color: rgba(255, 255, 255, .76);
+  font-size: clamp(12px, 1vw, 15px);
+  line-height: 1.4;
+}
+
+.rd-explore .rd-discipline-arrow {
+  position: absolute;
+  z-index: 2;
+  top: clamp(16px, 1.8vw, 24px);
+  right: clamp(16px, 1.8vw, 24px);
+  color: rgba(255, 255, 255, .9);
+  font-size: clamp(22px, 2vw, 30px);
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+
+.rd-explore .rd-discipline:hover .rd-discipline-arrow,
+.rd-explore .rd-discipline:focus-visible .rd-discipline-arrow {
+  transform: translate(3px, -3px);
+}
+
+/* Retire earlier index/icon wrappers if stale markup is ever cached. */
+.rd-explore .rd-discipline-index,
+.rd-explore .rd-discipline-icon,
+.rd-explore .rd-discipline-label {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .rd-explore .rd-disciplines {
+    gap: 10px;
+  }
+
+  .rd-explore .rd-discipline strong {
+    font-size: clamp(28px, 4vw, 38px);
+  }
+
+  .rd-discipline-description {
+    font-size: 12px;
+  }
+}
+
+/* Three 16:9 cards become cramped before the site's general mobile breakpoint.
+   Switch to a calmer single-column strip on tablets, then return to 16:9 when
+   the viewport is narrow enough that a full-width card is naturally compact. */
+@media (max-width: 860px) {
+  .rd-explore .rd-disciplines {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .rd-explore .rd-discipline {
+    aspect-ratio: 2.25 / 1;
+  }
+
+  .rd-explore .rd-discipline strong {
+    font-size: clamp(36px, 6vw, 50px);
+  }
+
+  .rd-discipline-description {
+    max-width: 72%;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .rd-explore .rd-discipline {
+    aspect-ratio: 16 / 9;
+  }
+
+  .rd-explore .rd-discipline strong {
+    font-size: clamp(38px, 10vw, 54px);
+  }
+
+  .rd-discipline-description {
+    max-width: 80%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-discipline-media img,
+  .rd-explore .rd-discipline-arrow {
+    transition: none !important;
+  }
+}

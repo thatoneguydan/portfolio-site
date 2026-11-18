@@ -9,6 +9,7 @@
 <meta property="og:description" content="A retro-tech still-life series built around CRT glow, saturated color, and a little basement nostalgia.">
 <meta property="og:image" content="/assets/media/70ea6c2557ae5657290be51a5c21c46939cb160fb911c4d90434292a3eb5a59b.jpg">
 <link rel="canonical" href="/photo-set-moms-basement">
+<link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <link rel="stylesheet" href="/assets/clean-site.css?v=0f5f0392c30d3d9a">
 <link rel="stylesheet" href="/assets/redesign-home.css?v=20260908-production-baseline">
 <link rel="stylesheet" href="/assets/redesign-project.css?v=20260909-b">
@@ -17,8 +18,12 @@
 <link rel="stylesheet" href="/assets/redesign-header-stable.css?v=20261118-optical1">
 <link rel="stylesheet" href="/assets/redesign-nav.css?v=20261118-optical1">
 <link rel="stylesheet" href="/assets/site-effects.css?v=20261118-featured1">
-<script type="module" src="/assets/site-effects.js?v=20261118-featured1"></script>
+<script type="module" src="/assets/site-effects.js?v=20261118-perf1"></script>
 <link rel="stylesheet" href="/assets/project-panels.css?v=20261117-navlab1">
+<link rel="modulepreload" href="/assets/site-runtime.js?v=20261118-perf1">
+<link rel="modulepreload" href="/assets/site-emoji.js?v=20261118-perf1">
+<link rel="modulepreload" href="/assets/landing-schema.js?v=20261118-featured1">
+<link rel="modulepreload" href="/assets/headline-view.js?v=20261118-perf1">
 </head>
 <body class="home-redesign project-redesign project-photo">
 <header class="site-header">
@@ -38,7 +43,7 @@
   </header>
 
   <figure class="rproj-hero">
-    <button type="button" data-lightbox-src="/assets/media/b48d4c2385f4a3906264511ba11c9ca463ef046b5fbd15bac985d1fc3fa497d9.jpg" aria-label="Open Retro Tech hero image in lightbox"><img src="/assets/media/2e27ef7d81f3d434850828a26bb1efb636179623a9f24a6034ac25668c37daa5.jpg" alt="Vintage technology photographed for the Retro Tech set" loading="eager" decoding="async"></button>
+    <button type="button" data-lightbox-src="/assets/media/b48d4c2385f4a3906264511ba11c9ca463ef046b5fbd15bac985d1fc3fa497d9.jpg" aria-label="Open Retro Tech hero image in lightbox"><img data-responsive-preview width="1365" height="2048" sizes="92vw" srcset="/assets/media/2e27ef7d81f3d434850828a26bb1efb636179623a9f24a6034ac25668c37daa5.jpg 1365w" src="/assets/media/2e27ef7d81f3d434850828a26bb1efb636179623a9f24a6034ac25668c37daa5.jpg" alt="Vintage technology photographed for the Retro Tech set" loading="eager" decoding="async"></button>
   </figure>
 
   <section class="rproj-story">
@@ -47,23 +52,23 @@
   </section>
 
   <section class="rproj-gallery" aria-label="Retro Tech photography gallery">
-    <figure class="rproj-gallery-item" style="flex:782 1 0%"><button type="button" data-lightbox-src="/assets/media/abf588dd085ecb0cc8b89c2ec71cd2c576155ba16d5459151fa7b53f0412eb85.jpg" aria-label="Open Retro Tech gallery image 1"><img src="/assets/media/abf588dd085ecb0cc8b89c2ec71cd2c576155ba16d5459151fa7b53f0412eb85.jpg" alt="Stylized vintage technology photograph" loading="lazy" decoding="async"></button></figure>
-    <figure class="rproj-gallery-item" style="flex:347 1 0%"><button type="button" data-lightbox-src="/assets/media/65f13a26cdca100c7b6cf9dd34953aebb050a481533b57674ee08fb651312dd0.jpg" aria-label="Open Retro Tech gallery image 2"><img src="/assets/media/65f13a26cdca100c7b6cf9dd34953aebb050a481533b57674ee08fb651312dd0.jpg" alt="Second photograph from the Retro Tech set" loading="lazy" decoding="async"></button></figure>
+    <figure class="rproj-gallery-item" style="flex:782 1 0%"><button type="button" data-lightbox-src="/assets/media/abf588dd085ecb0cc8b89c2ec71cd2c576155ba16d5459151fa7b53f0412eb85.jpg" aria-label="Open Retro Tech gallery image 1"><img data-responsive-preview width="1920" height="1280" sizes="92vw" srcset="/assets/renditions/80e92258415dbb4de2fe69403b7a7cbc5ce07f914132d5de763d29a3aeb41ee5.webp 480w, /assets/renditions/6a93a2e837e6b4845241fe397e5c740b0527777b141a9f93d98dbfcf69d6a876.webp 800w, /assets/media/abf588dd085ecb0cc8b89c2ec71cd2c576155ba16d5459151fa7b53f0412eb85.jpg 1920w" src="/assets/media/abf588dd085ecb0cc8b89c2ec71cd2c576155ba16d5459151fa7b53f0412eb85.jpg" alt="Stylized vintage technology photograph" loading="lazy" decoding="async"></button></figure>
+    <figure class="rproj-gallery-item" style="flex:347 1 0%"><button type="button" data-lightbox-src="/assets/media/65f13a26cdca100c7b6cf9dd34953aebb050a481533b57674ee08fb651312dd0.jpg" aria-label="Open Retro Tech gallery image 2"><img data-responsive-preview width="1365" height="2048" sizes="92vw" srcset="/assets/media/65f13a26cdca100c7b6cf9dd34953aebb050a481533b57674ee08fb651312dd0.jpg 1365w" src="/assets/media/65f13a26cdca100c7b6cf9dd34953aebb050a481533b57674ee08fb651312dd0.jpg" alt="Second photograph from the Retro Tech set" loading="lazy" decoding="async"></button></figure>
   </section>
 
   <section class="rproj-related">
     <div class="rproj-related-head"><h2>More photography</h2><a href="/photo">See all photo →</a></div>
     <div class="rproj-related-grid">
-      <a class="rproj-related-card" href="/experimental-photoshoot"><figure><img src="/assets/media/202ba2cdf889002b71f0dbc3cbe9ad6236db9cf8f3b4ab1c85708a6930dd288f.jpg" alt="Experimental photoshoot" loading="lazy"></figure><strong>Light &amp; Fringing Study</strong></a>
-      <a class="rproj-related-card" href="/engagement-photos"><figure><img src="/assets/media/ba19bb98ca2cef5eeab38afd8c7fc7703b2b268b43515f0e0f049a6a6fedb2bb.jpg" alt="Engagement photography" loading="lazy"></figure><strong>Engagement Photos</strong></a>
-      <a class="rproj-related-card" href="/street-photoshoot"><figure><img src="/assets/media/486f5d59998d70857cd295718a35d4527d2d18f61a2712af73de792ebdbb5803.jpg" alt="Street photoshoot" loading="lazy"></figure><strong>Street Photoshoot</strong></a>
+      <a class="rproj-related-card" href="/experimental-photoshoot"><figure><img width="827" height="646" sizes="(max-width: 760px) 92vw, 32vw" srcset="/assets/media/202ba2cdf889002b71f0dbc3cbe9ad6236db9cf8f3b4ab1c85708a6930dd288f.jpg 827w" src="/assets/media/202ba2cdf889002b71f0dbc3cbe9ad6236db9cf8f3b4ab1c85708a6930dd288f.jpg" alt="Experimental photoshoot" loading="lazy"></figure><strong>Light &amp; Fringing Study</strong></a>
+      <a class="rproj-related-card" href="/engagement-photos"><figure><img width="3015" height="2357" sizes="(max-width: 760px) 92vw, 32vw" srcset="/assets/renditions/7b63d9a2691a9d6fbd53a54791e55028052db679541dce4f42776b7ca361db46.webp 480w, /assets/renditions/28309fb7f166ab175a527804166b8fd66540f515c74b28b64cb4932c91a502aa.webp 800w, /assets/renditions/96d8736b8ed077c943dd2aa2413ee95c37e1b6145e15351d13bb4eb25b3517b5.webp 1200w, /assets/media/ba19bb98ca2cef5eeab38afd8c7fc7703b2b268b43515f0e0f049a6a6fedb2bb.jpg 3015w" src="/assets/media/ba19bb98ca2cef5eeab38afd8c7fc7703b2b268b43515f0e0f049a6a6fedb2bb.jpg" alt="Engagement photography" loading="lazy"></figure><strong>Engagement Photos</strong></a>
+      <a class="rproj-related-card" href="/street-photoshoot"><figure><img width="1274" height="996" sizes="(max-width: 760px) 92vw, 32vw" srcset="/assets/renditions/8f4053584c1ecc50bea596787a9d6e2ee434778d0308b004d71f86eed62833a6.webp 480w, /assets/renditions/1b8a18a31fe4894c029d56f887d1bef5058a9107e53e82e57aac16ffafda6d65.webp 800w, /assets/media/486f5d59998d70857cd295718a35d4527d2d18f61a2712af73de792ebdbb5803.jpg 1274w" src="/assets/media/486f5d59998d70857cd295718a35d4527d2d18f61a2712af73de792ebdbb5803.jpg" alt="Street photoshoot" loading="lazy"></figure><strong>Street Photoshoot</strong></a>
     </div>
   </section>
 
 </main>
 <section class="rd-footer-cta"><p>Need photos with a point of view?</p><a href="/contact">Let's make it.</a></section>
 </div>
-<script src="/assets/portfolio-contact.js?v=20261118-featured1" defer></script>
+<script src="/assets/portfolio-contact.js?v=20261118-perf1" defer></script>
 </body>
 </html>
 

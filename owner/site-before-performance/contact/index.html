@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en" class="contact-redesign-root">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dan Smith — Contact</title>
+<meta name="description" content="Contact Dan Smith about freelance projects, ongoing creative support, and roles in video, design, photography, and visual storytelling.">
+<meta property="og:title" content="Dan Smith — Contact">
+<meta property="og:description" content="Get in touch about a project, ongoing creative work, or a role in video, design, photography, and visual storytelling.">
+<meta property="og:image" content="/owner/site-before-performance/assets/media/4d9f65ebcd7095fda7bca41dce9cd3e7f309222f4eca92bf3c7b526cf9ef6af3.png">
+<link rel="canonical" href="/owner/site-before-performance/contact">
+<link rel="stylesheet" href="/owner/site-before-performance/assets/clean-site.css?v=0f5f0392c30d3d9a">
+<link rel="stylesheet" href="/owner/site-before-performance/assets/redesign-home.css?v=20260911-header-stable">
+<link rel="stylesheet" href="/owner/site-before-performance/assets/redesign-header-stable.css?v=20261118-optical1">
+<link rel="stylesheet" href="/owner/site-before-performance/assets/redesign-nav.css?v=20261118-optical1">
+<link rel="stylesheet" href="/owner/site-before-performance/assets/redesign-contact.css?v=20261118-sizing1">
+<link rel="stylesheet" href="/owner/site-before-performance/assets/redesign-page-intro.css?v=20260911-b">
+<meta name="generator" content="portfolio-redesign-prototype">
+<script>if(new URLSearchParams(location.search).get('inlineShelf')==='1')document.documentElement.classList.add('contact-inline-embed');</script>
+<script src="/owner/site-before-performance/assets/saved-bootstrap.js"></script>
+<link rel="stylesheet" href="/owner/site-before-performance/assets/site-effects.css?v=20261118-featured1">
+<link rel="stylesheet" href="/owner/site-before-performance/assets/project-panels.css?v=20261117-navlab1">
+<script>document.documentElement.classList.add('portfolio-js')</script><noscript><style>[data-headline-pending]{visibility:visible!important}</style></noscript>
+</head>
+<body class="home-redesign contact-redesign">
+<header class="site-header">
+  <a class="site-logo" href="/owner/site-before-performance/"><img src="/owner/site-before-performance/assets/media/ac892c82fb108875fa5b331a6f0a9e8086fff50d681fa2d92f2e42ca5db03a70.png" alt="Dan Smith" loading="eager" decoding="async"></a>
+  <nav class="site-nav" aria-label="Primary"><a href="/owner/site-before-performance/video">Video</a><a href="/owner/site-before-performance/design">Design</a><a href="/owner/site-before-performance/photo">Photo</a><a href="/owner/site-before-performance/contact" aria-current="page">Contact</a></nav>
+</header>
+
+<div class="portfolio-page-content">
+<main class="site-main">
+  <section class="rc-contact">
+    <div class="rc-contact-copy">
+      <div>
+        <p class="rd-eyebrow">Contact</p>
+        <h1 data-headline-pending>Let's make<br>something<br>worth<br>looking at.</h1>
+        <p class="rc-contact-lede">Whether you need help with a single project, ongoing creative support, or someone to join your team, tell me what you're working toward and where I could help.</p>
+      </div>
+
+      <dl class="rc-contact-details">
+        <div class="rc-contact-detail"><dt>Phone</dt><dd><a data-contact-phone data-contact-token="40.115.27.76.53.1.102.48.115.30.83.60"></a></dd></div>
+        <div class="rc-contact-detail"><dt>Email</dt><dd><span data-contact-email data-contact-token="121.38.69.79.121.76.63.120.53.5.18.96.92.39.117.7.76.12.108.92.63.51.36.68.12"></span></dd></div>
+      </dl>
+    </div>
+
+    <div class="rc-form-wrap">
+      <header class="rc-form-head"><h2>Tell me what you're looking for.</h2></header>
+      <form class="contact-form" data-portfolio-contact data-contact-endpoint="https://dantylersmith.com/api/contact" data-turnstile-sitekey="0x4AAAAAAEtIIAXkhptRjw-6">
+        <div class="form-field"><label for="contact-field1">Your name *</label><input id="contact-field1" type="text" name="field1" placeholder="Name" autocomplete="name" required></div>
+        <div class="form-field"><label for="contact-email">Your email *</label><input id="contact-email" type="email" name="email" placeholder="Email" autocomplete="email" required></div>
+        <div class="form-field"><label for="contact-field2">Message *</label><textarea id="contact-field2" name="field2" placeholder="A project, an idea, an role on your team? I'm all ears!" required></textarea></div>
+        <div hidden aria-hidden="true"><label for="contact-website">Website</label><input id="contact-website" type="text" name="website" autocomplete="off" tabindex="-1"></div>
+        <div data-contact-turnstile></div>
+        <button class="portfolio-button" type="submit">Start the conversation</button>
+        <p class="form-status" data-contact-status aria-live="polite" data-sent-message="Thank you! Your message has been sent."></p>
+      </form>
+    </div>
+  </section>
+</main>
+</div>
+<script>
+(() => {
+  const keys = [29, 71, 43, 97, 13, 53, 83];
+  const node = document.querySelector('[data-contact-phone][data-contact-token]');
+  if (!node) return;
+  const phone = String(node.dataset.contactToken || '').split('.').filter(Boolean).map((part, index) => {
+    const value = Number(part);
+    return Number.isInteger(value) ? String.fromCharCode(value ^ keys[index % keys.length]) : '';
+  }).join('');
+  const digits = phone.replace(/\D/g, '');
+  node.textContent = phone;
+  node.href = `tel:+${digits.length === 10 ? '1' : ''}${digits}`;
+})();
+</script>
+<script src="/owner/site-before-performance/assets/portfolio-contact.js?v=20261118-featured1" defer></script>
+<script type="module" src="/owner/site-before-performance/assets/site-effects.js?v=20261118-featured1"></script>
+<script type="module" src="/owner/site-before-performance/assets/contact-ready.js?v=20261118-featured1"></script>
+</body>
+</html>

@@ -1,6 +1,5 @@
 import {defaults} from './landing-schema.js?v=20261118-featured1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
-import {prepareProjectDocument} from './project-content.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
 const panels=new Set(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
@@ -76,7 +75,7 @@ function surface(svg,width,height,center,state){
   }
 }
 function dispose(state){
-  state.pending?.abort.abort();state.observer.disconnect();state.mutation.disconnect();state.contentObserver?.disconnect();state.maskAnimation?.cancel();clearMasks(state);state.loading?.remove();panels.delete(state);
+  state.initial.abort();state.pending?.abort.abort();state.observer.disconnect();state.mutation.disconnect();state.contentObserver?.disconnect();state.maskAnimation?.cancel();clearMasks(state);state.loading?.remove();panels.delete(state);
 }
 function syncContent(state,content=state.content,inner=state.inner){
   if(!content)return;variables(content.doc.documentElement);const padding=config.projectPanelSpacing,left=state.shelf.clientWidth-config.projectCloseRight-config.projectCloseSize-padding;
@@ -120,8 +119,8 @@ function measure(state){
   if(!state.shelf.isConnected){dispose(state);return;}
   if(state.content)syncContent(state);
   const {shelf,inner}=state,wasOpen=state.open;state.open=shelf.classList.contains('is-open');
-  if(wasOpen&&!state.open){state.pending?.abort.abort();state.loadVersion++;state.closeMask=animateMask(state,0,360);}
-  if(state.open&&state.ready&&!state.allowed&&!state.preparing){
+  if(wasOpen&&!state.open){state.initial.abort();state.pending?.abort.abort();state.closeMask=animateMask(state,0,360);}
+  if(state.open&&state.ready&&!state.pending&&!state.allowed&&!state.preparing){
     state.preparing=true;
     animateMask(state,config.projectEdgeFade?1:0,config.projectEdgeFade?180:0).then(()=>{if(!state.open||!shelf.isConnected)return;state.allowed=true;measure(state);state.content?.reveal();});
   }
@@ -140,22 +139,29 @@ function measure(state){
 function mount(shelf){
   if(shelf.dataset.projectPanelMounted)return;shelf.dataset.projectPanelMounted='true';
   const source=document.getElementById(shelf.dataset.projectSource)||shelf.closest('.rv-shelf')?.querySelector('.rv-shelf-toggle'),serial=++panelSerial;
-  let inner=shelf.querySelector(':scope>.rdp-project-shelf-inner');if(!inner){inner=document.createElement('div');inner.className='portfolio-panel-content';inner.append(...shelf.childNodes);shelf.append(inner);}
-  const clip=document.createElement('div');clip.className='portfolio-panel-clip';inner.before(clip);clip.append(inner);shelf.classList.add('portfolio-project-panel');shelf.style.height='0px';
+  let clip=shelf.querySelector(':scope>.portfolio-panel-clip');
+  let inner=(clip||shelf).querySelector(':scope>.rdp-project-shelf-inner');if(!inner){inner=document.createElement('div');inner.className='portfolio-panel-content';inner.append(...shelf.childNodes);shelf.append(inner);}
+  if(!clip){clip=document.createElement('div');clip.className='portfolio-panel-clip';inner.before(clip);clip.append(inner);}
+  shelf.classList.add('portfolio-project-panel');shelf.style.height='0px';
   const makeSurface=kind=>{const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('portfolio-panel-surface',kind);svg.setAttribute('aria-hidden','true');svg.innerHTML=(kind==='is-backing'?`<defs><filter id="project-shadow-${serial}" filterUnits="userSpaceOnUse"><feDropShadow/></filter></defs>`:'')+'<path/>';shelf.append(svg);return svg;};
   const back=makeSurface('is-backing'),outline=makeSurface('is-outline'),controls=document.createElement('div');controls.className='portfolio-panel-controls';
   const button=document.createElement('button');button.type='button';button.className='portfolio-panel-close';button.setAttribute('aria-label','Close project');button.innerHTML=filledControlIcon('circle-x');controls.append(button);shelf.append(controls);
   const loading=shelf.querySelector('.rdp-project-loading');if(loading){loading.classList.add('portfolio-project-loading');loading.innerHTML=`<span class="portfolio-wave-loader" role="status" aria-label="Loading project">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span>`;document.body.append(loading);}
-  const frames=[...shelf.querySelectorAll('.rdp-project-frame')],state={shelf,source,inner,clip,back,outline,controls,loading,ready:!frames.length,allowed:false,preparing:false,target:null,open:shelf.classList.contains('is-open'),motion:null,observer:null,content:null,masked:new Set(),maskProgress:0,loadVersion:0,retiringMasks:[]};panels.add(state);
+  const frames=[...shelf.querySelectorAll('.rdp-project-frame')],state={shelf,source,inner,clip,back,outline,controls,loading,ready:!frames.length,allowed:false,preparing:false,target:null,open:shelf.classList.contains('is-open'),motion:null,observer:null,content:null,masked:new Set(),maskProgress:0,initial:new AbortController(),retiringMasks:[]};panels.add(state);
   button.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();if(shelf.matches('.rv-shelf-panel'))source?.click();else shelf.dispatchEvent(new CustomEvent('portfolio-panel-close'));});
   state.observer=new ResizeObserver(entries=>{if(entries.some(e=>e.target===state.inner)&&state.ready)measure(state);position(state);});state.observer.observe(inner);state.observer.observe(shelf);if(source)state.observer.observe(source);
   state.mutation=new MutationObserver(()=>measure(state));state.mutation.observe(shelf,{attributes:true,attributeFilter:['class']});
-  for(const frame of frames){let preparing=false;const prepare=async()=>{if(preparing||!shelf.isConnected||!frame.contentDocument?.querySelector('.site-main'))return;preparing=true;const version=state.loadVersion;try{
-    variables(frame.contentDocument.documentElement);const content=await prepareProjectDocument(frame);if(!shelf.isConnected||version!==state.loadVersion)return;state.content=content;syncContent(state);
-    frame.style.height=state.content.height()+'px';state.ready=true;shelf.dataset.projectReady='true';frame.style.visibility='';measure(state);
-    observeContent(state);
-  }catch(error){if(loading){loading.textContent='This project could not load. Close it and try again.';loading.setAttribute('role','status');}console.warn(error);}};
-    frame.addEventListener('load',prepare);if(frame.contentDocument?.readyState==='complete'&&frame.contentDocument.querySelector('.site-main'))prepare();
+  for(const frame of frames){
+    const signal=state.initial.signal;
+    prepareFrame(frame,signal,0).then(content=>{
+      if(signal.aborted||!shelf.isConnected)return;
+      state.content=content;syncContent(state);state.ready=true;shelf.dataset.projectReady='true';
+      frame.style.visibility='';measure(state);observeContent(state);
+    }).catch(error=>{
+      if(signal.aborted)return;
+      if(loading){loading.textContent='This project could not load. Close it and try again.';loading.setAttribute('role','status');}
+      console.warn(error);
+    });
   }measure(state);
 }
 export function applyProjectConfig(next){config={...defaults,...next};variables(document.documentElement);for(const state of panels){if(state.content)syncContent(state);if(state.allowed)animateMask(state,config.projectEdgeFade?1:0,180);measure(state);}document.dispatchEvent(new CustomEvent('portfolio-project-config'));}
@@ -164,30 +170,56 @@ function loaderFor(state){
   loading.innerHTML=`<span class="portfolio-wave-loader" role="status" aria-label="Loading project">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span>`;if(!loading.isConnected)document.body.append(loading);state.loading=loading;return loading;
 }
 function abortable(promise,signal){return new Promise((resolve,reject)=>{const abort=()=>reject(new DOMException('Cancelled','AbortError'));if(signal.aborted)return abort();signal.addEventListener('abort',abort,{once:true});Promise.resolve(promise).then(resolve,reject).finally(()=>signal.removeEventListener('abort',abort));});}
-function frameLoaded(frame,signal,project=true){
-  return abortable(new Promise((resolve,reject)=>{
-    const done=()=>{if(project&&!frame.contentDocument?.querySelector('.site-main'))return;clearTimeout(timer);frame.removeEventListener('load',done);resolve();};
-    const timer=setTimeout(()=>{frame.removeEventListener('load',done);reject(Error('The project is taking too long to load.'));},15000);
-    signal.addEventListener('abort',()=>{clearTimeout(timer);frame.removeEventListener('load',done);},{once:true});frame.addEventListener('load',done);if(project)done();
-  }),signal);
+function frameReady(frame,signal,project,timeout=15000){
+  return new Promise((resolve,reject)=>{
+    const listeners=new AbortController();
+    let timer;
+    const finish=error=>{
+      clearTimeout(timer);listeners.abort();signal.removeEventListener('abort',cancel);
+      error?reject(error):resolve();
+    };
+    const cancel=()=>finish(new DOMException('Cancelled','AbortError'));
+    if(signal.aborted){cancel();return;}
+    const check=event=>{
+      if(!project){if(event?.type==='load')finish();return;}
+      const doc=frame.contentDocument;
+      if(doc?.URL==='about:blank')return;
+      if(doc?.querySelector('.site-main') && (doc.documentElement.dataset.projectMarkupReady==='true'||doc.readyState==='complete'))finish();
+      else if(event?.type==='load')finish(Error('Project content is unavailable.'));
+    };
+    if(timeout)timer=setTimeout(()=>finish(Error('The project is taking too long to load.')),timeout);
+    signal.addEventListener('abort',cancel,{once:true});
+    frame.addEventListener('error',()=>finish(Error('The project could not load.')),{signal:listeners.signal});
+    frame.addEventListener('load',check,{signal:listeners.signal});
+    if(project){frame.addEventListener('portfolio-project-markup-ready',check,{signal:listeners.signal});check();}
+  });
+}
+async function prepareFrame(frame,signal,timeout){
+  const [{prepareProjectDocument}]=await Promise.all([
+    import('./project-content.js?v=20261118-perf1'),
+    frameReady(frame,signal,true,timeout)
+  ]);
+  if(signal.aborted)throw new DOMException('Cancelled','AbortError');
+  variables(frame.contentDocument.documentElement);
+  return abortable(prepareProjectDocument(frame),signal);
 }
 export async function replaceProjectContent(shelf,{source,inner,title,onCommit}){
   await Promise.resolve();let state=[...panels].find(item=>item.shelf===shelf);
   if(!state){await new Promise(requestAnimationFrame);state=[...panels].find(item=>item.shelf===shelf);}
   if(!state||!state.open||!shelf.isConnected)return false;
-  state.pending?.abort.abort();state.loadVersion++;
+  state.pending?.abort.abort();
   const pending={source,inner,abort:new AbortController()};state.pending=pending;state.loadingError=false;
   const {signal}=pending.abort;inner.querySelector('.rdp-project-loading')?.remove();inner.classList.add('portfolio-panel-incoming');inner.inert=true;inner.setAttribute('aria-hidden','true');state.clip.append(inner);loaderFor(state);position(state);
   try{
     const frame=inner.querySelector('.rdp-project-frame');let content=null;
     if(frame){
-      await frameLoaded(frame,signal);variables(frame.contentDocument.documentElement);content=await abortable(prepareProjectDocument(frame),signal);syncContent(state,content,inner);
+      content=await prepareFrame(frame,signal);syncContent(state,content,inner);
       const hero=content.main.querySelector('img');if(hero){hero.loading='eager';if(hero.decode)await abortable(hero.decode().catch(()=>{}),signal);}
       frame.style.visibility='';
-    }else{const player=inner.querySelector('.portfolio-inline-video>iframe');if(player)await frameLoaded(player,signal,false);}
+    }else{const player=inner.querySelector('.portfolio-inline-video>iframe');if(player)await frameReady(player,signal,false);}
     if(signal.aborted||state.pending!==pending||!state.open||!shelf.isConnected)return false;
     const oldInner=state.inner,oldRect=shelf.getBoundingClientRect(),fromCenter=state.tailCenter,visible=oldRect.height>1;
-    state.contentObserver?.disconnect();state.observer.unobserve(oldInner);state.observer.unobserve(state.source);
+    state.initial.abort();state.contentObserver?.disconnect();state.observer.unobserve(oldInner);state.observer.unobserve(state.source);
     retireMasks(state);state.maskProgress=0;state.source=source;shelf.dataset.projectSource=source.id;shelf.setAttribute('aria-label',title+' details');state.tailBlend={from:fromCenter,at:performance.now()};
     Object.assign(oldInner.style,{position:'absolute',left:'0',top:'0',width:oldInner.getBoundingClientRect().width+'px',boxSizing:'border-box',pointerEvents:'none'});oldInner.inert=true;oldInner.setAttribute('aria-hidden','true');
     inner.classList.remove('portfolio-panel-incoming');inner.inert=false;inner.removeAttribute('aria-hidden');inner.style.width=state.clip.getBoundingClientRect().width+'px';
@@ -205,7 +237,7 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
     return false;
   }finally{
     if(state.inner!==inner){inner.querySelectorAll('iframe').forEach(frame=>frame.src='about:blank');inner.remove();}
-    if(state.pending===pending){state.pending=null;position(state);}
+    if(state.pending===pending){state.pending=null;measure(state);}
   }
 }
 export function installProjectPanels(){

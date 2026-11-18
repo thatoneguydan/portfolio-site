@@ -1,10 +1,10 @@
 import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-featured1';
-import {createBadge} from './landing-badge.js?v=20261118-viewport1';
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-navlab1';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-navlab1';
+import {createBadge} from './landing-badge.js?v=20261118-perf1';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-perf1';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-featured1';
-import {siteReady} from './site-runtime.js?v=20261118-featured1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-featured1';
+import {siteReady} from './site-runtime.js?v=20261118-perf1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-perf1';
 (async() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
@@ -167,7 +167,9 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-featured1
     panels.forEach((panel,i)=>{
       const active=i===config.activeIndex;
       panel.dataset.focused=String(active);panel.style.flexGrow=String(layout.extents[i]);
-      panel.querySelector('img').style.filter=grayscale&&!active?'grayscale(1)':'none';
+      const image=panel.querySelector('.ds-gallery-image');
+      image.style.filter=grayscale&&!active?'grayscale(1)':'none';
+      if(image.srcset)image.sizes=Math.ceil(vertical?galleryWidth:layout.expandedWidth)+'px';
       dotButtons[i].setAttribute('aria-current',String(active));
       dotButtons[i].tabIndex=active?0:-1;
     });
@@ -266,8 +268,13 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-featured1
     });
   });
 
-  const resize=()=>{applyHeroLayout();fitText();renderGallery();badge.layout();};
-  addEventListener('resize',resize);let lastRootWidth=0;new ResizeObserver(()=>{if(root.clientWidth!==lastRootWidth){lastRootWidth=root.clientWidth;resize();}}).observe(root);
+  let lastRootWidth=0;
+  const resize=()=>{
+    lastRootWidth=root.clientWidth;
+    applyHeroLayout();fitText();renderGallery();badge.layout();
+  };
+  addEventListener('resize',resize);
+  new ResizeObserver(()=>{if(root.clientWidth!==lastRootWidth)resize();}).observe(root);
   addEventListener('pagehide',event=>{if(event.persisted)return;headerObserver.disconnect();badge.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
   window.portfolioLanding=api;
   api.register({update(next){Object.assign(config,next);render();},replay});

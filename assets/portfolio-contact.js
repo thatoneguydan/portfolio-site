@@ -6,7 +6,7 @@
 
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261118-featured1';
+    navScript.src = '/assets/redesign-nav.js?v=20261118-perf1';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -16,7 +16,7 @@
      the redesign body classes are applied asynchronously. */
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-contact-shelf]')) {
     const shelfScript = document.createElement('script');
-    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20261118-featured1';
+    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20261118-perf1';
     shelfScript.dataset.redesignContactShelf = '';
     document.head.append(shelfScript);
   }
@@ -33,9 +33,16 @@
 
   if (!isInlineContactShelf && !document.body.classList.contains('project-redesign') && !document.querySelector('script[data-redesign-project-compat]')) {
     const compatibilityScript = document.createElement('script');
-    compatibilityScript.src = '/assets/redesign-project-compat.js?v=20260910-contact-shelf';
+    compatibilityScript.src = '/assets/redesign-project-compat.js?v=20261118-perf1';
     compatibilityScript.dataset.redesignProjectCompat = '';
     document.head.append(compatibilityScript);
+  }
+
+  // This deferred entry runs after the project's markup and blocking styles
+  // are available. Embedded projects use the authored content directly.
+  if (isInlineContactShelf && window.frameElement?.classList.contains('rdp-project-frame')) {
+    document.documentElement.dataset.projectMarkupReady = 'true';
+    window.frameElement.dispatchEvent(new Event('portfolio-project-markup-ready'));
   }
 
   const contactForms = Array.from(document.querySelectorAll('[data-portfolio-contact]'));
@@ -162,5 +169,5 @@
     }
   }, true);
 
-  import('/assets/image-viewer.js?v=20261117-navlab1').then(module=>module.installImageViewer());
+  import('/assets/image-viewer.js?v=20261118-perf1').then(module=>module.installImageViewer());
 })();

@@ -13,9 +13,13 @@ export function lockOverlayScroll(owner){
   // `clip` blocks overflow without creating a new scroll container around the
   // sticky header; the document root owns the actual scroll lock.
   body.style.setProperty('overflow','clip','important');
+  document.addEventListener('wheel',blockWheel,{passive:false,capture:true});
+  document.addEventListener('touchmove',blockTouch,{passive:false,capture:true});
 }
 export function unlockOverlayScroll(owner){
   if(!owners.delete(owner)||owners.size||!saved)return;
+  document.removeEventListener('wheel',blockWheel,true);
+  document.removeEventListener('touchmove',blockTouch,true);
   const previous=saved;saved=null;
   restore(document.body.style,previous.body);
   restore(document.documentElement.style,previous.root.filter(([key])=>key!=='scroll-behavior'));
@@ -23,5 +27,5 @@ export function unlockOverlayScroll(owner){
   restore(document.documentElement.style,previous.root.filter(([key])=>key==='scroll-behavior'));
 }
 const tuning=event=>!!event.target?.closest?.('#dan-owner-controls');
-document.addEventListener('wheel',event=>{if(owners.size&&!event.ctrlKey&&!tuning(event))event.preventDefault();},{passive:false,capture:true});
-document.addEventListener('touchmove',event=>{if(owners.size&&!tuning(event))event.preventDefault();},{passive:false,capture:true});
+function blockWheel(event){if(!event.ctrlKey&&!tuning(event))event.preventDefault();}
+function blockTouch(event){if(!tuning(event))event.preventDefault();}

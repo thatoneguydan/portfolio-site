@@ -1,0 +1,23 @@
+/*
+ * Staging-only carry-forward of the accepted production typography cascade.
+ * Production's font-parity repair declares general body/caption faces before
+ * heading-specific gmsj rules so title/subtitle selectors win deterministically.
+ */
+.masthead p {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.text-block,
+.cover-card p,
+.related-projects {
+  font-family: vcsm, Arial, Helvetica, sans-serif;
+}
+
+.masthead h1,
+.text-block--title,
+.text-block--subtitle,
+.cover-card h2,
+.cover-card h3,
+.related-projects > h2 {
+  font-family: gmsj, Georgia, serif;
+}

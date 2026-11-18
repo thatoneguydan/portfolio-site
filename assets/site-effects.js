@@ -1,13 +1,13 @@
-import {installAuthoredEmoji} from './site-emoji.js?v=20261117-navlab1';
+import {installAuthoredEmoji} from './site-emoji.js?v=20261118-perf1';
 import {setPaletteSaturation} from './palette-glyph.js?v=20261117-navlab1';
 import {defaults} from './landing-schema.js?v=20261118-featured1';
 import {installSettledShelfText} from './settled-text.js';
 import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261118-featured1';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-featured1';
-import './site-runtime.js?v=20261118-featured1';
-import {installSiteInteractions} from './site-interactions.js?v=20261118-featured1';
-import {installProjectViews} from './project-views.js?v=20261118-featured1';
-import {installImageViewer} from './image-viewer.js?v=20261117-navlab1';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-perf1';
+import './site-runtime.js?v=20261118-perf1';
+import {installSiteInteractions} from './site-interactions.js?v=20261118-perf1';
+import {installProjectViews} from './project-views.js?v=20261118-perf1';
+import {installImageViewer} from './image-viewer.js?v=20261118-perf1';
 
 const href='/assets/site-effects.css?v=20261118-featured1';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
@@ -138,8 +138,11 @@ function innerShadow(card){
   layer.style.boxShadow=`inset ${x}px ${y}px ${config.designShadowSize}px ${config.designShadowSize*config.designShadowChoke/100}px rgba(${rgb.join(',')},${config.designShadowOpacity/100})`;
   layer.style.mixBlendMode=config.designShadowBlend;
 }
-function apply(card){
-  innerShadow(card);
+const shadowSettings=new WeakMap();
+const lastPaint=new WeakMap();
+function prepareCard(card){
+  if(!card.isConnected){cards.delete(card);cardResize.unobserve(card);proximity?.unobserve(card);return;}
+  if(shadowSettings.get(card)!==config){innerShadow(card);shadowSettings.set(card,config);}
   const enabled=!!config.portfolioBlur;
   const visible=captionVisible(card);
   if(!card.matches('.ds-panel')){
@@ -149,6 +152,10 @@ function apply(card){
   }
   if(card.classList.contains('has-progressive-blur')!==enabled)card.classList.toggle('has-progressive-blur',enabled);
   const active=String(enabled&&visible);if(card.dataset.blurActive!==active)card.dataset.blurActive=active;
+  if(card.matches('.ds-panel')||visible)ensure(card);
+}
+function measureCaption(card){
+  if(!card.isConnected)return;
   const blur=card.querySelector('.portfolio-blur');
   const source=card.querySelector('img:not([data-blur-copy])');
   const caption=card.querySelector(card.dataset.captionKind==='compact'?'.ds-compact-caption':'.ds-caption,.rdp-project-meta');
@@ -159,7 +166,13 @@ function apply(card){
   const top=bounds.length?Math.min(...bounds.map(r=>r.top)):plane.bottom;
   const bottom=bounds.length?Math.max(...bounds.map(r=>r.bottom)):plane.bottom,lift=Number.parseFloat(card.style.getPropertyValue('--project-caption-lift'))||0;
   const geometry=captionBlurGeometry({height:card.clientHeight,captionHeight:Math.max(0,bottom-top),bottom:Math.max(0,plane.bottom-lift-bottom),fontSize:parseFloat(style.fontSize)||20,coverage:config.portfolioBlurHeight,strength:config.portfolioBlurStrength,compact:card.dataset.captionKind==='compact'});
-  const height=geometry.percent;
+  return {card,blur,filter:source?.style.filter||'',geometry,lift};
+}
+function paintCaption({card,blur,filter,geometry,lift}){
+  const signature=[geometry.solid,geometry.cover,geometry.shadeCover,geometry.strength,lift,filter,config.portfolioBlurDuration].join('/');
+  const last=lastPaint.get(card);
+  if(last?.signature===signature&&last.blur===blur)return;
+  lastPaint.set(card,{signature,blur});
   for(const [key,value]of [['--caption-solid-height',geometry.solid+'px'],['--caption-cover-height',geometry.cover+'px']])if(card.style.getPropertyValue(key)!==value)card.style.setProperty(key,value);
   // The shade always reaches the image edge. Lifting text must never expose
   // the opaque lower edge of a translated background plane.
@@ -170,43 +183,75 @@ function apply(card){
     layer.style.setProperty('--layer-blur',geometry.strength*(i+1)/6+'px');
     const full=geometry.solid*Math.max(.25,1-i*.1)+lift;
     const mask=`linear-gradient(to top,#000 0px,#000 ${full}px,transparent ${geometry.cover+lift}px)`;layer.style.maskImage=mask;layer.style.webkitMaskImage=mask;
-    const image=layer.querySelector('img');if(source&&image&&image.style.filter!==source.style.filter)image.style.filter=source.style.filter;
+    const image=layer.querySelector('img');if(image&&image.style.filter!==filter)image.style.filter=filter;
   });
 }
+const nearCards=new WeakSet();
+const proximity=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>{
+  for(const {target,isIntersecting} of entries){
+    if(isIntersecting){nearCards.add(target);schedule(target);}else nearCards.delete(target);
+  }
+},{rootMargin:'800px 0px'}):null;
 function ensure(card){
-  if(!config.portfolioBlur||card.querySelector('.portfolio-blur'))return;
+  if(!config.portfolioBlur)return;
   if(!card.matches('.ds-panel')&&!card.querySelector('.rdp-project-meta'))return;
   const media=card.matches('.ds-panel')?card:card.querySelector('.rdp-project-media,.rv-video-thumb');
   const source=media?.querySelector('img:not([data-blur-copy])');if(!source)return;
+  // The original image owns loading, srcset selection and decoding. A decorative
+  // copy must never start a fallback download ahead of the responsive source.
+  const url=source.currentSrc;
+  if(!url||!source.complete||!source.naturalWidth)return;
+  const existing=media.querySelector('.portfolio-blur');
+  if(existing){
+    if(existing.dataset.source!==url){
+      for(const image of existing.querySelectorAll('img'))image.src=url;
+      existing.dataset.source=url;
+    }
+    return;
+  }
+  if(proximity&&!nearCards.has(card)&&!card.matches(':hover,:focus-within'))return;
   const blur=document.createElement('span');blur.className='portfolio-blur';blur.setAttribute('aria-hidden','true');
+  blur.dataset.source=url;
   // Filter only a copy of this thumbnail. The page outside its edge is never
   // sampled, and transparent filter fringes composite over the original image.
   for(let i=0;i<6;i++){
-    const layer=document.createElement('span'),image=source.cloneNode(false);
-    image.removeAttribute('id');image.removeAttribute('srcset');image.removeAttribute('sizes');image.src=source.currentSrc||source.src;
-    image.alt='';image.dataset.blurCopy='';image.classList.add('portfolio-blur-image');image.draggable=false;image.loading='eager';
+    const layer=document.createElement('span'),image=document.createElement('img');
+    image.className=source.className;image.alt='';image.dataset.blurCopy='';image.classList.add('portfolio-blur-image');image.draggable=false;image.decoding='async';image.src=url;
     layer.append(image);blur.append(layer);
   }
-  media.append(blur);apply(card);
+  media.append(blur);
   requestAnimationFrame(()=>requestAnimationFrame(()=>blur.classList.add('is-ready')));
 }
-function sync(card){if(!card.isConnected){cards.delete(card);cardResize.unobserve(card);return;}if(card.matches('.ds-panel')||captionVisible(card))ensure(card);apply(card);}
+function sync(batch){
+  for(const card of batch)prepareCard(card);
+  // Take one layout snapshot for the whole row before updating any masks.
+  const measures=[];
+  for(const card of batch){const result=measureCaption(card);if(result)measures.push(result);}
+  for(const measure of measures)paintCaption(measure);
+}
+const dirty=new Set();let pending=0;
+function schedule(card){
+  if(!card)return;
+  dirty.add(card);
+  if(!pending)pending=requestAnimationFrame(()=>{
+    pending=0;const batch=[...dirty];dirty.clear();sync(batch);
+  });
+}
 function discover(root){
   if(root.nodeType!==1||root.closest('.portfolio-blur'))return;
   const selector='.ds-panel,.rdp-project-card';
   const found=[...(root.matches(selector)?[root]:[]),...root.querySelectorAll(selector)];
   for(const card of found){
-    if(seen.has(card))continue;seen.add(card);cards.add(card);cardResize.observe(card);
-    card.addEventListener('pointerenter',()=>sync(card),{passive:true});
-    card.addEventListener('pointerleave',()=>sync(card),{passive:true});
-    card.addEventListener('focusin',()=>sync(card));
-    card.addEventListener('focusout',()=>requestAnimationFrame(()=>sync(card)));
-    sync(card);
+    if(seen.has(card))continue;seen.add(card);cards.add(card);cardResize.observe(card);proximity?.observe(card);
+    card.querySelector('img:not([data-blur-copy])')?.addEventListener('load',()=>schedule(card));
+    card.addEventListener('pointerenter',()=>schedule(card),{passive:true});
+    card.addEventListener('pointerleave',()=>schedule(card),{passive:true});
+    card.addEventListener('focusin',()=>schedule(card));
+    card.addEventListener('focusout',()=>schedule(card));
+    schedule(card);
   }
 }
 discover(document.body);
-const dirty=new Set();let pending=0;
-function schedule(card){if(!card)return;dirty.add(card);if(!pending)pending=requestAnimationFrame(()=>{pending=0;for(const item of dirty)sync(item);dirty.clear();});}
 new MutationObserver(records=>{
   for(const record of records){
     if(record.target.nodeType!==1||record.target.closest('.portfolio-blur'))continue;
@@ -214,7 +259,7 @@ new MutationObserver(records=>{
     else if(!(record.attributeName==='style'&&record.target.matches('.rdp-project-card')))schedule(record.target.closest('.ds-panel,.rdp-project-card'));
   }
 }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-caption-visible','data-caption-kind','data-focused','class','style','src']});
-function update(next){config={...defaults,...next};applyPageBlur();setPaletteSaturation(config.paletteSaturation);applyProjectConfig(config);for(const card of cards)sync(card);}
+function update(next){config={...defaults,...next};applyPageBlur();setPaletteSaturation(config.paletteSaturation);applyProjectConfig(config);for(const card of cards)schedule(card);}
 document.addEventListener('portfolio-appearance',event=>update(event.detail));
 document.addEventListener('portfolio-caption-position',event=>schedule(event.target.closest('.rdp-project-card')));
 addEventListener('resize',()=>{for(const card of cards)schedule(card);},{passive:true});

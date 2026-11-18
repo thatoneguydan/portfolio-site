@@ -1,13 +1,12 @@
-import {emojiPaths,emojiBase,localEmoji} from './fluent-emoji-map.js?v=20261117-navlab1';
+import {fluentUrl} from './fluent-emoji-lookup.js?v=20261118-perf1';
 import {createPaletteGlyph} from './palette-glyph.js?v=20261117-navlab1';
 
-export const graphemes=text=>typeof Intl.Segmenter==='function'?[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(String(text))].map(s=>s.segment):Array.from(String(text));
+const segmenter=typeof Intl.Segmenter==='function'?new Intl.Segmenter(undefined,{granularity:'grapheme'}):null;
+export const graphemes=text=>segmenter?[...segmenter.segment(String(text))].map(s=>s.segment):Array.from(String(text));
 export function emojiUrl(glyph){
   // Keep text-style arrows, copyright symbols, etc. in the site's typeface.
   if(!/[\p{Emoji_Presentation}\uFE0F\u20E3]/u.test(glyph))return null;
-  const key=glyph.replace(/\uFE0F/g,''),path=emojiPaths[key];
-  if(key==='🎨')return '/assets/fluent-emoji/1f3a8-yellow.png';
-  return path?(localEmoji[key]||emojiBase+path.split('/').map(encodeURIComponent).join('/')):null;
+  return fluentUrl(glyph.replace(/\uFE0F/g,''));
 }
 export function appendEmojiText(parent,text){
   for(const glyph of graphemes(text)){

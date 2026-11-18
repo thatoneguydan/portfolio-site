@@ -1,0 +1,49 @@
+    #dan-owner-controls .ds-config-launch{position:fixed;right:18px;bottom:18px;top:auto;z-index:6001;display:flex;align-items:center;gap:9px;min-height:44px;padding:10px 17px;border:1px solid #b8b8b3;border-radius:24px;background:var(--dan-paper);box-shadow:0 4px 18px #11111120;color:var(--dan-ink);font-size:13px;touch-action:none;user-select:none;cursor:grab}
+    #dan-owner-controls .ds-config-launch.is-dragging{cursor:grabbing;box-shadow:0 7px 24px #11111130}
+    #dan-owner-controls .ds-config-grip{font-size:19px;line-height:1;color:#77786e}
+    #dan-owner-controls .ds-config-launch:hover{background:#e9e9e5}
+    #dan-owner-controls .ds-config{position:fixed;z-index:6000;top:auto;right:auto;width:min(380px,calc(100vw - 24px));max-height:680px;overflow:auto;overscroll-behavior:contain;background:var(--dan-paper);border:1px solid #c5c5bf;border-radius:17px;box-shadow:0 12px 44px #11111126;padding:20px;color:var(--dan-ink);font-size:13px;line-height:1.5;scrollbar-width:thin;scrollbar-color:#b1b1aa transparent}
+    #dan-owner-controls .ds-config-header{position:sticky;top:-20px;padding:5px 0 13px;background:var(--dan-paper);z-index:2}
+    #dan-owner-controls .ds-config-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+    #dan-owner-controls .ds-config-header h2{font-size:19px;font-weight:500;letter-spacing:-.04em}
+    #dan-owner-controls .ds-config-header button{width:32px;height:32px;border:1px solid var(--dan-line);border-radius:50%;background:transparent;color:inherit;font-size:20px}
+    #dan-owner-controls .ds-config details{border-top:1px solid var(--dan-line);padding-top:13px;margin-top:17px}
+    #dan-owner-controls .ds-config summary{font-size:13px;font-weight:500;list-style-position:inside;margin-bottom:11px}
+    #dan-owner-controls .ds-config label{display:block;font-size:12px;line-height:1.5;margin:12px 0}
+    #dan-owner-controls .ds-config input[type=text],#dan-owner-controls .ds-config select,#dan-owner-controls .ds-config textarea{display:block;width:100%;margin-top:6px;padding:10px 11px;background:#fbfbf9;border:1px solid #cecec7;border-radius:7px;font-size:14px;color:var(--dan-ink)}
+    #dan-owner-controls .ds-config textarea{resize:vertical;min-height:86px;line-height:1.5}
+    #dan-owner-controls .ds-config input[type=range]{display:block;width:100%;margin:7px 0;accent-color:var(--dan-ink);cursor:ew-resize}
+    #dan-owner-controls .ds-control-label{display:flex;justify-content:space-between;gap:12px}
+    #dan-owner-controls .ds-control-label output{color:var(--dan-muted);font-variant-numeric:tabular-nums}
+    #dan-owner-controls .ds-config .ds-check{display:flex;align-items:center;gap:9px;cursor:pointer}
+    #dan-owner-controls .ds-check input{accent-color:var(--dan-ink);width:16px;height:16px}
+    #dan-owner-controls .ds-config-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+    #dan-owner-controls .ds-config-buttons button{font-size:12px;padding:8px 11px;border:1px solid #c2c2bc;border-radius:18px;background:transparent;color:inherit}
+    #dan-owner-controls .ds-config-buttons button:hover{background:#e8e8e3}
+    #dan-owner-controls .ds-config-status{font-size:12px;margin-top:10px;color:var(--dan-muted)}
+    #dan-owner-controls .ds-color-row{display:flex;align-items:center;gap:9px;margin-top:6px}
+    #dan-owner-controls .ds-config .ds-color-row input[type=color]{width:37px;height:37px;flex:0 0 37px;padding:0;border:1px solid #cecec7;border-radius:7px;overflow:hidden;cursor:pointer;background:transparent}
+    #dan-owner-controls .ds-config .ds-color-row input[type=text]{margin-top:0;min-width:0;font-variant-numeric:tabular-nums}
+    #dan-owner-controls .ds-config input:disabled{opacity:.38;cursor:default}
+    #dan-owner-controls:not([data-owner-preview=true]) .ds-config-launch,#dan-owner-controls:not([data-owner-preview=true]) .ds-config{display:none!important}
+
+#dan-owner-controls{--dan-paper:#f5f5f2;--dan-ink:#111;--dan-muted:#555;--dan-line:rgba(17,17,17,.13);font-family:inherit;font-size:13px;line-height:1.5;color:var(--dan-ink);color-scheme:light}
+#dan-owner-controls *{box-sizing:border-box}
+#dan-owner-controls h2,#dan-owner-controls p{margin:0}
+#dan-owner-controls [hidden]{display:none!important}
+#dan-owner-controls button,#dan-owner-controls input,#dan-owner-controls select,#dan-owner-controls textarea{font:inherit}
+#dan-owner-controls button,#dan-owner-controls summary{cursor:pointer}
+#dan-owner-controls .ds-config-launch{cursor:grab}
+#dan-owner-controls .ds-config-launch.is-dragging{cursor:grabbing}
+@media(max-width:640px){#dan-owner-controls .ds-config input[type=text],#dan-owner-controls .ds-config select,#dan-owner-controls .ds-config textarea{font-size:16px}}
+
+#dan-owner-controls [hidden]{display:none!important}
+#dan-owner-controls .ds-rotate-count{font-size:12px;line-height:1.5;color:#666;margin:4px 0 18px}
+#dan-owner-controls .ds-config > details > summary{font-size:15px;font-weight:600}
+#dan-owner-controls .ds-config details details{margin-left:10px}
+#dan-owner-controls .ds-control-help{font-size:12px;line-height:1.5;color:var(--dan-muted);margin:12px 0}
+/* Keep the authenticated editor usable while previewing the image lightbox. */
+#dan-owner-controls .ds-config-launch{z-index:12001}
+#dan-owner-controls .ds-config{z-index:12000}
+#dan-owner-controls .ds-saved-version{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:15px 0;color:inherit;font-size:14px;text-decoration:none;border-bottom:1px solid var(--dan-line)}
+#dan-owner-controls .ds-saved-version:hover{text-decoration:underline;text-underline-offset:4px}

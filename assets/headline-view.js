@@ -1,5 +1,5 @@
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-navlab1';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-navlab1';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-perf1';
 import {headlineSettings} from './landing-schema.js?v=20261118-featured1';
 
 export function revealOffset(clipHeight,glyphHeight,fontSize,direction){

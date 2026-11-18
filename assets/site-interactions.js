@@ -2,12 +2,20 @@ function installLogoInkAlignment(){
   const bounds=new WeakMap(),cells=[...document.querySelectorAll('.site-logo')];
   function align(cell){
     const image=cell.querySelector('img'),label=cell.querySelector('.ds-nav-label');if(!image?.naturalWidth||!label)return;
-    let ink=bounds.get(image);
+    const src=image.currentSrc||image.src;
+    let ink=bounds.get(image)?.src===src?bounds.get(image).ink:null;
+    // The original artwork is content-addressed. These are its alpha > 24
+    // bounds, calculated once from the unscaled 2655 by 606 PNG.
+    if(!ink&&image.naturalWidth===2655&&image.naturalHeight===606&&
+      new URL(src).pathname==='/assets/media/ac892c82fb108875fa5b331a6f0a9e8086fff50d681fa2d92f2e42ca5db03a70.png'){
+      ink={x:6,y:5,w:2098,h:597};
+    }
     if(!ink)try{
       const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;let left=canvas.width,right=0,top=canvas.height,bottom=0;
       for(let y=0;y<canvas.height;y++)for(let x=0;x<canvas.width;x++)if(data[(y*canvas.width+x)*4+3]>24){left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);}
-      ink={x:left,y:top,w:right-left+1,h:bottom-top+1};bounds.set(image,ink);
+      ink={x:left,y:top,w:right-left+1,h:bottom-top+1};
     }catch{cell.dataset.logoReady='true';return;}
+    bounds.set(image,{src,ink});
     const compact=getComputedStyle(document.querySelector('.site-nav-toggle')||cell).display!=='none'&&innerWidth<=720;
     const crop={...ink,w:compact?ink.h:ink.w},available=compact?48:Math.min(205,Math.max(32,cell.clientWidth-48)),scale=Math.min(available/crop.w,48/crop.h);
     Object.assign(label.style,{display:'block',position:'relative',overflow:'hidden',width:crop.w*scale+'px',height:crop.h*scale+'px',flexBasis:'auto'});

@@ -3,7 +3,7 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261118-featured1';
+    navScript.src = '/assets/redesign-nav.js?v=20261118-perf1';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -58,11 +58,21 @@
     dialogDescription = dialogInfo.querySelector('.rv-dialog-description');
   }
 
+  function loadThumbnails(shelf) {
+    for (const image of shelf.querySelectorAll('img[data-video-thumb]')) {
+      const fallback = image.dataset.videoThumb;
+      image.removeAttribute('data-video-thumb');
+      image.decoding = 'async';
+      image.addEventListener('error', () => { image.src = fallback; }, { once: true });
+      image.src = fallback.replace('/hqdefault.jpg', '/maxresdefault.jpg');
+    }
+  }
   const setShelfOpen = (shelf, shouldOpen) => {
     const toggle = shelf.querySelector('.rv-shelf-toggle');
     const panel = shelf.querySelector('.rv-shelf-panel');
     if (!toggle || !panel) return;
 
+    if (shouldOpen) loadThumbnails(shelf);
     if (panel.hidden) panel.hidden = false;
     toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
     panel.classList.toggle('is-open', shouldOpen);
@@ -81,6 +91,9 @@
     const toggle = shelf.querySelector('.rv-shelf-toggle');
     const panel = shelf.querySelector('.rv-shelf-panel');
     if (panel) panel.hidden = false;
+    for (const event of ['pointerenter', 'focus', 'pointerdown']) {
+      toggle?.addEventListener(event, () => loadThumbnails(shelf), { once: true, passive: true });
+    }
 
     toggle?.addEventListener('click', () => {
       const isOpen = toggle.getAttribute('aria-expanded') === 'true';
@@ -106,22 +119,12 @@
     }
   });
 
-  document.querySelectorAll('.rv-video-thumb img').forEach((image) => {
-    const fallback = image.src;
-    if (!fallback.includes('/hqdefault.jpg')) return;
-    image.addEventListener('error', () => {
-      if (image.src !== fallback) image.src = fallback;
-    }, { once: true });
-    image.src = fallback.replace('/hqdefault.jpg', '/maxresdefault.jpg');
-    image.decoding = 'async';
-  });
-
   const resetPlayer = () => {
     if (frame) frame.src = '';
   };
 
   videoCards.forEach(card=>{if(!card.dataset.videoDescription)card.dataset.videoDescription=descriptions[card.dataset.youtubeId]||'';});
-  const openVideoCard = card => {if(!card)return false;import('/assets/project-views.js?v=20261118-featured1').then(module=>{module.installProjectViews();module.openProject(card);});return true;};
+  const openVideoCard = card => {if(!card)return false;import('/assets/project-views.js?v=20261118-perf1').then(module=>{module.installProjectViews();module.openProject(card);});return true;};
 
   videoCards.forEach((card) => {
     card.addEventListener('click', (event) => {

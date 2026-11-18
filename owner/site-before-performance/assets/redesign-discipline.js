@@ -1,0 +1,2 @@
+// All archive, featured and video projects share one controller.
+import('/owner/site-before-performance/assets/project-views.js?v=20261118-featured1').then(module=>module.installProjectViews());

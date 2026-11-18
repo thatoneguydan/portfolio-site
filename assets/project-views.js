@@ -1,4 +1,4 @@
-import {replaceProjectContent} from './project-panels.js?v=20261118-featured1';
+import {replaceProjectContent} from './project-panels.js?v=20261118-perf1';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const selector='.rdp-project-card,#featured-work .rd-work-card,.rv-video-card[data-youtube-id]';
@@ -57,7 +57,11 @@ export function openProject(card,{hash=true}={}){
     return;
   }
   close(active);
-  const shelf=document.createElement('section');shelf.className='rdp-project-shelf is-open';shelf.setAttribute('aria-label',title+' details');shelf.setAttribute('aria-hidden','false');shelf.dataset.projectSource=card.id;shelf.append(contentFor(card,title));
+  const shelf=document.createElement('section');shelf.className='rdp-project-shelf is-open';shelf.setAttribute('aria-label',title+' details');shelf.setAttribute('aria-hidden','false');shelf.dataset.projectSource=card.id;
+  // Moving a connected iframe into its clip destroys its browsing context
+  // and starts a second navigation. Assemble the final tree before insertion.
+  const clip=document.createElement('div');clip.className='portfolio-panel-clip';
+  clip.append(contentFor(card,title));shelf.append(clip);
   active={card,shelf};card.classList.add('is-active');card.setAttribute('aria-expanded','true');active.cancelInsert=insert(card,shelf);
   shelf.addEventListener('portfolio-panel-close',()=>{if(active?.shelf===shelf){close(active);history.replaceState(null,'',location.pathname+location.search);}});
   if(hash)history.replaceState(null,'',location.pathname+location.search+'#'+(card.closest('#featured-work')?'featured-':'project-')+slugFor(card));

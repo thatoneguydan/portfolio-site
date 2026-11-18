@@ -1,5 +1,5 @@
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
-import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-navlab1';
+import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261118-perf1';
 let viewer,photo,stage,dots,prev,next,closeButton,items=[],index=0,focusBack,drag=null,closing=0,token=0;
 const bound=new WeakSet(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const icon=name=>filledControlIcon(name);
@@ -53,7 +53,14 @@ export function bindImageDocument(doc){
   if(bound.has(doc))return;bound.add(doc);
   doc.querySelectorAll('.portfolio-lightbox:not(.portfolio-image-viewer)').forEach(el=>el.remove());
   doc.addEventListener('click',event=>{const trigger=event.target.closest('[data-lightbox-src]');if(!trigger)return;event.preventDefault();event.stopImmediatePropagation();
-    const triggers=[...doc.querySelectorAll('[data-lightbox-src]')],list=triggers.map(button=>{const image=button.querySelector('img'),candidates=(image?.getAttribute('srcset')||'').split(',').map(s=>s.trim().split(/\s+/)).filter(s=>Number(s[1]?.replace('w',''))<=1920);return{preview:image?.currentSrc||image?.src||button.dataset.lightboxSrc,full:candidates.at(-1)?.[0]||button.dataset.lightboxSrc,ratio:(image?.naturalWidth||image?.width||1)/(image?.naturalHeight||image?.height||1),alt:image?.alt||''};});
+    const triggers=[...doc.querySelectorAll('[data-lightbox-src]')];
+    const list=triggers.map(button=>{
+      const image=button.querySelector('img');
+      // Responsive preview renditions can have a different crop from the authored full-size image.
+      const set=image?.hasAttribute('data-responsive-preview')?'':image?.getAttribute('srcset')||'';
+      const candidates=set.split(',').map(s=>s.trim().split(/\s+/)).filter(s=>Number(s[1]?.replace('w',''))<=1920);
+      return {preview:image?.currentSrc||image?.src||button.dataset.lightboxSrc,full:candidates.at(-1)?.[0]||button.dataset.lightboxSrc,ratio:(image?.naturalWidth||image?.width||1)/(image?.naturalHeight||image?.height||1),alt:image?.alt||''};
+    });
     open(list,Math.max(0,triggers.indexOf(trigger)),trigger);
   },true);
 }

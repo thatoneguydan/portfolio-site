@@ -1,7 +1,7 @@
 import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261118-sizing1';
-import {appendEmojiText} from './site-emoji.js?v=20261117-navlab1';
+import {appendEmojiText} from './site-emoji.js?v=20261118-perf1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
-import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-navlab1';
+import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261118-perf1';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale}){
   const hero=root.querySelector('.ds-hero');
@@ -138,6 +138,12 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     photoWindow.style.clipPath=`inset(0px round ${radii.photo}px)`;
     photoWindow.style.top=photoWindow.style.left=photoWindow.style.right=(isCompact?6:8)*scale+'px';
     photoWindow.style.height=`calc(${isCompact?76:78}% - ${(isCompact?6:16)*scale}px)`;
+    // A square source must cover both crop dimensions, including tilt overscan.
+    // Use the target size as soon as a layout or an expansion starts.
+    const horizontal=config.ticketOrientation!=='vertical';
+    const photoWidth=width-(horizontal?panel:0);
+    const photoHeight=(height-(horizontal?0:panel))*(isCompact?.76:.78);
+    photo.sizes=Math.ceil((Math.max(photoWidth,photoHeight)+2*config.ticketParallax*scale)*config.badgeHoverScale)+'px';
     photo.style.objectPosition=`${config.photoPositionX}% ${config.photoPosition}%`;
     copy.style.padding='0';
     // Type is laid out in canonical design coordinates, then scaled as a plane.
@@ -230,11 +236,14 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
   const introObserver=new ResizeObserver(alignFullID);
   introObserver.observe(intro);
   function layout(animate=true){
-    const before=carrier.getBoundingClientRect(),from=captureLook(),heroWidth=hero.clientWidth;
     const navToggle=document.querySelector('.site-nav-toggle');
     const linkedToNav=config.badgeLinkNavBreakpoint&&navToggle;
     const nextCompact=!!config.ticketResponsive&&(linkedToNav?getComputedStyle(navToggle).display!=='none':innerWidth<=config.badgeBreakpoint);
-    const changed=nextCompact!==compact;compact=nextCompact;
+    const changed=nextCompact!==compact;
+    // Capture two painted poses only when crossing the badge breakpoint starts a morph.
+    const morphLayout=changed&&!firstLayout&&animate&&!opened&&!busy;
+    const before=morphLayout?carrier.getBoundingClientRect():null,from=morphLayout?captureLook():null;
+    compact=nextCompact;
     hero.classList.toggle('is-compact',compact);
     fitText();
     let compactGeometry;
@@ -252,7 +261,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     ticketStage.style.setProperty('--badge-anchor-height',inlineGeometry.height+'px');
     if(!opened&&!busy){
       look(compact,inlineGeometry);sizeCarrier(inlineGeometry);
-      if(changed&&!firstLayout&&animate)flip(before,carrier.getBoundingClientRect(),from);
+      if(morphLayout)flip(before,carrier.getBoundingClientRect(),from);
     }else if(opened&&!busy){placeExpanded();}
     firstLayout=false;scrollTop=hero.getBoundingClientRect().top+window.scrollY;updateScroll();
   }
