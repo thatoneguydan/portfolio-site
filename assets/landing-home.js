@@ -1,10 +1,10 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-sizing1';
-import {createBadge} from './landing-badge.js?v=20261118-sizing1';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-viewport1';
+import {createBadge} from './landing-badge.js?v=20261118-viewport1';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-navlab1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261117-navlab1';
 import {expandedGalleryHeight,galleryCaptionKind} from './gallery-layout.js?v=20261117-navlab1';
-import {siteReady} from './site-runtime.js?v=20261118-sizing1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-sizing1';
+import {siteReady} from './site-runtime.js?v=20261118-viewport1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-viewport1';
 (async() => {
   'use strict';
   const root=document.getElementById('dan-landing-home'); if(!root)return;
@@ -13,12 +13,27 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-sizing1';
   const hero=root.querySelector('.ds-hero'),cta=intro.querySelector('.ds-contact');
   // The reference composition has a 920 CSS-pixel content area inside the site gutters.
   function fullHeroScale(){return config.heroScaleWithWidth ? Math.max(1,hero.clientWidth)/920 : 1;}
+  // Document coordinates keep the fold at the original page position while scrolling.
+  function measureLandingOrigin(){
+    if(config.heroFeaturedBelowFold)root.style.setProperty('--landing-document-top',(root.getBoundingClientRect().top+window.scrollY)+'px');
+  }
+  const header=document.querySelector('.site-header');
+  const headerObserver=new ResizeObserver(measureLandingOrigin);
+  if(header)headerObserver.observe(header);
+  function mobileNavigation(){
+    const toggle=document.querySelector('.site-nav-toggle');
+    return toggle?getComputedStyle(toggle).display!=='none':innerWidth<=720;
+  }
   function applyHeroLayout(){
+    const topSpace=mobileNavigation()?config.heroMobileTopSpace:config.heroDesktopTopSpace;
+    hero.style.setProperty('--hero-top-space',topSpace/100);
     hero.classList.toggle('scales-with-width',config.heroScaleWithWidth);
     hero.style.setProperty('--hero-width-scale',fullHeroScale());
     cta.style.setProperty('--contact-button-scale',config.heroCtaScale/100);
     root.style.setProperty('--hero-cta-offset',config.heroCtaOffset+'px');
     root.style.setProperty('--hero-featured-spacing',config.heroFeaturedSpacing/100);
+    root.classList.toggle('featured-below-fold',config.heroFeaturedBelowFold);
+    measureLandingOrigin();
   }
   const ticket=root.querySelector('.ds-ticket'),ticketStage=root.querySelector('.ds-ticket-stage');
   const headshot=root.querySelector('.ds-headshot'),photoWindow=root.querySelector('.ds-photo-window');
@@ -110,8 +125,7 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-sizing1';
     if(save)persist();
   }
   function updateCaptions(){
-    const navToggle=document.querySelector('.site-nav-toggle');
-    const mobile=navToggle?getComputedStyle(navToggle).display!=='none':innerWidth<=720;
+    const mobile=mobileNavigation();
     gallery.dataset.mobile=String(mobile);
     panels.forEach((panel,i)=>{
       const kind=galleryCaptionKind({active:i===config.activeIndex,vertical:gallery.dataset.layout==='vertical',mobile,hovered:panel.matches(':hover'),focused:panel.matches(':focus-visible')});
@@ -119,8 +133,7 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-sizing1';
     });
   }
   function renderGallery() {
-    const navToggle=document.querySelector('.site-nav-toggle');
-    const vertical=navToggle?getComputedStyle(navToggle).display!=='none':innerWidth<=720;
+    const vertical=mobileNavigation();
     const layout=vertical?'vertical':'horizontal',changed=gallery.dataset.layout!==layout;
     if(changed)gallery.classList.add('is-switching-layout');
     const gap=vertical?config.verticalGalleryGap:config.galleryGap;
@@ -169,7 +182,7 @@ import {revealFrames,revealOffset} from './headline-view.js?v=20261118-sizing1';
 
   const resize=()=>{applyHeroLayout();fitText();renderGallery();badge.layout();};
   addEventListener('resize',resize);let lastRootWidth=0;new ResizeObserver(()=>{if(root.clientWidth!==lastRootWidth){lastRootWidth=root.clientWidth;resize();}}).observe(root);
-  addEventListener('pagehide',event=>{if(event.persisted)return;badge.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
+  addEventListener('pagehide',event=>{if(event.persisted)return;headerObserver.disconnect();badge.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
   window.portfolioLanding=api;
   api.register({update(next){Object.assign(config,next);render();},replay});
   lastFit='';resize();document.documentElement.classList.remove('landing-loading');requestAnimationFrame(replay);

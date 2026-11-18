@@ -1,5 +1,5 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-navlab1';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-sizing1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-viewport1';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-navlab1';document.head.append(stylesheet);
@@ -58,6 +58,7 @@ export function mountTune(api){
       <details><summary>Floating close button</summary><div data-controls="projectClose"></div><details><summary>Button drop shadow</summary><div data-controls="projectCloseShadow"></div></details></details>
       <details><summary>Wave-bars loader</summary><div data-controls="projectLoader"></div><div class="ds-loader-preview"><span class="portfolio-wave-loader" role="status" aria-label="Loading preview">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span></div></details>
     </details>
+    <details><summary>Bottom-edge blur</summary><div data-controls="pageBlur"></div></details>
     <details><summary>Image lightbox</summary><div data-controls="lightbox"></div></details>
     <details><summary>Navigation</summary><div data-controls="navShadow"></div></details>
     <details><summary>Footer</summary><div data-controls="footer"></div><div class="ds-config-buttons"><button type="button" data-reset-footer>Restore original footer</button></div></details>

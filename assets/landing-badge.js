@@ -5,6 +5,7 @@ import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale}){
   const hero=root.querySelector('.ds-hero');
+  const actionRow=intro.querySelector('.ds-intro-actions');
   const photo=ticket.querySelector('.ds-headshot'),photoWindow=ticket.querySelector('.ds-photo-window');
   const name=ticket.querySelector('.ds-ticket-footer'),heading=ticket.querySelector('.ds-ticket-heading');
   const copy=ticket.querySelector('.ds-ticket-copy'),bio=ticket.querySelector('.ds-bio');
@@ -214,6 +215,20 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     morphStartPose=from.pose;paint();animateMotion();
     return Promise.all(morphParts.map(a=>a.finished.catch(()=>{}))).then(()=>{if(generation===morphGeneration){morphStartPose=null;morphing=false;paint();settleHover();}});
   }
+  function alignFullID(){
+    if(compact||!inlineGeometry)return;
+    // Both edges stay in their final layout during headline reveals and pill presses.
+    const introTop=intro.getBoundingClientRect().top;
+    const midpoint=(h1.getBoundingClientRect().top+actionRow.getBoundingClientRect().bottom)/2-introTop;
+    const stageOffset=midpoint-inlineGeometry.height/2-parseFloat(getComputedStyle(ticketStage).paddingTop);
+    // Oversized IDs may use the space above the text. Only add headroom when
+    // the stage would cross the hero's boundary into the site navigation.
+    const headroom=Math.max(0,-stageOffset-parseFloat(getComputedStyle(hero).paddingTop));
+    hero.style.setProperty('--id-stage-offset',stageOffset+'px');
+    hero.style.setProperty('--id-headroom',headroom+'px');
+  }
+  const introObserver=new ResizeObserver(alignFullID);
+  introObserver.observe(intro);
   function layout(animate=true){
     const before=carrier.getBoundingClientRect(),from=captureLook(),heroWidth=hero.clientWidth;
     const navToggle=document.querySelector('.site-nav-toggle');
@@ -232,6 +247,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     hero.style.setProperty('--badge-compact-width',(compactGeometry?.width||0)+'px');
     const style=getComputedStyle(ticketStage),available=Math.max(1,ticketStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight));
     inlineGeometry=compact?compactGeometry:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation,true,fullHeroScale());
+    alignFullID();
     // The empty anchor keeps its real geometry while the badge is in the dialog.
     ticketStage.style.setProperty('--badge-anchor-height',inlineGeometry.height+'px');
     if(!opened&&!busy){
@@ -320,5 +336,5 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     const animation=carrier.animate(sequence.frames,{duration:sequence.duration,delay:entranceDelay(config.badgeEntrancePosition,lineTimes),easing:'linear',fill:'backwards'});
     entrance=animation;animation.finished.catch(()=>{}).then(()=>{if(entrance===animation)entrance=null;});
   }
-  return {layout,enter,update:()=>{if(!busy&&!morphing)motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){++morphGeneration;morphStartPose=null;cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();dragReturn?.cancel();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);unlockOverlayScroll(dialog);dialog.remove();}};
+  return {layout,enter,update:()=>{if(!busy&&!morphing)motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){++morphGeneration;morphStartPose=null;cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();dragReturn?.cancel();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();introObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);unlockOverlayScroll(dialog);dialog.remove();}};
 }

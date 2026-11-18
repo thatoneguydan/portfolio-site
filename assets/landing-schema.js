@@ -9,10 +9,13 @@ export const defaults = {
   "heroIntroLines": 2,
   "heroIntroScale": 64,
   "heroClosingScale": 120,
+  "heroDesktopTopSpace": 100,
+  "heroMobileTopSpace": 100,
   "heroScaleWithWidth": true,
   "heroCtaScale": 100,
   "heroCtaOffset": 0,
   "heroFeaturedSpacing": 100,
+  "heroFeaturedBelowFold": false,
   "rotateEnabled": true,
   "rotateTarget": "3:3",
   "rotateWords": "GREAT, CLEAR, MEMORABLE",
@@ -25,6 +28,11 @@ export const defaults = {
   "portfolioBlurStrength": 8,
   "portfolioBlurHeight": 33,
   "portfolioBlurDuration": 240,
+  "pageBlurHome": false,
+  "pageBlurOther": false,
+  "pageBlurHeight": 16,
+  "pageBlurStrength": 14,
+  "pageBlurFalloff": "even",
   "lightboxBlur": 12,
   "lightboxColor": "#000000",
   "lightboxOpacity": 55,
@@ -207,10 +215,13 @@ export const defaults = {
 };
 export const controlGroups = {
     heroLayout: [
+      ['range','heroDesktopTopSpace','Space below desktop navigation',0,400,1,'%'],
+      ['range','heroMobileTopSpace','Space below mobile navigation',0,400,1,'%'],
       ['check','heroScaleWithWidth','Scale headline and full ID with available width'],
       ['range','heroCtaScale','Button size',40,200,1,'%'],
       ['range','heroCtaOffset','Button vertical offset',-160,320,1,'px'],
-      ['range','heroFeaturedSpacing','Space before Featured work',0,400,1,'%']
+      ['range','heroFeaturedSpacing','Space before Featured work',0,400,1,'%'],
+      ['check','heroFeaturedBelowFold','Start Featured work below the first screen']
     ],
     landingHierarchy: [
       ['range','heroIntroLines','Introductory lines',0,5,1,''],
@@ -379,6 +390,13 @@ export const controlGroups = {
       ['range','projectCloseRight','Close offset from right',-60,120,1,'px'],
       ['range','projectCloseTop','Close offset from top',-60,120,1,'px'],
       ['range','projectCloseNavGap','Close spacing below navigation',0,120,1,'px']
+    ],
+    pageBlur: [
+      ['check','pageBlurHome','Enable on the landing page'],
+      ['check','pageBlurOther','Enable on other pages'],
+      ['range','pageBlurHeight','Blur height',2,50,1,'% of viewport'],
+      ['range','pageBlurStrength','Maximum blur radius',0,40,.5,'px'],
+      ['select','pageBlurFalloff','Blur buildup',[['even','Even'],['bottom','Concentrated near the bottom'],['broad','Broad']]]
     ],
     lightbox: [
       ['range','lightboxBlur','Backdrop blur',0,60,0.5,'px'],

@@ -24,6 +24,24 @@
 #dan-landing-home .ds-long .ds-rotate {max-width:100%;grid-template-columns:minmax(0,1fr);white-space:normal}
 #dan-landing-home .ds-long .ds-rotate-measure,#dan-landing-home .ds-long .ds-rotate-entry {white-space:normal;overflow-wrap:anywhere}
 
+/* Viewport blur sits above page content and below the site navigation and dialogs. */
+.portfolio-page-blur {
+  position:fixed;inset:auto 0 0;z-index:40;
+  height:calc(var(--blur-height) * 1vh);height:calc(var(--blur-height) * 1dvh);
+  pointer-events:none;user-select:none;visibility:hidden;transition:visibility 0s linear 180ms;
+}
+.portfolio-page-blur.is-enabled {visibility:visible;transition-delay:0s}
+.portfolio-page-blur > span {
+  position:absolute;inset:0;pointer-events:none;
+  -webkit-mask-image:var(--band-mask);mask-image:var(--band-mask);
+  -webkit-backdrop-filter:blur(var(--band-radius));backdrop-filter:blur(var(--band-radius));
+  opacity:0;transition:opacity 180ms ease;
+}
+.portfolio-page-blur.is-enabled > span {opacity:1}
+@starting-style {.portfolio-page-blur.is-enabled > span {opacity:0}}
+@media (prefers-reduced-motion:reduce){.portfolio-page-blur,.portfolio-page-blur > span {transition:none}}
+@media print,(forced-colors:active),(prefers-reduced-transparency:reduce){.portfolio-page-blur {display:none}}
+
 /* A masked copy of the thumbnail prevents sampling the page at image edges. */
 .portfolio-blur {position:absolute;inset:0;z-index:2;display:block;overflow:hidden;pointer-events:none;border-radius:inherit;user-select:none;-webkit-user-select:none}
 .portfolio-blur * {user-select:none;-webkit-user-select:none;-webkit-user-drag:none}

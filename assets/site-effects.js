@@ -1,21 +1,49 @@
 import {installAuthoredEmoji} from './site-emoji.js?v=20261117-navlab1';
 import {setPaletteSaturation} from './palette-glyph.js?v=20261117-navlab1';
-import {defaults} from './landing-schema.js?v=20261118-sizing1';
+import {defaults} from './landing-schema.js?v=20261118-viewport1';
 import {installSettledShelfText} from './settled-text.js';
 import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261117-navlab1';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-sizing1';
-import './site-runtime.js?v=20261118-sizing1';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-viewport1';
+import './site-runtime.js?v=20261118-viewport1';
 import {installSiteInteractions} from './site-interactions.js?v=20261117-navlab1';
-import {installProjectViews} from './project-views.js?v=20261118-sizing1';
+import {installProjectViews} from './project-views.js?v=20261118-viewport1';
 import {installImageViewer} from './image-viewer.js?v=20261117-navlab1';
 
-const href='/assets/site-effects.css?v=20261117-navlab1';
+const href='/assets/site-effects.css?v=20261118-viewport1';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
 installAuthoredEmoji();installSettledShelfText();installSiteInteractions();installProjectPanels();installProjectViews();installImageViewer();
 let config={...defaults,...window.portfolioLandingConfig};
 setPaletteSaturation(config.paletteSaturation);
+const insideShelf=window.parent!==window&&new URLSearchParams(location.search).get('inlineShelf')==='1';
+const onLandingPage=!!document.getElementById('dan-landing-home');
+let pageBlur;
+function applyPageBlur(){
+  if(insideShelf)return;
+  const enabled=onLandingPage?config.pageBlurHome:config.pageBlurOther;
+  if(!pageBlur){
+    if(!enabled)return;
+    pageBlur=document.createElement('div');pageBlur.className='portfolio-page-blur';pageBlur.setAttribute('aria-hidden','true');
+    // Each pass introduces a finer or coarser blur over a feathered band.
+    // Keep the parent clear so every layer can sample the actual page behind it.
+    for(let i=0;i<5;i++){
+      const layer=document.createElement('span'),start=i*20;
+      const mask=`linear-gradient(to bottom, transparent ${start}%, black ${start+20}%, black ${start+40}%, transparent ${start+60}%)`;
+      layer.style.setProperty('--band-mask',mask);
+      pageBlur.append(layer);
+    }
+    document.body.append(pageBlur);
+  }
+  pageBlur.style.setProperty('--blur-height',config.pageBlurHeight);
+  const exponent={even:1,bottom:2.4,broad:.65}[config.pageBlurFalloff];
+  [...pageBlur.children].forEach((layer,i)=>{
+    layer.style.setProperty('--band-radius',config.pageBlurStrength*((i+1)/5)**exponent+'px');
+  });
+  pageBlur.classList.toggle('is-enabled',enabled&&config.pageBlurStrength>0);
+}
+applyPageBlur();
+applyProjectConfig(config);
 const cards=new Set(),seen=new WeakSet();
 const cardResize=new ResizeObserver(entries=>{for(const {target}of entries)schedule(target);});
 function captionVisible(card){
@@ -109,8 +137,7 @@ new MutationObserver(records=>{
     else if(!(record.attributeName==='style'&&record.target.matches('.rdp-project-card')))schedule(record.target.closest('.ds-panel,.rdp-project-card'));
   }
 }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-caption-visible','data-caption-kind','data-focused','class','style','src']});
-function update(next){config={...defaults,...next};setPaletteSaturation(config.paletteSaturation);applyProjectConfig(config);for(const card of cards)sync(card);}
+function update(next){config={...defaults,...next};applyPageBlur();setPaletteSaturation(config.paletteSaturation);applyProjectConfig(config);for(const card of cards)sync(card);}
 document.addEventListener('portfolio-appearance',event=>update(event.detail));
 document.addEventListener('portfolio-caption-position',event=>schedule(event.target.closest('.rdp-project-card')));
 addEventListener('resize',()=>{for(const card of cards)schedule(card);},{passive:true});
-if(!document.getElementById('dan-landing-home'))fetch('/api/landing-settings',{credentials:'same-origin',cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{if(data?.config)update(data.config);}).catch(()=>{});
