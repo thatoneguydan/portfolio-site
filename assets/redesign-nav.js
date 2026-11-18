@@ -1,8 +1,8 @@
 (() => {
   'use strict';
   // Shared authored emoji and portfolio hover treatment, including project shelves.
-  import('/assets/site-effects.js?v=20261117-lightbox2').catch(()=>{});
-  import('/assets/site-runtime.js?v=20261117-lightbox2').catch(()=>{});
+  import('/assets/site-effects.js?v=20261117-hierarchy3').catch(()=>{});
+  import('/assets/site-runtime.js?v=20261117-hierarchy3').catch(()=>{});
 
   /* Use the original portfolio favicon as a real asset on every redesign route. */
   const faviconHref = '/favicon.ico?v=20260910-original';
@@ -31,13 +31,13 @@
   if (!document.querySelector(`link[href^="${stylesheetPath}"]`)) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `${stylesheetPath}?v=20261117-lightbox2`;
+    link.href = `${stylesheetPath}?v=20261117-hierarchy3`;
     document.head.append(link);
   }
 
   if (!document.querySelector('script[data-redesign-contact-shelf]')) {
     const contactShelfScript = document.createElement('script');
-    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=20261117-lightbox2';
+    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=20261117-hierarchy3';
     contactShelfScript.dataset.redesignContactShelf = '';
     document.head.append(contactShelfScript);
   }

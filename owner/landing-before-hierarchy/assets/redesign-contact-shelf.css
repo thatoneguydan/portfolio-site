@@ -1,0 +1,16 @@
+.rc-inline-contact-shelf {width:100%;display:grid;grid-template-rows:0fr;overflow:hidden;overflow-anchor:none;border-top:1px solid transparent;border-bottom:1px solid transparent;background:#f5f5f2;opacity:0;transition:grid-template-rows 460ms cubic-bezier(.2,.72,.2,1),opacity 220ms ease,border-color 220ms ease}
+.rc-inline-contact-shelf.is-open {grid-template-rows:1fr;border-color:#1112;opacity:1}
+.rc-inline-contact-shell {position:relative;min-height:0;overflow:hidden;background:#f5f5f2}
+.rc-inline-contact-close {position:absolute;z-index:5;top:16px;right:0;width:40px;height:40px;display:grid;place-items:center;padding:0;border:1px solid #111;border-radius:50%;background:#111;color:#fff;font:22px/1 Arial,sans-serif;cursor:pointer;transition:background 160ms ease,color 160ms ease}
+.rc-inline-contact-close:hover,.rc-inline-contact-close:focus-visible {background:#f5f5f2;color:#111}
+.rc-inline-contact-close:focus-visible {outline:2px solid #111;outline-offset:4px}
+.rc-inline-contact-placeholder {position:relative;width:100%;opacity:.35;pointer-events:none;transition:opacity 160ms ease}
+.rc-inline-contact-placeholder .rc-contact {margin:0}
+.rc-placeholder-detail {display:block;max-width:200px;height:15px;margin-top:3px;border-radius:8px;background:#1113}
+.rc-inline-contact-frame {position:absolute;inset:0;width:100%;display:block;border:0;background:#f5f5f2;opacity:0;transition:opacity 180ms ease}
+.rc-inline-contact-shelf.is-loaded .rc-inline-contact-frame {position:relative;opacity:1}
+.rc-inline-contact-shelf.is-loaded .rc-inline-contact-placeholder {position:absolute;inset:0;opacity:0;visibility:hidden}
+.rc-inline-contact-error {position:relative;z-index:3;margin:0 0 24px;padding:16px;border:1px solid #1113;border-radius:12px;background:#f5f5f2;font-size:15px}
+.rc-inline-contact-error[hidden] {display:none}
+#dan-landing-home .ds-hero.has-contact-shelf {padding-bottom:24px}
+@media(prefers-reduced-motion:reduce){.rc-inline-contact-shelf,.rc-inline-contact-frame,.rc-inline-contact-placeholder {transition:none}}

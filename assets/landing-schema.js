@@ -6,6 +6,9 @@ export const defaults = {
   "line5": "",
   "line6": "",
   "lineCount": 3,
+  "heroIntroLines": 2,
+  "heroIntroScale": 64,
+  "heroClosingScale": 120,
   "rotateEnabled": true,
   "rotateTarget": "3:3",
   "rotateWords": "GREAT, CLEAR, MEMORABLE",
@@ -195,6 +198,11 @@ export const defaults = {
   "verticalGalleryPadding": 17
 };
 export const controlGroups = {
+    landingHierarchy: [
+      ['range','heroIntroLines','Introductory lines',0,5,1,''],
+      ['range','heroIntroScale','Introductory text size',40,100,1,'%'],
+      ['range','heroClosingScale','Closing line size',100,150,1,'%']
+    ],
     headlineTypography: [
       ['range','lineCount','Number of lines',1,6,1,''],
       ['range','fontSize','Text size',30,120,1,'px'], ['range','fontWeight','Text weight',100,900,100,''],

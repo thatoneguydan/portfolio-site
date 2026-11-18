@@ -1,7 +1,7 @@
-import {defaults} from './landing-schema.js?v=20261117-lightbox2';
-import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-lightbox2';
-import {prepareProjectDocument} from './project-content.js?v=20261117-lightbox2';
-import {filledControlIcon} from './filled-controls.js?v=20261117-lightbox2';
+import {defaults} from './landing-schema.js?v=20261117-hierarchy3';
+import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-hierarchy3';
+import {prepareProjectDocument} from './project-content.js?v=20261117-hierarchy3';
+import {filledControlIcon} from './filled-controls.js?v=20261117-hierarchy3';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
 const panels=new Set(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const rgba=(hex,opacity)=>`rgba(${hex.match(/\w\w/g).map(s=>parseInt(s,16))},${opacity/100})`;

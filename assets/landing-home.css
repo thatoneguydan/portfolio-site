@@ -170,3 +170,39 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
   #dan-landing-home .ds-gallery[data-layout=vertical] .ds-compact-caption strong {font-size:var(--compact-title-size,14px);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
   #dan-landing-home .ds-gallery[data-layout=vertical] .ds-panel[data-focused=true] .ds-compact-caption {opacity:0}
   #dan-landing-home .ds-gallery[data-layout=vertical] .ds-panel[data-caption-kind=compact] .ds-compact-caption {opacity:1}
+
+/* Landing hierarchy: context, message, action, then evidence. */
+.landing-refresh{overflow-x:clip}
+#dan-landing-home .ds-hero{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(32px,4vw,72px);padding:clamp(64px,7vw,104px) 0 clamp(56px,6vw,88px)}
+#dan-landing-home .ds-hero-kicker{font-size:11px;font-weight:700;letter-spacing:.13em;line-height:1.5;text-transform:uppercase;color:#66665f;margin:0 0 24px}
+#dan-landing-home .ds-reveal .ds-intro-line{font-size:calc(1em * var(--intro-line-scale,.64));color:#62625c;letter-spacing:-.035em}
+#dan-landing-home .ds-reveal .ds-closing-line{font-size:calc(1em * var(--closing-line-scale,1.2));letter-spacing:-.045em}
+#dan-landing-home .ds-intro-line + .ds-reveal-line:not(.ds-intro-line){margin-top:.25em}
+#dan-landing-home .ds-hero:not(.is-compact) .ds-ticket-stage{max-width:430px;justify-self:end;padding:18px 16px}
+#dan-landing-home .ds-intro-actions{margin-top:30px;gap:26px}
+#dan-landing-home .ds-intro-actions .ds-contact{min-width:198px;min-height:58px;margin:0;padding:0 28px;font-size:15px;gap:20px;letter-spacing:0}
+#dan-landing-home .ds-intro-actions .ds-contact span{font-size:22px}
+#dan-landing-home .ds-work-link{display:inline-flex;align-items:center;gap:16px;min-height:48px;font-size:14px;font-weight:600;color:#55554f;text-decoration:none;text-underline-offset:5px}
+#dan-landing-home .ds-work-link:hover{text-decoration:underline;color:#111}
+#dan-landing-home .ds-work-link span{font-size:18px}
+#dan-landing-home .ds-featured{padding:28px 0 clamp(56px,6vw,88px);border-top:1px solid var(--dan-line);scroll-margin-top:120px}
+#dan-landing-home .ds-section-head{gap:24px;margin-bottom:24px;align-items:center}
+#dan-landing-home .ds-section-head h2{font-size:clamp(26px,2.3vw,34px);line-height:1.1;letter-spacing:-.04em;font-weight:650}
+#dan-landing-home .ds-section-head p{max-width:36ch;font-size:14px;line-height:1.5;color:#676760}
+.landing-refresh .rd-footer-cta{min-height:0;padding:clamp(68px,7vw,104px) 0}
+.landing-refresh .rd-footer-cta h2{max-width:18ch;font-size:clamp(38px,4vw,56px);line-height:1.04}
+.landing-refresh .rd-footer-cta .rd-footer-cta-button{min-width:198px;min-height:58px;margin-top:28px;padding:0 28px;font-size:15px;letter-spacing:0}
+@media(max-width:720px){
+  #dan-landing-home .ds-hero{padding:54px 0 48px;gap:0}
+  #dan-landing-home .ds-hero-kicker{font-size:10px;letter-spacing:.1em;margin-bottom:24px}
+  #dan-landing-home .ds-hero.is-compact .ds-intro-actions{margin-top:28px;gap:22px}
+  #dan-landing-home .ds-intro-actions .ds-contact{min-width:174px;min-height:54px;padding:0 24px;font-size:14px}
+  #dan-landing-home .ds-work-link{font-size:13px;gap:12px}
+  #dan-landing-home .ds-section-head{align-items:flex-start;flex-direction:column;gap:10px;margin-bottom:22px}
+  #dan-landing-home .ds-section-head h2{font-size:26px}
+  #dan-landing-home .ds-section-head p{max-width:32ch;font-size:14px}
+  #dan-landing-home .ds-featured{padding-top:24px;padding-bottom:52px;scroll-margin-top:96px}
+  .landing-refresh .rd-footer-cta{padding:60px 16px}
+  .landing-refresh .rd-footer-cta h2{font-size:38px;max-width:15ch}
+}
+@media(max-width:360px){#dan-landing-home .ds-intro-actions{gap:14px!important}#dan-landing-home .ds-intro-actions .ds-contact{min-width:156px;padding:0 20px}}

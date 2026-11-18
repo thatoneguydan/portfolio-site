@@ -1,0 +1,166 @@
+(() => {
+  'use strict';
+
+  const isInlineContactShelf = new URLSearchParams(window.location.search).get('inlineShelf') === '1';
+  if (isInlineContactShelf) document.body.classList.add('contact-inline-embed');
+
+  if (!isInlineContactShelf && !document.querySelector('script[data-redesign-nav]')) {
+    const navScript = document.createElement('script');
+    navScript.src = '/owner/landing-before-hierarchy/assets/redesign-nav.js?v=20261117-lightbox2';
+    navScript.dataset.redesignNav = '';
+    document.head.append(navScript);
+  }
+
+  /* Project pages already load this shared runtime. Loading the shelf module
+     here as well makes Contact CTAs reliable even on compatibility pages where
+     the redesign body classes are applied asynchronously. */
+  if (!isInlineContactShelf && !document.querySelector('script[data-redesign-contact-shelf]')) {
+    const shelfScript = document.createElement('script');
+    shelfScript.src = '/owner/landing-before-hierarchy/assets/redesign-contact-shelf.js?v=20261117-lightbox2';
+    shelfScript.dataset.redesignContactShelf = '';
+    document.head.append(shelfScript);
+  }
+
+  const tokenKeys = [29, 71, 43, 97, 13, 53, 83];
+  const decodeContactToken = (token) => String(token || '').split('.').filter(Boolean).map((part, index) => {
+    const value = Number(part);
+    return Number.isInteger(value) ? String.fromCharCode(value ^ tokenKeys[index % tokenKeys.length]) : '';
+  }).join('');
+
+  for (const node of document.querySelectorAll('[data-contact-email][data-contact-token]')) {
+    node.textContent = decodeContactToken(node.dataset.contactToken);
+  }
+
+  if (!isInlineContactShelf && !document.body.classList.contains('project-redesign') && !document.querySelector('script[data-redesign-project-compat]')) {
+    const compatibilityScript = document.createElement('script');
+    compatibilityScript.src = '/assets/redesign-project-compat.js?v=20260910-contact-shelf';
+    compatibilityScript.dataset.redesignProjectCompat = '';
+    document.head.append(compatibilityScript);
+  }
+
+  const contactForms = Array.from(document.querySelectorAll('[data-portfolio-contact]'));
+  const setContactStatus = (form, message) => {
+    const status = form.querySelector('[data-contact-status]');
+    if (status) status.textContent = message || '';
+  };
+
+  let turnstileLoader = null;
+  const loadTurnstile = () => {
+    if (window.turnstile?.render) return Promise.resolve(window.turnstile);
+    if (turnstileLoader) return turnstileLoader;
+    turnstileLoader = new Promise((resolve, reject) => {
+      const ready = () => {
+        if (window.turnstile?.render) resolve(window.turnstile);
+        else reject(new Error('Verification could not initialize.'));
+      };
+      const fail = () => reject(new Error('Verification could not load.'));
+      const existing = document.querySelector('script[data-portfolio-turnstile-script]');
+      if (existing) {
+        if (window.turnstile?.render) { ready(); return; }
+        existing.addEventListener('load', ready, { once: true });
+        existing.addEventListener('error', fail, { once: true });
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.dataset.portfolioTurnstileScript = '';
+      script.addEventListener('load', ready, { once: true });
+      script.addEventListener('error', fail, { once: true });
+      document.head.append(script);
+    });
+    return turnstileLoader;
+  };
+
+  const initializeContactTurnstile = async (form) => {
+    const host = form.querySelector('[data-contact-turnstile]');
+    const sitekey = String(form.dataset.turnstileSitekey || '').trim();
+    if (!host || !sitekey) return;
+    try {
+      const turnstile = await loadTurnstile();
+      const widgetId = turnstile.render(host, {
+        sitekey,
+        appearance: 'interaction-only',
+        callback(token) {
+          form.dataset.turnstileToken = String(token || '');
+          setContactStatus(form, '');
+        },
+        'expired-callback'() { form.dataset.turnstileToken = ''; },
+        'timeout-callback'() { form.dataset.turnstileToken = ''; },
+        'error-callback'() {
+          form.dataset.turnstileToken = '';
+          setContactStatus(form, 'Verification could not load. Please refresh and try again.');
+        }
+      });
+      form.dataset.turnstileWidget = String(widgetId);
+    } catch (error) {
+      console.error('Turnstile initialization failed:', error?.message || error);
+      setContactStatus(form, 'Verification could not load. Please refresh and try again.');
+    }
+  };
+
+  for (const form of contactForms) initializeContactTurnstile(form);
+
+  document.addEventListener('submit', async (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.matches('[data-portfolio-contact]')) return;
+    if (!form.checkValidity()) return;
+    event.preventDefault();
+    if (form.dataset.submitting === 'true') return;
+
+    const value = (name) => String(form.elements.namedItem(name)?.value || '').trim();
+    const name = value('field1') || value('name');
+    const senderEmail = value('email');
+    const message = value('field2') || value('message');
+    const website = value('website');
+    const turnstileToken = String(form.dataset.turnstileToken || '').trim();
+    const endpoint = String(form.dataset.contactEndpoint || '/api/contact').trim();
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    if (!turnstileToken) {
+      setContactStatus(form, 'Please complete the verification and try again.');
+      return;
+    }
+
+    form.dataset.submitting = 'true';
+    if (submitButton) submitButton.disabled = true;
+    setContactStatus(form, 'Sending…');
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name,
+          email: senderEmail,
+          message,
+          website,
+          turnstileToken
+        })
+      });
+      let payload = null;
+      try { payload = await response.json(); } catch {}
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error || 'Your message could not be sent. Please try again.');
+      }
+      const status = form.querySelector('[data-contact-status]');
+      if (status) status.textContent = status.dataset.sentMessage || 'Thank you!';
+      form.reset();
+    } catch (error) {
+      console.error('Contact submission failed:', error?.message || error);
+      setContactStatus(form, error?.message || 'Your message could not be sent. Please try again.');
+    } finally {
+      form.dataset.submitting = 'false';
+      form.dataset.turnstileToken = '';
+      if (submitButton) submitButton.disabled = false;
+      const widgetId = form.dataset.turnstileWidget;
+      if (widgetId && window.turnstile?.reset) window.turnstile.reset(widgetId);
+    }
+  }, true);
+
+  import('/owner/landing-before-hierarchy/assets/image-viewer.js?v=20261117-lightbox2').then(module=>module.installImageViewer());
+})();

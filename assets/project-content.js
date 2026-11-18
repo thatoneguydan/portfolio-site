@@ -1,5 +1,5 @@
-import {imageDimensions} from './project-image-dimensions.js?v=20261117-lightbox2';
-import {bindImageDocument} from './image-viewer.js?v=20261117-lightbox2';
+import {imageDimensions} from './project-image-dimensions.js?v=20261117-hierarchy3';
+import {bindImageDocument} from './image-viewer.js?v=20261117-hierarchy3';
 
 const prepared=new WeakMap();
 const css=`

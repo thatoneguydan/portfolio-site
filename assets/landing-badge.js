@@ -1,7 +1,7 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-lightbox2';
-import {appendEmojiText} from './site-emoji.js?v=20261117-lightbox2';
-import {filledControlIcon} from './filled-controls.js?v=20261117-lightbox2';
-import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-lightbox2';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261117-hierarchy3';
+import {appendEmojiText} from './site-emoji.js?v=20261117-hierarchy3';
+import {filledControlIcon} from './filled-controls.js?v=20261117-hierarchy3';
+import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-hierarchy3';
 
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText}){
   const hero=root.querySelector('.ds-hero');

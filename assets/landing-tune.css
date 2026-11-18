@@ -45,3 +45,5 @@
 /* Keep the authenticated editor usable while previewing the image lightbox. */
 #dan-owner-controls .ds-config-launch{z-index:12001}
 #dan-owner-controls .ds-config{z-index:12000}
+#dan-owner-controls .ds-saved-version{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:15px 0;color:inherit;font-size:14px;text-decoration:none;border-bottom:1px solid var(--dan-line)}
+#dan-owner-controls .ds-saved-version:hover{text-decoration:underline;text-underline-offset:4px}

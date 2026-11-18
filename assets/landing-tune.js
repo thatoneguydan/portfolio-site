@@ -1,8 +1,8 @@
-import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-lightbox2';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-lightbox2';
+import {targetChoices,rotationWords} from './landing-rotate.js?v=20261117-hierarchy3';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261117-hierarchy3';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
-  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-lightbox2';document.head.append(stylesheet);
+  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261117-hierarchy3';document.head.append(stylesheet);
   const config={...api.getConfig()},baseline={...api.getConfig()};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';
@@ -11,7 +11,7 @@ export function mountTune(api){
     return `<details data-headline-editor="${scope}"${open?' open':''}><summary>${label}</summary>
       <details open><summary>Text & typography</summary><div class="ds-edit-fields">
         ${Array.from({length:6},(_,i)=>`<label data-line-field="${i+1}">Line ${i+1}<input name="${key('line'+(i+1))}" type="text" aria-label="${scope?label+' ':''}Line ${i+1}"></label>`).join('')}
-      </div><div data-controls="${scope?scope+'Typography':'headlineTypography'}"></div></details>
+      </div><div data-controls="${scope?scope+'Typography':'headlineTypography'}"></div>${scope?'':'<div data-controls="landingHierarchy"></div><p class="ds-control-help">Introductory lines use a quieter scale; the closing lines carry the main message.</p>'}</details>
       <details><summary>Reveal animation</summary><div data-controls="${scope?scope+'Reveal':'reveal'}"></div><div class="ds-config-buttons"><button type="button" data-replay>Replay text animation</button></div></details>
       <details><summary>Rotating text</summary>
         <label>Word to replace<select data-option="${key('rotateTarget')}" data-rotate-target="${scope}" aria-label="${scope?label+' ':''}Word to replace"></select></label>
@@ -59,6 +59,7 @@ export function mountTune(api){
     </details>
     <details><summary>Image lightbox</summary><div data-controls="lightbox"></div></details>
     <details><summary>Navigation</summary><div data-controls="navShadow"></div></details>
+    <details><summary>Saved versions</summary><p class="ds-control-help">A frozen copy of the landing page and its settings before the hierarchy update.</p><a class="ds-saved-version" href="/owner/landing-before-hierarchy/" target="_blank" rel="noopener">Previous landing page <span aria-hidden="true">↗</span></a></details>
     <details><summary>Copy / paste settings</summary><label>Settings<textarea aria-label="Settings JSON" class="ds-config-json" spellcheck="false"></textarea></label><div class="ds-config-buttons"><button type="button" data-export>Copy settings</button><button type="button" data-import>Apply settings</button></div></details>
     <div class="ds-config-buttons"><button type="button" data-save>Save staging settings</button><button type="button" data-reset>Restore starting settings</button></div><p class="ds-config-status" role="status"></p>
   </aside>`;document.body.append(ownerPortal);

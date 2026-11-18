@@ -1,4 +1,4 @@
-import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-lightbox2';
+import {appendEmojiText,graphemes} from './site-emoji.js?v=20261117-hierarchy3';
 export const headlineLines=config=>Array.from({length:config.lineCount},(_,i)=>config['line'+(i+1)]||'');
 export const rotationWords=config=>config.rotateWords.split(',').map(s=>s.trim()).filter(Boolean);
 export function splitPunctuation(word){
