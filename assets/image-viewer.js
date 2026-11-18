@@ -1,5 +1,5 @@
-import {filledControlIcon} from './filled-controls.js?v=20261117-restore1';
-import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-restore1';
+import {filledControlIcon} from './filled-controls.js?v=20261117-local-assets1';
+import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261117-local-assets1';
 let viewer,photo,stage,dots,prev,next,closeButton,items=[],index=0,focusBack,drag=null,closing=0,token=0;
 const bound=new WeakSet(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const icon=name=>filledControlIcon(name);
