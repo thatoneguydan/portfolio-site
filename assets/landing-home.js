@@ -1,11 +1,11 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-footershadow1';
-import {createBadge} from './landing-badge.js?v=20261119-mobilelayout1';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261119-carousel1';
+import {createBadge} from './landing-badge.js?v=20261119-carousel1';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261119-rotatewidth1';
-import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-worklinks2';
-import {siteReady} from './site-runtime.js?v=20261119-mobilelayout1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261119-rotatewidth1';
-import {mountSectionHeading} from './featured-heading.js?v=20261119-rotatewidth1';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261119-carousel1';
+import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261119-carousel1';
+import {siteReady} from './site-runtime.js?v=20261119-carousel1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261119-carousel1';
+import {mountSectionHeading} from './featured-heading.js?v=20261119-carousel1';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {
   'use strict';
@@ -13,7 +13,9 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
   const api=await siteReady,config=api.getConfig();
   const featured=root.querySelector('#featured-work');
   const featuredHeading=featured.querySelector('#featured-heading');
-  const featuredTitle=mountSectionHeading(featuredHeading,featured,featured.querySelector('.ds-gallery'),{scope:'featured',label:'Featured work'});
+  const featuredTitle=mountSectionHeading(featuredHeading,featured,featured.querySelector('.ds-gallery'),{
+    scope:'featured',label:'Featured work',lastItem:'.ds-panel:last-of-type'
+  });
   const workDescriptions=root.querySelectorAll('[data-work-description]');
   const workLinks=root.querySelector('.ds-work-links');
   const workHeading=root.querySelector('#work-section-heading');
@@ -186,6 +188,7 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
   dots.className='ds-gallery-dots';dots.setAttribute('aria-label','Choose a featured project');
   const dotIndicator=createDotIndicator(dots);
   const dotButtons=panels.map((panel,i)=>{
+    panel.style.setProperty('--featured-card-order',i*2);
     const button=document.createElement('button');
     button.type='button';button.dataset.index=String(i);
     if(!panel.id)panel.id='featured-card-'+(i+1);
@@ -194,20 +197,27 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     dots.append(button);
     return button;
   });
-  if(panels.length>1)gallery.after(dots);
+  if(panels.length>1){
+    const controls=document.createElement('div');
+    controls.className='ds-gallery-controls';
+    controls.append(dots);
+    const shelf=gallery.querySelector(':scope > .rdp-project-shelf');
+    if(shelf&&gallery.dataset.layout!=='vertical')shelf.before(controls);
+    else gallery.append(controls);
+  }
   let galleryWidth=gallery.getBoundingClientRect().width,renderedIndex=-1;
   const panelImages=panels.map(panel=>panel.querySelector('.ds-gallery-image'));
   function selectPanel(index,{fromScrub=false,refresh=false}={}) {
     if(!panels.length)return;
     config.activeIndex=(index+panels.length)%panels.length;
     if(!fromScrub)dotIndicator.select(dotButtons[config.activeIndex]);
-    if(renderedIndex===config.activeIndex&&!refresh){updateCaptions();return;}
+    if(renderedIndex===config.activeIndex&&!refresh)return;
     renderedIndex=config.activeIndex;
     const vertical=gallery.dataset.layout==='vertical';
     const layout=featuredGalleryLayout(config,vertical,galleryWidth,panels.length,config.activeIndex);
     const grayscale=vertical?config.verticalGalleryGrayscale:config.grayscale;
     if(refresh){
-      gallery.style.setProperty('--gallery-height',layout.totalHeight+'px');
+      gallery.style.setProperty('--gallery-height',layout.height+'px');
       gallery.style.setProperty('--mobile-expanded',layout.height+'px');
       gallery.style.setProperty('--media-width',layout.expandedWidth+'px');
       gallery.style.setProperty('--caption-width',Math.max(1,layout.expandedWidth-(vertical?config.verticalGalleryPadding*2:36))+'px');
@@ -215,7 +225,10 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     panels.forEach((panel,i)=>{
       const active=i===config.activeIndex;
       if(panel.dataset.focused!==String(active))panel.dataset.focused=String(active);
-      panel.style.flexGrow=String(layout.extents[i]);
+      panel.style.flexGrow=vertical?'':String(layout.extents[i]);
+      panel.style.setProperty('--featured-card-extent',layout.extents[i]+'px');
+      const captionVisible=String(galleryCaptionKind({active,vertical})==='full');
+      if(panel.dataset.captionVisible!==captionVisible)panel.dataset.captionVisible=captionVisible;
       const image=panelImages[i];
       image.style.filter=grayscale&&!active?'grayscale(1)':'none';
       if(refresh&&image.srcset)image.sizes=Math.ceil(vertical?galleryWidth:layout.expandedWidth)+'px';
@@ -223,16 +236,6 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
         dotButtons[i].setAttribute('aria-current',String(active));
         dotButtons[i].tabIndex=active?0:-1;
       }
-    });
-    updateCaptions();
-  }
-  function updateCaptions(){
-    const mobile=gallery.dataset.layout==='vertical';
-    panels.forEach((panel,i)=>{
-      const active=i===config.activeIndex;
-      const kind=galleryCaptionKind({active,vertical:mobile,mobile,hovered:active&&!mobile&&panel.matches(':hover'),focused:active&&!mobile&&(panel.matches(':focus-visible')||dotButtons[i].matches(':focus-visible'))});
-      if(panel.dataset.captionKind!==kind)panel.dataset.captionKind=kind;
-      if(panel.dataset.captionVisible!==String(kind!=='none'))panel.dataset.captionVisible=String(kind!=='none');
     });
   }
   function renderGallery() {
@@ -302,8 +305,6 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     const i=keyIndex(event.key);if(i===null)return;
     event.preventDefault();selectPanel(i);dotButtons[i].focus({preventScroll:true});commitDot(i);
   });
-  dots.addEventListener('focusin',updateCaptions);
-  dots.addEventListener('focusout',()=>requestAnimationFrame(updateCaptions));
   bindDotScrubber(dots,()=>dotButtons,dotIndicator,{
     preview:index=>selectPanel(index,{fromScrub:true}),
     commit:index=>{
@@ -315,16 +316,13 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     const i=panels.indexOf(event.target);if(i!==-1)selectPanel(i);
   });
   panels.forEach((panel,i)=>{
-    const compactCaption=document.createElement('span');compactCaption.className='ds-compact-caption';compactCaption.setAttribute('aria-hidden','true');
-    const compactTitle=document.createElement('strong');compactTitle.textContent=panel.querySelector('.rd-work-title').textContent;
-    compactCaption.append(compactTitle);panel.append(compactCaption);
     panel.addEventListener('pointerdown',event=>{
-      if(event.pointerType==='mouse'&&event.button===0)selectPanel(i);
+      if(gallery.dataset.layout==='horizontal'&&event.pointerType==='mouse'&&event.button===0)selectPanel(i);
     });
-    panel.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch')selectPanel(i);});
-    panel.addEventListener('pointerleave',updateCaptions);
-    panel.addEventListener('focus',()=>selectPanel(i));
-    panel.addEventListener('blur',()=>requestAnimationFrame(updateCaptions));
+    panel.addEventListener('pointerenter',event=>{
+      if(gallery.dataset.layout==='horizontal'&&event.pointerType!=='touch')selectPanel(i);
+    });
+    panel.addEventListener('focus',()=>{if(gallery.dataset.layout==='horizontal')selectPanel(i);});
     panel.addEventListener('keydown',event=>{
       const next=keyIndex(event.key);if(next===null)return;
       event.preventDefault();selectPanel(next);panels[next].focus();

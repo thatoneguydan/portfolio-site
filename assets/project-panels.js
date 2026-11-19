@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261118-footershadow1';
+import {defaults} from './landing-schema.js?v=20261119-carousel1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
@@ -37,6 +37,12 @@ function retireMasks(state){
   state.retiringMasks||=[];for(const card of state.masked){const record=maskCards.get(card),layer=record?.layers.get(state);if(!layer)continue;const key={};record.layers.delete(state);record.layers.set(key,layer);state.retiringMasks.push({card,key,layer,at:performance.now()});}state.masked.clear();
 }
 function updateMasks(state,sourceRect){
+  // In the stacked gallery the shelf participates in the same flow as its
+  // cards, so it never needs a mask to cover the next card.
+  if(state.source?.closest('.ds-gallery[data-layout=vertical]')){
+    if(state.masked.size||state.retiringMasks.length)clearMasks(state);
+    return;
+  }
   state.retiringMasks=(state.retiringMasks||[]).filter(entry=>{const record=maskCards.get(entry.card);if(!record)return false;const t=Math.min(1,(performance.now()-entry.at)/240);if(t===1)record.layers.delete(entry.key);else record.layers.set(entry.key,{...entry.layer,amount:entry.layer.amount*(1-t*t*(3-2*t))});paintMasks(entry.card);return t<1;});
   if(state.maskProgress<=0||!sourceRect){for(const card of state.masked){maskCards.get(card)?.layers.delete(state);paintMasks(card);}state.masked.clear();return;}
   const grid=state.source.closest('.is-masonry,.ds-gallery');if(!grid){clearMasks(state);return;}
@@ -76,7 +82,7 @@ function surface(svg,width,height,center,tail,state){
 }
 function dispose(state){
   const dots=state.featuredDotBar;
-  if(dots&&!dots.nextElementSibling?.matches('.rdp-project-shelf'))dots.style.left='';
+  if(dots&&![...panels].some(panel=>panel!==state&&panel.featuredDotBar===dots))dots.style.left='';
   state.initial.abort();state.pending?.abort.abort();state.observer.disconnect();state.mutation.disconnect();state.contentObserver?.disconnect();state.maskAnimation?.cancel();state.anchorMotions?.forEach(motion=>motion.cancel());clearMasks(state);state.loading?.remove();panels.delete(state);
 }
 function syncContent(state,content=state.content,inner=state.inner){
@@ -87,8 +93,7 @@ function syncContent(state,content=state.content,inner=state.inner){
 function observeContent(state){state.contentObserver?.disconnect();if(!state.content)return;state.contentObserver=new state.content.doc.defaultView.ResizeObserver(()=>measure(state));state.contentObserver.observe(state.content.main);}
 function trackPositions(duration){trackUntil=Math.max(trackUntil,performance.now()+duration);if(!trackFrame){const tick=now=>{for(const state of panels)position(state);trackFrame=now<trackUntil?requestAnimationFrame(tick):0;};trackFrame=requestAnimationFrame(tick);}}
 function featuredDots(shelf){
-  const previous=shelf.previousElementSibling;
-  return previous?.matches('.ds-gallery-dots')?previous:null;
+  return shelf.closest('.ds-gallery[data-layout=horizontal]')?.querySelector('.ds-gallery-dots');
 }
 const tailDotClearance=12;
 function featuredTail(state,source,panel,dots,bar,tail,gap,now){
@@ -155,11 +160,9 @@ function position(state){
   const sourceRect=source?.getBoundingClientRect();
   let tail=config.projectPanelTailSize,dots,bar,gap;
   if(gallery){
-    const cutoff=Math.min(0,sourceRect.bottom-gallery.getBoundingClientRect().bottom);
-    dots=gallery.dataset.layout==='horizontal'?featuredDots(shelf):null;
-    gap=14+tail;
+    dots=featuredDots(shelf);
     // The horizontal dot bar sits between the thumbnails and the panel.
-    // The stacked gallery reserves clearance directly below its source.
+    // The stacked gallery animates clearance in normal flow with the panel.
     if(dots){
       state.featuredDotBar=dots;
       bar=dots.getBoundingClientRect();
@@ -169,10 +172,8 @@ function position(state){
       // Move the outside stroke to the former fill edge and extend the same
       // 45-degree tail to keep its fill tip level with the top of the pill.
       if(tail)tail=bar.height+gap+Math.SQRT2*halfStroke;
-      dots.style.setProperty('--gallery-source-offset',cutoff+'px');
+      shelf.style.marginTop=gap+'px';
     }
-    shelf.style.setProperty('margin-top',((dots?0:cutoff)+gap)+'px','important');
-    shelf.style.marginBottom=Math.max(0,-cutoff-gap-shelf.getBoundingClientRect().height)+'px';
   }
   if(shelf.parentElement.matches('.is-masonry')&&source?.isConnected){const grid=shelf.parentElement.getBoundingClientRect();shelf.style.top=(source.getBoundingClientRect().bottom-grid.top+14+config.projectPanelTailSize)+'px';}
   const rect=shelf.getBoundingClientRect(),now=performance.now();
@@ -190,12 +191,7 @@ function position(state){
   shelf.dataset.projectVisible=String(rect.height>.5);state.controls.hidden=!state.open||rect.height<config.projectCloseSize+Math.max(0,config.projectCloseTop)*2;
   shelf.style.setProperty('--project-nav-bottom',Math.max(0,document.querySelector('.site-header')?.getBoundingClientRect().bottom||0)+'px');
   updateMasks(state,sourceRect);
-  const loadingRect=state.pending?.source?.getBoundingClientRect()||sourceRect;
-  if(state.loading&&loadingRect){
-    const padding=Math.min(config.projectLoaderPadding,Math.max(8,(loadingRect.height-config.projectLoaderHeight)/2-8));
-    Object.assign(state.loading.style,{left:(loadingRect.left+loadingRect.width/2)+'px',top:(loadingRect.top+loadingRect.height/2)+'px',maxWidth:Math.max(48,loadingRect.width-20)+'px',padding:padding+'px 20px'});
-    state.loading.hidden=!state.open||(!state.pending&&state.allowed&&!state.loadingError);
-  }
+  positionLoader(state,sourceRect);
 }
 function moveTail(state){
   if(reduced.matches||!Number.isFinite(state.tailCenter))return;
@@ -210,18 +206,32 @@ function measure(state){
   if(!state.shelf.isConnected){dispose(state);return;}
   if(state.content)syncContent(state);
   const {shelf,inner}=state,wasOpen=state.open;state.open=shelf.classList.contains('is-open');
+  const gallery=state.source?.closest('.ds-gallery');
+  const stacked=gallery?.dataset.layout==='vertical';
+  if(gallery){
+    const cards=[...gallery.children].filter(card=>card.matches('.ds-panel'));
+    shelf.style.setProperty('--featured-shelf-order',2*cards.indexOf(state.source)+1);
+  }
+  if(stacked!==state.stacked){shelf.style.removeProperty('margin-top');state.stacked=stacked;}
   if(wasOpen&&!state.open){state.initial.abort();state.pending?.abort.abort();state.closeMask=animateMask(state,0,360);}
   if(state.open&&state.ready&&!state.pending&&!state.allowed&&!state.preparing){
     state.preparing=true;
-    animateMask(state,config.projectEdgeFade?1:0,config.projectEdgeFade?180:0).then(()=>{if(!state.open||!shelf.isConnected)return;state.allowed=true;measure(state);state.content?.reveal();});
+    const mask=config.projectEdgeFade&&!stacked;
+    animateMask(state,mask?1:0,mask?180:0).then(()=>{if(!state.open||!shelf.isConnected)return;state.allowed=true;measure(state);state.content?.reveal();});
   }
   // The content plane can be proportionately scaled during a morph. Measure
   // its settled layout box, never that currently painted transform.
   const target=state.open&&state.ready&&state.allowed?inner.offsetHeight:0;
-  if(state.target!==target){
-    const from=shelf.getBoundingClientRect().height;state.target=target;state.motion?.cancel();state.motion=null;shelf.style.height=target+'px';
-    if(!reduced.matches&&Math.abs(from-target)>.5){
-      const motion=shelf.animate([{height:from+'px'},{height:target+'px'}],{duration:state.open?500:480,easing:'cubic-bezier(.3,.65,.25,1)',fill:'both'});state.motion=motion;
+  const clearance=stacked&&target?14+config.projectPanelTailSize:0;
+  if(state.target!==target||state.clearance!==clearance){
+    const from=shelf.getBoundingClientRect().height;
+    const fromClearance=stacked?parseFloat(getComputedStyle(shelf).marginTop):0;
+    state.target=target;state.clearance=clearance;state.motion?.cancel();state.motion=null;shelf.style.height=target+'px';
+    if(stacked)shelf.style.marginTop=clearance+'px';
+    if(!reduced.matches&&(Math.abs(from-target)>.5||Math.abs(fromClearance-clearance)>.5)){
+      const start={height:from+'px'},end={height:target+'px'};
+      if(stacked){start.marginTop=fromClearance+'px';end.marginTop=clearance+'px';}
+      const motion=shelf.animate([start,end],{duration:state.open?500:480,easing:'cubic-bezier(.3,.65,.25,1)',fill:'both'});state.motion=motion;
       motion.finished.catch(()=>{}).then(()=>{if(state.motion===motion){motion.cancel();state.motion=null;position(state);if(!state.open)finishClose(state);}});
     }else if(!state.open)finishClose(state);
   }else if(!state.open&&!state.motion)finishClose(state);
@@ -237,8 +247,9 @@ function mount(shelf){
   const makeSurface=kind=>{const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('portfolio-panel-surface',kind);svg.setAttribute('aria-hidden','true');svg.innerHTML=(kind==='is-backing'?`<defs><filter id="project-shadow-${serial}" filterUnits="userSpaceOnUse"><feDropShadow/></filter></defs>`:'')+'<path/>';shelf.append(svg);return svg;};
   const back=makeSurface('is-backing'),outline=makeSurface('is-outline'),controls=document.createElement('div');controls.className='portfolio-panel-controls';
   const button=document.createElement('button');button.type='button';button.className='portfolio-panel-close';button.setAttribute('aria-label','Close project');button.innerHTML=filledControlIcon('circle-x');controls.append(button);shelf.append(controls);
-  const loading=shelf.querySelector('.rdp-project-loading');if(loading){loading.classList.add('portfolio-project-loading');loading.innerHTML=`<span class="portfolio-wave-loader" role="status" aria-label="Loading project">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span>`;document.body.append(loading);}
+  const loading=shelf.querySelector('.rdp-project-loading');
   const frames=[...shelf.querySelectorAll('.rdp-project-frame')],state={shelf,source,inner,clip,back,outline,controls,loading,ready:!frames.length,allowed:false,preparing:false,target:null,open:shelf.classList.contains('is-open'),motion:null,observer:null,content:null,masked:new Set(),maskProgress:0,initial:new AbortController(),retiringMasks:[]};panels.add(state);
+  if(loading)loaderFor(state);
   button.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();if(shelf.matches('.rv-shelf-panel'))source?.click();else shelf.dispatchEvent(new CustomEvent('portfolio-panel-close'));});
   state.observer=new ResizeObserver(entries=>{if(entries.some(e=>e.target===state.inner)&&state.ready)measure(state);position(state);});state.observer.observe(inner);state.observer.observe(shelf);if(source)state.observer.observe(source);
   state.mutation=new MutationObserver(()=>measure(state));state.mutation.observe(shelf,{attributes:true,attributeFilter:['class']});
@@ -250,15 +261,35 @@ function mount(shelf){
       frame.style.visibility='';measure(state);observeContent(state);
     }).catch(error=>{
       if(signal.aborted)return;
-      if(loading){loading.textContent='This project could not load. Close it and try again.';loading.setAttribute('role','status');}
+      if(loading)showLoadError(state,source,'This project could not load. Close it and try again.');
       console.warn(error);
     });
   }measure(state);
 }
 export function applyProjectConfig(next){config={...defaults,...next};variables(document.documentElement);for(const state of panels){if(state.content)syncContent(state);if(state.allowed)animateMask(state,config.projectEdgeFade?1:0,180);measure(state);}document.dispatchEvent(new CustomEvent('portfolio-project-config'));}
 function loaderFor(state){
-  const loading=state.loading||document.createElement('div');loading.className='rdp-project-loading portfolio-project-loading';loading.setAttribute('aria-label','Loading project');
-  loading.innerHTML=`<span class="portfolio-wave-loader" role="status" aria-label="Loading project">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span>`;if(!loading.isConnected)document.body.append(loading);state.loading=loading;return loading;
+  const loading=state.loading||document.createElement('div');loading.className='rdp-project-loading portfolio-project-loading';loading.removeAttribute('role');
+  loading.innerHTML=`<span class="portfolio-wave-loader" role="status" aria-label="Loading project">${Array.from({length:5},(_,i)=>`<span style="--bar-index:${i}" aria-hidden="true"></span>`).join('')}</span>`;
+  if(loading.parentElement!==document.body)document.body.append(loading);state.loading=loading;return loading;
+}
+function positionLoader(state,sourceRect){
+  const {loading,pending,loadingError,open,ready}=state;
+  if(!loading)return;
+  // The shelf can still be preparing its expansion after content is ready.
+  // Leave the thumbnail clear during that animation.
+  const rect=(pending?.source||loadingError?.source)?.getBoundingClientRect()||sourceRect;
+  if(rect){
+    const padding=Math.min(config.projectLoaderPadding,Math.max(8,(rect.height-config.projectLoaderHeight)/2-8));
+    Object.assign(loading.style,{left:(rect.left+rect.width/2)+'px',top:(rect.top+rect.height/2)+'px',maxWidth:Math.max(48,rect.width-20)+'px',padding:padding+'px 20px'});
+  }
+  const visible=!!(rect&&open&&(pending||!ready||loadingError));
+  loading.classList.toggle('is-loading',visible);
+  loading.classList.toggle('has-load-error',visible&&!!loadingError);
+}
+function showLoadError(state,source,message){
+  state.loadingError={source};
+  const loading=loaderFor(state);loading.removeAttribute('aria-label');loading.textContent=message;loading.setAttribute('role','status');
+  position(state);
 }
 function abortable(promise,signal){return new Promise((resolve,reject)=>{const abort=()=>reject(new DOMException('Cancelled','AbortError'));if(signal.aborted)return abort();signal.addEventListener('abort',abort,{once:true});Promise.resolve(promise).then(resolve,reject).finally(()=>signal.removeEventListener('abort',abort));});}
 function frameReady(frame,signal,project,timeout=15000){
@@ -287,7 +318,7 @@ function frameReady(frame,signal,project,timeout=15000){
 }
 async function prepareFrame(frame,signal,timeout){
   const [{prepareProjectDocument}]=await Promise.all([
-    import('./project-content.js?v=20261118-hero3'),
+    import('./project-content.js?v=20261119-carousel1'),
     frameReady(frame,signal,true,timeout)
   ]);
   if(signal.aborted)throw new DOMException('Cancelled','AbortError');
@@ -299,7 +330,7 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
   if(!state){await new Promise(requestAnimationFrame);state=[...panels].find(item=>item.shelf===shelf);}
   if(!state||!state.open||!shelf.isConnected)return false;
   state.pending?.abort.abort();
-  const pending={source,inner,abort:new AbortController()};state.pending=pending;state.loadingError=false;
+  const pending={source,inner,abort:new AbortController()};state.pending=pending;state.loadingError=null;
   moveTail(state);
   const {signal}=pending.abort;inner.querySelector('.rdp-project-loading')?.remove();inner.classList.add('portfolio-panel-incoming');inner.inert=true;inner.setAttribute('aria-hidden','true');state.clip.append(inner);loaderFor(state);position(state);
   try{
@@ -322,7 +353,7 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
     const delta=oldRect.top-shelf.getBoundingClientRect().top;
     const options={duration:reduced.matches?0:360,easing:'cubic-bezier(.2,.75,.2,1)',fill:'both'},oldStyle=getComputedStyle(oldInner);
     const motions=reduced.matches?[]:[oldInner.animate([{opacity:oldStyle.opacity,transform:oldStyle.transform},{opacity:0,transform:'translateY(-10px) scale(.985)'}],options),inner.animate([{opacity:0,transform:'translateY(10px) scale(.985)'},{opacity:1,transform:'none'}],options)];
-    if(!reduced.matches&&Math.abs(delta)>1){
+    if(!state.stacked&&!reduced.matches&&Math.abs(delta)>1){
       const anchors=[shelf,featuredDots(shelf)].filter(Boolean);
       state.anchorMotions=anchors.map(anchor=>anchor.animate([{translate:`0px ${delta}px`},{translate:'0px 0px'}],options));
       motions.push(...state.anchorMotions);
@@ -330,7 +361,7 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
     await Promise.all(motions.map(motion=>motion.finished.catch(()=>{})));motions.forEach(motion=>motion.cancel());
     oldInner.querySelectorAll('iframe').forEach(frame=>frame.src='about:blank');oldInner.remove();if(state.inner===inner){inner.style.width='';measure(state);}return true;
   }catch(error){
-    if(error.name!=='AbortError'&&state.pending===pending){state.loadingError=true;loaderFor(state).textContent='This project could not load. Choose it again to retry.';console.warn(error);}
+    if(error.name!=='AbortError'&&state.pending===pending){showLoadError(state,source,'This project could not load. Choose it again to retry.');console.warn(error);}
     return false;
   }finally{
     if(state.inner!==inner){inner.querySelectorAll('iframe').forEach(frame=>frame.src='about:blank');inner.remove();}

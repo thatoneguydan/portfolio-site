@@ -1,11 +1,20 @@
-import {replaceProjectContent} from './project-panels.js?v=20261118-footershadow1';
+import {replaceProjectContent} from './project-panels.js?v=20261119-carousel1';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const selector='.rdp-project-card,#featured-work .rd-work-card,.rv-video-card[data-youtube-id]';
 const titleFor=card=>card.dataset.videoTitle||card.querySelector('.rdp-project-title,.rd-work-title,.rv-video-title,strong')?.textContent.trim()||'Project';
 const slugFor=card=>card.dataset.shelfSlug||((card.dataset.youtubeId||card.dataset.videoId)?'video-'+(card.dataset.youtubeId||card.dataset.videoId):new URL(card.href,location.href).pathname.replace(/^\/+|\/+$/g,''))||'project';
+function setExpanded(card,shelf,expanded){
+  card.classList.toggle('is-active',expanded);
+  card.setAttribute('aria-expanded',String(expanded));
+  if(expanded)card.setAttribute('aria-controls',shelf.id);
+  else card.removeAttribute('aria-controls');
+}
 function close(state){
-  if(!state)return;state.cancelInsert?.();state.pendingCard?.removeAttribute('aria-busy');state.card.classList.remove('is-active');state.card.setAttribute('aria-expanded','false');state.shelf.classList.remove('is-open');state.shelf.setAttribute('aria-hidden','true');state.shelf.inert=true;
+  if(!state)return;state.cancelInsert?.();state.pendingCard?.removeAttribute('aria-busy');
+  setExpanded(state.card,state.shelf,false);
+  if(state.shelf.contains(document.activeElement))state.card.focus({preventScroll:true});
+  state.shelf.classList.remove('is-open');state.shelf.setAttribute('aria-hidden','true');state.shelf.inert=true;
   let removed=false;const remove=()=>{if(removed)return;removed=true;state.shelf.querySelectorAll('iframe').forEach(f=>f.src='about:blank');state.shelf.remove();};
   state.shelf.addEventListener('portfolio-panel-closed',remove,{once:true});setTimeout(remove,reduced.matches?100:1400);
   if(active===state)active=null;
@@ -23,8 +32,10 @@ function insert(card,shelf,force=false){
   if(grid?.matches('.is-masonry')){
     const top=Number(card.dataset.masonryY);const end=[...grid.querySelectorAll(':scope>.rdp-project-card')].filter(c=>Number(c.dataset.masonryY)<=top+.5).at(-1)||card;end.after(shelf);
   }else if(grid?.matches('.ds-gallery')){
-    const controls=grid.nextElementSibling;
-    (controls?.matches('.ds-gallery-dots')?controls:grid).after(shelf);
+    const toggle=document.querySelector('.site-nav-toggle');
+    const stacked=grid.dataset.layout ? grid.dataset.layout==='vertical' : toggle&&getComputedStyle(toggle).display!=='none';
+    if(stacked)card.after(shelf);
+    else grid.append(shelf);
   }
   else if(grid?.matches('.rv-video-grid')){shelf.style.gridColumn='1 / -1';card.after(shelf);}
   else card.after(shelf);
@@ -50,22 +61,22 @@ export function openProject(card,{hash=true}={}){
   if(active?.card===card&&!active.pendingCard){close(active);if(hash)history.replaceState(null,'',location.pathname+location.search);return;}
   if(!card.id)card.id='project-source-'+(++serial);
   const title=titleFor(card);
-  if(active?.card.closest('#featured-work')&&card.closest('#featured-work')){
+  if(active?.card.closest('#featured-work')&&card.closest('.ds-gallery[data-layout=horizontal]')){
     const state=active,version=(state.swapVersion||0)+1;state.swapVersion=version;state.pendingCard?.removeAttribute('aria-busy');state.pendingCard=card;card.setAttribute('aria-busy','true');
     replaceProjectContent(state.shelf,{source:card,inner:contentFor(card,title),title,onCommit(){
       if(active!==state||state.swapVersion!==version)return;
-      state.card.classList.remove('is-active');state.card.setAttribute('aria-expanded','false');state.card=card;state.pendingCard=null;card.removeAttribute('aria-busy');card.classList.add('is-active');card.setAttribute('aria-expanded','true');
+      setExpanded(state.card,state.shelf,false);state.card=card;state.pendingCard=null;card.removeAttribute('aria-busy');setExpanded(card,state.shelf,true);
       if(hash)history.replaceState(null,'',location.pathname+location.search+'#featured-'+slugFor(card));
     }}).then(()=>{if(state.swapVersion===version){card.removeAttribute('aria-busy');state.pendingCard=null;}});
     return;
   }
   close(active);
-  const shelf=document.createElement('section');shelf.className='rdp-project-shelf is-open';shelf.setAttribute('aria-label',title+' details');shelf.setAttribute('aria-hidden','false');shelf.dataset.projectSource=card.id;
+  const shelf=document.createElement('section');shelf.className='rdp-project-shelf is-open';shelf.id=`project-details-${++serial}`;shelf.setAttribute('aria-label',title+' details');shelf.setAttribute('aria-hidden','false');shelf.dataset.projectSource=card.id;
   // Moving a connected iframe into its clip destroys its browsing context
   // and starts a second navigation. Assemble the final tree before insertion.
   const clip=document.createElement('div');clip.className='portfolio-panel-clip';
   clip.append(contentFor(card,title));shelf.append(clip);
-  active={card,shelf};card.classList.add('is-active');card.setAttribute('aria-expanded','true');active.cancelInsert=insert(card,shelf);
+  active={card,shelf};setExpanded(card,shelf,true);active.cancelInsert=insert(card,shelf);
   shelf.addEventListener('portfolio-panel-close',()=>{if(active?.shelf===shelf){close(active);history.replaceState(null,'',location.pathname+location.search);}});
   if(hash)history.replaceState(null,'',location.pathname+location.search+'#'+(card.closest('#featured-work')?'featured-':'project-')+slugFor(card));
 }
@@ -74,7 +85,7 @@ export function installProjectViews(){
   document.addEventListener('pointerdown',event=>{const card=event.target.closest('.ds-panel');touchExpand=card&&event.pointerType==='touch'&&card.dataset.focused!=='true'?card:null;},true);
   document.addEventListener('click',event=>{
     const card=event.target.closest(selector);if(!card||event.button||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.defaultPrevented)return;
-    const expandOnly=card.matches('.ds-panel')&&(card===touchExpand||card.dataset.focused!=='true');
+    const expandOnly=card.closest('.ds-gallery[data-layout=horizontal]')&&(card===touchExpand||card.dataset.focused!=='true');
     touchExpand=null;
     event.preventDefault();event.stopImmediatePropagation();
     // Consume the first tap on a collapsed thumbnail, including videos

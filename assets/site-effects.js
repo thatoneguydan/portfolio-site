@@ -1,15 +1,15 @@
 import {installAuthoredEmoji} from './site-emoji.js?v=20261118-perf1';
 import {setPaletteSaturation} from './palette-glyph.js?v=20261117-navlab1';
-import {defaults} from './landing-schema.js?v=20261118-footershadow1';
+import {defaults} from './landing-schema.js?v=20261119-carousel1';
 import {installSettledShelfText} from './settled-text.js';
-import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261118-worklinks2';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-footershadow1';
-import './site-runtime.js?v=20261119-mobilelayout1';
-import {installSiteInteractions} from './site-interactions.js?v=20261119-mobilescroll1';
-import {installProjectViews} from './project-views.js?v=20261118-footershadow1';
+import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261119-carousel1';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261119-carousel1';
+import './site-runtime.js?v=20261119-carousel1';
+import {installSiteInteractions} from './site-interactions.js?v=20261119-carousel1';
+import {installProjectViews} from './project-views.js?v=20261119-carousel1';
 import {installImageViewer} from './image-viewer.js?v=20261118-hero3';
 
-const href='/assets/site-effects.css?v=20261119-mobilescroll1';
+const href='/assets/site-effects.css?v=20261119-carousel1';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});
@@ -158,14 +158,14 @@ function measureCaption(card){
   if(!card.isConnected)return;
   const blur=card.querySelector('.portfolio-blur');
   const source=card.querySelector('img:not([data-blur-copy])');
-  const caption=card.querySelector(card.dataset.captionKind==='compact'?'.ds-compact-caption':'.ds-caption,.rdp-project-meta');
+  const caption=card.querySelector('.ds-caption,.rdp-project-meta');
   if(!caption)return;
   const text=caption.querySelector('strong,.rdp-project-title')||caption,style=getComputedStyle(text);
   const plane=(card.querySelector('.rdp-masonry-face')||card).getBoundingClientRect();
   const bounds=[...caption.children].map(el=>el.getBoundingClientRect()).filter(r=>r.height>0);
   const top=bounds.length?Math.min(...bounds.map(r=>r.top)):plane.bottom;
   const bottom=bounds.length?Math.max(...bounds.map(r=>r.bottom)):plane.bottom,lift=Number.parseFloat(card.style.getPropertyValue('--project-caption-lift'))||0;
-  const geometry=captionBlurGeometry({height:card.clientHeight,captionHeight:Math.max(0,bottom-top),bottom:Math.max(0,plane.bottom-lift-bottom),fontSize:parseFloat(style.fontSize)||20,coverage:config.portfolioBlurHeight,strength:config.portfolioBlurStrength,compact:card.dataset.captionKind==='compact'});
+  const geometry=captionBlurGeometry({height:card.clientHeight,captionHeight:Math.max(0,bottom-top),bottom:Math.max(0,plane.bottom-lift-bottom),fontSize:parseFloat(style.fontSize)||20,coverage:config.portfolioBlurHeight,strength:config.portfolioBlurStrength});
   return {card,blur,filter:source?.style.filter||'',geometry,lift};
 }
 function paintCaption({card,blur,filter,geometry,lift}){
@@ -258,7 +258,7 @@ new MutationObserver(records=>{
     if(record.type==='childList')for(const node of record.addedNodes)discover(node);
     else if(!(record.attributeName==='style'&&record.target.matches('.rdp-project-card')))schedule(record.target.closest('.ds-panel,.rdp-project-card'));
   }
-}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-caption-visible','data-caption-kind','data-focused','class','style','src']});
+}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['data-caption-visible','data-focused','class','style','src']});
 function update(next){config={...defaults,...next};applyPageBlur();setPaletteSaturation(config.paletteSaturation);applyProjectConfig(config);for(const card of cards)schedule(card);}
 document.addEventListener('portfolio-appearance',event=>update(event.detail));
 document.addEventListener('portfolio-caption-position',event=>schedule(event.target.closest('.rdp-project-card')));

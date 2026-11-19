@@ -28,7 +28,8 @@
 @media(prefers-reduced-motion:reduce){.portfolio-wave-loader > span{animation:none;transform:scaleY(.65)}.portfolio-panel-tail{transition:none}}
 
 /* The tail and border are one continuous outline, never stacked borders. */
-.portfolio-project-panel{margin-top:calc(var(--project-tail-size) + 14px)!important;isolation:isolate;overflow-anchor:none}
+.portfolio-project-panel{isolation:isolate;overflow-anchor:none}
+.portfolio-project-panel:not(.ds-gallery > *){margin-top:calc(var(--project-tail-size) + 14px)!important}
 .rdp-project-grid.is-masonry>.portfolio-project-panel{margin-top:0!important}
 .portfolio-project-panel>.portfolio-panel-clip{z-index:1;background:transparent}
 .portfolio-project-panel>.portfolio-panel-clip::after{display:none}
@@ -89,7 +90,11 @@
 .portfolio-panel-close:focus:not(:focus-visible),.portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close):focus:not(:focus-visible){outline:0}
 .portfolio-panel-close:focus-visible,.portfolio-image-viewer :is(.portfolio-lightbox__nav,.portfolio-lightbox__close):focus-visible{outline:2px solid #888;outline-offset:4px}
 .portfolio-project-loading{position:fixed!important;z-index:1000;display:grid;place-items:center;min-height:0!important;width:max-content;transform:translate(-50%,-50%);border:0;border-radius:var(--project-image-radius,12px);background:var(--project-panel-bg);color:var(--project-text-color);pointer-events:none;box-sizing:border-box;letter-spacing:0;text-align:center}
-.portfolio-project-loading[hidden]{display:none!important}
+.portfolio-project-loading{opacity:0;visibility:hidden;transition:opacity 120ms ease,visibility 0s linear 120ms}
+.portfolio-project-loading.is-loading{opacity:1;visibility:visible;transition:opacity 120ms ease 300ms,visibility 0s linear 300ms}
+.portfolio-project-loading.has-load-error{transition-delay:0s}
+.portfolio-project-loading:not(.is-loading) .portfolio-wave-loader>span{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.portfolio-project-loading{transition:none}.portfolio-project-loading.is-loading{transition:visibility 0s linear 300ms}.portfolio-project-loading.has-load-error{transition-delay:0s}}
 .portfolio-image-viewer.portfolio-lightbox{padding:60px 74px 40px;overscroll-behavior:none;touch-action:none}
 .portfolio-viewer-photo{overflow:hidden;border-radius:8px;touch-action:none}
 .portfolio-image-viewer .portfolio-lightbox__image{border:0}

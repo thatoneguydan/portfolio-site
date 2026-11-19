@@ -284,7 +284,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     // The fitted pose reserves the same space at every size. Project the
     // difference along the card's own right edge so its midpoint stays put.
     const shift=(base.width/2+frame)*(1-size);
-    inlineAnchor={height:base.height,x:shift*Math.cos(rotation),y:shift*Math.sin(rotation)};
+    inlineAnchor={height:base.height,x:compact?0:shift*Math.cos(rotation)+config.ticketHorizontalOffset,y:shift*Math.sin(rotation)};
     ticketStage.style.setProperty('--badge-anchor-height',inlineAnchor.height+'px');
     ticketStage.style.setProperty('--id-inline-offset-x',inlineAnchor.x+'px');
     ticketStage.style.setProperty('--id-inline-offset-y',inlineAnchor.y+'px');

@@ -8,8 +8,8 @@
     if(link.sheet)return Promise.resolve();
     return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261118-featured1'),style('/assets/redesign-footer-contact.css?v=20261119-mobilelayout1')]);
-  const runtime=import('/assets/site-runtime.js?v=20261119-mobilelayout1').then(module=>module.siteReady);
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261118-featured1'),style('/assets/redesign-footer-contact.css?v=20261119-carousel1')]);
+  const runtime=import('/assets/site-runtime.js?v=20261119-carousel1').then(module=>module.siteReady);
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let active=null,sequence=0,footerHeading;
   const footerMarkup='<div class="rd-footer-cta-inner"><div class="rd-footer-cta-row"><h2>Ready to make something great?</h2><a class="rd-footer-cta-button" href="/contact">Let\'s make it <span aria-hidden="true">↗</span></a></div></div>';
@@ -22,7 +22,7 @@
       if(footer.dataset.sharedContactFooter==='true')continue;
       footer.dataset.sharedContactFooter='true';
       if(!footer.querySelector('.rd-footer-cta-row h2'))footer.innerHTML=footerMarkup;
-      footerHeading??=import('/assets/footer-heading.js?v=20261119-rotatewidth1');
+      footerHeading??=import('/assets/footer-heading.js?v=20261119-carousel1');
       Promise.all([runtime,footerHeading]).then(([api,{mountFooterHeading}])=>{
         if(footer.isConnected)api.register(mountFooterHeading(footer.querySelector('h2')));
       }).catch(()=>{});

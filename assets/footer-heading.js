@@ -1,4 +1,4 @@
-import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261119-rotatewidth1';
+import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261119-carousel1';
 
 export function mountFooterHeading(heading){
   let rendered,rotator,fitObserver;

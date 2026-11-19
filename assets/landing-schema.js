@@ -252,6 +252,7 @@ export const defaults = {
   "ticketFullHoverGrowth": 30,
   "badgeMorphDuration": 520,
   "badgeBackdropBlur": 10,
+  "ticketHorizontalOffset": 0,
   "ticketVerticalOffset": 0,
   "badgeOverlap": 32,
   "badgeIdleTilt": true,
@@ -381,6 +382,7 @@ export const controlGroups = {
       ['range','badgeBreakpoint','Custom badge breakpoint',320,1800,10,'px'],
       ['range','badgeCompactScale','Photo badge scale',.4,1.6,.01,'×'],
       ['range','badgeOverlap','Headline overlap',10,80,1,'%'],
+      ['range','ticketHorizontalOffset','Full ID horizontal offset',-400,400,1,'px'],
       ['range','ticketVerticalOffset','Full ID vertical offset',-400,400,1,'px']
     ],
     badgeFullscreen: [
