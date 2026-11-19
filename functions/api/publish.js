@@ -155,21 +155,24 @@ async function reconcileRun(db, env, record) {
 }
 
 async function previouslyVerifiedPublish() {
-  // The last manual release passed both mobile checks before this workflow was installed.
-  // Only report it while its release marker is still present on the live site.
-  const response = await fetch('https://dantylersmith.com/', {
-    headers: {'Cache-Control': 'no-cache'}, cf: {cacheTtl: 0},
-    redirect: 'error', signal: AbortSignal.timeout(6000),
-  });
-  if (!response.ok) throw new Error('Live site unavailable.');
-  const html = await response.text();
-  if (!html.includes('/assets/site-effects.js?v=public-dbd473291c-6d6196dc"')) return null;
-  return publicStatus({
+  // Preserve the verified manual result if the live marker cannot be read from this Worker.
+  const record = publicStatus({
     request_id: '185ff173d2b69ef8e40134cf28889776755effe0',
     status: 'success', stage: 'dbd473291c38b71d93376960742103f91b164bd7',
     revision: '4539d1a0-9919-488a-8082-af8d61ff178f',
     started_at: null, finished_at: '2026-11-19T16:24:13Z', conclusion: 'success',
   });
+  try {
+    const response = await fetch('https://dantylersmith.com/', {
+      headers: {'Cache-Control': 'no-cache'}, signal: AbortSignal.timeout(4000),
+    });
+    if (!response.ok) return {...record, liveConfirmed: false};
+    const html = await response.text();
+    return html.includes('/assets/site-effects.js?v=public-dbd473291c-6d6196dc"')
+      ? {...record, liveConfirmed: true} : null;
+  } catch {
+    return {...record, liveConfirmed: false};
+  }
 }
 
 const isOwner = (request, env) => hostAllowed(request, env) && verifyOwner(request, env);

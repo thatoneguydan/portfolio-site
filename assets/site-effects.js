@@ -4,12 +4,12 @@ import {defaults} from './landing-schema.js?v=20261119-tunefind1';
 import {installSettledShelfText} from './settled-text.js';
 import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261119-carousel1';
 import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261119-tunefind1';
-import './site-runtime.js?v=20261119-publish1';
+import './site-runtime.js?v=20261119-publish2';
 import {installSiteInteractions} from './site-interactions.js?v=20261119-tunefind1';
 import {installProjectViews} from './project-views.js?v=20261119-tunefind1';
 import {installImageViewer} from './image-viewer.js?v=20261118-hero3';
 
-const href='/assets/site-effects.css?v=20261119-publish1';
+const href='/assets/site-effects.css?v=20261119-publish2';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});

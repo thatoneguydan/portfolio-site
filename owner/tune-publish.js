@@ -37,7 +37,8 @@ export function mountTunePublish(section, saveSettings, onLayout) {
   function render() {
     const publish = info?.publish;
     const status = publish?.status;
-    const label = summaries[status];
+    const historical = publish?.liveConfirmed === false;
+    const label = historical ? 'Last verified' : summaries[status];
     const working = isPending(publish);
     const link = /^https:\/\/github\.com\/thatoneguydan\/portfolio-site\/actions\/runs\/\d+$/.test(publish?.runUrl || '');
     button.disabled = !info?.configured || working || status === 'unknown' || Boolean(action) || checking;
@@ -48,7 +49,7 @@ export function mountTunePublish(section, saveSettings, onLayout) {
     const text = {
       queued: 'Waiting for the release runner.',
       in_progress: 'The release workflow is running.',
-      success: `Both mobile profiles passed on the live site.${finished}`,
+      success: `Both mobile profiles passed on the live site.${finished}${historical ? ' The current live version could not be rechecked.' : ''}`,
       failure: publish?.failedStep ? `Failed step: ${publish.failedStep}.${finished}` : `The release did not pass all checks.${finished}`,
       cancelled: `The release was cancelled.${finished}`,
       unknown: 'The last release could not be verified. Check status again before publishing.'
