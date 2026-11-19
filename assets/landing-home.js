@@ -1,11 +1,11 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-workheading1';
-import {createBadge} from './landing-badge.js?v=20261118-workheading1';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-idanchor1';
+import {createBadge} from './landing-badge.js?v=20261118-idanchor1';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-hero3';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-worklinks2';
-import {siteReady} from './site-runtime.js?v=20261118-workheading1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-workheading1';
-import {mountSectionHeading} from './featured-heading.js?v=20261118-workheading1';
+import {siteReady} from './site-runtime.js?v=20261118-idanchor1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-idanchor1';
+import {mountSectionHeading} from './featured-heading.js?v=20261118-idanchor1';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {
   'use strict';
@@ -17,7 +17,7 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
   const workDescriptions=root.querySelectorAll('[data-work-description]');
   const workLinks=root.querySelector('.ds-work-links');
   const workHeading=root.querySelector('#work-section-heading');
-  const workTitle=workHeading&&mountSectionHeading(workHeading,workHeading.parentElement,workLinks,{
+  const workTitle=workHeading&&mountSectionHeading(workHeading,workHeading.closest('.ds-work-group'),workLinks,{
     scope:'workSection',label:'Explore work',anchored:true
   });
   if(workLinks){
@@ -71,8 +71,6 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     const textTrack=1.08*(1+textSizeAdjustment()),idTrack=2.08-textTrack;
     hero.style.setProperty('--hero-text-track',textTrack+'fr');
     hero.style.setProperty('--hero-id-track',idTrack+'fr');
-    hero.style.setProperty('--hero-id-share',idTrack/2.08);
-    hero.style.setProperty('--hero-id-overlap',config.heroDesktopIdOverlap/100);
     root.style.setProperty('--hero-cta-offset',config.heroCtaOffset+'px');
     root.style.setProperty('--hero-featured-spacing',config.heroFeaturedSpacing/100);
     root.style.setProperty('--featured-anchor-offset',config.heroFeaturedAnchorOffset+'px');

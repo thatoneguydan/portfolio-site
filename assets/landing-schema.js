@@ -195,10 +195,6 @@ export const defaults = {
   "workSectionHeadingScrollGrowth": 60,
   "workSectionHeadingAlign": "center",
   "workSectionHeadingAnchor": "bottom",
-  "workSectionRotateEnabled": true,
-  "workSectionRotateStart": 2,
-  "workSectionRotateEnd": 3,
-  "workSectionRotateWords": "even more, a bit more, another side",
   "workSectionBackground": "#f5f5f2",
   "workSectionWaveEnabled": false,
   "workSectionWaveLength": 320,
@@ -560,11 +556,21 @@ controlGroups.workSectionHeading=controlGroups.featuredHeading.map(([type,key,la
   type,key.replace('featured','workSection'),key==='featuredHeadingGap'?'Space before section cards':label,...limits
 ]);
 controlGroups.workSectionHeading.push(['select','workSectionHeadingAnchor','Growth anchor',['top','bottom']]);
-controlGroups.workSectionRotation=[['check','workSectionRotateEnabled','Cycle words or phrases']];
+
+function luminance(color) {
+  return color.slice(1).match(/../g).reduce((total,hex,index)=>{
+    const value=parseInt(hex,16)/255;
+    const linear=value<=.04045?value/12.92:((value+.055)/1.055)**2.4;
+    return total+linear*[.2126,.7152,.0722][index];
+  },0);
+}
+const workHeadingDark='#111111',workHeadingLight='#f5f5f2';
+const headingContrastMidpoint=Math.sqrt((luminance(workHeadingDark)+.05)*(luminance(workHeadingLight)+.05))-.05;
 
 export function workSectionProperties(config) {
   return {
     '--work-section-background': config.workSectionBackground,
+    '--work-section-heading-ink': luminance(config.workSectionBackground)<headingContrastMidpoint?workHeadingLight:workHeadingDark,
     '--work-section-wave-length': config.workSectionWaveLength + 'px',
     '--work-section-wave-height': (config.workSectionWaveEnabled ? config.workSectionWaveHeight : 0) + 'px',
     '--work-section-margin-before': config.workSectionMarginBefore / 100,
@@ -593,6 +599,9 @@ for(const scope of headlineScopes){
   controlGroups[scope+'Reveal']=scoped(controlGroups.reveal);
   controlGroups[scope+'Rotate']=scoped(controlGroups.rotate);
 }
+
+// Accept settings saved while the Section cards heading could rotate.
+const retiredWorkRotation=new Set(['workSectionRotateEnabled','workSectionRotateStart','workSectionRotateEnd','workSectionRotateWords']);
 export function normalizeSettings(input, base = defaults) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Settings must be an object.');
   if(Object.hasOwn(input,'workSectionPaddingBefore')){
@@ -608,11 +617,12 @@ export function normalizeSettings(input, base = defaults) {
   const colors=Object.values(controlGroups).flat().filter(field=>field[0]==='color').map(field=>field[1]);
   // Old saved settings keep their vertical appearance when first upgraded.
   const inherited={verticalGalleryHeight:['galleryHeight',v=>Math.min(360,v)],verticalGalleryGap:['galleryGap'],verticalGalleryRadius:['galleryRadius'],verticalGalleryDuration:['galleryDuration'],verticalGalleryGrayscale:['grayscale']};
-  for(const suffix of ['HeadingSize','HeadingWeight','HeadingGap','HeadingScrollGrowth','HeadingAlign','RotateEnabled']){
+  for(const suffix of ['HeadingSize','HeadingWeight','HeadingGap','HeadingScrollGrowth','HeadingAlign']){
     inherited['workSection'+suffix]=['featured'+suffix];
   }
   for(const [key,[source,convert]] of Object.entries(inherited))if(!(key in input)&&!(key in base&&base!==defaults)&&source in input)result[key]=convert?convert(input[source]):input[source];
   for(const [key,value] of Object.entries(input)) {
+    if(retiredWorkRotation.has(key))continue;
     if(!(key in defaults)) throw new Error('Unknown setting: '+key);
     if(typeof value!==typeof defaults[key]) throw new Error('Invalid setting: '+key);
     if(typeof value==='number'&&!Number.isFinite(value))throw new Error('Invalid number: '+key);
@@ -625,7 +635,7 @@ export function normalizeSettings(input, base = defaults) {
     if(type==='select'&&!min.some(v=>(Array.isArray(v)?v[0]:v)===result[key]))throw new Error('Invalid choice: '+key);
   }
   result.activeIndex=Math.max(0,Math.min(4,Math.round(result.activeIndex)));
-  const rotationEntries=['featuredRotateWords','workSectionRotateWords'];
+  const rotationEntries=['featuredRotateWords'];
   for(const scope of ['',...headlineScopes]){
     result[scopedKey(scope,'lineCount')]=Math.round(result[scopedKey(scope,'lineCount')]);
     if(!/^[1-6]:\d{1,3}$/.test(result[scopedKey(scope,'rotateTarget')]))throw new Error('Choose a valid rotating word.');
@@ -636,11 +646,8 @@ export function normalizeSettings(input, base = defaults) {
     if(entries.length>50)throw new Error('Use up to 50 comma-separated words or phrases.');
     if(entries.some(s=>s.length>100))throw new Error('Keep each rotating entry within 100 characters.');
   }
-  for(const scope of ['featured','workSection']){
-    const start=scope+'RotateStart',end=scope+'RotateEnd';
-    result[start]=Math.max(0,Math.min(1999,Math.round(result[start])));
-    result[end]=Math.max(result[start],Math.min(1999,Math.round(result[end])));
-  }
+  result.featuredRotateStart=Math.max(0,Math.min(1999,Math.round(result.featuredRotateStart)));
+  result.featuredRotateEnd=Math.max(result.featuredRotateStart,Math.min(1999,Math.round(result.featuredRotateEnd)));
   result.badgeBackdropBlur=Math.max(0,Math.min(24,result.badgeBackdropBlur));
   return result;
 }

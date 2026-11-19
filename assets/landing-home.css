@@ -243,6 +243,7 @@
 #dan-landing-home .ds-work-heading {
   position:relative;
   z-index:0;
+  color:var(--work-section-heading-ink,var(--dan-ink));
   transform:scale(var(--work-heading-scale,1));
   transform-origin:var(--work-heading-origin-x,center) var(--work-heading-origin-y,bottom);
 }
@@ -279,15 +280,11 @@
 /* Responsive ID badge */
 html:has(#dan-landing-home) {scrollbar-gutter:stable}
 #dan-landing-home .ds-hero {grid-template-columns:minmax(0,var(--hero-text-track,1.08fr)) minmax(0,var(--hero-id-track,1fr));align-items:center;min-height:0}
-#dan-landing-home .ds-hero:not(.is-compact) {
-  --hero-id-travel:calc((100cqi - var(--hero-column-gap)) * var(--hero-id-share,.481) * var(--hero-id-overlap,0));
-  column-gap:calc(var(--hero-column-gap) + max(0px,-1 * var(--hero-id-travel)));
-}
 #dan-landing-home .ds-intro {max-width:none}
 #dan-landing-home .ds-ticket-stage {width:100%;max-width:none;min-height:0;align-self:center;justify-self:stretch;padding:26px 16px}
-#dan-landing-home .ds-ticket-stage.is-badge-open {height:calc(var(--badge-anchor-height) + 52px)}
 #dan-landing-home .ds-hero:not(.is-compact) > .ds-intro {align-self:start;margin-block-start:var(--id-headroom,0px)}
-#dan-landing-home .ds-hero:not(.is-compact) > .ds-ticket-stage {position:relative;inset-inline-start:calc(-1 * max(0px,var(--hero-id-travel)));align-self:start;margin-block-start:calc(var(--id-stage-offset,0px) + var(--id-headroom,0px))}
+#dan-landing-home .ds-hero:not(.is-compact) > .ds-ticket-stage {position:relative;align-self:start;height:calc(var(--badge-anchor-height) + 52px);margin-block-start:calc(var(--id-stage-offset,0px) + var(--id-headroom,0px))}
+#dan-landing-home .ds-hero:not(.is-compact) .ds-ticket-stage > .ds-ticket-carrier {left:var(--id-inline-offset-x,0px);top:var(--id-inline-offset-y,0px)}
 #dan-landing-home .ds-hero.is-compact {position:relative;grid-template-columns:minmax(0,1fr);gap:0;align-items:start}
 #dan-landing-home .ds-hero.is-compact .ds-ticket-stage {position:absolute;z-index:1;top:var(--badge-top,0px);right:0;width:var(--badge-compact-width,92px);align-self:auto;justify-self:auto;padding:0;margin:0}
 #dan-landing-home .ds-hero.is-centered.is-compact .ds-ticket-stage {grid-area:1 / 1}

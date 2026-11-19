@@ -29,6 +29,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let compact=false,firstLayout=true,opened=false,busy=false,closeRequested=false,drag=null,frame=0,lastTime=0,scrollFrame=0,morph=null;
   let scrollTop=0,scrollTilt=0,inlineGeometry=null,lastPointer=null,suppressClickUntil=0,previousOverflow='';
+  let inlineAnchor=null;
   let morphParts=[],morphGeneration=0,morphing=false,entrance=null,hasEntered=false;
   let morphStartPose=null,paintedPose={x:0,y:0,rotation:0,parallaxScale:1,offsetX:0},dragReturn=null;
   let fullHoverBounds=null;
@@ -240,11 +241,11 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     return Promise.all(morphParts.map(a=>a.finished.catch(()=>{}))).then(()=>{if(generation===morphGeneration){morphStartPose=null;morphing=false;paint();settleHover();}});
   }
   function alignFullID(){
-    if(compact||!inlineGeometry)return;
+    if(compact||!inlineAnchor)return;
     // Both edges stay in their final layout during headline reveals and pill presses.
     const introTop=intro.getBoundingClientRect().top;
     const midpoint=(h1.getBoundingClientRect().top+actionRow.getBoundingClientRect().bottom)/2-introTop;
-    const stageOffset=midpoint-inlineGeometry.height/2-parseFloat(getComputedStyle(ticketStage).paddingTop);
+    const stageOffset=midpoint-inlineAnchor.height/2-parseFloat(getComputedStyle(ticketStage).paddingTop);
     // Oversized IDs may use the space above the text. Only add headroom when
     // the stage would cross the hero's boundary into the site navigation.
     const headroom=Math.max(0,-stageOffset-parseFloat(getComputedStyle(hero).paddingTop));
@@ -276,16 +277,24 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     }
     hero.style.setProperty('--badge-compact-width',(compactGeometry?.width||0)+'px');
     const style=getComputedStyle(ticketStage),available=Math.max(1,ticketStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight));
-    inlineGeometry=compact?compactGeometry:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation,true,fullHeroScale());
+    const base=compact?compactGeometry:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation,true,fullHeroScale());
+    const size=compact?1:1+config.heroDesktopIdOverlap/100;
+    inlineGeometry={width:base.width*size,height:base.height*size,scale:base.scale*size};
+    const frame=config.ticketBorder?config.ticketBorderWidth*base.scale:0;
+    const rotation=config.ticketRotation*Math.PI/180;
+    // The fitted pose reserves the same space at every size. Project the
+    // difference along the card's own right edge so its midpoint stays put.
+    const shift=(base.width/2+frame)*(1-size);
+    inlineAnchor={height:base.height,x:shift*Math.cos(rotation),y:shift*Math.sin(rotation)};
+    ticketStage.style.setProperty('--badge-anchor-height',inlineAnchor.height+'px');
+    ticketStage.style.setProperty('--id-inline-offset-x',inlineAnchor.x+'px');
+    ticketStage.style.setProperty('--id-inline-offset-y',inlineAnchor.y+'px');
     alignFullID();
     if(!compact){
       const stage=ticketStage.getBoundingClientRect();
-      const frame=config.ticketBorder?config.ticketBorderWidth*inlineGeometry.scale:0;
-      fullHoverBounds={halfWidth:inlineGeometry.width/2+frame,halfHeight:inlineGeometry.height/2+frame,
-        room:document.documentElement.clientWidth-16-(stage.left+stage.width/2)};
+      fullHoverBounds={halfWidth:inlineGeometry.width/2+frame*size,halfHeight:inlineGeometry.height/2+frame*size,
+        room:document.documentElement.clientWidth-16-(stage.left+stage.width/2+inlineAnchor.x)};
     }
-    // The empty anchor keeps its real geometry while the badge is in the dialog.
-    ticketStage.style.setProperty('--badge-anchor-height',inlineGeometry.height+'px');
     if(!opened&&!busy){
       look(compact,inlineGeometry);sizeCarrier(inlineGeometry);
       if(morphLayout)flip(before,carrier.getBoundingClientRect(),from);
@@ -320,10 +329,10 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     // Remove the drag transform after capturing its actual screen position.
     dragReturn?.cancel();dragReturn=null;carrier.classList.remove('is-dragging');
     carrier.style.transform='';drag=null;opened=false;motion.h=motion.th=1;
-    const stage=ticketStage.getBoundingClientRect(),style=getComputedStyle(ticketStage);
+    const stage=ticketStage.getBoundingClientRect();
     look(compact,inlineGeometry);sizeCarrier(inlineGeometry);
-    carrier.style.left=(stage.left+stage.width/2-inlineGeometry.width/2)+'px';
-    carrier.style.top=(stage.top+parseFloat(style.paddingTop))+'px';
+    carrier.style.left=(stage.left+(stage.width-inlineGeometry.width)/2+inlineAnchor.x)+'px';
+    carrier.style.top=(stage.top+(stage.height-inlineGeometry.height)/2+inlineAnchor.y)+'px';
     dialog.classList.remove('is-open');updateScroll();
     await flip(start,carrier.getBoundingClientRect(),from);
     ticketStage.append(carrier);ticketStage.classList.remove('is-badge-open');carrier.classList.remove('is-portaled');carrier.style.left=carrier.style.top='';

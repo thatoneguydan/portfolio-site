@@ -1,6 +1,6 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261118-hero3';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-workheading1';
-import {mountSectionRotationEditor} from './featured-heading.js?v=20261118-workheading1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-idanchor1';
+import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261118-idanchor1';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261118-cardnav1';document.head.append(stylesheet);
@@ -20,11 +20,11 @@ export function mountTune(api){
         <p class="ds-rotate-count"></p><div data-controls="${scope?scope+'Rotate':'rotate'}"></div>
       </details></details>`;
   }
-  function sectionHeadingEditor(scope,label,editorAttribute){
+  function sectionHeadingEditor(scope,label){
     return `<details><summary>Section heading</summary>
         <div class="ds-edit-fields"><label>Heading text<input name="${scope}Heading" type="text" aria-label="${label} heading text"></label></div>
         <div data-controls="${scope}Heading"></div>
-        <details><summary>Rotating text</summary><div data-controls="${scope}Rotation"></div><div ${editorAttribute}></div></details>
+        ${scope==='featured'?'<details><summary>Rotating text</summary><div data-controls="featuredRotation"></div><div data-featured-rotation-editor></div></details>':''}
       </details>`;
   }
   ownerPortal.innerHTML=`<button class="ds-config-launch" type="button" aria-label="Tune staging. Drag to move." aria-expanded="false" aria-controls="dan-demo-config"><span class="ds-config-grip" aria-hidden="true">⠿</span><span>Tune</span></button>
@@ -56,12 +56,12 @@ export function mountTune(api){
       <details><summary>Idle tilt</summary><div data-controls="badgeIdle"></div></details>
     </details>
     <details><summary>Featured work</summary>
-      ${sectionHeadingEditor('featured','Featured work','data-featured-rotation-editor')}
+      ${sectionHeadingEditor('featured','Featured work')}
       <details><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
       <details><summary>Vertical gallery</summary><div data-controls="galleryVertical"></div></details>
     </details>
     <details><summary>Section cards</summary>
-      ${sectionHeadingEditor('workSection','Section cards','data-work-section-rotation-editor')}
+      ${sectionHeadingEditor('workSection','Section cards')}
       <div data-controls="workCardMotion"></div>
       <details><summary>Section background &amp; spacing</summary><div data-controls="workSectionBackground"></div></details>
       <details><summary>Card backgrounds</summary><div data-controls="workCardBackgrounds"></div></details>
@@ -96,22 +96,16 @@ export function mountTune(api){
   let placementFrame=0,launcherPosition=saved.launcherPosition||null,visibleViewport=null,drag=null,suppressToggleUntil=0,liveTimer=0;
   let saveTimer=0,pending=null,saving=false,lastQueued=JSON.stringify(config);
   const status=configPanel.querySelector('.ds-config-status');
-  const sectionRotationEditors=[
-    ['featured','Featured','[data-featured-rotation-editor]'],
-    ['workSection','Section cards','[data-work-section-rotation-editor]']
-  ].map(([scope,label,selector])=>mountSectionRotationEditor(configPanel.querySelector(selector),config,scope,label,changes=>{
+  const refreshFeaturedRotation=mountFeaturedRotationEditor(configPanel.querySelector('[data-featured-rotation-editor]'),config,changes=>{
     try{Object.assign(config,normalizeSettings(changes,config));render();persist();return '';}
     catch(error){status.textContent=error.message;return error.message;}
-  }));
-  function refreshSectionRotation(){
-    for(const refresh of sectionRotationEditors)refresh();
-  }
+  });
   const colorKeys=Object.values(controlGroups).flat().filter(field=>field[0]==='color').map(field=>field[1]);
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const replay=()=>api.replay();
   function render(){
-    api.applyConfig(config);updateTextEditors();updateEntranceLabel();refreshSectionRotation();
+    api.applyConfig(config);updateTextEditors();updateEntranceLabel();refreshFeaturedRotation();
     configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>{if(document.activeElement!==input)input.value=config[input.name];});
   }
   async function flush(){
@@ -194,7 +188,7 @@ export function mountTune(api){
     }).join('');
     }
     configPanel.querySelectorAll('[data-range-step]').forEach(slider=>syncNumber(slider,config[slider.dataset.option]));
-    updateTextEditors();updateEntranceLabel();refreshSectionRotation();schedulePlacement();
+    updateTextEditors();updateEntranceLabel();refreshFeaturedRotation();schedulePlacement();
   }
 
   function syncNumber(slider,value,keepDraft=false){
