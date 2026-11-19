@@ -23,18 +23,18 @@
 .rd-footer-cta + .rc-inline-contact-shelf + .rc-inline-contact-error {width:var(--site-content-width);margin-inline:auto}
 .rd-footer-cta + .rc-inline-contact-shelf {--contact-shelf-prev-surface:var(--footer-surface,#111)}
 .rc-inline-contact-shelf.is-loaded::before,
-.rc-inline-contact-shelf.is-loaded::after {
+.rc-inline-contact-shelf.is-loaded:has(+ .ds-featured)::after {
   content:"";position:absolute;left:var(--contact-shelf-surface-left,0px);
   width:var(--contact-shelf-surface-width,100%);pointer-events:none;z-index:-1;
 }
 .rc-inline-contact-shelf::before {
-  inset-block-start:calc(-1 * var(--contact-shelf-gap-start) - 1px);
-  block-size:calc(var(--contact-shelf-gap-start) + min(100%,var(--contact-shelf-rise)) + 2px);
+  inset-block-start:calc(-1 * (var(--contact-shelf-gap-start) + var(--surface-seam-overlap)));
+  block-size:calc(var(--contact-shelf-gap-start) + min(100%,var(--contact-shelf-rise)) + 2 * var(--surface-seam-overlap));
   background:var(--contact-shelf-prev-surface,#f5f5f2);
 }
 .rc-inline-contact-shelf::after {
-  inset-block-start:calc(100% - 1px);
-  block-size:calc(var(--contact-shelf-gap-end) + 2px);
+  inset-block-start:calc(100% - var(--surface-seam-overlap));
+  block-size:calc(var(--contact-shelf-gap-end) + 2 * var(--surface-seam-overlap));
   background:var(--contact-shelf-next-surface,transparent);
 }
 .rc-inline-contact-clip {min-height:0;overflow:visible clip;opacity:0;transition:opacity 220ms ease}
@@ -45,9 +45,9 @@
   --surface-wave-height:var(--contact-shelf-rise);
   padding-block:calc(var(--contact-shelf-rise) + var(--contact-shelf-padding-before,64px)) calc(var(--contact-shelf-rise) + var(--contact-shelf-padding-after,100px));
 }
-.rc-inline-contact-shell::after {
+.rc-inline-contact-shelf:has(+ .ds-featured) .rc-inline-contact-shell::after {
   content:"";position:absolute;inset-block-end:0;left:var(--contact-shelf-surface-left,0px);
-  width:var(--contact-shelf-surface-width,100%);block-size:calc(var(--contact-shelf-rise) + 1px);
+  width:var(--contact-shelf-surface-width,100%);block-size:calc(var(--contact-shelf-rise) + var(--surface-seam-overlap));
   z-index:-2;pointer-events:none;background:var(--contact-shelf-next-surface,transparent);
 }
 .rc-inline-contact-shell::before {

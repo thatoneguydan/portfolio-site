@@ -618,7 +618,7 @@ export const controlGroups = {
     ]
   };
 
-// Both the first paint and live Tune edits use the same responsive CSS factors.
+// First paint and Tune share the footer and inline contact surface properties.
 export function footerProperties(config) {
   return {
     '--footer-height-scale': config.footerHeight / 100,
@@ -626,7 +626,8 @@ export function footerProperties(config) {
     '--footer-heading-weight': config.footerHeadingWeight,
     '--footer-button-scale': config.footerButtonScale / 100,
     '--footer-wave-length': config.footerWaveLength + 'px',
-    '--footer-wave-height': (config.footerWaveEnabled ? config.footerWaveHeight : 0) + 'px'
+    '--footer-wave-height': (config.footerWaveEnabled ? config.footerWaveHeight : 0) + 'px',
+    '--contact-shelf-background': config.contactShelfBackground
   };
 }
 

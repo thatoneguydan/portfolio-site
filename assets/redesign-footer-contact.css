@@ -7,8 +7,11 @@
   --footer-padding-y: clamp(92px, 9vw, 138px);
   --footer-inset: calc(var(--footer-padding-y) * var(--footer-height-scale, 1));
   --footer-wave-rise: var(--footer-wave-height, 0px);
+  --surface-wave-length: var(--footer-wave-length, 320px);
+  --surface-wave-height: var(--footer-wave-rise);
   --footer-type: clamp(60px, 6.2vw, 90px);
   position: relative;
+  isolation: isolate;
   box-sizing: border-box;
   width: auto;
   min-height: calc(var(--footer-min-height) * var(--footer-height-scale, 1) + var(--footer-wave-rise));
@@ -19,15 +22,18 @@
   padding: calc(var(--footer-inset) + var(--footer-wave-rise)) var(--footer-padding-x, 0px) var(--footer-inset);
   padding-inline: max(var(--footer-padding-x, 0px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   padding-block-end: max(var(--footer-inset), env(safe-area-inset-bottom, 0px));
-  /* One smooth period. The SVG draws the edge and the gradient fills the
-     footer below its trough, inside the existing full-bleed box. */
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath fill='%23111' d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V100H0Z'/%3E%3C/svg%3E")
-    center top / var(--footer-wave-length, 320px) var(--footer-wave-rise) repeat-x,
-    linear-gradient(transparent var(--footer-wave-rise), var(--footer-surface) var(--footer-wave-rise));
-  background-color: var(--footer-wave-backdrop, #f5f5f2);
+  background: var(--footer-wave-backdrop, #f5f5f2);
   color: #fff;
   text-align: center;
+}
+
+.rd-footer-cta::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:var(--footer-surface);
+  pointer-events:none;
 }
 
 .rd-footer-cta-inner {

@@ -70,14 +70,12 @@
   pointer-events:none;
 }
 #dan-landing-home .ds-work-section::before {
-  /* Cross the fractional boundary before the footer takes over the paint. */
-  inset-block:0 -1px;
+  inset-block:0 calc(-1 * var(--surface-seam-overlap));
   z-index:-1;
   background:var(--work-section-surface);
 }
 #dan-landing-home .ds-work-section::after {
-  inset-block-start:-1px;
-  block-size:calc(var(--work-section-rise) + 1px);
+  inset-block:calc(-1 * var(--surface-seam-overlap)) 0;
   z-index:-2;
   background:var(--featured-carousel-bg);
 }
@@ -274,7 +272,7 @@
 #dan-landing-home > .rc-inline-contact-shelf:has(+ .ds-featured) {--contact-shelf-next-surface:var(--contact-featured-backdrop)}
 #dan-landing-home > .rc-inline-contact-shelf.is-loaded.has-wave + .ds-featured::before {inset-block-start:0;mask:none}
 #dan-landing-home > .rc-inline-contact-shelf.is-loaded:not(.has-wave) + .ds-featured::after {
-  content:"";position:absolute;inset-block:-1px 0;z-index:-2;pointer-events:none;
+  content:"";position:absolute;inset-block:calc(-1 * var(--surface-seam-overlap)) 0;z-index:-2;pointer-events:none;
   inset-inline:var(--carousel-bleed) calc(var(--carousel-bleed) - var(--page-content-gutter,0px));
   background:var(--contact-featured-backdrop);
 }
@@ -303,7 +301,8 @@
   --featured-bleed:calc((100% - var(--work-page-width)) / 2);
   margin-inline:var(--featured-bleed) calc(var(--featured-bleed) - var(--page-content-gutter,0px));
   background:var(--contact-featured-backdrop);
-  box-shadow:0 -1px 0 var(--contact-featured-backdrop),0 1px 0 var(--contact-featured-backdrop);
+  box-shadow:0 calc(-1 * var(--surface-seam-overlap)) 0 var(--contact-featured-backdrop),0 var(--surface-seam-overlap) 0 var(--contact-featured-backdrop);
+  z-index:-1;
 }
 #dan-landing-home.featured-below-fold:has(> .rc-inline-contact-shelf.is-open)::after {min-height:max(0px,calc(var(--hero-base-clearance) * max(0,var(--hero-featured-spacing,1) - 1) + var(--featured-gap-adjustment)))}
 #dan-landing-home.featured-below-fold .ds-featured {grid-area:5 / 1;--carousel-leading-gap:0px}

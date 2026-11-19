@@ -24,14 +24,14 @@
   pointer-events:none;
 }
 .ds-carousel-section::before {
-  inset-block:var(--carousel-leading-gap,0px) 0;
+  inset-block:var(--carousel-leading-gap,0px) calc(-1 * var(--surface-seam-overlap));
   z-index:-1;
   background:var(--carousel-background,#f5f5f2);
 }
 .rv-carousels > .ds-carousel-section + .ds-carousel-section::after {
-  /* Cover the whole incoming wave depth and its fractional top edge. */
-  inset-block-start:-1px;
-  block-size:calc(var(--surface-wave-height,0px) + 1px);
+  /* Keep the preceding color under the whole band. Its opaque surface
+     takes over past the wave, without a backing edge at the trough. */
+  inset-block:calc(-1 * var(--surface-seam-overlap)) 0;
   z-index:-2;
   background:var(--carousel-prev-background);
 }

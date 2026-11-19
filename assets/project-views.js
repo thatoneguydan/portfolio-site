@@ -1,4 +1,4 @@
-import {replaceProjectContent} from './project-panels.js?v=20261119-wave-crop1';
+import {replaceProjectContent} from './project-panels.js?v=20261119-opaque-wave1';
 import {cancelPendingRevealScroll,restoreProjectThumbnail} from './reveal-scroll.js?v=20261119-carousel-colors1';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');

@@ -1,5 +1,5 @@
 /* Use the site's own press feedback while retaining keyboard focus indicators. */
-:root {-webkit-tap-highlight-color:transparent}
+:root {-webkit-tap-highlight-color:transparent;--surface-seam-overlap:16px}
 
 /* Compact title sizes follow the mobile navigation breakpoint. */
 @media (max-width:720px) {
@@ -7,13 +7,13 @@
 }
 
 /* Join each wave tile to the solid middle inside its opaque edge. */
-:is(.ds-carousel-section,.ds-work-section,.rc-inline-contact-shell)::before {
+:is(.ds-carousel-section,.ds-work-section,.rc-inline-contact-shell,.rd-footer-cta)::before {
   --wave-tile:calc(2 * var(--surface-wave-height,0px));
   --wave-join:calc(1.5 * var(--surface-wave-height,0px));
   --wave-length:var(--surface-wave-length,23px);
   --wave-top:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' preserveAspectRatio='none'%3E%3Cpath d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V200H0Z'/%3E%3C/svg%3E");
 }
-:is(.ds-carousel-section,.ds-work-section)::before {
+:is(.ds-carousel-section,.ds-work-section,.rd-footer-cta)::before {
   mask:
     var(--wave-top) center top / var(--wave-length) var(--wave-tile) repeat-x,
     linear-gradient(transparent var(--wave-join),#000 var(--wave-join));

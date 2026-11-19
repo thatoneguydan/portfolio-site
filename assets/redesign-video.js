@@ -1,7 +1,7 @@
-import {siteReady} from './site-runtime.js?v=20261119-wave-crop1';
+import {siteReady} from './site-runtime.js?v=20261119-opaque-wave1';
 import {mountProjectCarousel} from './project-carousel.js?v=20261119-mobile-polish1';
 import {mountSectionHeading} from './featured-heading.js?v=20261119-shared-carousel1';
-import {installProjectViews,openProject} from './project-views.js?v=20261119-wave-crop1';
+import {installProjectViews,openProject} from './project-views.js?v=20261119-opaque-wave1';
 
 const sections=[...document.querySelectorAll('.rv-carousels > [data-carousel-scope]')];
 if(sections.length){

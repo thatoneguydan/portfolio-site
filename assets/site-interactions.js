@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261119-wave-crop1';
+import {defaults} from './landing-schema.js?v=20261119-opaque-wave1';
 import {animateRotationEntries,rotationEntry} from './landing-rotate.js?v=20261119-carousel1';
 
 function installLogoInkAlignment(){

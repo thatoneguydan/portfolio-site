@@ -16,7 +16,6 @@
   min-width:0;
   scroll-margin-block-start:104px;
 }
-.rv-carousels > .ds-carousel-section:last-child::before {inset-block-end:-1px}
 .rv-carousel-flavor {
   margin:0 0 var(--video-carousel-heading-gap,25px);
   max-inline-size:710px;
