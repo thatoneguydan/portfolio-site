@@ -3,10 +3,18 @@
     #dan-owner-controls .ds-config-grip{font-size:19px;line-height:1;color:#77786e}
     #dan-owner-controls .ds-config-launch:hover{background:#e9e9e5}
     #dan-owner-controls .ds-config{position:fixed;z-index:6000;top:auto;right:auto;width:min(380px,calc(100vw - 24px));max-height:680px;overflow:auto;overscroll-behavior:contain;background:var(--dan-paper);border:1px solid #c5c5bf;border-radius:17px;box-shadow:0 12px 44px #11111126;padding:20px;color:var(--dan-ink);font-size:13px;line-height:1.5;scrollbar-width:thin;scrollbar-color:#b1b1aa transparent}
-    #dan-owner-controls .ds-config-header{position:sticky;top:-20px;padding:5px 0 13px;background:var(--dan-paper);z-index:2}
-    #dan-owner-controls .ds-config-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+    #dan-owner-controls .ds-config-header{position:sticky;top:-20px;padding:5px 0 13px;background:var(--dan-paper);z-index:2;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 12px;margin-bottom:16px}
     #dan-owner-controls .ds-config-header h2{font-size:19px;font-weight:500;letter-spacing:-.04em}
-    #dan-owner-controls .ds-config-header button{width:32px;height:32px;border:1px solid var(--dan-line);border-radius:50%;background:transparent;color:inherit;font-size:20px}
+    #dan-owner-controls .ds-config-header > button{width:32px;height:32px;border:1px solid var(--dan-line);border-radius:50%;background:transparent;color:inherit;font-size:20px}
+    #dan-owner-controls .ds-tune-find{grid-column:1/-1;display:flex;align-items:center;gap:6px}
+    #dan-owner-controls .ds-tune-find input{flex:1;min-width:0;padding:7px 8px;border:1px solid #cecec7;border-radius:7px;background:#fbfbf9;color:inherit}
+    #dan-owner-controls .ds-tune-find output{color:var(--dan-muted);white-space:nowrap;font-variant-numeric:tabular-nums;font-size:12px}
+    #dan-owner-controls .ds-tune-find button{flex:0 0 32px;min-height:32px;border:1px solid var(--dan-line);border-radius:7px;background:transparent;color:inherit}
+    #dan-owner-controls .ds-tune-find button:disabled{opacity:.38;cursor:default}
+    #dan-owner-controls .ds-tune-find button:not(:disabled):hover{background:#e8e8e3}
+    #dan-owner-controls [data-tune-match]{border-radius:4px;background:#ffefbf}
+    #dan-owner-controls [data-tune-match=current]{background:#f8db7e;box-shadow:0 0 0 3px #f8db7e}
+    @media(forced-colors:active){#dan-owner-controls [data-tune-match=current]{outline:2px solid Highlight}}
     #dan-owner-controls .ds-config details{border-top:1px solid var(--dan-line);padding-top:13px;margin-top:17px}
     #dan-owner-controls .ds-config summary{font-size:13px;font-weight:500;list-style-position:inside;margin-bottom:11px}
     #dan-owner-controls .ds-config label{display:block;font-size:12px;line-height:1.5;margin:12px 0}
@@ -40,6 +48,7 @@
 #dan-owner-controls .ds-config-launch{cursor:grab}
 #dan-owner-controls .ds-config-launch.is-dragging{cursor:grabbing}
 @media(max-width:640px){#dan-owner-controls .ds-config input[type=text],#dan-owner-controls .ds-config select,#dan-owner-controls .ds-config textarea{font-size:16px}}
+@media(max-width:640px){#dan-owner-controls .ds-tune-find input{font-size:16px}}
 
 #dan-owner-controls [hidden]{display:none!important}
 #dan-owner-controls .ds-rotate-count{font-size:12px;line-height:1.5;color:#666;margin:4px 0 18px}

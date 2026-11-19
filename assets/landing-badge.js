@@ -1,4 +1,4 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261118-sizing1';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261119-tunefind1';
 import {appendEmojiText} from './site-emoji.js?v=20261118-perf1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261118-perf1';
@@ -146,7 +146,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     surface.style.gridTemplateRows=config.ticketOrientation==='vertical'?`minmax(0,1fr) ${panel}px`:'minmax(0,1fr)';
     ticket.dataset.orientation=isCompact?'compact':config.ticketOrientation;
     ticket.dataset.disabled=String(config.ticketDisabled);activation.disabled=config.ticketDisabled;
-    const radii=badgeRadii(config,isCompact,scale);
+    const radii=badgeRadii(config,isCompact,scale,compact);
     ticket.style.borderRadius=(radii.card+frameWidth)+'px';
     ticket.style.backgroundColor=config.ticketBorder?rgba(config.ticketBorderColor,config.ticketBorderOpacity):config.ticketBackground;
     surface.style.inset=frameWidth+'px';surface.style.borderRadius=radii.card+'px';

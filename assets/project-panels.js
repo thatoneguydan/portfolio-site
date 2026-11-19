@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261119-carousel1';
+import {defaults} from './landing-schema.js?v=20261119-tunefind1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;

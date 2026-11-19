@@ -131,6 +131,12 @@ export const defaults = {
   "ticketRadius": 16,
   "ticketImageRadius": 8,
   "ticketAutoImageRadius": true,
+  "ticketDesktopRadius": 32,
+  "ticketDesktopImageRadius": 16,
+  "ticketDesktopAutoImageRadius": true,
+  "ticketMobileRadius": 8,
+  "ticketMobileImageRadius": 4,
+  "ticketMobileAutoImageRadius": true,
   "ticketResponsive": true,
   "ticketScrim": true,
   "scrimColor": "#111111",
@@ -320,8 +326,17 @@ export const controlGroups = {
     ticketLayout: [
       ['select','ticketOrientation','Orientation',['horizontal','vertical']],
       ['range','ticketWidth','Width',220,1400,10,'px'], ['range','ticketHeight','Height',140,1200,10,'px'],
-      ['range','ticketPanelSize','Text panel size',70,640,2,'px'], ['range','ticketRadius','Radius',0,32,1,'px'],
-      ['check','ticketAutoImageRadius','Image radius follows card'], ['range','ticketImageRadius','Image radius',0,32,1,'px']
+      ['range','ticketPanelSize','Text panel size',70,640,2,'px']
+    ],
+    ticketDesktopCorners: [
+      ['range','ticketDesktopRadius','Desktop card corner radius',0,64,.5,'px'],
+      ['check','ticketDesktopAutoImageRadius','Desktop photo corners follow card'],
+      ['range','ticketDesktopImageRadius','Desktop photo corner radius',0,64,.5,'px']
+    ],
+    ticketMobileCorners: [
+      ['range','ticketMobileRadius','Mobile card corner radius',0,64,.5,'px'],
+      ['check','ticketMobileAutoImageRadius','Mobile photo corners follow card'],
+      ['range','ticketMobileImageRadius','Mobile photo corner radius',0,64,.5,'px']
     ],
     ticketPhoto: [
       ['range','photoPositionX','Photo horizontal position',0,100,1,'%'],
@@ -632,6 +647,16 @@ export function normalizeSettings(input, base = defaults) {
     if(typeof value==='string'&&value.length>(/rotateWords$/i.test(key)?6000:2000))throw new Error('Text is too long: '+key);
     if(colors.includes(key)&&!/^#[a-f0-9]{6}$/i.test(value))throw new Error('Invalid color: '+key);
     result[key]=value;
+  }
+  // Migrate the saved shared radii when a layout-specific value has not been supplied.
+  for(const [legacy,suffix] of [['ticketRadius','Radius'],['ticketImageRadius','ImageRadius'],['ticketAutoImageRadius','AutoImageRadius']]){
+    if(!Object.hasOwn(input,legacy))continue;
+    const value=typeof result[legacy]==='number'?Math.max(0,Math.min(32,result[legacy])):result[legacy];
+    result[legacy]=value;
+    for(const [layout,ratio] of [['Desktop',2],['Mobile',.5]]){
+      const key='ticket'+layout+suffix;
+      if(!Object.hasOwn(input,key))result[key]=typeof value==='number'?value*ratio:value;
+    }
   }
   for(const fields of Object.values(controlGroups))for(const [type,key,,min,max]of fields){
     if(type==='range')result[key]=Math.max(min,Math.min(max,result[key]));

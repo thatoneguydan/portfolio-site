@@ -1,10 +1,10 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261119-carousel1';
-import {createBadge} from './landing-badge.js?v=20261119-carousel1';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261119-tunefind1';
+import {createBadge} from './landing-badge.js?v=20261119-tunefind1';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261119-carousel1';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261119-carousel1';
-import {siteReady} from './site-runtime.js?v=20261119-carousel1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261119-carousel1';
+import {siteReady} from './site-runtime.js?v=20261119-tunefind1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261119-tunefind1';
 import {mountSectionHeading} from './featured-heading.js?v=20261119-carousel1';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {
