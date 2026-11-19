@@ -1,5 +1,5 @@
 .video-redesign .site-main {padding-bottom:0}
-.video-redesign .rd-footer-cta {background-color:var(--video-gaming-carousel-bg,transparent)}
+.video-redesign .rd-footer-cta {--footer-wave-backdrop:var(--video-gaming-carousel-bg)}
 
 .rv-carousels {
   container-type:inline-size;
@@ -16,6 +16,7 @@
   min-width:0;
   scroll-margin-block-start:104px;
 }
+.rv-carousels > .ds-carousel-section:last-child::before {inset-block-end:-1px}
 .rv-carousel-flavor {
   margin:0 0 var(--video-carousel-heading-gap,25px);
   max-inline-size:710px;
@@ -34,12 +35,17 @@
 .rv-carousels .ds-gallery:not([data-layout]) > .ds-panel[data-focused=true] .ds-panel-gradient {opacity:1}
 @media(max-width:720px){
   .rv-carousels > .ds-carousel-section {scroll-margin-block-start:90px}
-  .rv-carousels .ds-gallery:not([data-layout]) {display:grid;gap:10px}
-  .rv-carousels .ds-gallery:not([data-layout]) > .ds-panel {width:100%;height:140px}
-  .rv-carousels .ds-gallery:not([data-layout]) > .ds-panel[data-focused=true] {height:auto;aspect-ratio:16/9}
-  .rv-carousels .ds-gallery:not([data-layout])[data-orientation=portrait] > .ds-panel {height:150px}
-  .rv-carousels .ds-gallery:not([data-layout])[data-orientation=portrait] > .ds-panel[data-focused=true] {height:auto;aspect-ratio:1}
-  .rv-carousels .ds-gallery:not([data-layout]) .ds-gallery-image {width:100%}
-  .rv-carousels .ds-gallery:not([data-layout]) .ds-caption {opacity:1;transform:none;width:calc(100% - 40px)}
-  .rv-carousels .ds-gallery:not([data-layout]) .ds-panel-gradient {opacity:1}
+  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) {display:grid;gap:10px}
+  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) > .ds-panel {width:100%;height:140px}
+  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) > .ds-panel[data-focused=true] {height:auto;aspect-ratio:16/9}
+  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout])[data-orientation=portrait] > .ds-panel {height:150px}
+  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout])[data-orientation=portrait] > .ds-panel[data-focused=true] {height:auto;aspect-ratio:4/5}
+  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) .ds-gallery-image {width:100%}
+  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout])[data-orientation=portrait] .ds-panel[data-video-portrait=true] .ds-gallery-image {
+    --portrait-media-height:max(100%,calc(100cqi * 16 / 9));
+    top:calc((100% - var(--portrait-media-height)) / 2);
+    height:var(--portrait-media-height);
+  }
+  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) .ds-caption {opacity:1;transform:none;width:calc(100% - 40px)}
+  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) .ds-panel-gradient {opacity:1}
 }

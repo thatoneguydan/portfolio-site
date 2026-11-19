@@ -137,7 +137,7 @@ export const defaults = {
   "portraitVerticalGalleryPadding": 16,
   "portraitVerticalGalleryTitleSize": 19,
   "portraitVerticalGalleryCompactTitleSize": 14,
-  "portraitVerticalGalleryAspect": 100,
+  "portraitVerticalGalleryAspect": 80,
   "paletteSaturation": 42,
   "bio": "I work across video, design, print, and photography to make things clear, intentional, and worth looking at.",
   "fontSize": 53,

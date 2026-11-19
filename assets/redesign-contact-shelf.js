@@ -8,8 +8,8 @@
     if(link.sheet)return Promise.resolve();
     return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261119-carousel-colors1'),style('/assets/redesign-footer-contact.css?v=20261119-mobile-polish1')]);
-  const runtime=import('/assets/site-runtime.js?v=20261119-mobile-polish1').then(module=>module.siteReady);
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261119-wave-crop1'),style('/assets/redesign-footer-contact.css?v=20261119-wave-crop1')]);
+  const runtime=import('/assets/site-runtime.js?v=20261119-wave-crop1').then(module=>module.siteReady);
   const scroll=import('/assets/reveal-scroll.js?v=20261119-carousel-colors1');
   const controls=import('/assets/filled-controls.js?v=20261117-navlab1');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -81,7 +81,7 @@
       'padding-before':config.contactShelfPaddingBefore??64,
       'padding-after':config.contactShelfPaddingAfter??100
     };
-    state.shelf.style.setProperty('--contact-shelf-background',color);
+    state.shelf.classList.toggle('has-wave',sizes['wave-height']>0);
     for(const [key,value] of Object.entries(sizes))state.shelf.style.setProperty('--contact-shelf-'+key,value+'px');
     const styling=state.frame.contentDocument?.documentElement?.style;
     styling?.setProperty('--contact-shelf-background',color);

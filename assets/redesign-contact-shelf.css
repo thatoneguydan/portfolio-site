@@ -1,21 +1,54 @@
+/* The margins and their opaque backings share one animated measurement. */
+@property --contact-shelf-gap-start {
+  syntax:'<length>';inherits:true;initial-value:0px;
+}
+@property --contact-shelf-gap-end {
+  syntax:'<length>';inherits:true;initial-value:0px;
+}
 .rc-inline-contact-shelf {
-  width:100%;display:grid;grid-template-rows:0fr;overflow-anchor:none;opacity:0;
+  position:relative;isolation:isolate;width:100%;display:grid;grid-template-rows:0fr;overflow-anchor:none;
   --contact-shelf-motion:460ms cubic-bezier(.2,.72,.2,1);
-  transition:grid-template-rows var(--contact-shelf-motion),opacity 220ms ease,margin-block var(--contact-shelf-motion);
+  --contact-shelf-gap-start:0px;
+  --contact-shelf-gap-end:0px;
+  --contact-shelf-rise:var(--contact-shelf-wave-height,3px);
+  margin-block:var(--contact-shelf-gap-start) var(--contact-shelf-gap-end);
+  transition:grid-template-rows var(--contact-shelf-motion),--contact-shelf-gap-start var(--contact-shelf-motion),--contact-shelf-gap-end var(--contact-shelf-motion);
 }
 .rc-inline-contact-shelf.is-open {
-  grid-template-rows:1fr;opacity:1;
-  margin-block:var(--contact-shelf-margin-before,24px) var(--contact-shelf-margin-after,35px);
+  grid-template-rows:1fr;
+  --contact-shelf-gap-start:var(--contact-shelf-margin-before,24px);
+  --contact-shelf-gap-end:var(--contact-shelf-margin-after,35px);
 }
 .rd-footer-cta + .rc-inline-contact-shelf,
 .rd-footer-cta + .rc-inline-contact-shelf + .rc-inline-contact-error {width:var(--site-content-width);margin-inline:auto}
-.rc-inline-contact-clip {min-height:0;overflow:visible clip}
+.rd-footer-cta + .rc-inline-contact-shelf {--contact-shelf-prev-surface:var(--footer-surface,#111)}
+.rc-inline-contact-shelf.is-loaded::before,
+.rc-inline-contact-shelf.is-loaded::after {
+  content:"";position:absolute;left:var(--contact-shelf-surface-left,0px);
+  width:var(--contact-shelf-surface-width,100%);pointer-events:none;z-index:-1;
+}
+.rc-inline-contact-shelf::before {
+  inset-block-start:calc(-1 * var(--contact-shelf-gap-start) - 1px);
+  block-size:calc(var(--contact-shelf-gap-start) + min(100%,var(--contact-shelf-rise)) + 2px);
+  background:var(--contact-shelf-prev-surface,#f5f5f2);
+}
+.rc-inline-contact-shelf::after {
+  inset-block-start:calc(100% - 1px);
+  block-size:calc(var(--contact-shelf-gap-end) + 2px);
+  background:var(--contact-shelf-next-surface,transparent);
+}
+.rc-inline-contact-clip {min-height:0;overflow:visible clip;opacity:0;transition:opacity 220ms ease}
+.rc-inline-contact-shelf.is-open > .rc-inline-contact-clip {opacity:1}
 .rc-inline-contact-shell {
   position:relative;isolation:isolate;
-  --contact-shelf-rise:var(--contact-shelf-wave-height,3px);
   --surface-wave-length:var(--contact-shelf-wave-length,23px);
   --surface-wave-height:var(--contact-shelf-rise);
   padding-block:calc(var(--contact-shelf-rise) + var(--contact-shelf-padding-before,64px)) calc(var(--contact-shelf-rise) + var(--contact-shelf-padding-after,100px));
+}
+.rc-inline-contact-shell::after {
+  content:"";position:absolute;inset-block-end:0;left:var(--contact-shelf-surface-left,0px);
+  width:var(--contact-shelf-surface-width,100%);block-size:calc(var(--contact-shelf-rise) + 1px);
+  z-index:-2;pointer-events:none;background:var(--contact-shelf-next-surface,transparent);
 }
 .rc-inline-contact-shell::before {
   content:'';position:absolute;inset-block:0;left:var(--contact-shelf-surface-left,0px);
@@ -32,4 +65,4 @@
 .rc-inline-contact-shelf:not(.is-open) {pointer-events:none}
 a[aria-busy="true"][aria-controls^="contact-shelf-"] {cursor:progress}
 .rc-inline-contact-error {margin:16px 0;padding:16px;border:1px solid #1113;border-radius:12px;background:#f5f5f2;font-size:15px}
-@media(prefers-reduced-motion:reduce){.rc-inline-contact-shelf {transition:none}}
+@media(prefers-reduced-motion:reduce){.rc-inline-contact-shelf,.rc-inline-contact-clip {transition:none}}

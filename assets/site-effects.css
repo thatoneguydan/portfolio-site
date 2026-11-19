@@ -95,10 +95,12 @@
 html.portfolio-js [data-headline-pending] {visibility:hidden}
 .has-progressive-blur[data-blur-active=true] .portfolio-blur.is-ready > span {opacity:1;filter:blur(var(--layer-blur))}
 .rv-video-thumb,.rdp-project-media {position:relative}
-#featured-work .rd-work-card[data-video-id]::before {z-index:5}
+/* Play controls sit above the thumbnail's blur, shading, and caption planes. */
+:is(#featured-work,.ds-carousel-section) .ds-panel[data-youtube-id]::before,
+#featured-work .rd-work-card[data-video-id]::before,
+.rv-video-thumb::after {z-index:5}
 #featured-work .ds-panel[data-video-id]::before {opacity:0;visibility:hidden;transition:opacity 160ms ease,visibility 160ms,transform 180ms cubic-bezier(.2,.7,.2,1),background 180ms ease,color 180ms ease}
 #featured-work .ds-panel[data-video-id][data-focused=true]::before {opacity:1;visibility:visible}
-.rv-video-thumb::after {z-index:4}
 /* Reveals clip settled content; horizontal padding never changes its width. */
 .rdp-project-shelf > .rdp-project-shelf-inner {padding-left:clamp(12px,1.5vw,24px);padding-right:clamp(12px,1.5vw,24px)}
 .video-redesign .rv-shelf-panel > .rv-video-grid {padding-left:18px;padding-right:18px;transition-property:padding-top,padding-bottom}

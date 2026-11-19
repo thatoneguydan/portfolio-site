@@ -141,6 +141,13 @@
 :is(#dan-landing-home,.ds-carousel-section) .ds-gallery[data-layout=vertical] > .rdp-project-shelf {order:var(--featured-shelf-order)}
 :is(#dan-landing-home,.ds-carousel-section) .ds-gallery[data-layout=vertical] .ds-gallery-controls {display:none}
 :is(#dan-landing-home,.ds-carousel-section) .ds-gallery[data-layout=vertical] .ds-gallery-image {width:100%;height:var(--mobile-expanded,320px);object-position:center}
+/* Frame the center 9:16 content even when the provider adds side mattes.
+   The base image and every blur copy use the same crop at all card heights. */
+:is(#dan-landing-home,.ds-carousel-section) .ds-gallery[data-layout=vertical][data-orientation=portrait] .ds-panel[data-video-portrait=true] .ds-gallery-image {
+  --portrait-media-height:max(var(--mobile-expanded,320px),calc(var(--media-width) * 16 / 9));
+  top:calc((100% - var(--portrait-media-height)) / 2);
+  height:var(--portrait-media-height);
+}
 :is(#dan-landing-home,.ds-carousel-section) .ds-gallery[data-layout=vertical] .ds-caption {bottom:12px}
 :is(#dan-landing-home,.ds-carousel-section) .ds-gallery[data-layout=vertical] .ds-panel[data-focused=false] {
   --caption-title-size:var(--compact-title-size,14px);
@@ -162,7 +169,6 @@
 :is(#featured-work,.ds-carousel-section) .ds-panel[data-youtube-id]::before {
   content: '▶';
   position: absolute;
-  z-index: 2;
   left: 50%;
   top: 50%;
   width: clamp(58px, 5vw, 76px);

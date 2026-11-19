@@ -1,5 +1,6 @@
 /* Shared bottom-of-page contact treatment. Every redesign route uses the same
    homepage CTA markup and this single style source. */
+.rd-footer-cta,.rd-footer-cta + .rc-inline-contact-shelf {--footer-surface:#111}
 .rd-footer-cta {
   --contact-button-scale: var(--footer-button-scale, 1);
   --footer-min-height: clamp(540px, 62vh, 740px);
@@ -7,6 +8,7 @@
   --footer-inset: calc(var(--footer-padding-y) * var(--footer-height-scale, 1));
   --footer-wave-rise: var(--footer-wave-height, 0px);
   --footer-type: clamp(60px, 6.2vw, 90px);
+  position: relative;
   box-sizing: border-box;
   width: auto;
   min-height: calc(var(--footer-min-height) * var(--footer-height-scale, 1) + var(--footer-wave-rise));
@@ -22,7 +24,8 @@
   background:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath fill='%23111' d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V100H0Z'/%3E%3C/svg%3E")
     center top / var(--footer-wave-length, 320px) var(--footer-wave-rise) repeat-x,
-    linear-gradient(transparent var(--footer-wave-rise), #111 var(--footer-wave-rise));
+    linear-gradient(transparent var(--footer-wave-rise), var(--footer-surface) var(--footer-wave-rise));
+  background-color: var(--footer-wave-backdrop, #f5f5f2);
   color: #fff;
   text-align: center;
 }
