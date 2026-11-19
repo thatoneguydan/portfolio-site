@@ -37,7 +37,7 @@
 
   if (!document.querySelector('script[data-redesign-contact-shelf]')) {
     const contactShelfScript = document.createElement('script');
-    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=20261119-opaque-wave1';
+    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=20261119-opaque-wave2';
     contactShelfScript.dataset.redesignContactShelf = '';
     document.head.append(contactShelfScript);
   }

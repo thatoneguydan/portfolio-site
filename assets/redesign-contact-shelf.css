@@ -22,7 +22,7 @@
 .rd-footer-cta + .rc-inline-contact-shelf,
 .rd-footer-cta + .rc-inline-contact-shelf + .rc-inline-contact-error {width:var(--site-content-width);margin-inline:auto}
 .rd-footer-cta + .rc-inline-contact-shelf {--contact-shelf-prev-surface:var(--footer-surface,#111)}
-.rc-inline-contact-shelf.is-loaded::before,
+.rd-footer-cta + .rc-inline-contact-shelf.is-loaded::before,
 .rc-inline-contact-shelf.is-loaded:has(+ .ds-featured)::after {
   content:"";position:absolute;left:var(--contact-shelf-surface-left,0px);
   width:var(--contact-shelf-surface-width,100%);pointer-events:none;z-index:-1;
