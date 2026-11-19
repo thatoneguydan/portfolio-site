@@ -1,8 +1,8 @@
 /* Shared discipline-page intro treatment.
    Video, Design, and Photo use one compact, single-column hierarchy. */
 
-.contact-redesign-root,
-body.contact-redesign {
+.contact-redesign-root:not(.contact-inline-embed),
+body.contact-redesign:not(.contact-inline-embed) {
   background: #f5f5f2;
 }
 
@@ -29,7 +29,7 @@ body.contact-redesign {
 .discipline-redesign .rdp-intro h1 {
   max-width: 710px;
   margin: 0;
-  font-size: 56px;
+  font-size: calc(56px * var(--site-title-scale,1));
   font-weight: 700;
   letter-spacing: -.055em;
   line-height: .94;
@@ -72,7 +72,7 @@ body.contact-redesign {
 
   .video-redesign .rv-intro h1,
   .discipline-redesign .rdp-intro h1 {
-    font-size: clamp(44px, 13vw, 56px);
+    font-size: calc(clamp(44px, 13vw, 56px) * var(--site-title-scale,1));
   }
 
   .video-redesign .rv-intro-copy,

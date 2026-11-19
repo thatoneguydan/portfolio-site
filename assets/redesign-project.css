@@ -31,7 +31,7 @@
 .rproj-header h1 {
   max-width: 930px;
   margin: 0;
-  font-size: clamp(52px, 7.2vw, 112px);
+  font-size: calc(clamp(52px, 7.2vw, 112px) * var(--site-title-scale,1));
   font-weight: 700;
   letter-spacing: -.058em;
   line-height: .9;
@@ -195,7 +195,7 @@
 
 .rproj-related-head h2 {
   margin: 0;
-  font-size: clamp(32px, 4vw, 58px);
+  font-size: calc(clamp(32px, 4vw, 58px) * var(--site-title-scale,1));
   letter-spacing: -.045em;
   line-height: 1;
 }

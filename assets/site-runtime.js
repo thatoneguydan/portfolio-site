@@ -1,5 +1,5 @@
-import {defaults} from './landing-schema.js?v=public-dbd473291c-6d6196dc';
-import {mountHeadline} from './headline-view.js?v=public-dbd473291c-6d6196dc';
+import {defaults} from './landing-schema.js?v=public-bbcdffe8d1-86b4d982';
+import {mountHeadline} from './headline-view.js?v=public-bbcdffe8d1-86b4d982';
 
 const views=new Set();
 let pageHeadline=null;

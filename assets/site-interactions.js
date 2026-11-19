@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=public-dbd473291c-6d6196dc';
+import {defaults} from './landing-schema.js?v=public-bbcdffe8d1-86b4d982';
 import {animateRotationEntries,rotationEntry} from './landing-rotate.js?v=20261119-carousel1';
 
 function installLogoInkAlignment(){

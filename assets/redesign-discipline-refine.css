@@ -216,7 +216,7 @@
   }
 
   .discipline-redesign .rdp-project-title {
-    font-size: clamp(25px, 8vw, 34px);
+    font-size: calc(clamp(25px, 8vw, 34px) * var(--site-title-scale,1));
   }
 
   .discipline-redesign .rdp-project-note {
