@@ -1,4 +1,4 @@
-import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261119-rotatewidth1';
+import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261119-carousel1';
 import {appendEmojiText} from './site-emoji.js?v=20261118-perf1';
 
 function headingRange(config){
@@ -9,7 +9,7 @@ function headingRange(config){
   return {words,start,end};
 }
 
-export function mountSectionHeading(heading,section,content,{scope,label,anchored=false}){
+export function mountSectionHeading(heading,section,content,{scope,label,anchored=false,lastItem}){
   let rendered='',typography='',width=0,rotator=null;
   const viewport=window.visualViewport;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -39,7 +39,8 @@ export function mountSectionHeading(heading,section,content,{scope,label,anchore
     growthFrame=requestAnimationFrame(()=>{
       growthFrame=0;
       if(!growth||heading.hidden||reduced.matches){applyScrollScale(1);return;}
-      const {top,height}=content.getBoundingClientRect();
+      const bounds=content.getBoundingClientRect(),top=bounds.top;
+      const height=lastItem?(content.querySelector(lastItem)?.getBoundingClientRect().bottom??bounds.bottom)-top:bounds.height;
       const bottom=viewport?viewport.offsetTop+viewport.height:innerHeight;
       // Grow across the content's entry into the viewport and stop once its
       // bottom edge is visible. Quantize subpixel changes while scrolling.

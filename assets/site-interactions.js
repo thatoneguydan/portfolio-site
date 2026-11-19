@@ -1,3 +1,6 @@
+import {defaults} from './landing-schema.js?v=public-dbd473291c-6d6196dc';
+import {animateRotationEntries,rotationEntry} from './landing-rotate.js?v=20261119-carousel1';
+
 function installLogoInkAlignment(){
   const bounds=new WeakMap(),cells=[...document.querySelectorAll('.site-logo')];
   function align(cell){
@@ -126,6 +129,65 @@ function installPageScrollbar(){
   }
   desktop.addEventListener('change',refreshMode);refreshMode();
 }
+
+function installPillLabelHover(reduced){
+  const pills='.ds-contact,.rd-footer-cta-button,.portfolio-button';
+  const interval=2000;
+  let active=null;
+
+  function labelFor(button){
+    const existing=button.querySelector(':scope > .portfolio-pill-label');
+    if(existing)return existing;
+    const nodes=[...button.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE&&node.textContent.trim());
+    if(!nodes.length)return null;
+    const label=document.createElement('span');label.className='portfolio-pill-label';
+    const copy=document.createElement('span');copy.className='portfolio-pill-copy';
+    nodes[0].before(label);copy.append(...nodes);label.append(copy);
+    return label;
+  }
+
+  function stop(){
+    if(!active)return;
+    clearTimeout(active.timer);active.finish?.();active=null;
+  }
+
+  function cycle(state){
+    const {button,label}=state;
+    if(!label.isConnected||button.matches(':disabled,[aria-disabled="true"]')){stop();return;}
+    const {rotateSplit=defaults.rotateSplit,rotateDuration=defaults.rotateDuration,rotateStagger=defaults.rotateStagger,
+      rotateFrom=defaults.rotateFrom}=window.portfolioLandingConfig||defaults;
+    const text=label.firstElementChild.textContent.trim().replace(/\s+/g,' ');
+    const before=rotationEntry(text,rotateSplit),after=rotationEntry(text,rotateSplit);
+    const clip=document.createElement('span');clip.className='ds-rotate-clip';clip.setAttribute('aria-hidden','true');
+    clip.append(before,after);label.append(clip);label.dataset.cycling='true';
+    // Keep the spring and its stagger within one repeat even at the longest Tune timings.
+    const count=after.querySelectorAll('.ds-rotate-piece').length;
+    const stagger=Math.max(0,(interval-80-rotateDuration*1.14)/Math.max(1,count-1));
+    const animations=animateRotationEntries(before,after,{rotateDuration,rotateFrom,rotateStagger:Math.min(rotateStagger,stagger)});
+    const finish=()=>{
+      if(state.finish!==finish)return;
+      state.finish=null;animations.forEach(animation=>animation.cancel());clip.remove();delete label.dataset.cycling;
+    };
+    state.finish=finish;
+    Promise.allSettled(animations.map(animation=>animation.finished)).then(finish);
+    state.timer=setTimeout(()=>{state.finish?.();cycle(state);},interval);
+  }
+
+  document.addEventListener('pointerover',event=>{
+    if(event.pointerType==='touch'||reduced.matches||document.hidden)return;
+    const button=event.target.closest?.(pills);
+    if(!button||button.contains(event.relatedTarget)||button.matches(':disabled,[aria-disabled="true"]'))return;
+    const label=labelFor(button);if(!label)return;
+    stop();active={button,label};cycle(active);
+  },{passive:true});
+  document.addEventListener('pointerout',event=>{
+    if(active?.button.contains(event.target)&&!active.button.contains(event.relatedTarget))stop();
+  },{passive:true});
+  addEventListener('pagehide',stop);addEventListener('blur',stop);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+  reduced.addEventListener('change',stop);
+}
+
 export function installSiteInteractions(){
   if(window.__portfolioInteractions)return;window.__portfolioInteractions=true;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)'),motions=new WeakMap(),pressed=new Map();
@@ -174,5 +236,5 @@ export function installSiteInteractions(){
   },{capture:true});
   document.addEventListener('keyup',event=>{if(['Enter',' '].includes(event.key))animate(targetFor(event.target),false);},{capture:true});
 
-  installPageScrollbar();
+  installPageScrollbar();installPillLabelHover(reduced);
 }

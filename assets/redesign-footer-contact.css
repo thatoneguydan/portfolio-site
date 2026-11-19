@@ -15,6 +15,8 @@
   justify-content: center;
   margin-inline: 0 calc(-1 * var(--page-content-gutter, 0px));
   padding: calc(var(--footer-inset) + var(--footer-wave-rise)) var(--footer-padding-x, 0px) var(--footer-inset);
+  padding-inline: max(var(--footer-padding-x, 0px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  padding-block-end: max(var(--footer-inset), env(safe-area-inset-bottom, 0px));
   /* One smooth period. The SVG draws the edge and the gradient fills the
      footer below its trough, inside the existing full-bleed box. */
   background:
@@ -119,17 +121,13 @@
   color: var(--contact-button-background, #fff);
 }
 
-.rd-footer-cta .rd-footer-cta-button span,
-#dan-landing-home .ds-contact span {
+:is(.rd-footer-cta .rd-footer-cta-button,#dan-landing-home .ds-contact) > span[aria-hidden="true"] {
   font-size: calc(24px * var(--contact-button-scale, 1));
   line-height: 1;
   transition: transform 160ms ease;
 }
 
-.rd-footer-cta .rd-footer-cta-button:hover span,
-.rd-footer-cta .rd-footer-cta-button:focus-visible span,
-#dan-landing-home .ds-contact:hover span,
-#dan-landing-home .ds-contact:focus-visible span {
+:is(.rd-footer-cta .rd-footer-cta-button,#dan-landing-home .ds-contact):is(:hover,:focus-visible) > span[aria-hidden="true"] {
   transform: translate(2px, -2px);
 }
 
@@ -198,9 +196,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .rd-footer-cta .rd-footer-cta-button,
-  .rd-footer-cta .rd-footer-cta-button span,
+  .rd-footer-cta .rd-footer-cta-button > span[aria-hidden="true"],
   #dan-landing-home .ds-contact,
-  #dan-landing-home .ds-contact span {
+  #dan-landing-home .ds-contact > span[aria-hidden="true"] {
     transition: none !important;
   }
 }

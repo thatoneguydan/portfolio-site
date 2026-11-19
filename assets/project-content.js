@@ -24,6 +24,16 @@ html.portfolio-project-document,html.portfolio-project-document body{min-height:
 @media(max-width:600px){.portfolio-project-document :is(.column-layout,.rcompat-layout,.rproj-story){flex-direction:column!important}.portfolio-project-document :is(.column-layout,.rcompat-layout)>.column{width:100%!important;flex:auto!important}.portfolio-project-document :is(.rproj-gallery,.rcompat-gallery,.media-collection)>*{flex-basis:45%!important}.portfolio-project-document .site-main :is(h1,h2,h3){font-size:min(var(--project-heading-size),10vw)!important}}
 `;
 const raf=()=>new Promise(resolve=>requestAnimationFrame(resolve));
+async function settleLayoutFonts(fonts){
+  const active=[...(fonts||[])].filter(face=>face.status==='loading');
+  if(!active.length)return;
+  // The embedded layout observer also measures a later font swap. Network
+  // fallback metrics are usable even if a browser leaves a face pending.
+  let deadline;
+  const fallback=new Promise(resolve=>{deadline=setTimeout(resolve,750);});
+  try{await Promise.race([Promise.allSettled(active.map(face=>face.load())),fallback]);}
+  finally{clearTimeout(deadline);}
+}
 export async function prepareProjectDocument(frame){
   const doc=frame.contentDocument;if(!doc?.querySelector('.site-main'))throw Error('Project content is unavailable.');
   if(prepared.has(doc))return prepared.get(doc);
@@ -56,10 +66,12 @@ export async function prepareProjectDocument(frame){
     hero.loading='eager';
   }
   bindImageDocument(doc);
-  // Resolve the embedded typography and image boxes before asking for the
-  // font-ready promise; font discovery depends on the applied parent styles.
+  // Resolve the embedded typography and image boxes so CSS discovers the
+  // faces used by this layout, including any needed fallbacks.
   void main.offsetHeight;
-  await doc.fonts?.ready;await raf();await raf();
+  // Explicitly settle the active requests. WebKit can leave the document's
+  // aggregate ready promise pending for fallback faces in a clipped iframe.
+  await settleLayoutFonts(doc.fonts);await raf();await raf();
   const height=()=>Math.ceil(main.getBoundingClientRect().height);
   frame.style.height=height()+'px';
   let clearanceKey='',adjusted=[];

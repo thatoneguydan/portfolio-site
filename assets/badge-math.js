@@ -24,9 +24,14 @@ export function entranceDelay(position,lineTimes){
   return anchors[before]+(anchors[after]-anchors[before])*(at-before);
 }
 export function scalePixelStyles(styles,scale){return Object.fromEntries(Object.entries(styles).map(([key,value])=>[key,String(value).replace(/(-?\d*\.?\d+)px/g,(_,n)=>(Number(n)*scale)+'px')]))}
-export function badgeRadii(config,compact,scale){
+export function badgeRadii(config,compact,scale,mobile=compact){
+  const {ticketDesktopRadius,ticketDesktopImageRadius,ticketDesktopAutoImageRadius,
+    ticketMobileRadius,ticketMobileImageRadius,ticketMobileAutoImageRadius}=config;
+  const radius=mobile?ticketMobileRadius:ticketDesktopRadius;
+  const follows=mobile?ticketMobileAutoImageRadius:ticketDesktopAutoImageRadius;
+  const photo=mobile?ticketMobileImageRadius:ticketDesktopImageRadius;
   const inset=compact?6:8;
-  return {card:config.ticketRadius*scale,photo:(config.ticketAutoImageRadius?Math.max(0,config.ticketRadius-inset):config.ticketImageRadius)*scale};
+  return {card:radius*scale,photo:(follows?Math.max(0,radius-inset):photo)*scale};
 }
 export function badgeEntranceFrames(config){
   const total=config.badgeEntranceDuration+config.badgeEntranceHold+config.badgeEntranceSettle;

@@ -397,14 +397,14 @@
   color: #fff;
 }
 
-.rd-footer-cta .rd-footer-cta-button span {
+.rd-footer-cta .rd-footer-cta-button > span[aria-hidden="true"] {
   font-size: 21px;
   line-height: 1;
   transition: transform 160ms ease;
 }
 
-.rd-footer-cta .rd-footer-cta-button:hover span,
-.rd-footer-cta .rd-footer-cta-button:focus-visible span {
+.rd-footer-cta .rd-footer-cta-button:hover > span[aria-hidden="true"],
+.rd-footer-cta .rd-footer-cta-button:focus-visible > span[aria-hidden="true"] {
   transform: translate(2px, -2px);
 }
 
@@ -620,7 +620,7 @@
   .rd-discipline-icon,
   .rd-discipline-arrow,
   .rd-footer-cta-button,
-  .rd-footer-cta-button span {
+  .rd-footer-cta-button > span[aria-hidden="true"] {
     transition: none;
   }
 }

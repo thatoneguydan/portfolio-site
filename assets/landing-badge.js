@@ -1,4 +1,4 @@
-import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261118-sizing1';
+import {clamp,fitBadge,shouldDismiss,compactBadge,blendIdlePose,scalePixelStyles,entranceDelay,badgeRadii,photoScrimStops,scaledTextMatrix,badgeEntranceFrames} from './badge-math.js?v=20261119-tunefind1';
 import {appendEmojiText} from './site-emoji.js?v=20261118-perf1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261118-perf1';
@@ -146,7 +146,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     surface.style.gridTemplateRows=config.ticketOrientation==='vertical'?`minmax(0,1fr) ${panel}px`:'minmax(0,1fr)';
     ticket.dataset.orientation=isCompact?'compact':config.ticketOrientation;
     ticket.dataset.disabled=String(config.ticketDisabled);activation.disabled=config.ticketDisabled;
-    const radii=badgeRadii(config,isCompact,scale);
+    const radii=badgeRadii(config,isCompact,scale,compact);
     ticket.style.borderRadius=(radii.card+frameWidth)+'px';
     ticket.style.backgroundColor=config.ticketBorder?rgba(config.ticketBorderColor,config.ticketBorderOpacity):config.ticketBackground;
     surface.style.inset=frameWidth+'px';surface.style.borderRadius=radii.card+'px';
@@ -155,7 +155,6 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     ticket.style.setProperty('--ticket-copy-bg',config.ticketCustomPanelBackground?config.ticketPanelBackground:config.ticketBackground);
     ticket.style.setProperty('--ticket-parallax',config.ticketParallax*scale+'px');
     photoWindow.style.borderRadius=radii.photo+'px';
-    photoWindow.style.clipPath=`inset(0px round ${radii.photo}px)`;
     photoWindow.style.top=photoWindow.style.left=photoWindow.style.right=(isCompact?6:8)*scale+'px';
     photoWindow.style.height=`calc(${isCompact?76:78}% - ${(isCompact?6:16)*scale}px)`;
     // A square source must cover both crop dimensions, including tilt overscan.
@@ -209,7 +208,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     const carrierScale=Math.hypot(matrix.a,matrix.b),scale=motion.h*carrierScale;
     const look=Object.fromEntries([
       ['ticket',ticket,['width','height','borderRadius','boxShadow']],['surface',surface,['gridTemplateColumns','gridTemplateRows','inset','borderRadius','clipPath']],
-      ['photo',photoWindow,['height','top','left','right','borderRadius','clipPath']]
+      ['photo',photoWindow,['height','top','left','right','borderRadius']]
     ].map(([key,el,properties])=>[key,scalePixelStyles(read(el,properties),scale)]));
     look.name={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(nameLayout).transform),scale),opacity:getComputedStyle(nameLayout).opacity};
     look.badgeName={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(badgeNameLayout).transform),scale),opacity:getComputedStyle(badgeNameLayout).opacity};
@@ -285,7 +284,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     // The fitted pose reserves the same space at every size. Project the
     // difference along the card's own right edge so its midpoint stays put.
     const shift=(base.width/2+frame)*(1-size);
-    inlineAnchor={height:base.height,x:shift*Math.cos(rotation),y:shift*Math.sin(rotation)};
+    inlineAnchor={height:base.height,x:compact?0:shift*Math.cos(rotation)+config.ticketHorizontalOffset,y:shift*Math.sin(rotation)};
     ticketStage.style.setProperty('--badge-anchor-height',inlineAnchor.height+'px');
     ticketStage.style.setProperty('--id-inline-offset-x',inlineAnchor.x+'px');
     ticketStage.style.setProperty('--id-inline-offset-y',inlineAnchor.y+'px');

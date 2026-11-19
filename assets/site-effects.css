@@ -10,6 +10,9 @@
 .ds-rotate-entry {position:absolute;inset:.18em auto auto var(--rotate-ink-overhang);display:block;width:max-content;white-space:pre;line-height:inherit}
 .ds-rotate-piece {display:inline-block;white-space:pre;will-change:transform,opacity}
 .ds-rotate-measure .ds-rotate-piece {will-change:auto}
+.portfolio-pill-label {--rotate-ink-overhang:.35em;position:relative;display:inline-block}
+.portfolio-pill-label[data-cycling] > .portfolio-pill-copy {opacity:0}
+.portfolio-pill-label > .ds-rotate-clip > .ds-rotate-entry {inset-inline-start:50%;translate:-50% 0}
 .ds-rotate-word {display:inline-block;white-space:nowrap}
 .ds-rotate-sizer {grid-area:1/1;display:block;width:0;min-width:0;visibility:hidden;white-space:pre}
 .ds-rotate-wrap .ds-rotate-entry,#dan-landing-home .ds-long .ds-rotate-entry {max-width:var(--rotate-entry-limit,none);white-space:normal;overflow-wrap:anywhere}
@@ -58,6 +61,10 @@
 .portfolio-caption-shade {position:absolute;inset:0;z-index:3;pointer-events:none;background:var(--caption-shade,linear-gradient(to top,rgba(0,0,0,.78),transparent 180px));opacity:0;transition:opacity 240ms ease}
 .rdp-project-card[data-caption-visible=true] .portfolio-caption-shade {opacity:1}
 .discipline-redesign .rdp-project-card .rdp-project-meta {background:none;z-index:4}
+:root {
+  --portfolio-thumbnail-zoom:1.025;
+  --portfolio-thumbnail-motion:420ms cubic-bezier(.2,.7,.2,1);
+}
 html.portfolio-js [data-headline-pending] {visibility:hidden}
 .has-progressive-blur[data-blur-active=true] .portfolio-blur.is-ready > span {opacity:1;filter:blur(var(--layer-blur))}
 .rv-video-thumb,.rdp-project-media {position:relative}

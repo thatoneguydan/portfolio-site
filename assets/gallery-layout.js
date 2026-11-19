@@ -8,7 +8,7 @@ export function featuredGalleryLayout(config,vertical,width,count,active){
   const usable=Math.max(0,width-gap*(count-1));
   const radius=vertical?config.verticalGalleryRadius:config.galleryRadius;
   const minimum=vertical
-    ? Math.max(2*radius+4,config.verticalGalleryCompactTitleSize*1.25+12)
+    ? Math.max(2*radius+4,Math.ceil(config.verticalGalleryCompactTitleSize*2.4+30))
     : Math.min(usable/count,Math.max(24,2*radius+4));
   const nearest=vertical?config.verticalGalleryCollapsed:usable*(1-config.expandRatio/100)/Math.max(1,count-1);
 
@@ -24,9 +24,8 @@ export function featuredGalleryLayout(config,vertical,width,count,active){
   const extents=weights.map((weight,i)=>i===active?(vertical?height:expandedWidth):minimum+surplus*weight/totalWeight);
   return {expandedWidth,height,extents,totalHeight:vertical?height+collapsed+gap*(count-1):height};
 }
-export function galleryCaptionKind({active,vertical,mobile,hovered,focused}){
-  if(active&&(mobile||hovered||focused))return 'full';
-  return !active&&vertical&&mobile?'compact':'none';
+export function galleryCaptionKind({active,vertical}){
+  return vertical||active?'full':'none';
 }
 export function captionBlurGeometry({height,captionHeight,bottom,fontSize,coverage,strength,compact=false}){
   const solid=Math.min(height,Math.max(0,captionHeight+bottom));
