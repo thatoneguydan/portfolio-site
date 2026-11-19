@@ -3,7 +3,7 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=public-f03679196e-2c1c4830';
+    navScript.src = '/assets/redesign-nav.js?v=public-20261119-mobilescroll1';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
