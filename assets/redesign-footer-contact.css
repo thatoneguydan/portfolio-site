@@ -15,6 +15,8 @@
   justify-content: center;
   margin-inline: 0 calc(-1 * var(--page-content-gutter, 0px));
   padding: calc(var(--footer-inset) + var(--footer-wave-rise)) var(--footer-padding-x, 0px) var(--footer-inset);
+  padding-inline: max(var(--footer-padding-x, 0px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  padding-block-end: max(var(--footer-inset), env(safe-area-inset-bottom, 0px));
   /* One smooth period. The SVG draws the edge and the gradient fills the
      footer below its trough, inside the existing full-bleed box. */
   background:

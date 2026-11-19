@@ -1,9 +1,9 @@
 import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-footershadow1';
-import {createBadge} from './landing-badge.js?v=20261118-footershadow1';
+import {createBadge} from './landing-badge.js?v=20261119-mobilelayout1';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261119-rotatewidth1';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-worklinks2';
-import {siteReady} from './site-runtime.js?v=20261119-rotatewidth1';
+import {siteReady} from './site-runtime.js?v=20261119-mobilelayout1';
 import {revealFrames,revealOffset} from './headline-view.js?v=20261119-rotatewidth1';
 import {mountSectionHeading} from './featured-heading.js?v=20261119-rotatewidth1';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
@@ -116,26 +116,36 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
   }
   function fitText() {
     const compact=hero.classList.contains('is-compact');
+    const singleLine=compact||mobileNavigation();
     const baseSize=config.fontSize*(compact?1:fullHeroScale());
     const adjustment=textSizeAdjustment();
-    const signature=JSON.stringify([intro.clientWidth,compact,baseSize,adjustment,config.fontWeight,config.lineHeight,config.heroCtaScale,lastHeadline]);
+    const signature=JSON.stringify([intro.clientWidth,compact,singleLine,baseSize,adjustment,config.fontWeight,config.lineHeight,config.heroCtaScale,lastHeadline]);
     if(signature===lastFit)return;lastFit=signature;
     h1.style.fontSize=baseSize+'px';h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
     const lines=[...h1.children];
     h1.classList.remove('ds-long');lines.forEach(el=>{el.style.whiteSpace='nowrap';el.style.width='max-content';});
-    rotator?.syncWidth();
     const rotatingLine=Number(config.rotateTarget.split(':')[0])-1;
-    const extra=rotator?.fitExtraWidth()||0;
-    const widths=lines.map((line,i)=>line.getBoundingClientRect().width+(i===rotatingLine?extra:0));
+    function measureLines(){
+      rotator?.syncWidth();
+      const extra=rotator?.fitExtraWidth()||0;
+      return lines.map((line,i)=>line.getBoundingClientRect().width+(i===rotatingLine?extra:0));
+    }
+    const widths=measureLines();
     const width=Math.max(...widths,1),available=Math.max(1,intro.clientWidth-4);
     h1.style.setProperty('--rotate-entry-limit',available+'px');
     h1.dataset.longestLine=String(widths.indexOf(Math.max(...widths)));
     const fitted=baseSize*available/width;
     const desired=(compact?fitted:baseSize)*(1+adjustment);
-    const floor=Math.min(compact?baseSize*(1+adjustment):desired,18);
-    const finalSize=compact?Math.max(floor,desired):Math.max(floor,Math.min(desired,fitted));
+    // Fit the authored line breaks on phones, including the widest rotation
+    // entry. The actual word still occupies only its current width.
+    let finalSize=singleLine?Math.min(desired,fitted):Math.max(Math.min(desired,18),Math.min(desired,fitted));
     h1.style.fontSize=finalSize+'px';
-    if(finalSize>fitted+.01){h1.classList.add('ds-long');lines.forEach(el=>el.style.whiteSpace='normal');}
+    if(singleLine){
+      const actual=Math.max(...measureLines());
+      // The glyph clips also need room for their em-sized padding at larger widths.
+      const usable=Math.max(1,intro.clientWidth-Math.max(4,finalSize*.1));
+      if(actual>usable){finalSize*=usable/actual;h1.style.fontSize=finalSize+'px';}
+    }else if(finalSize>fitted+.01){h1.classList.add('ds-long');lines.forEach(el=>el.style.whiteSpace='normal');}
     // Match the settled type size, including compact fitting and authored copy edits.
     // At the reference headline size, Tune's percentage applies to the original 260px pill.
     const buttonScale=config.heroCtaScale/100*finalSize/defaults.fontSize;

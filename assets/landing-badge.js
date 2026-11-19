@@ -155,7 +155,6 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     ticket.style.setProperty('--ticket-copy-bg',config.ticketCustomPanelBackground?config.ticketPanelBackground:config.ticketBackground);
     ticket.style.setProperty('--ticket-parallax',config.ticketParallax*scale+'px');
     photoWindow.style.borderRadius=radii.photo+'px';
-    photoWindow.style.clipPath=`inset(0px round ${radii.photo}px)`;
     photoWindow.style.top=photoWindow.style.left=photoWindow.style.right=(isCompact?6:8)*scale+'px';
     photoWindow.style.height=`calc(${isCompact?76:78}% - ${(isCompact?6:16)*scale}px)`;
     // A square source must cover both crop dimensions, including tilt overscan.
@@ -209,7 +208,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     const carrierScale=Math.hypot(matrix.a,matrix.b),scale=motion.h*carrierScale;
     const look=Object.fromEntries([
       ['ticket',ticket,['width','height','borderRadius','boxShadow']],['surface',surface,['gridTemplateColumns','gridTemplateRows','inset','borderRadius','clipPath']],
-      ['photo',photoWindow,['height','top','left','right','borderRadius','clipPath']]
+      ['photo',photoWindow,['height','top','left','right','borderRadius']]
     ].map(([key,el,properties])=>[key,scalePixelStyles(read(el,properties),scale)]));
     look.name={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(nameLayout).transform),scale),opacity:getComputedStyle(nameLayout).opacity};
     look.badgeName={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(badgeNameLayout).transform),scale),opacity:getComputedStyle(badgeNameLayout).opacity};
