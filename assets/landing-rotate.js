@@ -22,43 +22,41 @@ export function accessibleHeadline(config){
     }).join('');
   }).join(' ');
 }
-export function createTextRotation(host,config,{suffix='',dynamicWidth=false,wrapEntries=false}={}){
+export function createTextRotation(host,config,{suffix='',wrapEntries=false}={}){
   const words=rotationWords(config).map(word=>suffix&&!word.endsWith(suffix)?word+suffix:word),reduced=matchMedia('(prefers-reduced-motion: reduce)');
   host.classList.add('ds-rotate');
+  host.classList.toggle('ds-rotate-wrap',wrapEntries);
   const measures=wrapEntries?[]:words.map(word=>{
-    // Shape the sizing swatch with exactly the same word and glyph boundaries
-    // as the painted entry. A single text run can kern across those boundaries.
+    // These out-of-flow swatches let single-line headings choose a stable type
+    // size. They never determine the space taken by the painted phrase.
     const measure=entry(word);
     measure.className='ds-rotate-measure';
     measure.setAttribute('aria-hidden','true');
     host.append(measure);
     return measure;
   });
-  if(dynamicWidth){host.classList.add('ds-rotate-dynamic');const sizer=document.createElement('span');sizer.className='ds-rotate-sizer';sizer.textContent='Ag';host.append(sizer);}
+  const sizer=document.createElement('span');sizer.className='ds-rotate-sizer';sizer.textContent='Ag';sizer.setAttribute('aria-hidden','true');host.append(sizer);
   const clip=document.createElement('span');clip.className='ds-rotate-clip';host.append(clip);
   let index=0,timer=0,visible=false,running=false,destroyed=false,notBefore=0,animations=[],generation=0,widthMotion=null;
   const measureWidth=i=>measures[i]?.getBoundingClientRect().width||0;
+  const fitExtraWidth=()=>Math.max(0,...measures.map((_,i)=>measureWidth(i)))-measureWidth(index);
   function setEntrySize(){
-    // A wrapping entry measures itself at its final line width. Outgoing
-    // entries keep their settled size while the host follows the new one.
-    if(wrapEntries)current.style.removeProperty('width');
-    const size=(wrapEntries?current:measures[index]).getBoundingClientRect();
+    // Keep the outgoing text on its settled plane while the host follows the
+    // incoming entry's actual dimensions.
+    current.style.removeProperty('width');
+    const size=current.getBoundingClientRect();
+    current.style.width=size.width+'px';
     host.style.width=size.width+'px';
-    if(wrapEntries){
-      current.style.width=size.width+'px';
-      host.style.height=size.height+'px';
-    }
+    host.style.height=size.height+'px';
     return size;
   }
-  function syncWidth(){if(!dynamicWidth)return;widthMotion?.cancel();widthMotion=null;setEntrySize();}
-  function prepareFit(){if(!dynamicWidth||wrapEntries)return;widthMotion?.cancel();widthMotion=null;host.style.width=Math.max(...measures.map((_,i)=>measureWidth(i)))+'px';}
+  function syncWidth(){widthMotion?.cancel();widthMotion=null;setEntrySize();}
   function morphWidth(){
-    if(!dynamicWidth)return;
     const previous=host.getBoundingClientRect();
     widthMotion?.cancel();
     const settled=setEntrySize();
     if(!reduced.matches){
-      const size=box=>wrapEntries?{width:box.width+'px',height:box.height+'px'}:{width:box.width+'px'};
+      const size=box=>({width:box.width+'px',height:box.height+'px'});
       const motion=host.animate([size(previous),size(settled)],{duration:config.rotateDuration,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'});
       widthMotion=motion;
       motion.finished.catch(()=>{}).then(()=>{if(widthMotion===motion){motion.cancel();widthMotion=null;}});
@@ -102,5 +100,5 @@ export function createTextRotation(host,config,{suffix='',dynamicWidth=false,wra
   }
   const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;arm();});observer.observe(host);
   const visibility=()=>arm();document.addEventListener('visibilitychange',visibility);reduced.addEventListener('change',visibility);
-  return {syncWidth,prepareFit,start(delay=0){running=true;notBefore=performance.now()+delay;arm();},pause(){running=false;clear();},reset(){running=false;clear();generation++;animations.forEach(a=>a.cancel());animations=[];index=0;current=entry(words[0]);clip.replaceChildren(current);syncWidth();},destroy(){destroyed=true;generation++;clear();widthMotion?.cancel();animations.forEach(a=>a.cancel());observer.disconnect();document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',visibility);}};
+  return {syncWidth,fitExtraWidth,start(delay=0){running=true;notBefore=performance.now()+delay;arm();},pause(){running=false;clear();},reset(){running=false;clear();generation++;animations.forEach(a=>a.cancel());animations=[];index=0;current=entry(words[0]);clip.replaceChildren(current);syncWidth();},destroy(){destroyed=true;generation++;clear();widthMotion?.cancel();animations.forEach(a=>a.cancel());observer.disconnect();document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',visibility);}};
 }

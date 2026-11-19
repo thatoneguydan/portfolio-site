@@ -1,6 +1,6 @@
-import {targetChoices,rotationWords} from './landing-rotate.js?v=20261118-hero3';
+import {targetChoices,rotationWords} from './landing-rotate.js?v=20261119-rotatewidth1';
 import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-footershadow1';
-import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261118-idanchor1';
+import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261119-rotatewidth1';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261118-cardnav1';document.head.append(stylesheet);
