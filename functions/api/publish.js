@@ -158,7 +158,8 @@ async function previouslyVerifiedPublish() {
   // The last manual release passed both mobile checks before this workflow was installed.
   // Only report it while its release marker is still present on the live site.
   const response = await fetch('https://dantylersmith.com/', {
-    cache: 'no-store', redirect: 'error', signal: AbortSignal.timeout(6000),
+    headers: {'Cache-Control': 'no-cache'}, cf: {cacheTtl: 0},
+    redirect: 'error', signal: AbortSignal.timeout(6000),
   });
   if (!response.ok) throw new Error('Live site unavailable.');
   const html = await response.text();
