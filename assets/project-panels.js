@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261119-carousel-colors1';
+import {defaults} from './landing-schema.js?v=20261119-mobile-polish1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 import {revealProjectThumbnail} from './reveal-scroll.js?v=20261119-carousel-colors1';
@@ -217,11 +217,18 @@ function measure(state){
   const {shelf,inner}=state,wasOpen=state.open;state.open=shelf.classList.contains('is-open');
   const gallery=state.source?.closest('.ds-gallery');
   const stacked=gallery?.dataset.layout==='vertical';
+  let hasFollowingCard=false;
   if(gallery){
     const cards=[...gallery.children].filter(card=>card.matches('.ds-panel'));
-    shelf.style.setProperty('--featured-shelf-order',2*cards.indexOf(state.source)+1);
+    const sourceIndex=cards.indexOf(state.source);
+    shelf.style.setProperty('--featured-shelf-order',2*sourceIndex+1);
+    hasFollowingCard=sourceIndex>=0&&sourceIndex<cards.length-1;
   }
-  if(stacked!==state.stacked){shelf.style.removeProperty('margin-top');state.stacked=stacked;}
+  if(stacked!==state.stacked){
+    shelf.style.removeProperty('margin-top');
+    shelf.style.removeProperty('margin-bottom');
+    state.stacked=stacked;
+  }
   if(wasOpen&&!state.open){state.initial.abort();state.pending?.abort.abort();state.closeMask=animateMask(state,0,360);}
   if(state.open&&state.ready&&!state.pending&&!state.allowed&&!state.preparing){
     state.preparing=true;
@@ -232,15 +239,22 @@ function measure(state){
   // its settled layout box, never that currently painted transform.
   const target=state.open&&state.ready&&state.allowed?inner.offsetHeight:0;
   const clearance=stacked&&target?14+config.projectPanelTailSize:0;
+  const trailingClearance=stacked&&target&&hasFollowingCard?24:0;
   const firstReveal=target>0&&!state.target&&shelf.dataset.projectRevealOnOpen==='true';
-  if(state.target!==target||state.clearance!==clearance){
+  if(state.target!==target||state.clearance!==clearance||state.trailingClearance!==trailingClearance){
     const from=shelf.getBoundingClientRect().height;
-    const fromClearance=stacked?parseFloat(getComputedStyle(shelf).marginTop):0;
-    state.target=target;state.clearance=clearance;state.motion?.cancel();state.motion=null;shelf.style.height=target+'px';
-    if(stacked)shelf.style.marginTop=clearance+'px';
-    if(!reduced.matches&&(Math.abs(from-target)>.5||Math.abs(fromClearance-clearance)>.5)){
+    const previousMargins=stacked?getComputedStyle(shelf):null;
+    const fromClearance=previousMargins?parseFloat(previousMargins.marginTop):0;
+    const fromTrailingClearance=previousMargins?parseFloat(previousMargins.marginBottom):0;
+    state.target=target;state.clearance=clearance;state.trailingClearance=trailingClearance;
+    state.motion?.cancel();state.motion=null;shelf.style.height=target+'px';
+    if(stacked){shelf.style.marginTop=clearance+'px';shelf.style.marginBottom=trailingClearance+'px';}
+    if(!reduced.matches&&(Math.abs(from-target)>.5||Math.abs(fromClearance-clearance)>.5||Math.abs(fromTrailingClearance-trailingClearance)>.5)){
       const start={height:from+'px'},end={height:target+'px'};
-      if(stacked){start.marginTop=fromClearance+'px';end.marginTop=clearance+'px';}
+      if(stacked){
+        start.marginTop=fromClearance+'px';end.marginTop=clearance+'px';
+        start.marginBottom=fromTrailingClearance+'px';end.marginBottom=trailingClearance+'px';
+      }
       const motion=shelf.animate([start,end],{duration:state.open?500:480,easing:'cubic-bezier(.3,.65,.25,1)',fill:'both'});state.motion=motion;
       motion.finished.catch(()=>{}).then(()=>{if(state.motion===motion){motion.cancel();state.motion=null;position(state);if(!state.open)finishClose(state);}});
     }else if(!state.open)finishClose(state);
@@ -329,7 +343,7 @@ function frameReady(frame,signal,project,timeout=15000){
 }
 async function prepareFrame(frame,signal,timeout){
   const [{prepareProjectDocument}]=await Promise.all([
-    import('./project-content.js?v=20261119-carousel1'),
+    import('./project-content.js?v=20261119-mobile-polish1'),
     frameReady(frame,signal,true,timeout)
   ]);
   if(signal.aborted)throw new DOMException('Cancelled','AbortError');

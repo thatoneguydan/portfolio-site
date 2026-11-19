@@ -15,7 +15,7 @@
 .rc-contact-copy h1 {
   max-width: 760px;
   margin: 0;
-  font-size: clamp(58px, 7vw, 112px);
+  font-size: calc(clamp(58px, 7vw, 112px) * var(--site-title-scale,1));
   font-weight: 700;
   letter-spacing: -.06em;
   line-height: .9;
@@ -87,7 +87,7 @@
 
 .rc-form-head h2 {
   margin: 0;
-  font-size: clamp(30px, 3vw, 46px);
+  font-size: calc(clamp(30px, 3vw, 46px) * var(--site-title-scale,1));
   letter-spacing: -.04em;
   line-height: 1;
 }

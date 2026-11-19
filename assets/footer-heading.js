@@ -1,7 +1,7 @@
 import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261119-carousel1';
 
 export function mountFooterHeading(heading){
-  let rendered,rotator,fitObserver;
+  let rendered,rotator,fitObserver,fitLine,typography;
   return {
     update(config){
       const text=config.footerHeadingText;
@@ -26,17 +26,25 @@ export function mountFooterHeading(heading){
         };
       }
       const next=JSON.stringify([text,timing]);
-      if(next===rendered)return;
+      const nextTypography=JSON.stringify([config.footerHeadingScale,config.footerHeadingWeight]);
+      if(next===rendered){
+        if(nextTypography!==typography){typography=nextTypography;fitLine?.();}
+        return;
+      }
       rendered=next;
+      typography=nextTypography;
       fitObserver?.disconnect();
       rotator?.destroy();
-      rotator=null;
+      rotator=fitLine=null;
+      heading.style.removeProperty('font-size');
       heading.hidden=!text.trim();
       if(!timing){
         heading.removeAttribute('aria-label');
         if(heading.textContent!==text)heading.textContent=text;
         return;
       }
+      const line=document.createElement('span');
+      line.className='ds-footer-line';
       const run=document.createElement('span');
       run.className='ds-footer-word-run';
       run.setAttribute('aria-hidden','true');
@@ -50,23 +58,32 @@ export function mountFooterHeading(heading){
         return mark;
       }
       const prefix=punctuation(word.prefix,'prefix'),suffix=punctuation(word.suffix,'suffix');
-      const marks=[prefix,suffix].filter(Boolean);
       run.append(...[prefix,phrase,suffix].filter(Boolean));
       heading.setAttribute('aria-label',text);
-      heading.replaceChildren(text.slice(0,target.index),run,text.slice(target.index+target[0].length));
-      rotator=createTextRotation(phrase,timing,{wrapEntries:true});
-      let lastLimit;
-      function fitPhrase(){
-        const markWidth=marks.reduce((total,mark)=>total+mark.getBoundingClientRect().width,0);
-        const limit=Math.max(1,heading.getBoundingClientRect().width-markWidth);
-        if(limit===lastLimit)return;
-        lastLimit=limit;
-        phrase.style.setProperty('--rotate-entry-limit',limit+'px');
+      line.append(text.slice(0,target.index),run,text.slice(target.index+target[0].length));
+      heading.replaceChildren(line);
+      rotator=createTextRotation(phrase,timing);
+      let lastWidth=0;
+      fitLine=()=>{
+        lastWidth=heading.getBoundingClientRect().width;
+        if(lastWidth<=1)return;
+        heading.style.removeProperty('font-size');
         rotator.syncWidth();
-      }
-      fitPhrase();
-      fitObserver=new ResizeObserver(fitPhrase);
-      [heading,...marks].forEach(element=>fitObserver.observe(element));
+        // Measure the entire line including the punctuation. Only the fitted
+        // font size uses the other entries; their widths stay out of flow.
+        const longest=line.getBoundingClientRect().width+rotator.fitExtraWidth();
+        const available=lastWidth-1;
+        if(longest>available){
+          const fontSize=parseFloat(getComputedStyle(heading).fontSize);
+          heading.style.fontSize=fontSize*available/longest+'px';
+          rotator.syncWidth();
+        }
+      };
+      fitLine();
+      fitObserver=new ResizeObserver(()=>{
+        if(Math.abs(heading.getBoundingClientRect().width-lastWidth)>.25)fitLine?.();
+      });
+      fitObserver.observe(heading);
       rotator.start();
     },
     replay(){if(rotator){rotator.reset();rotator.start();}}

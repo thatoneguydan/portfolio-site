@@ -6,7 +6,7 @@
 
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261119-carousel-colors1';
+    navScript.src = '/assets/redesign-nav.js?v=20261119-mobile-polish1';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -16,7 +16,7 @@
      the redesign body classes are applied asynchronously. */
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-contact-shelf]')) {
     const shelfScript = document.createElement('script');
-    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20261119-carousel-colors1';
+    shelfScript.src = '/assets/redesign-contact-shelf.js?v=20261119-mobile-polish1';
     shelfScript.dataset.redesignContactShelf = '';
     document.head.append(shelfScript);
   }
@@ -33,7 +33,7 @@
 
   if (!isInlineContactShelf && !document.body.classList.contains('project-redesign') && !document.querySelector('script[data-redesign-project-compat]')) {
     const compatibilityScript = document.createElement('script');
-    compatibilityScript.src = '/assets/redesign-project-compat.js?v=20261118-cardnav1';
+    compatibilityScript.src = '/assets/redesign-project-compat.js?v=20261119-mobile-polish1';
     compatibilityScript.dataset.redesignProjectCompat = '';
     document.head.append(compatibilityScript);
   }

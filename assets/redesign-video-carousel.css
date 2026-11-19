@@ -1,13 +1,17 @@
 .video-redesign .site-main {padding-bottom:0}
-.video-redesign .rv-intro {border-block-end:1px solid rgba(0,0,0,.1)}
+.video-redesign .rd-footer-cta {background-color:var(--video-gaming-carousel-bg,transparent)}
 
 .rv-carousels {
   container-type:inline-size;
   display:grid;
-  gap:clamp(18px,2.4vw,36px);
-  padding:clamp(20px,3vw,38px) 0 clamp(28px,4vw,64px);
+  padding-block-start:clamp(20px,3vw,38px);
   min-width:0;
 }
+.rv-carousels > [data-carousel-scope=videoClient] + .ds-carousel-section {--carousel-prev-background:var(--video-client-carousel-bg)}
+.rv-carousels > [data-carousel-scope=videoEssays] + .ds-carousel-section {--carousel-prev-background:var(--video-essays-carousel-bg)}
+.rv-carousels > [data-carousel-scope=videoShort] + .ds-carousel-section {--carousel-prev-background:var(--video-short-carousel-bg)}
+.rv-carousels > [data-carousel-scope=videoPromos] + .ds-carousel-section {--carousel-prev-background:var(--video-promos-carousel-bg)}
+.rv-carousels > [data-carousel-scope=videoGaming] + .ds-carousel-section {--carousel-prev-background:var(--video-gaming-carousel-bg)}
 .rv-carousels > .ds-carousel-section {
   min-width:0;
   scroll-margin-block-start:104px;

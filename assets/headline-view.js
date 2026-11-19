@@ -1,6 +1,6 @@
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261119-carousel1';
-import {headlineSettings} from './landing-schema.js?v=20261119-carousel-colors1';
+import {headlineSettings} from './landing-schema.js?v=20261119-mobile-polish1';
 
 export function revealOffset(clipHeight,glyphHeight,fontSize,direction){
   return Math.sign(direction)*(Math.max(clipHeight,glyphHeight)+fontSize*.6+2);
@@ -20,18 +20,20 @@ export function mountHeadline(h1,scope,initial,{deferReveal=false}={}){
     fitFrame=0;if(!config)return;
     lastWidth=h1.parentElement.clientWidth;
     const available=Math.max(1,lastWidth-8);
-    h1.style.fontSize=(scope==='contact'?config.fontSize:Math.min(config.fontSize,Math.max(Math.min(28,config.fontSize),available*.13)))+'px';
+    let size=Math.min(config.fontSize,Math.max(Math.min(28,config.fontSize),available*.13));
     h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
     h1.classList.toggle('is-wrapping',scope!=='contact');
     if(scope==='contact'){
+      h1.style.fontSize=config.fontSize+'px';
       const lines=[...h1.children];lines.forEach(line=>line.style.width='max-content');
       rotator?.syncWidth();
       const rotatingLine=Number(config.rotateTarget.split(':')[0])-1;
       const extra=rotator?.fitExtraWidth()||0;
       const widths=lines.map((line,i)=>line.getBoundingClientRect().width+(i===rotatingLine?extra:0)),longest=Math.max(1,...widths);
-      if(longest>available)h1.style.fontSize=Math.max(12,config.fontSize*available/longest)+'px';
+      size=longest>available?Math.max(12,config.fontSize*available/longest):config.fontSize;
       lines.forEach(line=>line.style.removeProperty('width'));
     }else h1.style.setProperty('--rotate-entry-limit',Math.max(1,h1.clientWidth-8)+'px');
+    h1.style.fontSize=`calc(${size}px * var(--site-title-scale,1))`;
     rotator?.syncWidth();
   }
   function replay(){

@@ -136,14 +136,18 @@ export function mountProjectCarousel(gallery,{controlsLabel,orientationKey,confi
   listen(gallery,'portfolio-featured-select',event=>{
     const index=panels.indexOf(event.target);if(index!==-1)select(index);
   });
+  // Follow physical hover movement. A pointerenter caused by cards resizing
+  // beneath a stationary cursor must not start another selection.
+  listen(gallery,'pointermove',event=>{
+    if(event.pointerType==='touch'||event.buttons)return;
+    const index=panels.indexOf(event.target.closest('.ds-panel'));
+    if(index!==-1&&index!==activeIndex)select(index);
+  });
   panels.forEach((panel,index)=>{
     listen(panel,'pointerdown',event=>{
-      if(gallery.dataset.layout==='horizontal'&&event.pointerType==='mouse'&&event.button===0)select(index);
+      if(event.pointerType==='mouse'&&event.button===0)select(index);
     });
-    listen(panel,'pointerenter',event=>{
-      if(gallery.dataset.layout==='horizontal'&&event.pointerType!=='touch')select(index);
-    });
-    listen(panel,'focus',()=>{if(gallery.dataset.layout==='horizontal')select(index);});
+    listen(panel,'focus',()=>select(index));
     listen(panel,'keydown',event=>{
       const next=keyIndex(event.key);if(next===null)return;
       event.preventDefault();select(next);panels[next].focus();

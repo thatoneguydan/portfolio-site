@@ -234,7 +234,7 @@ export const defaults = {
   "workSectionWaveEnabled": false,
   "workSectionWaveLength": 320,
   "workSectionWaveHeight": 36,
-  "workSectionMarginBefore": 100,
+  "workSectionMarginBefore": 100, // Accepted for older Tune snapshots.
   "workSectionPaddingBeforePercent": 0,
   "workSectionPaddingAfter": 100,
   "workVideoBackground": "#f5f5f2",
@@ -460,7 +460,6 @@ export const controlGroups = {
       ['check','workSectionWaveEnabled','Wave at the top of the section'],
       ['range','workSectionWaveLength','Section wave length',16,4000,1,'px'],
       ['range','workSectionWaveHeight','Section wave height',0,1000,1,'px'],
-      ['range','workSectionMarginBefore','Margin before cards',0,500,1,'%'],
       ['range','workSectionPaddingBeforePercent','Padding before cards',0,1500,1,'%'],
       ['range','workSectionPaddingAfter','Padding after cards',0,500,1,'%']
     ],
@@ -647,7 +646,7 @@ const rotatingSectionScopes=['featured',...videoCarouselCategories.map(category=
 // Tints of the waving hand, smiling face, and the four palette dots.
 const carouselBackgrounds={
   featured:'#fdca61',videoClient:'#fdab81',videoEssays:'#e39af7',
-  videoShort:'#f984b4',videoPromos:'#6ee7d2',videoGaming:'#7abcf8'
+  videoShort:'#f984b4',videoPromos:'#007660',videoGaming:'#7abcf8'
 };
 for(const {scope,label,flavor,orientation='landscape'} of videoCarouselCategories){
   for(const [suffix,value] of Object.entries({
@@ -673,7 +672,7 @@ for(const scope of rotatingSectionScopes){
   });
   controlGroups[scope+'Surface']=[
     ['color',scope+'Background','Background color'],
-    ['check',scope+'WaveEnabled','Waves at the top and bottom'],
+    ['check',scope+'WaveEnabled','Wavy top edge'],
     ['range',scope+'WaveLength','Wave length',16,4000,1,'px'],
     ['range',scope+'WaveHeight','Wave height',0,1000,1,'px']
   ];
@@ -709,7 +708,6 @@ export function workSectionProperties(config) {
     '--work-section-heading-ink': surfaceInk(config.workSectionBackground),
     '--work-section-wave-length': config.workSectionWaveLength + 'px',
     '--work-section-wave-height': (config.workSectionWaveEnabled ? config.workSectionWaveHeight : 0) + 'px',
-    '--work-section-margin-before': config.workSectionMarginBefore / 100,
     '--work-section-padding-before': config.workSectionPaddingBeforePercent / 100,
     '--work-section-padding-after': config.workSectionPaddingAfter / 100,
     '--work-video-background': config.workVideoBackground,

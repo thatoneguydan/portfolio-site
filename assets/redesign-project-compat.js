@@ -67,7 +67,7 @@
 
   ensureStylesheet('/assets/redesign-production-baseline.css?v=20260909-a');
   ensureStylesheet('/assets/redesign-home.css?v=20261118-cardnav1');
-  ensureStylesheet('/assets/redesign-project.css?v=20260909-b');
+  ensureStylesheet('/assets/redesign-project.css?v=20261119-mobile-polish1');
   ensureStylesheet('/assets/redesign-project-compat.css?v=20260910-clean');
 
   const main = document.querySelector('.site-main');

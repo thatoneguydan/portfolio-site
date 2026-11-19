@@ -8,8 +8,8 @@
     if(link.sheet)return Promise.resolve();
     return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261119-carousel-colors1'),style('/assets/redesign-footer-contact.css?v=20261119-shared-carousel1')]);
-  const runtime=import('/assets/site-runtime.js?v=20261119-carousel-colors1').then(module=>module.siteReady);
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261119-carousel-colors1'),style('/assets/redesign-footer-contact.css?v=20261119-mobile-polish1')]);
+  const runtime=import('/assets/site-runtime.js?v=20261119-mobile-polish1').then(module=>module.siteReady);
   const scroll=import('/assets/reveal-scroll.js?v=20261119-carousel-colors1');
   const controls=import('/assets/filled-controls.js?v=20261117-navlab1');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -24,7 +24,7 @@
       if(footer.dataset.sharedContactFooter==='true')continue;
       footer.dataset.sharedContactFooter='true';
       if(!footer.querySelector('.rd-footer-cta-row h2'))footer.innerHTML=footerMarkup;
-      footerHeading??=import('/assets/footer-heading.js?v=20261119-carousel1');
+      footerHeading??=import('/assets/footer-heading.js?v=20261119-mobile-polish1');
       Promise.all([runtime,footerHeading]).then(([api,{mountFooterHeading}])=>{
         if(footer.isConnected)api.register(mountFooterHeading(footer.querySelector('h2')));
       }).catch(()=>{});

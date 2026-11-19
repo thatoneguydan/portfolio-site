@@ -46,7 +46,7 @@
   max-width: 1200px;
   margin: 0;
   color: #fff;
-  font-size: calc(var(--footer-type) * var(--footer-heading-scale, 1));
+  font-size: calc(var(--footer-type) * var(--footer-heading-scale, 1) * var(--site-title-scale, 1));
   font-weight: var(--footer-heading-weight, 700);
   line-height: .9;
   letter-spacing: -.055em;
@@ -55,11 +55,16 @@
   overflow-wrap: anywhere;
 }
 
-/* Keep punctuation in the same inline group without animating its glyph.
-   The phrase's final line meets it even when a long choice has to wrap. */
+/* Fit the entire line while the animated word keeps its own current width. */
+.rd-footer-cta .ds-footer-line {
+  display: inline-block;
+  width: max-content;
+  white-space: nowrap;
+}
+
+/* Keep punctuation in the inline group without animating its glyph. */
 .rd-footer-cta .ds-footer-word-run {
   display: inline-flex;
-  max-inline-size: 100%;
   align-items: flex-end;
   vertical-align: baseline;
 }
@@ -77,10 +82,6 @@
 
 .rd-footer-cta .ds-footer-phrase {
   min-inline-size: 0;
-  max-inline-size: var(--rotate-entry-limit, 100%);
-  text-align: end;
-  text-wrap: wrap;
-  white-space: normal;
 }
 
 .rd-footer-cta .rd-footer-cta-button,

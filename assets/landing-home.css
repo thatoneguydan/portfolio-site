@@ -48,9 +48,6 @@
 #dan-landing-home .ds-hero {--hero-base-top:clamp(52px,6vw,90px);--hero-column-gap:clamp(28px,3vw,48px);padding:calc(var(--hero-base-top) * var(--hero-top-space,1)) 0 clamp(62px,7vw,110px);gap:var(--hero-column-gap)}
 #dan-landing-home .ds-intro {container-type:inline-size}
 #dan-landing-home {--featured-surface-padding:calc(var(--carousel-band-padding,24px) + var(--featured-carousel-wave-height,0px))}
-#dan-landing-home .ds-work-group {
-  margin-block-start:calc(clamp(64px,7vw,112px) * var(--work-section-margin-before,1));
-}
 #dan-landing-home.featured-below-fold > .ds-work-group {grid-area:6 / 1}
 #dan-landing-home .ds-work-section {
   --work-section-surface:var(--work-section-background,var(--dan-paper));
@@ -58,26 +55,31 @@
   --work-section-bleed:calc((100% - var(--work-page-width)) / 2);
   --work-section-gutter:calc(var(--work-page-width) * .04);
   --work-section-rise:var(--work-section-wave-height,0px);
+  --surface-wave-length:var(--work-section-wave-length,320px);
+  --surface-wave-height:var(--work-section-rise);
   position:relative;
   isolation:isolate;
   padding-block-start:calc(var(--work-section-rise) + var(--work-section-gutter) * var(--work-section-padding-before,0));
   padding-block-end:calc(var(--work-section-gutter) * var(--work-section-padding-after,1));
 }
-#dan-landing-home .ds-work-section::before {
+#dan-landing-home .ds-work-section::before,
+#dan-landing-home .ds-work-section::after {
   content:"";
   position:absolute;
+  inset-inline:var(--work-section-bleed) calc(var(--work-section-bleed) - var(--page-content-gutter,0px));
+  pointer-events:none;
+}
+#dan-landing-home .ds-work-section::before {
   /* Leave opaque section color under the antialiased bottom of the footer wave. */
   inset-block:0 calc(-1 * var(--footer-wave-height,0px) - 4px);
-  inset-inline:var(--work-section-bleed) calc(var(--work-section-bleed) - var(--page-content-gutter,0px));
   z-index:-1;
   background:var(--work-section-surface);
-  pointer-events:none;
-  /* Join the masks inside the opaque part of the SVG, below its lowest
-     trough. The curve occupies the first half of the tile at its exact rise. */
-  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' preserveAspectRatio='none'%3E%3Cpath d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V200H0Z'/%3E%3C/svg%3E"),linear-gradient(transparent calc(1.5 * var(--work-section-rise)),#000 calc(1.5 * var(--work-section-rise)));
-  mask-position:center top;
-  mask-size:var(--work-section-wave-length,320px) calc(2 * var(--work-section-rise)),100% 100%;
-  mask-repeat:repeat-x,no-repeat;
+}
+#dan-landing-home .ds-work-section::after {
+  inset-block-start:-1px;
+  block-size:calc(var(--work-section-rise) + 1px);
+  z-index:-2;
+  background:var(--featured-carousel-bg);
 }
 /* Paint the footer above the section backdrop where their wave boxes overlap. */
 .landing-refresh .rd-footer-cta {position:relative}
@@ -134,7 +136,7 @@
 }
 #dan-landing-home .ds-work-card-title {
   --work-card-title-base:clamp(31px,5cqw,78px);
-  font-size:min(calc(var(--work-card-title-base) * var(--work-title-size,1)),calc(.9 * var(--work-card-text-width)));
+  font-size:calc(min(var(--work-card-title-base) * var(--work-title-size,1),.9 * var(--work-card-text-width)) * var(--site-title-scale,1));
   font-weight:var(--work-title-weight,600);
   --work-card-element-color:var(--work-title-color,var(--dan-ink));
   line-height:.94;
@@ -225,7 +227,7 @@
   transform:scale(var(--work-heading-scale,1));
   transform-origin:var(--work-heading-origin-x,center) var(--work-heading-origin-y,bottom);
 }
-#dan-landing-home .ds-reveal {font-size:var(--landing-font-size,53px);font-weight:500}
+#dan-landing-home .ds-reveal {font-size:calc(var(--landing-font-size,53px) * var(--site-title-scale,1));font-weight:500}
 #dan-landing-home .ds-ticket {width:480px;min-height:380px}
 @container (max-width:1000px) {
   #dan-landing-home .ds-hero {grid-template-columns:1fr;--hero-column-gap:20px;--hero-base-top:50px}

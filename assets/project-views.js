@@ -1,4 +1,4 @@
-import {replaceProjectContent} from './project-panels.js?v=20261119-carousel-colors1';
+import {replaceProjectContent} from './project-panels.js?v=20261119-mobile-polish1';
 import {cancelPendingRevealScroll,restoreProjectThumbnail} from './reveal-scroll.js?v=20261119-carousel-colors1';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
@@ -90,10 +90,14 @@ export function openProject(card,{hash=true,reveal=hash}={}){
 }
 export function installProjectViews(){
   if(installed||new URLSearchParams(location.search).has('inlineShelf'))return;installed=true;
-  document.addEventListener('pointerdown',event=>{const card=event.target.closest('.ds-panel');touchExpand=card&&event.pointerType==='touch'&&card.dataset.focused!=='true'?card:null;},true);
+  document.addEventListener('pointerdown',event=>{
+    const card=event.target.closest('.ds-gallery > .ds-panel');
+    touchExpand=event.pointerType==='touch'&&card?.dataset.focused==='false'?card:null;
+  },true);
+  document.addEventListener('pointercancel',()=>{touchExpand=null;},true);
   document.addEventListener('click',event=>{
     const card=event.target.closest(selector);if(!card||event.button||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.defaultPrevented)return;
-    const expandOnly=card.closest('.ds-gallery[data-layout=horizontal]')&&(card===touchExpand||card.dataset.focused!=='true');
+    const expandOnly=event.detail!==0&&card===touchExpand;
     touchExpand=null;
     event.preventDefault();event.stopImmediatePropagation();
     // Consume the first tap on a collapsed thumbnail, including videos

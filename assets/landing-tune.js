@@ -1,5 +1,5 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261119-carousel1';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey,videoCarouselCategories} from './landing-schema.js?v=20261119-carousel-colors1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey,videoCarouselCategories} from './landing-schema.js?v=20261119-mobile-polish1';
 import {mountSectionRotationEditor} from './featured-heading.js?v=20261119-shared-carousel1';
 import {mountTuneSearch} from '/owner/tune-search.js?v=20261119-tunefind1';
 import {mountTunePublish} from '/owner/tune-publish.js?v=20261119-publish2';
