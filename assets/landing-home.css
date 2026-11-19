@@ -35,19 +35,6 @@
     #dan-landing-home .ds-ticket[data-disabled=true]{opacity:.6}
     #dan-landing-home .ds-ticket::after{content:"";position:absolute;inset:0;z-index:4;border:var(--ticket-border-width,1px) solid var(--ticket-border-color,rgba(245,245,242,.16));border-radius:inherit;pointer-events:none}
     #dan-landing-home .ds-featured{padding-top:15px}
-    #dan-landing-home .ds-gallery{display:flex;gap:10px;width:100%;height:320px}
-    #dan-landing-home .ds-gallery > .ds-panel{position:relative;display:block;min-width:0;flex:1 1 0;overflow:hidden;border-radius:16px;isolation:isolate;background:var(--dan-ink);transition:flex-grow .6s linear(0,.292893 5%,.5 10%,.646447 15%,.75 20%,.823223 25%,.875 30%,.911612 35%,.9375 40%,.955806 45%,.96875 50%,.977903 55%,.984375 60%,.988951 65%,.992188 70%,.994476 75%,.996094 80%,.997238 85%,.998047 90%,.998619 95%,1);color:var(--dan-paper)}
-    #dan-landing-home .ds-gallery > .ds-panel[data-focused=true]{flex-grow:4.333333}
-    #dan-landing-home .ds-gallery-image{position:absolute;left:50%;top:0;width:var(--media-width,600px);max-width:none;height:100%;object-fit:cover;transform:translateX(-50%);filter:none}
-    #dan-landing-home .ds-gallery > .ds-panel::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.35);transition:background .6s cubic-bezier(.16,1,.3,1);z-index:1}
-    #dan-landing-home .ds-gallery > .ds-panel[data-focused=true]::after{background:rgba(0,0,0,0)}
-    #dan-landing-home .ds-gallery > .ds-panel-gradient{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,transparent 36%,rgba(0,0,0,.78))}
-    #dan-landing-home .ds-caption{position:absolute;left:20px;right:16px;bottom:20px;display:flex;align-items:center;gap:12px;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .6s cubic-bezier(.16,1,.3,1);z-index:3;pointer-events:none}
-    #dan-landing-home .ds-caption::before{content:"";width:3px;height:32px;background:var(--dan-paper);flex-shrink:0}
-    #dan-landing-home .ds-gallery > .ds-panel[data-caption-visible=true] .ds-caption{opacity:1;transform:translateY(0)}
-    #dan-landing-home .ds-caption small{display:block;text-transform:uppercase;font-size:9px;letter-spacing:.08em;line-height:1.4;margin-bottom:4px;opacity:.8}
-    #dan-landing-home .ds-caption strong{display:block;font-weight:500;font-size:20px;line-height:1.2;letter-spacing:-.02em}
-    #dan-landing-home .ds-caption i{margin-left:auto;font-size:22px;font-style:normal}
 /* The site owns the header, page gutters, type family, project shelves and footer. */
 #dan-landing-home {isolation:auto; font-family:inherit}
 @property --work-page-width {
@@ -232,14 +219,6 @@
     letter-spacing:.06em;
   }
 }
-#dan-landing-home .ds-section-head {
-  margin:0 0 var(--featured-heading-gap,25px);
-  font-size:calc(var(--featured-heading-size,40) * (0.5px + 0.05cqi) * var(--featured-scroll-scale,1));
-  font-weight:var(--featured-heading-weight,700);
-  line-height:1.1;
-  letter-spacing:-.04em;
-  overflow-wrap:anywhere;
-}
 #dan-landing-home .ds-work-heading {
   position:relative;
   z-index:0;
@@ -247,27 +226,6 @@
   transform:scale(var(--work-heading-scale,1));
   transform-origin:var(--work-heading-origin-x,center) var(--work-heading-origin-y,bottom);
 }
-#dan-landing-home .ds-section-head .ds-featured-phrase {
-  vertical-align:baseline;
-  max-width:100%;
-}
-#dan-landing-home .ds-featured-phrase .ds-rotate-entry {
-  white-space:pre-wrap;
-  overflow-wrap:anywhere;
-  max-width:var(--featured-phrase-limit,100%);
-}
-#dan-landing-home .ds-featured-phrase :is(.ds-rotate-word,.ds-rotate-piece) {max-width:100%;white-space:pre-wrap}
-#dan-landing-home .ds-gallery > .ds-panel {grid-column:auto; min-height:0; margin:0; height:100%; aspect-ratio:auto; box-shadow:none; transform:none}
-#dan-landing-home .ds-gallery > .ds-panel .ds-gallery-image {
-  border-radius:0;transform:translateX(-50%) scale(var(--featured-image-scale,1));
-  transition:transform var(--portfolio-thumbnail-motion);
-}
-#dan-landing-home .ds-panel:focus-visible {--featured-image-scale:var(--portfolio-thumbnail-zoom)}
-@media (hover:hover) and (pointer:fine){
-  #dan-landing-home .ds-panel:hover {--featured-image-scale:var(--portfolio-thumbnail-zoom)}
-}
-#dan-landing-home .ds-caption .rd-work-title {font-size:20px;line-height:1.2;letter-spacing:-.02em;font-weight:500}
-#dan-landing-home .ds-gallery > .ds-panel .ds-caption {text-shadow:none}
 #dan-landing-home .ds-reveal {font-size:var(--landing-font-size,53px);font-weight:500}
 #dan-landing-home .ds-ticket {width:480px;min-height:380px}
 @container (max-width:1000px) {
@@ -403,45 +361,3 @@
 .ds-badge-drag-plane {cursor:grab;touch-action:none}
 .ds-ticket-carrier.is-dragging .ds-badge-drag-plane {cursor:grabbing}
 :is(.ds-badge-activate,.ds-badge-drag-plane)[hidden] {display:none!important}
-
-/* Text is laid out at its final expanded width, never the animated card width. */
-#dan-landing-home .ds-gallery {height:auto;gap:0 var(--gallery-gap,10px);overflow-anchor:none}
-#dan-landing-home .ds-gallery[data-layout=horizontal] {flex-wrap:wrap}
-#dan-landing-home .ds-gallery[data-layout=horizontal] > .ds-panel {height:var(--gallery-height,320px)}
-#dan-landing-home .ds-gallery-controls {order:1;flex:0 0 100%;min-width:0}
-#dan-landing-home .ds-gallery[data-layout=horizontal] > .rdp-project-shelf {order:2;flex:0 0 100%}
-#dan-landing-home .ds-gallery > .ds-panel {border-radius:var(--gallery-radius,16px);transition-duration:var(--gallery-duration,600ms)}
-#dan-landing-home .ds-gallery > .ds-panel::after {display:none}
-#dan-landing-home .ds-gallery .ds-caption {left:var(--caption-inset,20px);right:auto;width:var(--caption-width,500px);bottom:20px;transition:opacity 180ms ease,transform var(--gallery-duration,600ms) cubic-bezier(.16,1,.3,1)}
-#dan-landing-home .ds-caption > span {min-width:0;flex:1}
-#dan-landing-home .ds-caption .rd-work-title {font-size:var(--caption-title-size,20px)}
-#dan-landing-home .ds-gallery .ds-panel-gradient {position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;background:var(--caption-shade,linear-gradient(to top,rgba(0,0,0,.78),transparent 130px));transition:opacity 180ms ease}
-#dan-landing-home .ds-gallery > .ds-panel[data-caption-visible=true] .ds-panel-gradient {opacity:1}
-#dan-landing-home .ds-gallery .ds-caption {z-index:4}
-#dan-landing-home .ds-gallery.is-switching-layout > .ds-panel {transition:none!important}
-#dan-landing-home .ds-gallery[data-layout=vertical] {flex-direction:column}
-#dan-landing-home .ds-gallery[data-layout=vertical] > .ds-panel {
-  flex:none;order:var(--featured-card-order);height:var(--featured-card-extent);min-height:0;
-  transition-property:height;transition-timing-function:cubic-bezier(.16,1,.3,1);
-}
-#dan-landing-home .ds-gallery[data-layout=vertical] > .ds-panel:not(:first-of-type) {margin-block-start:var(--gallery-gap,10px)}
-#dan-landing-home .ds-gallery[data-layout=vertical] > .rdp-project-shelf {order:var(--featured-shelf-order)}
-#dan-landing-home .ds-gallery[data-layout=vertical] .ds-gallery-controls {display:none}
-#dan-landing-home .ds-gallery[data-layout=vertical] .ds-gallery-image {width:100%;height:var(--mobile-expanded,320px);object-position:center}
-#dan-landing-home .ds-gallery[data-layout=vertical] .ds-caption {bottom:12px}
-#dan-landing-home .ds-gallery[data-layout=vertical] .ds-panel[data-focused=false] {
-  --caption-title-size:var(--compact-title-size,14px);
-}
-
-#dan-landing-home .ds-gallery-dots {
-  --dot-ink:#fff;
-  --gallery-dot-gap:12px;
-  position:relative;z-index:16;display:flex;width:max-content;max-width:100%;margin:var(--gallery-dot-gap) auto 0;
-  align-items:center;justify-content:center;padding:4px;border-radius:99px;background:#111;color:#fff;touch-action:none;
-}
-#dan-landing-home .ds-gallery-dots button {display:grid;place-items:center;width:24px;height:24px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;color:inherit}
-#dan-landing-home .ds-gallery-dots button::after {content:'';width:6px;height:6px;border-radius:50%;background:#929292}
-#dan-landing-home .ds-gallery-dots button:focus-visible {outline:none}
-@media(prefers-reduced-motion:reduce){
-  #dan-landing-home .ds-gallery > .ds-panel,#dan-landing-home .ds-gallery > .ds-panel .ds-gallery-image {transition:none}
-}

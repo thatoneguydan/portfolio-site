@@ -1,8 +1,8 @@
 /* Shared discipline-page intro treatment.
    Video, Design, and Photo use one compact, single-column hierarchy. */
 
-.contact-redesign-root,
-body.contact-redesign {
+.contact-redesign-root:not(.contact-inline-embed),
+body.contact-redesign:not(.contact-inline-embed) {
   background: #f5f5f2;
 }
 

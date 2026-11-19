@@ -1,0 +1,204 @@
+/* Shared bottom-of-page contact treatment. Every redesign route uses the same
+   homepage CTA markup and this single style source. */
+.rd-footer-cta {
+  --contact-button-scale: var(--footer-button-scale, 1);
+  --footer-min-height: clamp(540px, 62vh, 740px);
+  --footer-padding-y: clamp(92px, 9vw, 138px);
+  --footer-inset: calc(var(--footer-padding-y) * var(--footer-height-scale, 1));
+  --footer-wave-rise: var(--footer-wave-height, 0px);
+  --footer-type: clamp(60px, 6.2vw, 90px);
+  box-sizing: border-box;
+  width: auto;
+  min-height: calc(var(--footer-min-height) * var(--footer-height-scale, 1) + var(--footer-wave-rise));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: 0 calc(-1 * var(--page-content-gutter, 0px));
+  padding: calc(var(--footer-inset) + var(--footer-wave-rise)) var(--footer-padding-x, 0px) var(--footer-inset);
+  padding-inline: max(var(--footer-padding-x, 0px), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  padding-block-end: max(var(--footer-inset), env(safe-area-inset-bottom, 0px));
+  /* One smooth period. The SVG draws the edge and the gradient fills the
+     footer below its trough, inside the existing full-bleed box. */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath fill='%23111' d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V100H0Z'/%3E%3C/svg%3E")
+    center top / var(--footer-wave-length, 320px) var(--footer-wave-rise) repeat-x,
+    linear-gradient(transparent var(--footer-wave-rise), #111 var(--footer-wave-rise));
+  color: #fff;
+  text-align: center;
+}
+
+.rd-footer-cta-inner {
+  width: min(92%, 1500px);
+  margin: 0 auto;
+}
+
+.rd-footer-cta-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  text-align: center;
+}
+
+.rd-footer-cta h2 {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0;
+  color: #fff;
+  font-size: calc(var(--footer-type) * var(--footer-heading-scale, 1));
+  font-weight: var(--footer-heading-weight, 700);
+  line-height: .9;
+  letter-spacing: -.055em;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+/* Keep punctuation in the same inline group without animating its glyph.
+   The phrase's final line meets it even when a long choice has to wrap. */
+.rd-footer-cta .ds-footer-word-run {
+  display: inline-flex;
+  max-inline-size: 100%;
+  align-items: flex-end;
+  vertical-align: baseline;
+}
+
+.rd-footer-cta .ds-footer-punctuation {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  white-space: nowrap;
+}
+
+.rd-footer-cta .ds-footer-prefix {
+  align-self: flex-start;
+}
+
+.rd-footer-cta .ds-footer-phrase {
+  min-inline-size: 0;
+  max-inline-size: var(--rotate-entry-limit, 100%);
+  text-align: end;
+  text-wrap: wrap;
+  white-space: normal;
+}
+
+.rd-footer-cta .rd-footer-cta-button,
+#dan-landing-home .ds-contact {
+  box-sizing: border-box;
+  min-width: min(100%, calc(var(--pill-width, 260px) * var(--contact-button-scale, 1)));
+  min-height: calc(var(--pill-height, 74px) * var(--contact-button-scale, 1));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  gap: calc(16px * var(--contact-button-scale, 1));
+  margin-top: var(--pill-gap-above, clamp(34px, 3.4vw, 46px));
+  padding: 0 calc(var(--pill-padding, 42px) * var(--contact-button-scale, 1));
+  border: 1px solid var(--contact-button-background, #fff);
+  border-radius: 999px;
+  background: var(--contact-button-background, #fff);
+  color: var(--contact-button-ink, #111);
+  font-size: calc(var(--pill-font, 18px) * var(--contact-button-scale, 1));
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .02em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+#dan-landing-home .ds-contact {
+  min-height: max(44px, calc(74px * var(--contact-button-scale, 1)));
+  font-size: max(12px, calc(18px * var(--contact-button-scale, 1)));
+}
+
+.rd-footer-cta .rd-footer-cta-button:hover,
+.rd-footer-cta .rd-footer-cta-button:focus-visible,
+#dan-landing-home .ds-contact:hover,
+#dan-landing-home .ds-contact:focus-visible {
+  background: transparent;
+  color: var(--contact-button-background, #fff);
+}
+
+:is(.rd-footer-cta .rd-footer-cta-button,#dan-landing-home .ds-contact) > span[aria-hidden="true"] {
+  font-size: calc(24px * var(--contact-button-scale, 1));
+  line-height: 1;
+  transition: transform 160ms ease;
+}
+
+:is(.rd-footer-cta .rd-footer-cta-button,#dan-landing-home .ds-contact):is(:hover,:focus-visible) > span[aria-hidden="true"] {
+  transform: translate(2px, -2px);
+}
+
+@media (max-width: 900px) {
+  .rd-footer-cta {
+    --footer-min-height: 560px;
+    --footer-padding-y: 82px;
+    --footer-type: clamp(56px, 7.4vw, 70px);
+  }
+
+  .rd-footer-cta-inner {
+    width: 90%;
+  }
+
+  .rd-footer-cta h2 {
+    max-width: 860px;
+  }
+
+  .rd-footer-cta .rd-footer-cta-button {
+    --pill-width: 250px;
+    --pill-height: 72px;
+    --pill-gap-above: 38px;
+    --pill-padding: 38px;
+    --pill-font: 17px;
+  }
+}
+
+@media (max-width: 720px) {
+  .rd-footer-cta {
+    --footer-padding-y: 84px;
+    --footer-padding-x: 20px;
+    --footer-type: clamp(52px, 9vw, 64px);
+  }
+
+  .rd-footer-cta h2 {
+    max-width: 650px;
+  }
+
+  .rd-footer-cta .rd-footer-cta-button {
+    --pill-width: 240px;
+    --pill-height: 70px;
+    --pill-gap-above: 36px;
+    --pill-padding: 34px;
+  }
+}
+
+@media (max-width: 500px) {
+  .rd-footer-cta {
+    --footer-type: clamp(52px, 15vw, 64px);
+  }
+  .rd-footer-cta-inner {
+    width: calc(100% - 32px);
+  }
+
+  .rd-footer-cta h2 {
+    max-width: 350px;
+  }
+
+  .rd-footer-cta .rd-footer-cta-button {
+    --pill-width: 230px;
+    --pill-height: 68px;
+    --pill-padding: 30px;
+    --pill-font: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-footer-cta .rd-footer-cta-button,
+  .rd-footer-cta .rd-footer-cta-button > span[aria-hidden="true"],
+  #dan-landing-home .ds-contact,
+  #dan-landing-home .ds-contact > span[aria-hidden="true"] {
+    transition: none !important;
+  }
+}

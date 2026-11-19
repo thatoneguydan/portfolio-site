@@ -14,18 +14,19 @@
 <link rel="stylesheet" href="/assets/redesign-home.css?v=20261118-cardnav1">
 <link rel="stylesheet" href="/assets/redesign-header-stable.css?v=20261119-mobilelayout1">
 <link rel="stylesheet" href="/assets/redesign-nav.css?v=20261119-mobilelayout1">
-<link rel="stylesheet" href="/assets/redesign-contact.css?v=20261118-sizing1">
-<link rel="stylesheet" href="/assets/redesign-page-intro.css?v=20260911-b">
+<link rel="stylesheet" href="/assets/redesign-contact.css?v=20261119-shared-carousel1">
+<link rel="stylesheet" href="/assets/redesign-footer-contact.css?v=20261119-shared-carousel1">
+<link rel="stylesheet" href="/assets/redesign-page-intro.css?v=20261119-shared-carousel1">
 <meta name="generator" content="portfolio-redesign-prototype">
 <script>if(new URLSearchParams(location.search).get('inlineShelf')==='1')document.documentElement.classList.add('contact-inline-embed');</script>
 <script src="/api/landing-bootstrap"></script>
 <link rel="stylesheet" href="/assets/site-effects.css?v=20261119-publish2">
 <link rel="stylesheet" href="/assets/project-panels.css?v=20261119-carousel1">
 <script>document.documentElement.classList.add('portfolio-js')</script><noscript><style>[data-headline-pending]{visibility:visible!important}</style></noscript>
-<link rel="modulepreload" href="/assets/site-runtime.js?v=20261119-publish2">
+<link rel="modulepreload" href="/assets/site-runtime.js?v=20261119-shared-carousel1">
 <link rel="modulepreload" href="/assets/site-emoji.js?v=20261118-perf1">
-<link rel="modulepreload" href="/assets/landing-schema.js?v=20261119-tunefind1">
-<link rel="modulepreload" href="/assets/headline-view.js?v=20261119-tunefind1">
+<link rel="modulepreload" href="/assets/landing-schema.js?v=20261119-shared-carousel1">
+<link rel="modulepreload" href="/assets/headline-view.js?v=20261119-shared-carousel1">
 </head>
 <body class="home-redesign contact-redesign">
 <header class="site-header">
@@ -57,7 +58,7 @@
         <div class="form-field"><label for="contact-field2">Message *</label><textarea id="contact-field2" name="field2" placeholder="A project, an idea, an role on your team? I'm all ears!" required></textarea></div>
         <div hidden aria-hidden="true"><label for="contact-website">Website</label><input id="contact-website" type="text" name="website" autocomplete="off" tabindex="-1"></div>
         <div data-contact-turnstile></div>
-        <button class="portfolio-button" type="submit">Start the conversation</button>
+        <button class="portfolio-button rc-contact-submit" type="submit">Start the conversation <span aria-hidden="true">↗</span></button>
         <p class="form-status" data-contact-status aria-live="polite" data-sent-message="Thank you! Your message has been sent."></p>
       </form>
     </div>
@@ -78,8 +79,8 @@
   node.href = `tel:+${digits.length === 10 ? '1' : ''}${digits}`;
 })();
 </script>
-<script src="/assets/portfolio-contact.js?v=20261119-publish2" defer></script>
-<script type="module" src="/assets/site-effects.js?v=20261119-publish2"></script>
-<script type="module" src="/assets/contact-ready.js?v=20261119-publish2"></script>
+<script src="/assets/portfolio-contact.js?v=20261119-shared-carousel1" defer></script>
+<script type="module" src="/assets/site-effects.js?v=20261119-shared-carousel1"></script>
+<script type="module" src="/assets/contact-ready.js?v=20261119-shared-carousel1"></script>
 </body>
 </html>

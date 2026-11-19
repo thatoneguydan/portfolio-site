@@ -8,8 +8,10 @@
     if(link.sheet)return Promise.resolve();
     return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261118-featured1'),style('/assets/redesign-footer-contact.css?v=20261119-carousel1')]);
-  const runtime=import('/assets/site-runtime.js?v=20261119-publish2').then(module=>module.siteReady);
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261119-shared-carousel1'),style('/assets/redesign-footer-contact.css?v=20261119-shared-carousel1')]);
+  const runtime=import('/assets/site-runtime.js?v=20261119-shared-carousel1').then(module=>module.siteReady);
+  const scroll=import('/assets/reveal-scroll.js?v=20261119-shared-carousel1');
+  const controls=import('/assets/filled-controls.js?v=20261117-navlab1');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let active=null,sequence=0,footerHeading;
   const footerMarkup='<div class="rd-footer-cta-inner"><div class="rd-footer-cta-row"><h2>Ready to make something great?</h2><a class="rd-footer-cta-button" href="/contact">Let\'s make it <span aria-hidden="true">↗</span></a></div></div>';
@@ -58,6 +60,33 @@
     const height=Math.ceil(main.getBoundingClientRect().height);
     if(height>0&&state.frame.style.height!==height+'px')state.frame.style.height=height+'px';
   }
+  function alignSurface(shelf){
+    const left=shelf.getBoundingClientRect().left;
+    shelf.style.setProperty('--contact-shelf-surface-left',-left+'px');
+    shelf.style.setProperty('--contact-shelf-surface-width',document.documentElement.clientWidth+'px');
+  }
+  function contactInk(color){
+    const weights=[.2126,.7152,.0722];
+    const channels=color.slice(1).match(/../g).map(value=>parseInt(value,16)/255);
+    const luminance=channels.reduce((sum,value,index)=>sum+weights[index]*(value<=.04045?value/12.92:((value+.055)/1.055)**2.4),0);
+    return luminance<.18?'#f5f5f2':'#111111';
+  }
+  function paint(state,config){
+    const color=config.contactShelfBackground??'#eaeae6';
+    const sizes={
+      'wave-length':config.contactShelfWaveLength??23,
+      'wave-height':config.contactShelfWaveEnabled===false?0:(config.contactShelfWaveHeight??3),
+      'margin-before':config.contactShelfMarginBefore??24,
+      'margin-after':config.contactShelfMarginAfter??35,
+      'padding-before':config.contactShelfPaddingBefore??64,
+      'padding-after':config.contactShelfPaddingAfter??100
+    };
+    state.shelf.style.setProperty('--contact-shelf-background',color);
+    for(const [key,value] of Object.entries(sizes))state.shelf.style.setProperty('--contact-shelf-'+key,value+'px');
+    const styling=state.frame.contentDocument?.documentElement?.style;
+    styling?.setProperty('--contact-shelf-background',color);
+    styling?.setProperty('--contact-shelf-ink',contactInk(color));
+  }
   function prepare(state){
     if(active!==state||state.loaded||state.closing||!state.api||!state.shelf.isConnected)return;
     const doc=state.frame.contentDocument;
@@ -66,6 +95,8 @@
     if(!frameAPI)return;
     frameAPI.revision=state.api.revision;
     frameAPI.applyConfig(state.api.getConfig());
+    paint(state,state.api.getConfig());
+    alignSurface(state.shelf);
     resize(state);
     // Install the real glyphs' backwards-filled animations before exposing
     // either the frame or the shelf. No second copy of the form is painted.
@@ -81,10 +112,9 @@
     if(shelf.classList.contains('is-open'))return;
     const start=shelf.getBoundingClientRect().top;
     shelf.inert=false;shelf.setAttribute('aria-hidden','false');shelf.classList.add('is-open');
-    if(start>innerHeight*.65||source.closest('.rd-footer-cta')){
-      const top=source.getBoundingClientRect().top+scrollY,header=document.querySelector('.site-header')?.getBoundingClientRect().bottom||0;
-      window.scrollTo({top:Math.max(0,top-header-20),behavior:reduced.matches?'auto':'smooth'});
-    }
+    scroll.then(({scrollToReveal})=>{
+      if(shelf.isConnected&&shelf.classList.contains('is-open'))scrollToReveal(shelf,source,{always:!!source.closest('.rd-footer-cta'),revealTop:start});
+    }).catch(()=>{});
   }
   async function open(source){
     const anchor=anchorFor(source);if(!anchor){location.assign('/contact/');return;}
@@ -92,14 +122,16 @@
     if(active)clean(active);
     const shelf=document.createElement('section');shelf.id='contact-shelf-'+(++sequence);shelf.className='rc-inline-contact-shelf';shelf.setAttribute('aria-label','Contact Dan Smith');shelf.setAttribute('aria-hidden','true');
     shelf.inert=true;
-    shelf.innerHTML=`<div class="rc-inline-contact-shell"><button class="rc-inline-contact-close" type="button" aria-label="Close contact">×</button><iframe class="rc-inline-contact-frame" title="Contact Dan Smith" src="/contact/?inlineShelf=1" data-contact-reveal-on-open aria-hidden="true" inert></iframe></div>`;
+    shelf.innerHTML=`<div class="rc-inline-contact-clip"><div class="rc-inline-contact-shell"><button class="portfolio-panel-close rc-inline-contact-close" type="button" aria-label="Close contact">×</button><iframe class="rc-inline-contact-frame" title="Contact Dan Smith" src="/contact/?inlineShelf=1" data-contact-reveal-on-open aria-hidden="true" inert></iframe></div></div>`;
     const notice=document.createElement('p');
     notice.className='rc-inline-contact-error';notice.setAttribute('role','status');
     notice.innerHTML='Contact is taking longer to load. <a href="/contact/" data-contact-fallback>Open the contact page ↗</a>';
     const state={source,anchor,shelf,notice,frame:shelf.querySelector('iframe'),loaded:false,closing:false,api:null};active=state;
     source.setAttribute('aria-expanded','true');source.setAttribute('aria-controls',shelf.id);source.setAttribute('aria-busy','true');
     state.frame.addEventListener('load',()=>prepare(state));
-    shelf.querySelector('.rc-inline-contact-close').addEventListener('click',()=>close(state,true));
+    const closeButton=shelf.querySelector('.rc-inline-contact-close');
+    closeButton.addEventListener('click',()=>close(state,true));
+    controls.then(({filledControlIcon})=>{closeButton.innerHTML=filledControlIcon('circle-x');}).catch(()=>{});
     await styles;
     if(state!==active||state.closing)return;
     anchor.classList.add('has-contact-shelf');
@@ -111,6 +143,8 @@
     state.timeout=setTimeout(fallback,10000);
     try{state.api=await runtime;prepare(state);}catch{fallback();}
   }
+  addEventListener('resize',()=>{if(active?.loaded&&!active.closing)alignSurface(active.shelf);});
+  document.addEventListener('portfolio-appearance',event=>{if(active?.loaded&&!active.closing)paint(active,event.detail);});
   addEventListener('message',event=>{if(active&&event.origin===location.origin&&event.source===active.frame.contentWindow&&event.data?.type==='portfolio-contact-ready')prepare(active);});
   document.addEventListener('click',event=>{
     if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;

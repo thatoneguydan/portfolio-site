@@ -1,0 +1,43 @@
+.video-redesign .site-main {padding-bottom:0}
+.video-redesign .rv-intro {border-block-end:1px solid rgba(0,0,0,.1)}
+
+.rv-carousels {
+  container-type:inline-size;
+  display:grid;
+  gap:clamp(52px,7vw,100px);
+  padding:clamp(28px,3vw,38px) 0 clamp(64px,8vw,120px);
+  min-width:0;
+}
+.rv-carousels > .ds-carousel-section {
+  min-width:0;
+  scroll-margin-block-start:104px;
+}
+.rv-carousel-flavor {
+  margin:0 0 var(--video-carousel-heading-gap,25px);
+  max-inline-size:710px;
+  color:#555;
+  font-size:clamp(15px,1.8cqi,18px);
+  line-height:1.5;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.rv-carousel-flavor[hidden] {display:none}
+.rv-carousels .ds-caption strong {overflow-wrap:anywhere}
+
+/* Give each group a useful first paint and a no-script navigation fallback. */
+.rv-carousels .ds-gallery:not([data-layout]) > .ds-panel {height:var(--gallery-height,320px)}
+.rv-carousels .ds-gallery:not([data-layout])[data-orientation=portrait] > .ds-panel {height:clamp(220px,51cqi,760px)}
+.rv-carousels .ds-gallery:not([data-layout]) > .ds-panel[data-focused=true] .ds-caption {opacity:1;transform:none}
+.rv-carousels .ds-gallery:not([data-layout]) > .ds-panel[data-focused=true] .ds-panel-gradient {opacity:1}
+@media(max-width:720px){
+  .rv-carousels {gap:48px;padding-block-start:24px}
+  .rv-carousels > .ds-carousel-section {scroll-margin-block-start:90px}
+  .rv-carousels .ds-gallery:not([data-layout]) {display:grid;gap:10px}
+  .rv-carousels .ds-gallery:not([data-layout]) > .ds-panel {width:100%;height:140px}
+  .rv-carousels .ds-gallery:not([data-layout]) > .ds-panel[data-focused=true] {height:auto;aspect-ratio:16/9}
+  .rv-carousels .ds-gallery:not([data-layout])[data-orientation=portrait] > .ds-panel {height:150px}
+  .rv-carousels .ds-gallery:not([data-layout])[data-orientation=portrait] > .ds-panel[data-focused=true] {height:auto;aspect-ratio:1}
+  .rv-carousels .ds-gallery:not([data-layout]) .ds-gallery-image {width:100%}
+  .rv-carousels .ds-gallery:not([data-layout]) .ds-caption {opacity:1;transform:none;width:calc(100% - 40px)}
+  .rv-carousels .ds-gallery:not([data-layout]) .ds-panel-gradient {opacity:1}
+}

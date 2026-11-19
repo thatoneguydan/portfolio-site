@@ -84,7 +84,8 @@
 }
 
 .rd-footer-cta .rd-footer-cta-button,
-#dan-landing-home .ds-contact {
+#dan-landing-home .ds-contact,
+.contact-redesign .contact-form .rc-contact-submit {
   box-sizing: border-box;
   min-width: min(100%, calc(var(--pill-width, 260px) * var(--contact-button-scale, 1)));
   min-height: calc(var(--pill-height, 74px) * var(--contact-button-scale, 1));
@@ -113,21 +114,39 @@
   font-size: max(12px, calc(18px * var(--contact-button-scale, 1)));
 }
 
+.contact-redesign .contact-form .rc-contact-submit {
+  --contact-button-scale:var(--footer-button-scale,1);
+  --contact-button-background:#111;
+  --contact-button-ink:#fff;
+  margin-top:0;
+  height:auto;
+  max-width:100%;
+  min-height:max(44px,calc(var(--pill-height,74px) * var(--contact-button-scale,1)));
+  font-family:inherit;
+  line-height:1.15;
+  text-align:center;
+  white-space:normal;
+  cursor:pointer;
+}
+
+.contact-redesign .contact-form .rc-contact-submit:disabled {cursor:wait;opacity:.55}
+
 .rd-footer-cta .rd-footer-cta-button:hover,
 .rd-footer-cta .rd-footer-cta-button:focus-visible,
 #dan-landing-home .ds-contact:hover,
-#dan-landing-home .ds-contact:focus-visible {
+#dan-landing-home .ds-contact:focus-visible,
+.contact-redesign .contact-form .rc-contact-submit:enabled:is(:hover,:focus-visible) {
   background: transparent;
   color: var(--contact-button-background, #fff);
 }
 
-:is(.rd-footer-cta .rd-footer-cta-button,#dan-landing-home .ds-contact) > span[aria-hidden="true"] {
+:is(.rd-footer-cta .rd-footer-cta-button,#dan-landing-home .ds-contact,.rc-contact-submit) > span[aria-hidden="true"] {
   font-size: calc(24px * var(--contact-button-scale, 1));
   line-height: 1;
   transition: transform 160ms ease;
 }
 
-:is(.rd-footer-cta .rd-footer-cta-button,#dan-landing-home .ds-contact):is(:hover,:focus-visible) > span[aria-hidden="true"] {
+:is(.rd-footer-cta .rd-footer-cta-button,#dan-landing-home .ds-contact,.rc-contact-submit:enabled):is(:hover,:focus-visible) > span[aria-hidden="true"] {
   transform: translate(2px, -2px);
 }
 
@@ -146,7 +165,8 @@
     max-width: 860px;
   }
 
-  .rd-footer-cta .rd-footer-cta-button {
+  .rd-footer-cta .rd-footer-cta-button,
+  .contact-redesign .contact-form .rc-contact-submit {
     --pill-width: 250px;
     --pill-height: 72px;
     --pill-gap-above: 38px;
@@ -166,7 +186,8 @@
     max-width: 650px;
   }
 
-  .rd-footer-cta .rd-footer-cta-button {
+  .rd-footer-cta .rd-footer-cta-button,
+  .contact-redesign .contact-form .rc-contact-submit {
     --pill-width: 240px;
     --pill-height: 70px;
     --pill-gap-above: 36px;
@@ -186,7 +207,8 @@
     max-width: 350px;
   }
 
-  .rd-footer-cta .rd-footer-cta-button {
+  .rd-footer-cta .rd-footer-cta-button,
+  .contact-redesign .contact-form .rc-contact-submit {
     --pill-width: 230px;
     --pill-height: 68px;
     --pill-padding: 30px;
@@ -198,7 +220,9 @@
   .rd-footer-cta .rd-footer-cta-button,
   .rd-footer-cta .rd-footer-cta-button > span[aria-hidden="true"],
   #dan-landing-home .ds-contact,
-  #dan-landing-home .ds-contact > span[aria-hidden="true"] {
+  #dan-landing-home .ds-contact > span[aria-hidden="true"],
+  .rc-contact-submit,
+  .rc-contact-submit > span[aria-hidden="true"] {
     transition: none !important;
   }
 }

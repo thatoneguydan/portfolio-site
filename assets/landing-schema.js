@@ -110,6 +110,34 @@ export const defaults = {
   "footerWaveEnabled": false,
   "footerWaveLength": 320,
   "footerWaveHeight": 36,
+  "contactShelfBackground": "#eaeae6",
+  "contactShelfWaveEnabled": true,
+  "contactShelfWaveLength": 23,
+  "contactShelfWaveHeight": 3,
+  "contactShelfMarginBefore": 24,
+  "contactShelfMarginAfter": 35,
+  "contactShelfPaddingBefore": 64,
+  "contactShelfPaddingAfter": 100,
+  "featuredOrientation": "landscape",
+  "portraitGalleryAdaptive": true,
+  "portraitGalleryHeight": 560,
+  "portraitGalleryGap": 10,
+  "portraitGalleryRadius": 16,
+  "portraitGalleryDuration": 600,
+  "portraitGalleryGrayscale": false,
+  "portraitGalleryExpandRatio": 29,
+  "portraitGalleryAspect": 56.25,
+  "portraitVerticalGalleryAdaptive": true,
+  "portraitVerticalGalleryHeight": 320,
+  "portraitVerticalGalleryGap": 10,
+  "portraitVerticalGalleryRadius": 16,
+  "portraitVerticalGalleryDuration": 600,
+  "portraitVerticalGalleryGrayscale": false,
+  "portraitVerticalGalleryCollapsed": 150,
+  "portraitVerticalGalleryPadding": 16,
+  "portraitVerticalGalleryTitleSize": 19,
+  "portraitVerticalGalleryCompactTitleSize": 14,
+  "portraitVerticalGalleryAspect": 100,
   "paletteSaturation": 42,
   "bio": "I work across video, design, print, and photography to make things clear, intentional, and worth looking at.",
   "fontSize": 53,
@@ -544,6 +572,39 @@ export const controlGroups = {
       ['range','projectLoaderGap','Loader bar spacing',0,40,1,'px'],
       ['range','projectLoaderPadding','Loader background padding',12,160,1,'px']
     ],
+    contactShelf: [
+      ['color','contactShelfBackground','Background color'],
+      ['check','contactShelfWaveEnabled','Waves at the top and bottom'],
+      ['range','contactShelfWaveLength','Wave length',16,4000,1,'px'],
+      ['range','contactShelfWaveHeight','Wave height',0,1000,1,'px'],
+      ['range','contactShelfMarginBefore','Margin before',0,240,1,'px'],
+      ['range','contactShelfPaddingBefore','Padding before',48,260,1,'px'],
+      ['range','contactShelfPaddingAfter','Padding after',0,260,1,'px'],
+      ['range','contactShelfMarginAfter','Margin after',0,240,1,'px']
+    ],
+    portraitGallery: [
+      ['check','portraitGalleryAdaptive','Responsive portrait height'],
+      ['range','portraitGalleryAspect','Expanded width relative to height',30,150,.25,'%'],
+      ['range','portraitGalleryHeight','Manual carousel height',200,900,1,'px'],
+      ['range','portraitGalleryExpandRatio','Expanded share of carousel width',12,75,1,'%'],
+      ['range','portraitGalleryGap','Card gap',0,32,1,'px'],
+      ['range','portraitGalleryRadius','Card radius',0,40,1,'px'],
+      ['range','portraitGalleryDuration','Transition duration',200,1400,50,'ms'],
+      ['check','portraitGalleryGrayscale','Grayscale inactive cards']
+    ],
+    portraitGalleryVertical: [
+      ['check','portraitVerticalGalleryAdaptive','Responsive expanded height'],
+      ['range','portraitVerticalGalleryAspect','Expanded width relative to height',40,180,.25,'%'],
+      ['range','portraitVerticalGalleryHeight','Manual expanded card height',140,900,1,'px'],
+      ['range','portraitVerticalGalleryCollapsed','Nearest collapsed height',44,260,1,'px'],
+      ['range','portraitVerticalGalleryGap','Card gap',0,32,1,'px'],
+      ['range','portraitVerticalGalleryRadius','Card radius',0,40,1,'px'],
+      ['range','portraitVerticalGalleryDuration','Transition duration',200,1400,50,'ms'],
+      ['range','portraitVerticalGalleryTitleSize','Expanded title size',12,32,1,'px'],
+      ['range','portraitVerticalGalleryCompactTitleSize','Collapsed title size',11,24,1,'px'],
+      ['range','portraitVerticalGalleryPadding','Caption inset',10,32,1,'px'],
+      ['check','portraitVerticalGalleryGrayscale','Grayscale inactive cards']
+    ],
     galleryVertical: [
       ['check','verticalGalleryAdaptive','Responsive 16:9 height'],
       ['range','verticalGalleryHeight','Manual expanded card height',140,640,1,'px'],
@@ -574,6 +635,32 @@ controlGroups.workSectionHeading=controlGroups.featuredHeading.map(([type,key,la
   type,key.replace('featured','workSection'),key==='featuredHeadingGap'?'Space before section cards':label,...limits
 ]);
 controlGroups.workSectionHeading.push(['select','workSectionHeadingAnchor','Growth anchor',['top','bottom']]);
+
+export const videoCarouselCategories = [
+  {scope:'videoClient', label:'Client Video & Editing', flavor:'Story-led edits for nonprofits, businesses, and community organizations.'},
+  {scope:'videoEssays', label:'Video Essays', flavor:'Long-form essays that turn games and media habits into approachable stories about behavior, nostalgia, and attention.'},
+  {scope:'videoShort', label:'Short-Form Video', flavor:'Vertical edits built around fast hooks, clean pacing, and moments worth stopping for.', orientation:'portrait'},
+  {scope:'videoPromos', label:'Promos & Experiments', flavor:'Promotional and experimental work that sits outside the usual buckets.'},
+  {scope:'videoGaming', label:'Long-Form Gaming', flavor:'A sample from a 100+ video channel I produced end to end—from capture and lighting to edit, thumbnail, and publishing.'}
+];
+const rotatingSectionScopes=['featured',...videoCarouselCategories.map(category=>category.scope)];
+for(const {scope,label,flavor,orientation='landscape'} of videoCarouselCategories){
+  for(const [suffix,value] of Object.entries({
+    Heading:label,HeadingSize:40,HeadingWeight:700,HeadingGap:18,HeadingScrollGrowth:0,HeadingAlign:'left',
+    RotateEnabled:false,RotateStart:0,RotateEnd:0,RotateWords:'',
+    FlavorEnabled:true,FlavorText:flavor,Orientation:orientation
+  }))defaults[scope+suffix]=value;
+  controlGroups[scope+'Heading']=controlGroups.featuredHeading.map(([type,key,...options])=>[
+    type,key.replace('featured',scope),...options
+  ]);
+  controlGroups[scope+'Rotation']=[['check',scope+'RotateEnabled','Cycle words or phrases']];
+  controlGroups[scope+'Flavor']=[['check',scope+'FlavorEnabled','Show flavor text']];
+}
+for(const scope of rotatingSectionScopes){
+  controlGroups[scope+'Orientation']=[['select',scope+'Orientation','Content orientation',[
+    ['landscape','Landscape'],['portrait','Portrait']
+  ]]];
+}
 
 function luminance(color) {
   return color.slice(1).match(/../g).reduce((total,hex,index)=>{
@@ -663,7 +750,7 @@ export function normalizeSettings(input, base = defaults) {
     if(type==='select'&&!min.some(v=>(Array.isArray(v)?v[0]:v)===result[key]))throw new Error('Invalid choice: '+key);
   }
   result.activeIndex=Math.max(0,Math.min(4,Math.round(result.activeIndex)));
-  const rotationEntries=['featuredRotateWords'];
+  const rotationEntries=rotatingSectionScopes.map(scope=>scope+'RotateWords');
   for(const scope of ['',...headlineScopes]){
     result[scopedKey(scope,'lineCount')]=Math.round(result[scopedKey(scope,'lineCount')]);
     if(!/^[1-6]:\d{1,3}$/.test(result[scopedKey(scope,'rotateTarget')]))throw new Error('Choose a valid rotating word.');
@@ -674,8 +761,11 @@ export function normalizeSettings(input, base = defaults) {
     if(entries.length>50)throw new Error('Use up to 50 comma-separated words or phrases.');
     if(entries.some(s=>s.length>100))throw new Error('Keep each rotating entry within 100 characters.');
   }
-  result.featuredRotateStart=Math.max(0,Math.min(1999,Math.round(result.featuredRotateStart)));
-  result.featuredRotateEnd=Math.max(result.featuredRotateStart,Math.min(1999,Math.round(result.featuredRotateEnd)));
+  for(const scope of rotatingSectionScopes){
+    const start=scope+'RotateStart',end=scope+'RotateEnd';
+    result[start]=Math.max(0,Math.min(1999,Math.round(result[start])));
+    result[end]=Math.max(result[start],Math.min(1999,Math.round(result[end])));
+  }
   result.badgeBackdropBlur=Math.max(0,Math.min(24,result.badgeBackdropBlur));
   return result;
 }

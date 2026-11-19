@@ -1,6 +1,7 @@
-import {defaults} from './landing-schema.js?v=20261119-tunefind1';
+import {defaults} from './landing-schema.js?v=20261119-shared-carousel1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
+import {scrollToReveal} from './reveal-scroll.js?v=20261119-shared-carousel1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
 const panels=new Set(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const rgba=(hex,opacity)=>`rgba(${hex.match(/\w\w/g).map(s=>parseInt(s,16))},${opacity/100})`;
@@ -91,6 +92,9 @@ function syncContent(state,content=state.content,inner=state.inner){
   inner.querySelector('.rdp-project-frame').style.height=content.height()+'px';
 }
 function observeContent(state){state.contentObserver?.disconnect();if(!state.content)return;state.contentObserver=new state.content.doc.defaultView.ResizeObserver(()=>measure(state));state.contentObserver.observe(state.content.main);}
+function carouselMotionDuration(node){
+  return parseFloat(node?.closest('.ds-gallery')?.style.getPropertyValue('--gallery-duration'))||0;
+}
 function trackPositions(duration){trackUntil=Math.max(trackUntil,performance.now()+duration);if(!trackFrame){const tick=now=>{for(const state of panels)position(state);trackFrame=now<trackUntil?requestAnimationFrame(tick):0;};trackFrame=requestAnimationFrame(tick);}}
 function featuredDots(shelf){
   return shelf.closest('.ds-gallery[data-layout=horizontal]')?.querySelector('.ds-gallery-dots');
@@ -196,11 +200,18 @@ function position(state){
 function moveTail(state){
   if(reduced.matches||!Number.isFinite(state.tailCenter))return;
   state.tailBlend={from:state.tailCenter,at:performance.now()};
-  trackPositions(Math.max(400,config.galleryDuration,config.verticalGalleryDuration)+100);
+  trackPositions(Math.max(400,carouselMotionDuration(state.pending?.source||state.source))+100);
 }
 function finishClose(state){
   if(state.finishing||state.open)return;state.finishing=true;
   Promise.resolve(state.closeMask).then(()=>{if(!state.open)state.shelf.dispatchEvent(new CustomEvent('portfolio-panel-closed'));});
+}
+function revealProject(state){
+  const {shelf,source,stacked,clearance}=state;
+  if(!source||!state.open)return;
+  const top=shelf.getBoundingClientRect().top;
+  const remainingClearance=stacked?clearance-(parseFloat(getComputedStyle(shelf).marginTop)||0):0;
+  scrollToReveal(shelf,source,{revealTop:top+remainingClearance,keepPanelVisible:true});
 }
 function measure(state){
   if(!state.shelf.isConnected){dispose(state);return;}
@@ -223,6 +234,7 @@ function measure(state){
   // its settled layout box, never that currently painted transform.
   const target=state.open&&state.ready&&state.allowed?inner.offsetHeight:0;
   const clearance=stacked&&target?14+config.projectPanelTailSize:0;
+  const firstReveal=target>0&&!state.target&&shelf.dataset.projectRevealOnOpen==='true';
   if(state.target!==target||state.clearance!==clearance){
     const from=shelf.getBoundingClientRect().height;
     const fromClearance=stacked?parseFloat(getComputedStyle(shelf).marginTop):0;
@@ -236,6 +248,7 @@ function measure(state){
     }else if(!state.open)finishClose(state);
   }else if(!state.open&&!state.motion)finishClose(state);
   position(state);
+  if(firstReveal){delete shelf.dataset.projectRevealOnOpen;revealProject(state);}
 }
 function mount(shelf){
   if(shelf.dataset.projectPanelMounted)return;shelf.dataset.projectPanelMounted='true';
@@ -325,7 +338,7 @@ async function prepareFrame(frame,signal,timeout){
   variables(frame.contentDocument.documentElement);
   return abortable(prepareProjectDocument(frame),signal);
 }
-export async function replaceProjectContent(shelf,{source,inner,title,onCommit}){
+export async function replaceProjectContent(shelf,{source,inner,title,onCommit,revealOnOpen=false}){
   await Promise.resolve();let state=[...panels].find(item=>item.shelf===shelf);
   if(!state){await new Promise(requestAnimationFrame);state=[...panels].find(item=>item.shelf===shelf);}
   if(!state||!state.open||!shelf.isConnected)return false;
@@ -349,7 +362,14 @@ export async function replaceProjectContent(shelf,{source,inner,title,onCommit})
     inner.classList.remove('portfolio-panel-incoming');inner.inert=false;inner.removeAttribute('aria-hidden');inner.style.width=state.clip.getBoundingClientRect().width+'px';
     state.inner=inner;state.content=content;state.ready=true;state.pending=null;state.preparing=visible;state.allowed=visible;shelf.dataset.projectReady='true';
     state.observer.observe(inner);state.observer.observe(source);observeContent(state);onCommit?.();
-    measure(state);content?.reveal();if(visible)animateMask(state,config.projectEdgeFade?1:0,240);trackPositions(Math.max(650,config.galleryDuration,config.verticalGalleryDuration)+100);
+    if(revealOnOpen&&!visible)shelf.dataset.projectRevealOnOpen='true';
+    measure(state);
+    content?.reveal();
+    if(visible){
+      if(revealOnOpen)revealProject(state);
+      animateMask(state,config.projectEdgeFade?1:0,240);
+    }
+    trackPositions(Math.max(650,carouselMotionDuration(source))+100);
     const delta=oldRect.top-shelf.getBoundingClientRect().top;
     const options={duration:reduced.matches?0:360,easing:'cubic-bezier(.2,.75,.2,1)',fill:'both'},oldStyle=getComputedStyle(oldInner);
     const motions=reduced.matches?[]:[oldInner.animate([{opacity:oldStyle.opacity,transform:oldStyle.transform},{opacity:0,transform:'translateY(-10px) scale(.985)'}],options),inner.animate([{opacity:0,transform:'translateY(10px) scale(.985)'},{opacity:1,transform:'none'}],options)];
@@ -375,5 +395,5 @@ export function installProjectPanels(){
   addEventListener('scroll',()=>{for(const state of panels)position(state);},{passive:true});
   addEventListener('resize',()=>{for(const state of panels)measure(state);},{passive:true});
   document.addEventListener('portfolio-masonry-motion',()=>{for(const state of panels)position(state);});
-  document.addEventListener('transitionrun',event=>{if(event.target.closest('.ds-gallery'))trackPositions(Math.max(config.galleryDuration,config.verticalGalleryDuration)+100);});
+  document.addEventListener('transitionrun',event=>{const duration=carouselMotionDuration(event.target);if(duration)trackPositions(duration+100);});
 }

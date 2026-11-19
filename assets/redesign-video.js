@@ -1,158 +1,53 @@
-(() => {
-  'use strict';
+import {siteReady} from './site-runtime.js?v=20261119-shared-carousel1';
+import {mountProjectCarousel} from './project-carousel.js?v=20261119-shared-carousel1';
+import {mountSectionHeading} from './featured-heading.js?v=20261119-shared-carousel1';
+import {installProjectViews,openProject} from './project-views.js?v=20261119-shared-carousel1';
 
-  if (!document.querySelector('script[data-redesign-nav]')) {
-    const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261119-publish2';
-    navScript.dataset.redesignNav = '';
-    document.head.append(navScript);
-  }
-
-  const descriptions = {
-    o8DPtyrcZ5o: "This was an edit for LifeBUILDERS Detroit. Their goal was to showcase the fun energy of camp, explore it's lasting impact, and offer people a chance to donate.",
-    fRD5NXXbcIA: 'This video was created for Sterling Engines, to give customers an idea of who they are, as well as showcase their long-standing position as a pioneer in the industry.',
-    '0oS8Mu9Ogak': "This video was created for 242 Community Church to tell Kelly's story. Her story showcases the power of connecting to a spiritual community, and the importance of giving back.",
-    '8sbnF1n9pyg': "So often, works of fiction get put in a box like they're just trinkets. Little distractions from everyday life that are fun, but pointless.\n\nWhen it comes to the Fantasy genre especially, there's this idea that liking it too isn't good for a person.\n\nI made this video because I don't think that tells the whole story.",
-    Z0gUnF1mCdM: "I wrote this video to tackle a common scenario in the video gaming community. Often, gamers will find themselves with a large collection of games they've never played all the way through.\n\nI dove into the psychology behind this phenomenon and discovered several interesting points that apply not only to entertainment, but also to a person's overall quality of life.",
-    '5SR6PtZTsRo': "I wrote this video to tackle a common scenario in the video gaming community. Often, gamers will find themselves \"stuck\" playing a single game repeatedly, even though they find themselves no longer enjoying it.\n\nI dove into the psychology behind this phenomenon and discovered several interesting points that apply not only to entertainment, but also to a person's overall quality of life.\n\nThe thumbnail design draws inspiration from the UI of \"Steam,\" an online gaming store instantly recognizable to any PC gamer. The thumbnail conveys the relatable scenario of launching your \"default\" game even though you're tired of it. It does so in a simple way that is easy to understand at a glance, which is crucial for click-through rate.",
-    kc28oRplfBI: 'These shorts were pulled from long form video essays and reformatted to hook a viewer and nudge them to watch the full video.',
-    b7nHBZJSY9k: 'These shorts were pulled from long form video essays and reformatted to hook a viewer and nudge them to watch the full video.',
-    FCvgAYznqZs: 'These shorts were pulled from long-form gaming content to showcase relatable, funny or intense moments.',
-    'E2bhsiV-ImU': 'These shorts were pulled from long-form gaming content to showcase relatable, funny or intense moments.',
-    Havi4q0GDI4: 'These shorts were pulled from long-form gaming content to showcase relatable, funny or intense moments.',
-    '0pMECkKuP8c': 'These shorts were pulled from long-form gaming content to showcase relatable, funny or intense moments.',
-    g1MZS1vk3kw: 'This older video project is an artful and experimental approach to promote "White Noise," a Christian student conference.\n\nWhite Noise refers to the static from old TV sets/radios, and was used as a metaphor for the chaos of life. The conference aimed to provide students a reprieve to spiritually center themselves.\n\nI was responsible for the set design, lighting, filming, script-writing, and editing for this project.',
-    'wlzEdc-eMwM': "I set up a competition within Minecraft and told the story through clips and narration. I began the video with a heavily meme-flavored explanation of the competition's rules for the viewer's sake.\n\nI edited the footage together to highlight the goofiest moments and tell an entertaining story.",
-    L9_GqeiMdMk: 'I developed a gaming channel focused on long-form gaming content (15 minutes or more). The scope of the work included lighting design, clean audio capture & processing, video game capture, filming, set design, and managing the channel. I edited and published over a hundred long-form videos in this format. Packaging such as thumbnail design and video titles also played a key role in the process of each video.',
-    '9eeHNjlRLrI': 'I developed a gaming channel focused on long-form gaming content (15 minutes or more). The scope of the work included lighting design, clean audio capture & processing, video game capture, filming, set design, and managing the channel. I edited and published over a hundred long-form videos in this format. Packaging such as thumbnail design and video titles also played a key role in the process of each video.',
-    fsWEm2pewhk: 'I developed a gaming channel focused on long-form gaming content (15 minutes or more). The scope of the work included lighting design, clean audio capture & processing, video game capture, filming, set design, and managing the channel. I edited and published over a hundred long-form videos in this format. Packaging such as thumbnail design and video titles also played a key role in the process of each video.',
-    xfpTg2g6NF4: 'I developed a gaming channel focused on long-form gaming content (15 minutes or more). The scope of the work included lighting design, clean audio capture & processing, video game capture, filming, set design, and managing the channel. I edited and published over a hundred long-form videos in this format. Packaging such as thumbnail design and video titles also played a key role in the process of each video.',
-  };
-
-  const shelves = Array.from(document.querySelectorAll('.rv-shelf'));
-  const videoCards = Array.from(document.querySelectorAll('[data-youtube-id]'));
-  const dialog = document.querySelector('[data-video-dialog]');
-  const player = dialog?.querySelector('.rv-dialog-player');
-  const frame = player?.querySelector('iframe');
-  const dialogTitle = dialog?.querySelector('[data-video-dialog-title]');
-  const closeButton = dialog?.querySelector('[data-video-dialog-close]');
-
-  let dialogInfo = dialog?.querySelector('.rv-dialog-info');
-  let dialogKicker = dialogInfo?.querySelector('.rv-dialog-kicker');
-  let dialogInfoTitle = dialogInfo?.querySelector('.rv-dialog-title');
-  let dialogDescription = dialogInfo?.querySelector('.rv-dialog-description');
-
-  if (dialog && player && !dialogInfo) {
-    const body = document.createElement('div');
-    body.className = 'rv-dialog-body';
-    dialog.insertBefore(body, player);
-    body.append(player);
-
-    dialogInfo = document.createElement('aside');
-    dialogInfo.className = 'rv-dialog-info';
-    dialogInfo.innerHTML = '<p class="rv-dialog-kicker"></p><h2 class="rv-dialog-title"></h2><p class="rv-dialog-description"></p>';
-    body.append(dialogInfo);
-
-    dialogKicker = dialogInfo.querySelector('.rv-dialog-kicker');
-    dialogInfoTitle = dialogInfo.querySelector('.rv-dialog-title');
-    dialogDescription = dialogInfo.querySelector('.rv-dialog-description');
-  }
-
-  function loadThumbnails(shelf) {
-    for (const image of shelf.querySelectorAll('img[data-video-thumb]')) {
-      const fallback = image.dataset.videoThumb;
-      image.removeAttribute('data-video-thumb');
-      image.decoding = 'async';
-      image.addEventListener('error', () => { image.src = fallback; }, { once: true });
-      image.src = fallback.replace('/hqdefault.jpg', '/maxresdefault.jpg');
-    }
-  }
-  const setShelfOpen = (shelf, shouldOpen) => {
-    const toggle = shelf.querySelector('.rv-shelf-toggle');
-    const panel = shelf.querySelector('.rv-shelf-panel');
-    if (!toggle || !panel) return;
-
-    if (shouldOpen) loadThumbnails(shelf);
-    if (panel.hidden) panel.hidden = false;
-    toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
-    panel.classList.toggle('is-open', shouldOpen);
-    panel.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
-    if ('inert' in panel) panel.inert = !shouldOpen;
-  };
-
-  const openOnly = (target, updateHash = true) => {
-    shelves.forEach((shelf) => setShelfOpen(shelf, shelf === target));
-    if (target && updateHash && target.id) {
-      history.replaceState(null, '', `#${target.id}`);
-    }
-  };
-
-  shelves.forEach((shelf) => {
-    const toggle = shelf.querySelector('.rv-shelf-toggle');
-    const panel = shelf.querySelector('.rv-shelf-panel');
-    if (panel) panel.hidden = false;
-    for (const event of ['pointerenter', 'focus', 'pointerdown']) {
-      toggle?.addEventListener(event, () => loadThumbnails(shelf), { once: true, passive: true });
-    }
-
-    toggle?.addEventListener('click', () => {
-      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
-      if (isOpen) {
-        setShelfOpen(shelf, false);
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-      } else {
-        openOnly(shelf, true);
-      }
+const sections=[...document.querySelectorAll('.rv-carousels > [data-carousel-scope]')];
+if(sections.length){
+  const api=await siteReady;
+  const carousels=sections.map(section=>{
+    const {carouselScope:scope}=section.dataset;
+    const title=section.querySelector('.ds-section-head');
+    const flavor=section.querySelector('.rv-carousel-flavor');
+    const gallery=section.querySelector('.ds-gallery');
+    const label=title.textContent;
+    const heading=mountSectionHeading(title,section,gallery,{scope,label,lastItem:'.ds-panel:last-of-type'});
+    const carousel=mountProjectCarousel(gallery,{
+      orientationKey:scope+'Orientation',controlsLabel:'Browse '+label
     });
+    return {
+      update(config){
+        heading.update(config);
+        carousel.update(config);
+        const text=config[scope+'FlavorText'];
+        flavor.hidden=!config[scope+'FlavorEnabled']||!text.trim();
+        if(flavor.textContent!==text)flavor.textContent=text;
+        if(flavor.hidden)section.removeAttribute('aria-describedby');
+        else section.setAttribute('aria-describedby',flavor.id);
+        section.style.setProperty('--video-carousel-heading-gap',config[scope+'HeadingGap']+'px');
+      },
+      destroy(){heading.destroy();carousel.destroy();}
+    };
+  });
+  const unregister=api.register({update(config){carousels.forEach(carousel=>carousel.update(config));}});
+  addEventListener('pagehide',event=>{
+    if(event.persisted)return;
+    unregister();
+    carousels.forEach(carousel=>carousel.destroy());
   });
 
-  const requestedShelf = window.location.hash
-    ? document.getElementById(window.location.hash.slice(1))
-    : null;
-  openOnly(requestedShelf?.classList.contains('rv-shelf') ? requestedShelf : null, false);
-
-  window.addEventListener('hashchange', () => {
-    const shelf = document.getElementById(window.location.hash.slice(1));
-    if (shelf?.classList.contains('rv-shelf')) {
-      openOnly(shelf, false);
-      shelf.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  });
-
-  const resetPlayer = () => {
-    if (frame) frame.src = '';
-  };
-
-  videoCards.forEach(card=>{if(!card.dataset.videoDescription)card.dataset.videoDescription=descriptions[card.dataset.youtubeId]||'';});
-  const openVideoCard = card => {if(!card)return false;import('/assets/project-views.js?v=20261119-tunefind1').then(module=>{module.installProjectViews();module.openProject(card);});return true;};
-
-  videoCards.forEach((card) => {
-    card.addEventListener('click', (event) => {
-      if (!dialog || !frame || typeof dialog.showModal !== 'function') return;
-      event.preventDefault();
-      openVideoCard(card);
-    });
-  });
-
-  const requestedVideoId = new URLSearchParams(window.location.search).get('play');
-  if (requestedVideoId) {
-    const requestedCard = videoCards.find((card) => card.getAttribute('data-youtube-id') === requestedVideoId);
-    if (requestedCard) {
-      const containingShelf = requestedCard.closest('.rv-shelf');
-      if (containingShelf) openOnly(containingShelf, false);
-      requestAnimationFrame(() => {
-        containingShelf?.scrollIntoView({ behavior: 'auto', block: 'start' });
-        requestAnimationFrame(() => openVideoCard(requestedCard));
-      });
-    }
+  installProjectViews();
+  const slug=location.hash.slice(1);
+  const category=sections.find(section=>section.id===slug);
+  const videoID=new URLSearchParams(location.search).get('play');
+  if(videoID&&!slug.startsWith('project-')){
+    const card=[...document.querySelectorAll('.rv-carousels [data-youtube-id]')]
+      .find(card=>card.dataset.youtubeId===videoID);
+    if(card)requestAnimationFrame(()=>openProject(card,{hash:false,reveal:true}));
+  }else if(category){
+    // A direct category link may have scrolled against the fallback layout
+    // before fonts and carousel dimensions were ready.
+    requestAnimationFrame(()=>category.scrollIntoView({block:'start',behavior:'instant'}));
   }
-
-  closeButton?.addEventListener('click', () => dialog?.close());
-
-  dialog?.addEventListener('click', (event) => {
-    if (event.target === dialog) dialog.close();
-  });
-
-  dialog?.addEventListener('close', resetPlayer);
-})();
-
+}

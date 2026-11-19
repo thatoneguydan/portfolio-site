@@ -148,33 +148,6 @@
   margin: 4px 0 18px;
 }
 
-.contact-redesign .portfolio-button {
-  min-height: 50px;
-  min-width: 150px;
-  padding: 0 22px;
-  border: 1px solid #111;
-  border-radius: 999px;
-  background: #111;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 160ms ease, color 160ms ease, opacity 160ms ease;
-}
-
-.contact-redesign .portfolio-button:hover,
-.contact-redesign .portfolio-button:focus-visible {
-  background: transparent;
-  color: #111;
-}
-
-.contact-redesign .portfolio-button:disabled {
-  cursor: wait;
-  opacity: .55;
-}
-
 .contact-redesign .form-status {
   min-height: 1.4em;
   margin: 14px 0 0;
@@ -210,10 +183,16 @@
 }
 
 @container(max-width:820px){.rc-contact{grid-template-columns:1fr}.rc-form-wrap{position:static}}
-html.contact-inline-embed {scrollbar-gutter:auto;overflow:hidden;min-height:0}
-.contact-inline-embed body,body.contact-inline-embed {min-height:0!important;overflow:hidden}
+html.contact-inline-embed {scrollbar-gutter:auto;overflow:hidden;min-height:0;background:transparent}
+.contact-inline-embed body,body.contact-inline-embed {min-height:0!important;overflow:hidden;background:transparent}
 .contact-inline-embed .site-main {width:100%!important;margin:0!important}
-.contact-inline-embed .rc-form-wrap {position:static}
+.contact-inline-embed .rc-contact {padding-block:0}
+.contact-inline-embed .rc-contact-copy {color:var(--contact-shelf-ink,#111)}
+.contact-inline-embed .rc-contact-copy :is(.rd-eyebrow,.rc-contact-lede,dt) {
+  color:color-mix(in srgb,var(--contact-shelf-ink,#111) 85%,var(--contact-shelf-background,#eaeae6));
+}
+.contact-inline-embed .rc-contact-details {border:0;padding-top:0}
+.contact-inline-embed .rc-form-wrap {position:static;background:color-mix(in srgb,var(--contact-shelf-background,#eaeae6) 18%,#fff)}
 
 @media (max-width: 500px) {
   .contact-redesign .site-main {
@@ -232,7 +211,7 @@ html.contact-inline-embed {scrollbar-gutter:auto;overflow:hidden;min-height:0}
     padding: 28px 22px;
   }
 
-  .contact-redesign .portfolio-button {
+  .contact-redesign .contact-form .rc-contact-submit {
     width: 100%;
   }
 }

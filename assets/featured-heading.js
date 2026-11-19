@@ -1,11 +1,11 @@
 import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261119-carousel1';
 import {appendEmojiText} from './site-emoji.js?v=20261118-perf1';
 
-function headingRange(config){
-  const words=[...config.featuredHeading.matchAll(/\S+/g)];
+function headingRange(config,scope){
+  const words=[...config[scope+'Heading'].matchAll(/\S+/g)];
   const last=Math.max(0,words.length-1);
-  const start=Math.min(last,Math.max(0,config.featuredRotateStart));
-  const end=Math.min(last,Math.max(start,config.featuredRotateEnd));
+  const start=Math.min(last,Math.max(0,config[scope+'RotateStart']));
+  const end=Math.min(last,Math.max(start,config[scope+'RotateEnd']));
   return {words,start,end};
 }
 
@@ -76,15 +76,15 @@ export function mountSectionHeading(heading,section,content,{scope,label,anchore
       if(!growth)applyScrollScale(1);
     }
     if(growth)scheduleGrowth();
-    const timing=scope==='featured'&&config.featuredRotateEnabled?{
-      rotateWords:config.featuredRotateWords,
+    const timing=config[scope+'RotateEnabled']?{
+      rotateWords:config[scope+'RotateWords'],
       rotateInterval:config.rotateInterval,
       rotateDuration:config.rotateDuration,
       rotateStagger:config.rotateStagger,
       rotateSplit:config.rotateSplit,
       rotateFrom:config.rotateFrom
     }:null;
-    const range=timing&&headingRange(config),entries=timing&&rotationWords(timing);
+    const range=timing&&headingRange(config,scope),entries=timing&&rotationWords(timing);
     const active=range?.words.length&&entries.length;
     const titleKey=JSON.stringify(active?[text,range.start,range.end,timing]:[text]);
     const size=config[scope+'HeadingSize'],weight=config[scope+'HeadingWeight'];
@@ -146,17 +146,21 @@ export function mountSectionHeading(heading,section,content,{scope,label,anchore
   }};
 }
 
-export function mountFeaturedRotationEditor(container,config,onChange){
+export function mountSectionRotationEditor(container,config,{scope,label,onChange}){
   container.innerHTML=`
-    <label>First word in range<select aria-label="Featured rotation first word"></select></label>
-    <label>Last word in range<select aria-label="Featured rotation last word"></select></label>
-    <label>Cycle through<input type="text" aria-label="Featured rotating words or phrases" maxlength="6000" spellcheck="false"></label>
+    <label>First word in range<select></select></label>
+    <label>Last word in range<select></select></label>
+    <label>Cycle through<input type="text" maxlength="6000" spellcheck="false"></label>
     <p class="ds-rotate-count"></p>`;
   const [first,last]=container.querySelectorAll('select');
   const entries=container.querySelector('input'),count=container.querySelector('p');
+  first.setAttribute('aria-label',label+' rotation first word');
+  last.setAttribute('aria-label',label+' rotation last word');
+  entries.setAttribute('aria-label',label+' rotating words or phrases');
+  const startKey=scope+'RotateStart',endKey=scope+'RotateEnd',wordsKey=scope+'RotateWords';
   let choicesKey='';
   function refresh(){
-    const {words,start,end}=headingRange(config);
+    const {words,start,end}=headingRange(config,scope);
     const key=JSON.stringify([words.map(word=>word[0]),start]);
     if(key!==choicesKey){
       const option=(word,i)=>new Option(`${i+1}. ${word[0]}`,String(i));
@@ -166,18 +170,18 @@ export function mountFeaturedRotationEditor(container,config,onChange){
     }
     first.value=String(start);
     last.value=String(end);
-    first.disabled=last.disabled=entries.disabled=!config.featuredRotateEnabled||!words.length;
+    first.disabled=last.disabled=entries.disabled=!config[scope+'RotateEnabled']||!words.length;
     if(document.activeElement!==entries){
-      entries.value=config.featuredRotateWords;
+      entries.value=config[wordsKey];
       entries.setCustomValidity('');
     }
-    count.textContent=rotationWords({rotateWords:config.featuredRotateWords}).length+' / 50 entries · separate words or phrases with commas';
+    count.textContent=rotationWords({rotateWords:config[wordsKey]}).length+' / 50 entries · separate words or phrases with commas';
   }
   first.addEventListener('change',()=>{
     const start=Number(first.value);
-    onChange({featuredRotateStart:start,featuredRotateEnd:Math.max(start,Number(last.value))});
+    onChange({[startKey]:start,[endKey]:Math.max(start,Number(last.value))});
   });
-  last.addEventListener('change',()=>onChange({featuredRotateEnd:Number(last.value)}));
-  entries.addEventListener('input',()=>entries.setCustomValidity(onChange({featuredRotateWords:entries.value})||''));
+  last.addEventListener('change',()=>onChange({[endKey]:Number(last.value)}));
+  entries.addEventListener('input',()=>entries.setCustomValidity(onChange({[wordsKey]:entries.value})||''));
   return refresh;
 }

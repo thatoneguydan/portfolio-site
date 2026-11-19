@@ -1,15 +1,41 @@
-.rc-inline-contact-shelf {width:100%;display:grid;grid-template-rows:0fr;overflow:hidden;overflow-anchor:none;border-top:1px solid transparent;border-bottom:1px solid transparent;background:#f5f5f2;opacity:0;transition:grid-template-rows 460ms cubic-bezier(.2,.72,.2,1),opacity 220ms ease,border-color 220ms ease,margin-top 460ms cubic-bezier(.2,.72,.2,1)}
-.rc-inline-contact-shelf.is-open {grid-template-rows:1fr;border-color:#1112;opacity:1}
+.rc-inline-contact-shelf {
+  width:100%;display:grid;grid-template-rows:0fr;overflow-anchor:none;opacity:0;
+  --contact-shelf-motion:460ms cubic-bezier(.2,.72,.2,1);
+  transition:grid-template-rows var(--contact-shelf-motion),opacity 220ms ease,margin-block var(--contact-shelf-motion);
+}
+.rc-inline-contact-shelf.is-open {
+  grid-template-rows:1fr;opacity:1;
+  margin-block:var(--contact-shelf-margin-before,24px) var(--contact-shelf-margin-after,35px);
+}
 .rd-footer-cta + .rc-inline-contact-shelf,
 .rd-footer-cta + .rc-inline-contact-shelf + .rc-inline-contact-error {width:var(--site-content-width);margin-inline:auto}
-.rc-inline-contact-shell {position:relative;min-height:0;overflow:hidden;background:#f5f5f2}
-.rc-inline-contact-close {position:absolute;z-index:5;top:16px;right:0;width:40px;height:40px;display:grid;place-items:center;padding:0;border:1px solid #111;border-radius:50%;background:#111;color:#fff;font:22px/1 Arial,sans-serif;cursor:pointer;transition:background 160ms ease,color 160ms ease}
-.rc-inline-contact-close:hover,.rc-inline-contact-close:focus-visible {background:#f5f5f2;color:#111}
-.rc-inline-contact-close:focus-visible {outline:2px solid #111;outline-offset:4px}
-.rc-inline-contact-frame {display:block;width:100%;border:0;background:#f5f5f2}
+.rc-inline-contact-clip {min-height:0;overflow:visible clip}
+.rc-inline-contact-shell {
+  position:relative;isolation:isolate;
+  --contact-shelf-rise:var(--contact-shelf-wave-height,3px);
+  padding-block:calc(var(--contact-shelf-rise) + var(--contact-shelf-padding-before,64px)) calc(var(--contact-shelf-rise) + var(--contact-shelf-padding-after,100px));
+}
+.rc-inline-contact-shell::before {
+  content:'';position:absolute;inset-block:0;left:var(--contact-shelf-surface-left,0px);
+  width:var(--contact-shelf-surface-width,100%);z-index:-1;pointer-events:none;
+  background:var(--contact-shelf-background,#eaeae6);
+  /* The two tiles use the footer's curve and join inside the mask's opaque middle. */
+  --contact-wave-length:var(--contact-shelf-wave-length,23px);
+  --contact-wave-tile:calc(2 * var(--contact-shelf-rise));
+  --contact-wave-join:calc(1.5 * var(--contact-shelf-rise));
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' preserveAspectRatio='none'%3E%3Cpath d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V200H0Z'/%3E%3C/svg%3E") center top / var(--contact-wave-length) var(--contact-wave-tile) repeat-x,
+    linear-gradient(transparent var(--contact-wave-join),#000 var(--contact-wave-join) calc(100% - var(--contact-wave-join)),transparent calc(100% - var(--contact-wave-join))),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' preserveAspectRatio='none'%3E%3Cpath transform='translate(0 200) scale(1 -1)' d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V200H0Z'/%3E%3C/svg%3E") center bottom / var(--contact-wave-length) var(--contact-wave-tile) repeat-x;
+}
+.rc-inline-contact-shell > .rc-inline-contact-close {
+  --project-close-bg:#111;--project-close-ink:#fff;
+  --project-close-hover-bg:#fff;--project-close-hover-ink:#111;
+  top:calc(var(--contact-shelf-rise) + 6px);right:0;width:38px;height:38px;
+}
+.rc-inline-contact-frame {display:block;width:100%;border:0;background:transparent}
 .rc-inline-contact-shelf:not(.is-loaded) .rc-inline-contact-frame {position:absolute;inset:0;visibility:hidden}
 .rc-inline-contact-shelf:not(.is-open) {pointer-events:none}
 a[aria-busy="true"][aria-controls^="contact-shelf-"] {cursor:progress}
 .rc-inline-contact-error {margin:16px 0;padding:16px;border:1px solid #1113;border-radius:12px;background:#f5f5f2;font-size:15px}
-#dan-landing-home .ds-hero + .rc-inline-contact-shelf.is-open {margin-top:24px}
 @media(prefers-reduced-motion:reduce){.rc-inline-contact-shelf {transition:none}}

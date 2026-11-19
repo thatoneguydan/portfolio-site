@@ -1,0 +1,241 @@
+/* Shared sticky navigation for the redesign. */
+.home-redesign .site-header {
+  position: sticky !important;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 2000;
+  background: #f5f5f2;
+}
+
+.site-nav-toggle {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .home-redesign .site-header.has-nav-toggle {
+    min-height: 72px;
+    height: 72px;
+    padding: 0;
+    gap: 0;
+    align-items: stretch;
+    overflow: visible;
+    border-bottom: var(--compact-nav-border) solid var(--compact-nav-rule);
+    isolation: isolate;
+  }
+
+  /* The source wordmark is one horizontal image: the DS mark occupies the
+     left square. Keep the image at desktop scale and crop the anchor to that
+     square so mobile shows the existing mark, not a recreated logo. */
+  .home-redesign .site-header.has-nav-toggle .site-logo {
+    position: relative;
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    border: 0;
+    overflow: hidden;
+    box-shadow: none;
+  }
+
+  .home-redesign .site-header .site-logo:is(:active, .is-nav-pressed) {
+    height: var(--compact-nav-height);
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-logo::before,
+  .home-redesign .site-header.has-nav-toggle .site-logo::after {
+    display: none;
+  }
+
+  .site-nav-toggle {
+    position: relative;
+    width: 56px;
+    min-width: 56px;
+    min-height: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    border-left: 1px solid rgba(0, 0, 0, .12);
+    background: transparent;
+    color: #111;
+    cursor: pointer;
+  }
+
+  .site-nav-toggle .ds-hamburger {position:relative;display:block;width:24px;height:24px;pointer-events:none}
+  .site-nav-toggle .ds-hamburger > span {position:absolute;top:50%;left:0;display:block;width:24px;height:2px;margin-top:-1px;border-radius:999px;background:currentColor;transform-origin:center;pointer-events:none}
+
+  .site-nav-toggle:is(:active, .is-nav-pressed),
+  .site-header.nav-open .site-nav-toggle {
+    background: #111;
+    color: #fff;
+  }
+
+  .site-nav-toggle:focus-visible,
+  .home-redesign .site-header .site-nav a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav {
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin: 0;
+    border: var(--compact-nav-border) solid var(--compact-nav-rule);
+    background: #f5f5f2;
+    overflow: hidden;
+    /* Clip only in the reveal direction. Leave the fractional device pixels
+       at each side to the menu's own border painter. */
+    clip-path: inset(0 -1px 100% -1px);
+    transition: opacity 150ms ease, clip-path 220ms ease, visibility 0s linear 220ms;
+  }
+
+  .home-redesign .site-header.has-nav-toggle.nav-open .site-nav {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    clip-path: inset(0 -1px 0 -1px);
+    transition: opacity 150ms ease, clip-path 220ms ease, visibility 0s;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a {
+    position: relative;
+    min-width: 0;
+    min-height: 66px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 52px 20px 48px;
+    border: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .12);
+    color: #111;
+    background: transparent;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: .06em;
+    overflow: hidden;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a:last-child {
+    border-bottom: 0;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a::before {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: #777;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a:nth-child(1)::before { content: '01'; }
+  .home-redesign .site-header.has-nav-toggle .site-nav a:nth-child(2)::before { content: '02'; }
+  .home-redesign .site-header.has-nav-toggle .site-nav a:nth-child(3)::before { content: '03'; }
+  .home-redesign .site-header.has-nav-toggle .site-nav a:nth-child(4)::before { content: '04'; }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a::after {
+    content: '↗';
+    position: absolute;
+    right: 18px;
+    bottom: 50%;
+    transform: translateY(50%);
+    color: #777;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a:is(:active, .is-nav-pressed, [aria-current='page']) {
+    background: #111;
+    color: #fff;
+  }
+
+  .home-redesign .site-header.has-nav-toggle .site-nav a:is(:active, .is-nav-pressed, [aria-current='page'])::before,
+  .home-redesign .site-header.has-nav-toggle .site-nav a:is(:active, .is-nav-pressed, [aria-current='page'])::after {
+    color: #fff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav-toggle span,
+  .home-redesign .site-header.has-nav-toggle .site-nav {
+    transition: none !important;
+  }
+}
+
+/* The centered label and bottom-anchored arrow follow the moving edge. */
+.ds-nav-label {display:flex;align-items:center;justify-content:center;transform-origin:center;line-height:inherit}
+.site-logo .ds-nav-label {flex:0 0 auto}
+@media(width > 720px){
+  .home-redesign .site-header {--nav-height:86px;height:var(--nav-height);min-height:var(--nav-height);padding:0;align-items:stretch}
+  .home-redesign .site-nav {height:var(--nav-height);align-self:flex-start;align-items:flex-start;overflow:visible}
+  .home-redesign .site-logo,.home-redesign .site-nav a {--nav-drop:0px;height:calc(var(--nav-height) + var(--nav-drop));min-height:0;align-self:flex-start;overflow:visible;transition:height 230ms cubic-bezier(.2,.75,.2,1),background 160ms ease,color 160ms ease}
+  .home-redesign .site-logo {transition-property:height}
+  .home-redesign .site-logo .ds-nav-label,.home-redesign .site-nav a .ds-nav-label {position:relative;z-index:1}
+  .home-redesign .site-logo::after,.home-redesign .site-nav a::after {bottom:7px;transform:none!important}
+  .home-redesign .site-header :is(.site-logo,.site-nav a):is(:hover,:focus-visible,[aria-current='page']) {
+    --nav-drop:6px;
+    background:#111;
+    color:#fff;
+    box-shadow:none;
+  }
+  .home-redesign .site-header :is(.site-logo,.site-nav a):is(:hover,:focus-visible,[aria-current='page'])::before,
+  .home-redesign .site-header :is(.site-logo,.site-nav a):is(:hover,:focus-visible,[aria-current='page'])::after {color:#fff}
+  .home-redesign .site-header .site-logo:is(:hover,:focus-visible,[aria-current='page']) img {filter:invert(1)}
+
+  .home-redesign .site-header :is(.site-logo,.site-nav a):is(:active,.is-nav-pressed) {
+    --nav-drop:0px;
+  }
+
+  /* Budget the actual configured blur, spread and offset on every side. The
+     mask tapers into the header instead of cutting the blur at its base. */
+  .ds-nav-shadow {
+    --shadow-x: var(--nav-shadow-x, 0px);
+    --shadow-y: var(--nav-shadow-y, 8px);
+    --shadow-blur: var(--nav-shadow-blur, 14px);
+    --shadow-spread: var(--nav-shadow-spread, 0px);
+    --shadow-feather: max(8px, var(--shadow-blur));
+    --shadow-bleed: calc(2 * var(--shadow-blur) + max(0px, var(--shadow-spread)) + max(var(--shadow-feather), var(--shadow-x), -1 * var(--shadow-x), var(--shadow-y), -1 * var(--shadow-y)));
+    --nav-baseline: calc(var(--shadow-bleed) + var(--nav-height));
+    position: absolute;
+    inset: calc(-1 * var(--shadow-bleed));
+    z-index: -1;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, transparent calc(var(--nav-baseline) - var(--shadow-feather)), #000 var(--nav-baseline));
+    opacity: 0;
+    transition: opacity 200ms;
+  }
+
+  .ds-nav-shadow::before {
+    content: '';
+    position: absolute;
+    inset: var(--shadow-bleed);
+    box-shadow: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread) var(--nav-shadow-color, #1113);
+  }
+
+  .site-header a:is(:hover,:focus-visible,[aria-current='page']) > .ds-nav-shadow {
+    opacity:var(--nav-shadow-enabled,1);
+  }
+}
+@media(max-width:720px){.site-logo .ds-nav-label{width:48px;justify-content:flex-start;overflow:hidden}.site-nav .ds-nav-label{justify-content:flex-start}}
+@media(prefers-reduced-motion:reduce){.home-redesign .site-logo,.home-redesign .site-nav a,.ds-nav-shadow{transition:none!important}}
+
+@media(max-width:720px){
+  .ds-nav-shadow{display:none}
+  .home-redesign .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: #f5f5f2;
+    border-inline: var(--compact-nav-border) solid var(--compact-nav-rule);
+    border-bottom: var(--compact-nav-border) solid var(--compact-nav-rule);
+    pointer-events: none;
+  }
+  .home-redesign .site-header .site-logo,.home-redesign .site-header .site-nav-toggle{position:relative;z-index:3}
+}

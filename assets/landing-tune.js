@@ -1,6 +1,6 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261119-carousel1';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261119-tunefind1';
-import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261119-carousel1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey,videoCarouselCategories} from './landing-schema.js?v=20261119-shared-carousel1';
+import {mountSectionRotationEditor} from './featured-heading.js?v=20261119-shared-carousel1';
 import {mountTuneSearch} from '/owner/tune-search.js?v=20261119-tunefind1';
 import {mountTunePublish} from '/owner/tune-publish.js?v=20261119-publish2';
 export function mountTune(api){
@@ -27,12 +27,21 @@ export function mountTune(api){
         <p class="ds-rotate-count"></p><div data-controls="${rotate}"></div>
       </details></details>`;
   }
-  function sectionHeadingEditor(scope,label){
+  function sectionHeadingEditor(scope,label,hasRotation=false){
     return `<details><summary>Section heading</summary>
         <div class="ds-edit-fields"><label>Heading text<input name="${scope}Heading" type="text" aria-label="${label} heading text"></label></div>
         <div data-controls="${scope}Heading"></div>
-        ${scope==='featured'?'<details><summary>Rotating text</summary><div data-controls="featuredRotation"></div><div data-featured-rotation-editor></div></details>':''}
+        ${hasRotation?`<details><summary>Rotating text</summary><div data-controls="${scope}Rotation"></div><div data-section-rotation-editor="${scope}"></div></details>`:''}
       </details>`;
+  }
+  function videoCategoryEditor({scope,label}){
+    return `<details><summary>${label}</summary>
+      <div data-controls="${scope}Orientation"></div>
+      ${sectionHeadingEditor(scope,label,true)}
+      <details><summary>Flavor text</summary><div data-controls="${scope}Flavor"></div>
+        <div class="ds-edit-fields"><label>Flavor text<textarea name="${scope}FlavorText" aria-label="${label} flavor text"></textarea></label></div>
+      </details>
+    </details>`;
   }
   ownerPortal.innerHTML=`<button class="ds-config-launch" type="button" aria-label="Tune staging. Drag to move." aria-expanded="false" aria-controls="dan-demo-config"><span class="ds-config-grip" aria-hidden="true">⠿</span><span>Tune</span></button>
   <aside class="ds-config" id="dan-demo-config" aria-label="Staging controls" hidden>
@@ -79,11 +88,19 @@ export function mountTune(api){
         <details><summary>Idle tilt</summary><div data-controls="badgeIdle"></div></details>
       </details>
     </details>
-    <details><summary>Featured work</summary>
-      <details><summary>Placement below the hero</summary>${selectControls('heroLayout','heroFeaturedSpacing','heroFeaturedBelowFold','heroFeaturedAnchorOffset')}</details>
-      ${sectionHeadingEditor('featured','Featured work')}
-      <details><summary>Horizontal gallery</summary><div data-controls="gallery"></div></details>
-      <details><summary>Vertical gallery</summary><div data-controls="galleryVertical"></div></details>
+    <details><summary>Carousels</summary>
+      <details><summary>Featured work</summary>
+        <div data-controls="featuredOrientation"></div>
+        ${sectionHeadingEditor('featured','Featured work',true)}
+        <details><summary>Placement below the hero</summary>${selectControls('heroLayout','heroFeaturedSpacing','heroFeaturedBelowFold','heroFeaturedAnchorOffset')}</details>
+      </details>
+      <details><summary>Video categories</summary>${videoCarouselCategories.map(videoCategoryEditor).join('')}</details>
+      <details><summary>Shared carousel layouts</summary>
+        <details><summary>Landscape · Desktop horizontal</summary><div data-controls="gallery"></div></details>
+        <details><summary>Landscape · Mobile vertical</summary><div data-controls="galleryVertical"></div></details>
+        <details><summary>Portrait · Desktop horizontal</summary><div data-controls="portraitGallery"></div></details>
+        <details><summary>Portrait · Mobile vertical</summary><div data-controls="portraitGalleryVertical"></div></details>
+      </details>
     </details>
     <details><summary>Section cards</summary>
       ${sectionHeadingEditor('workSection','Section cards')}
@@ -115,6 +132,7 @@ export function mountTune(api){
     </details>
     <details><summary>Shared site elements</summary>
       <details><summary>Navigation</summary><div data-controls="navShadow"></div></details>
+      <details><summary>Inline contact form</summary><div data-controls="contactShelf"></div></details>
       <details><summary>Footer</summary>
         <div class="ds-edit-fields"><label>Heading text<input name="footerHeadingText" type="text" aria-label="Footer heading text"></label></div>
         <p class="ds-control-help">“Great” cycles through the Home headline’s rotating words.</p>
@@ -127,7 +145,7 @@ export function mountTune(api){
     </details>
     <details><summary>Settings &amp; previews</summary>
       <details><summary>Copy / paste settings</summary><label>Settings<textarea aria-label="Settings JSON" class="ds-config-json" spellcheck="false"></textarea></label><div class="ds-config-buttons"><button type="button" data-export>Copy settings</button><button type="button" data-import>Apply settings</button></div></details>
-      <details><summary>Saved versions</summary><a class="ds-saved-version" href="/owner/site-before-performance/" target="_blank" rel="noopener">Full site before the performance pass <span aria-hidden="true">↗</span></a><a class="ds-saved-version" href="/owner/landing-before-hierarchy/" target="_blank" rel="noopener">Previous landing page <span aria-hidden="true">↗</span></a></details>
+      <details><summary>Saved versions</summary><a class="ds-saved-version" href="/owner/video-before-carousels/" target="_blank" rel="noopener">Previous Video shelves <span aria-hidden="true">↗</span></a><a class="ds-saved-version" href="/owner/site-before-performance/" target="_blank" rel="noopener">Full site before the performance pass <span aria-hidden="true">↗</span></a><a class="ds-saved-version" href="/owner/landing-before-hierarchy/" target="_blank" rel="noopener">Previous landing page <span aria-hidden="true">↗</span></a></details>
       <details><summary>Design demos</summary><p class="ds-control-help">Try alternate navigation treatments on a separate page.</p><a class="ds-saved-version" href="/owner/nav-lab/" target="_blank" rel="noopener">Navigation lab <span aria-hidden="true">↗</span></a></details>
     </details>
     <div class="ds-config-buttons"><button type="button" data-save>Save staging settings</button><button type="button" data-reset>Restore starting settings</button></div><p class="ds-config-status" role="status"></p>
@@ -138,16 +156,19 @@ export function mountTune(api){
   let saveTimer=0,pending=null,saveRequest=null,lastSaved=JSON.stringify(config),lastQueued=lastSaved;
   const status=configPanel.querySelector('.ds-config-status');
   const search=mountTuneSearch(configPanel,schedulePlacement);
-  const refreshFeaturedRotation=mountFeaturedRotationEditor(configPanel.querySelector('[data-featured-rotation-editor]'),config,changes=>{
+  const applySectionRotation=changes=>{
     try{Object.assign(config,normalizeSettings(changes,config));render();persist();return '';}
     catch(error){status.textContent=error.message;return error.message;}
-  });
+  };
+  const sectionRotationEditors=[{scope:'featured',label:'Featured'},...videoCarouselCategories].map(({scope,label})=>
+    mountSectionRotationEditor(configPanel.querySelector(`[data-section-rotation-editor="${scope}"]`),config,{scope,label,onChange:applySectionRotation}));
+  const refreshSectionRotations=()=>sectionRotationEditors.forEach(refresh=>refresh());
   const colorKeys=Object.values(controlGroups).flat().filter(field=>field[0]==='color').map(field=>field[1]);
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
   const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const replay=()=>api.replay();
   function render(){
-    api.applyConfig(config);updateTextEditors();updateEntranceLabel();refreshFeaturedRotation();
+    api.applyConfig(config);updateTextEditors();updateEntranceLabel();refreshSectionRotations();
     configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>{if(document.activeElement!==input)input.value=config[input.name];});
     search.refresh();
   }
@@ -205,11 +226,16 @@ export function mountTune(api){
     output.textContent=n===0?'Before line 1':n===config.lineCount+1?'After last line':Number.isInteger(n)?'With line '+n:n<1?'Before line 1':n>config.lineCount?'During line '+config.lineCount:`Between lines ${Math.floor(n)}–${Math.ceil(n)}`;
   }
   function optionDisabled(key) {
+    if(key==='contactShelfWaveLength'||key==='contactShelfWaveHeight')return !config.contactShelfWaveEnabled;
     if(key==='footerWaveLength'||key==='footerWaveHeight')return !config.footerWaveEnabled;
     if(key==='workSectionWaveLength'||key==='workSectionWaveHeight')return !config.workSectionWaveEnabled;
     if(key==='heroFeaturedAnchorOffset')return !config.heroFeaturedBelowFold;
     if(key==='galleryHeight')return config.galleryAdaptive;
     if(key==='verticalGalleryHeight')return config.verticalGalleryAdaptive;
+    if(key==='portraitGalleryHeight')return config.portraitGalleryAdaptive;
+    if(key==='portraitGalleryAspect')return !config.portraitGalleryAdaptive;
+    if(key==='portraitVerticalGalleryHeight')return config.portraitVerticalGalleryAdaptive;
+    if(key==='portraitVerticalGalleryAspect')return !config.portraitVerticalGalleryAdaptive;
     if(key==='badgeLinkNavBreakpoint')return !config.ticketResponsive;
     if(key==='badgeBreakpoint')return !config.ticketResponsive||config.badgeLinkNavBreakpoint;
     if(key.startsWith('badgeEntrance')&&key!=='badgeEntrance')return !config.badgeEntrance;
@@ -253,7 +279,7 @@ export function mountTune(api){
     }).join('');
     }
     configPanel.querySelectorAll('[data-range-step]').forEach(slider=>syncNumber(slider,config[slider.dataset.option]));
-    updateTextEditors();updateEntranceLabel();refreshFeaturedRotation();search.refresh();schedulePlacement();
+    updateTextEditors();updateEntranceLabel();refreshSectionRotations();search.refresh();schedulePlacement();
   }
 
   function syncNumber(slider,value,keepDraft=false){
