@@ -40,6 +40,7 @@
 }
 
 .rd-footer-cta h2 {
+  width: 100%;
   max-width: 1200px;
   margin: 0;
   color: #fff;
@@ -49,6 +50,21 @@
   letter-spacing: -.055em;
   text-align: center;
   text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+/* The hidden entries reserve the widest phrase at the actual line width. The
+   footer and its button keep the same geometry as each new word animates. */
+.rd-footer-cta .ds-footer-phrase {
+  max-inline-size: 100%;
+  grid-template-columns: minmax(0, 1fr);
+  white-space: normal;
+}
+
+.rd-footer-cta .ds-footer-phrase :is(.ds-rotate-measure, .ds-rotate-entry, .ds-rotate-word, .ds-rotate-piece) {
+  max-inline-size: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .rd-footer-cta .rd-footer-cta-button,

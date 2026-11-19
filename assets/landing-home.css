@@ -341,8 +341,10 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 }
 .ds-ticket-carrier {position:relative;flex:none;transform-origin:50% 50%}
 .ds-ticket-carrier.is-portaled {position:fixed;z-index:2}
-.ds-ticket-idle {position:absolute;inset:0;transform-style:preserve-3d}
-:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-carrier .ds-ticket {position:absolute;left:50%;top:50%;min-height:0;min-width:0;transform-origin:50% 50%;cursor:pointer;touch-action:pan-y}
+/* Move the frame and its shadow on one unclipped compositing plane. Only
+   the inner surface clips the artwork, and the frame owns the size tween. */
+.ds-ticket-motion {position:absolute;inset:0;will-change:transform;pointer-events:none}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-carrier .ds-ticket {position:absolute;left:50%;top:50%;min-height:0;min-width:0;transform:translate(-50%,-50%);transform-style:flat;will-change:auto;overflow:visible;cursor:pointer;touch-action:pan-y}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-copy {transition:opacity 180ms ease}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket.is-compact .ds-ticket-copy {opacity:0;visibility:hidden;pointer-events:none;padding:0!important}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket.is-compact .ds-ticket-body {min-height:0}
@@ -369,10 +371,10 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 #dan-badge-dialog .ds-ticket.is-dragging {cursor:grabbing}
 .ds-badge-close {position:fixed;top:20px;right:24px;z-index:3;opacity:0;transform:translateY(-5px);pointer-events:none;transition:opacity 220ms ease,transform 220ms ease,color 150ms}
 #dan-badge-dialog.is-open .ds-badge-close {opacity:1;transform:translateY(0);pointer-events:auto}
-@media(prefers-reduced-motion:reduce){#dan-badge-dialog::backdrop {transition:none}.ds-ticket-idle {animation:none!important}}
+@media(prefers-reduced-motion:reduce){#dan-badge-dialog::backdrop {transition:none}.ds-ticket-motion {animation:none!important}}
 
 /* A clipped content surface inside an overlapping, unclipped frame. */
-:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket {display:block;overflow:hidden;pointer-events:none;cursor:inherit}
+:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket {display:block;pointer-events:none;cursor:inherit}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-surface {position:absolute;inset:0;display:grid;overflow:hidden;isolation:isolate;border-radius:inherit;background:var(--ticket-bg)}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-body {min-height:0}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket::after {content:none}
@@ -381,7 +383,6 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-headshot {border:0;outline:0;box-shadow:none;border-radius:0;backface-visibility:hidden}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-photo-scrim {inset:-1px;z-index:1}
 .ds-ticket-carrier {isolation:isolate}
-.ds-ticket-idle {pointer-events:none}
 /* Text stays in its final layout. Only the containing planes move and scale. */
 :is(#dan-landing-home,#dan-badge-dialog) .ds-ticket-footer,:is(#dan-landing-home,#dan-badge-dialog) .ds-ticket.is-compact .ds-ticket-footer {inset:0;display:block;padding:0;transform:none}
 :is(#dan-landing-home,#dan-badge-dialog) .ds-name-layout {position:absolute;left:0;top:0;width:max-content;transform-origin:0 0;will-change:transform}

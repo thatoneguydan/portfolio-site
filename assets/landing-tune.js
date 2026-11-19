@@ -1,5 +1,5 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261118-hero3';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-idanchor1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261118-footershadow1';
 import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261118-idanchor1';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
@@ -85,7 +85,11 @@ export function mountTune(api){
     <details><summary>Bottom-edge blur</summary><div data-controls="pageBlur"></div></details>
     <details><summary>Image lightbox</summary><div data-controls="lightbox"></div></details>
     <details><summary>Navigation</summary><div data-controls="navShadow"></div></details>
-    <details><summary>Footer</summary><div data-controls="footer"></div><div class="ds-config-buttons"><button type="button" data-reset-footer>Restore original footer</button></div></details>
+    <details><summary>Footer</summary>
+      <div class="ds-edit-fields"><label>Heading text<input name="footerHeadingText" type="text" aria-label="Footer heading text"></label></div>
+      <p class="ds-control-help">“Great” cycles through the Home headline’s rotating words.</p>
+      <div data-controls="footer"></div><div class="ds-config-buttons"><button type="button" data-reset-footer>Restore original footer</button></div>
+    </details>
     <details><summary>Design demos</summary><p class="ds-control-help">Try alternate navigation treatments on a separate page.</p><a class="ds-saved-version" href="/owner/nav-lab/" target="_blank" rel="noopener">Navigation lab <span aria-hidden="true">↗</span></a></details>
     <details><summary>Saved versions</summary><a class="ds-saved-version" href="/owner/site-before-performance/" target="_blank" rel="noopener">Full site before the performance pass <span aria-hidden="true">↗</span></a><a class="ds-saved-version" href="/owner/landing-before-hierarchy/" target="_blank" rel="noopener">Previous landing page <span aria-hidden="true">↗</span></a></details>
     <details><summary>Copy / paste settings</summary><label>Settings<textarea aria-label="Settings JSON" class="ds-config-json" spellcheck="false"></textarea></label><div class="ds-config-buttons"><button type="button" data-export>Copy settings</button><button type="button" data-import>Apply settings</button></div></details>
@@ -324,6 +328,7 @@ export function mountTune(api){
   configPanel.querySelector('[data-import]').addEventListener('click',()=>{try{const value=JSON.parse(configPanel.querySelector('.ds-config-json').value);if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Paste a settings object.');Object.assign(config,normalizeSettings(value,config));render();renderControls();replay();persist();configPanel.querySelector('.ds-config-status').textContent='Settings applied.';}catch(error){configPanel.querySelector('.ds-config-status').textContent=error.message;}});
   configPanel.querySelector('[data-reset]').addEventListener('click',()=>{Object.assign(config,baseline);render();renderControls();replay();persist();configPanel.querySelector('.ds-config-status').textContent='Your starting settings restored.';});
   configPanel.querySelector('[data-reset-footer]').addEventListener('click',()=>{
+    config.footerHeadingText=api.defaults.footerHeadingText;
     for(const [,key] of controlGroups.footer)config[key]=api.defaults[key];
     render();renderControls();persist();
   });

@@ -103,6 +103,7 @@ export const defaults = {
   "navShadowBlur": 14,
   "navShadowSpread": 0,
   "footerHeight": 100,
+  "footerHeadingText": "Ready to make something great?",
   "footerHeadingScale": 100,
   "footerHeadingWeight": 700,
   "footerButtonScale": 100,

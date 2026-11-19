@@ -8,11 +8,11 @@
     if(link.sheet)return Promise.resolve();
     return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261118-featured1'),style('/assets/redesign-footer-contact.css?v=20261118-sectioncards1')]);
-  const runtime=import('/assets/site-runtime.js?v=20261118-idanchor1').then(module=>module.siteReady);
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261118-featured1'),style('/assets/redesign-footer-contact.css?v=20261118-footershadow1')]);
+  const runtime=import('/assets/site-runtime.js?v=20261118-footershadow1').then(module=>module.siteReady);
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let active=null,sequence=0;
-  const footerMarkup='<div class="rd-footer-cta-inner"><div class="rd-footer-cta-row"><h2>Have something in mind?</h2><a class="rd-footer-cta-button" href="/contact">Let\'s make it <span aria-hidden="true">↗</span></a></div></div>';
+  let active=null,sequence=0,footerHeading;
+  const footerMarkup='<div class="rd-footer-cta-inner"><div class="rd-footer-cta-row"><h2>Ready to make something great?</h2><a class="rd-footer-cta-button" href="/contact">Let\'s make it <span aria-hidden="true">↗</span></a></div></div>';
   function footers(root){
     const found=[...(root.matches?.('.rd-footer-cta')?[root]:[]),...(root.querySelectorAll?.('.rd-footer-cta')||[])];
     for(const footer of found){
@@ -20,7 +20,12 @@
       const main=footer.parentElement;
       if(main?.matches('.portfolio-page-content > .site-main'))main.after(footer);
       if(footer.dataset.sharedContactFooter==='true')continue;
-      footer.dataset.sharedContactFooter='true';footer.innerHTML=footerMarkup;
+      footer.dataset.sharedContactFooter='true';
+      if(!footer.querySelector('.rd-footer-cta-row h2'))footer.innerHTML=footerMarkup;
+      footerHeading??=import('/assets/footer-heading.js?v=20261118-footershadow1');
+      Promise.all([runtime,footerHeading]).then(([api,{mountFooterHeading}])=>{
+        if(footer.isConnected)api.register(mountFooterHeading(footer.querySelector('h2')));
+      }).catch(()=>{});
     }
   }
   footers(document);new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1)footers(node);}).observe(document.body,{childList:true,subtree:true});

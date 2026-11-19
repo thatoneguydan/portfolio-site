@@ -15,7 +15,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
   const badgeNameInk=document.createElement('span');badgeNameInk.className='ds-name-ink';badgeNameLayout.append(badgeNameInk);name.append(badgeNameLayout);
   const copyLayout=document.createElement('div');copyLayout.className='ds-copy-layout';copyLayout.append(...copy.children);copy.append(copyLayout);
   const carrier=document.createElement('div');carrier.className='ds-ticket-carrier';ticketStage.append(carrier);
-  const idleLayer=document.createElement('div');idleLayer.className='ds-ticket-idle';carrier.append(idleLayer);idleLayer.append(ticket);
+  const motionLayer=document.createElement('div');motionLayer.className='ds-ticket-motion';carrier.append(motionLayer);motionLayer.append(ticket);
   const surface=document.createElement('div');surface.className='ds-ticket-surface';surface.append(...ticket.children);ticket.append(surface);
   // Keep hit testing in an untransformed plane. The painted card can tilt freely.
   const activation=document.createElement('button');activation.type='button';activation.className='ds-badge-activate';
@@ -81,7 +81,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     }
     paintedPose=pose;
     const {rotation,x,y,parallaxScale,offsetX}=pose;
-    ticket.style.transform=`translate(-50%,-50%) translateX(${offsetX}px) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${x}deg) rotateY(${y}deg) scale(${scale})`;
+    motionLayer.style.transform=`translateX(${offsetX}px) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${x}deg) rotateY(${y}deg) scale(${scale})`;
     const parallax=config.ticketParallax*parallaxScale;
     const depth=config.ticketTiltMax>0?parallax/config.ticketTiltMax:0;
     const px=clamp(-y*depth,-parallax,parallax),py=clamp(x*depth,-parallax,parallax);
