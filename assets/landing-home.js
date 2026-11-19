@@ -1,11 +1,11 @@
-import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-cardedge1';
-import {createBadge} from './landing-badge.js?v=20261118-tune2';
+import {defaults,normalizeSettings} from './landing-schema.js?v=20261118-workheading1';
+import {createBadge} from './landing-badge.js?v=20261118-workheading1';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-hero3';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-worklinks2';
-import {siteReady} from './site-runtime.js?v=20261118-cardedge1';
-import {revealFrames,revealOffset} from './headline-view.js?v=20261118-cardedge1';
-import {mountFeaturedHeading} from './featured-heading.js?v=20261118-featured4';
+import {siteReady} from './site-runtime.js?v=20261118-workheading1';
+import {revealFrames,revealOffset} from './headline-view.js?v=20261118-workheading1';
+import {mountSectionHeading} from './featured-heading.js?v=20261118-workheading1';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {
   'use strict';
@@ -13,9 +13,13 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
   const api=await siteReady,config=api.getConfig();
   const featured=root.querySelector('#featured-work');
   const featuredHeading=featured.querySelector('#featured-heading');
-  const featuredTitle=mountFeaturedHeading(featuredHeading,featured);
+  const featuredTitle=mountSectionHeading(featuredHeading,featured,featured.querySelector('.ds-gallery'),{scope:'featured',label:'Featured work'});
   const workDescriptions=root.querySelectorAll('[data-work-description]');
   const workLinks=root.querySelector('.ds-work-links');
+  const workHeading=root.querySelector('#work-section-heading');
+  const workTitle=workHeading&&mountSectionHeading(workHeading,workHeading.parentElement,workLinks,{
+    scope:'workSection',label:'Explore work',anchored:true
+  });
   if(workLinks){
     let pressedWorkCard=null,workPointer=null;
     function releaseWorkCard(event){
@@ -240,6 +244,7 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
   function render(){
     applyHeroLayout();
     featuredTitle.update(config);
+    workTitle?.update(config);
     measureFeaturedHeading();
     for(const description of workDescriptions){
       const text=config[description.dataset.workDescription];
@@ -320,7 +325,7 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
   };
   addEventListener('resize',resize);
   new ResizeObserver(()=>{if(root.clientWidth!==lastRootWidth)resize();}).observe(root);
-  addEventListener('pagehide',event=>{if(event.persisted)return;headerObserver.disconnect();featuredHeadingObserver.disconnect();badge.destroy();featuredTitle.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
+  addEventListener('pagehide',event=>{if(event.persisted)return;headerObserver.disconnect();featuredHeadingObserver.disconnect();badge.destroy();featuredTitle.destroy();workTitle?.destroy();rotator?.destroy();currentAnimations.forEach(a=>a.cancel());});
   window.portfolioLanding=api;
   api.register({update(next){Object.assign(config,next);render();},replay});
   const restored=panels.findIndex(panel=>panel.classList.contains('is-active'));

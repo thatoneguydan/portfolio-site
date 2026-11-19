@@ -188,6 +188,17 @@ export const defaults = {
   "workVideoDescription": "Short edits, longer stories, and all the cuts in between.",
   "workDesignDescription": "Logos, layouts, and print that make ideas easier to see.",
   "workPhotoDescription": "Portraits, places, and the details worth a closer look.",
+  "workSectionHeading": "▾ Explore even more of my work ▾",
+  "workSectionHeadingSize": 20,
+  "workSectionHeadingWeight": 430,
+  "workSectionHeadingGap": 10,
+  "workSectionHeadingScrollGrowth": 60,
+  "workSectionHeadingAlign": "center",
+  "workSectionHeadingAnchor": "bottom",
+  "workSectionRotateEnabled": true,
+  "workSectionRotateStart": 2,
+  "workSectionRotateEnd": 3,
+  "workSectionRotateWords": "even more, a bit more, another side",
   "workSectionBackground": "#f5f5f2",
   "workSectionWaveEnabled": false,
   "workSectionWaveLength": 320,
@@ -241,6 +252,7 @@ export const defaults = {
   "badgeCompactScale": 1,
   "badgeCompactTextRatio": 1,
   "badgeHoverScale": 1.04,
+  "ticketFullHoverGrowth": 30,
   "badgeMorphDuration": 520,
   "badgeBackdropBlur": 10,
   "ticketVerticalOffset": 0,
@@ -321,7 +333,8 @@ export const controlGroups = {
       ['range','ticketRotation','Rotate',-20,20,1,'°'], ['check','ticketTilt','Tilt'],
       ['range','ticketTiltMax','Tilt max',0,24,1,'°'], ['range','ticketTiltReach','Tilt reach',0,700,20,'px'],
       ['range','ticketParallax','Parallax',0,32,1,'px'], ['range','ticketPerspective','Perspective',400,2400,50,'px'],
-      ['range','badgeHoverScale','Hover scale',1,1.12,.01,'×'],
+      ['range','ticketFullHoverGrowth','Full ID hover growth',0,60,1,'%'],
+      ['range','badgeHoverScale','Badge and expanded ID hover scale',1,1.12,.01,'×'],
       ['range','badgeScrollTilt','Scroll tilt',0,36,1,'°']
     ],
     ticketAppearance: [
@@ -406,7 +419,7 @@ export const controlGroups = {
       ['range','workSectionWaveLength','Section wave length',16,4000,1,'px'],
       ['range','workSectionWaveHeight','Section wave height',0,1000,1,'px'],
       ['range','workSectionMarginBefore','Margin before cards',0,500,1,'%'],
-      ['range','workSectionPaddingBeforePercent','Padding before cards',0,1000,1,'%'],
+      ['range','workSectionPaddingBeforePercent','Padding before cards',0,1500,1,'%'],
       ['range','workSectionPaddingAfter','Padding after cards',0,500,1,'%']
     ],
     workCardBackgrounds: [
@@ -543,6 +556,12 @@ export function footerProperties(config) {
   };
 }
 
+controlGroups.workSectionHeading=controlGroups.featuredHeading.map(([type,key,label,...limits])=>[
+  type,key.replace('featured','workSection'),key==='featuredHeadingGap'?'Space before section cards':label,...limits
+]);
+controlGroups.workSectionHeading.push(['select','workSectionHeadingAnchor','Growth anchor',['top','bottom']]);
+controlGroups.workSectionRotation=[['check','workSectionRotateEnabled','Cycle words or phrases']];
+
 export function workSectionProperties(config) {
   return {
     '--work-section-background': config.workSectionBackground,
@@ -579,9 +598,9 @@ export function normalizeSettings(input, base = defaults) {
   if(Object.hasOwn(input,'workSectionPaddingBefore')){
     const {workSectionPaddingBefore,...current}=input;
     if(!Number.isFinite(workSectionPaddingBefore))throw new Error('Invalid number: workSectionPaddingBefore');
-    // At the 1000px reference width, the responsive spacing base is 70px.
+    // At the 1000px reference width, the shared side gutter is 40px.
     if(!Object.hasOwn(current,'workSectionPaddingBeforePercent')){
-      current.workSectionPaddingBeforePercent=Math.round(Math.min(600,Math.max(0,workSectionPaddingBefore))*10000/70)/100;
+      current.workSectionPaddingBeforePercent=Math.min(600,Math.max(0,workSectionPaddingBefore))*100/40;
     }
     input=current;
   }
@@ -589,6 +608,9 @@ export function normalizeSettings(input, base = defaults) {
   const colors=Object.values(controlGroups).flat().filter(field=>field[0]==='color').map(field=>field[1]);
   // Old saved settings keep their vertical appearance when first upgraded.
   const inherited={verticalGalleryHeight:['galleryHeight',v=>Math.min(360,v)],verticalGalleryGap:['galleryGap'],verticalGalleryRadius:['galleryRadius'],verticalGalleryDuration:['galleryDuration'],verticalGalleryGrayscale:['grayscale']};
+  for(const suffix of ['HeadingSize','HeadingWeight','HeadingGap','HeadingScrollGrowth','HeadingAlign','RotateEnabled']){
+    inherited['workSection'+suffix]=['featured'+suffix];
+  }
   for(const [key,[source,convert]] of Object.entries(inherited))if(!(key in input)&&!(key in base&&base!==defaults)&&source in input)result[key]=convert?convert(input[source]):input[source];
   for(const [key,value] of Object.entries(input)) {
     if(!(key in defaults)) throw new Error('Unknown setting: '+key);
@@ -603,7 +625,7 @@ export function normalizeSettings(input, base = defaults) {
     if(type==='select'&&!min.some(v=>(Array.isArray(v)?v[0]:v)===result[key]))throw new Error('Invalid choice: '+key);
   }
   result.activeIndex=Math.max(0,Math.min(4,Math.round(result.activeIndex)));
-  const rotationEntries=['featuredRotateWords'];
+  const rotationEntries=['featuredRotateWords','workSectionRotateWords'];
   for(const scope of ['',...headlineScopes]){
     result[scopedKey(scope,'lineCount')]=Math.round(result[scopedKey(scope,'lineCount')]);
     if(!/^[1-6]:\d{1,3}$/.test(result[scopedKey(scope,'rotateTarget')]))throw new Error('Choose a valid rotating word.');
@@ -614,10 +636,11 @@ export function normalizeSettings(input, base = defaults) {
     if(entries.length>50)throw new Error('Use up to 50 comma-separated words or phrases.');
     if(entries.some(s=>s.length>100))throw new Error('Keep each rotating entry within 100 characters.');
   }
-  for(const key of ['featuredRotateStart','featuredRotateEnd']){
-    result[key]=Math.max(0,Math.min(1999,Math.round(result[key])));
+  for(const scope of ['featured','workSection']){
+    const start=scope+'RotateStart',end=scope+'RotateEnd';
+    result[start]=Math.max(0,Math.min(1999,Math.round(result[start])));
+    result[end]=Math.max(result[start],Math.min(1999,Math.round(result[end])));
   }
-  result.featuredRotateEnd=Math.max(result.featuredRotateStart,result.featuredRotateEnd);
   result.badgeBackdropBlur=Math.max(0,Math.min(24,result.badgeBackdropBlur));
   return result;
 }

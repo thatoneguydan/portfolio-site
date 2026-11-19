@@ -40,7 +40,8 @@ html {
     width: calc(100% - 32px) !important;
     min-height: var(--compact-nav-height) !important;
     height: var(--compact-nav-height) !important;
-    padding: 0 var(--compact-nav-border) !important;
+    padding-block: 0 !important;
+    padding-inline: 0 var(--compact-nav-border) !important;
     gap: 0 !important;
     align-items: stretch !important;
   }

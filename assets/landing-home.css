@@ -62,23 +62,26 @@
 #dan-landing-home .ds-hero {--hero-base-top:clamp(52px,6vw,90px);--hero-column-gap:clamp(28px,3vw,48px);padding:calc(var(--hero-base-top) * var(--hero-top-space,1)) 0 clamp(62px,7vw,110px);gap:var(--hero-column-gap)}
 #dan-landing-home .ds-intro {container-type:inline-size}
 #dan-landing-home .ds-featured {padding:0}
+#dan-landing-home .ds-work-group {
+  margin-block-start:calc(clamp(64px,7vw,112px) * var(--work-section-margin-before,1));
+}
+#dan-landing-home.featured-below-fold > .ds-work-group {grid-area:6 / 1}
 #dan-landing-home .ds-work-section {
   --work-section-surface:var(--work-section-background,var(--dan-paper));
   --work-grid-line:color-mix(in srgb,var(--dan-ink) 13%,var(--work-section-surface));
   --work-section-bleed:calc((100% - var(--work-page-width)) / 2);
-  --work-section-spacing-base:clamp(64px,7vw,112px);
   --work-section-gutter:calc(var(--work-page-width) * .04);
   --work-section-rise:var(--work-section-wave-height,0px);
   position:relative;
   isolation:isolate;
-  margin-block-start:calc(var(--work-section-spacing-base) * var(--work-section-margin-before,1));
-  padding-block-start:calc(var(--work-section-rise) + var(--work-section-spacing-base) * var(--work-section-padding-before,0));
+  padding-block-start:calc(var(--work-section-rise) + var(--work-section-gutter) * var(--work-section-padding-before,0));
   padding-block-end:calc(var(--work-section-gutter) * var(--work-section-padding-after,1));
 }
 #dan-landing-home .ds-work-section::before {
   content:"";
   position:absolute;
-  inset-block:0 calc(-1 * var(--footer-wave-height,0px));
+  /* Leave opaque section color under the antialiased bottom of the footer wave. */
+  inset-block:0 calc(-1 * var(--footer-wave-height,0px) - 4px);
   inset-inline:var(--work-section-bleed) calc(var(--work-section-bleed) - var(--page-content-gutter,0px));
   z-index:-1;
   background:var(--work-section-surface);
@@ -92,7 +95,6 @@
 }
 /* Paint the footer above the section backdrop where their wave boxes overlap. */
 .landing-refresh .rd-footer-cta {position:relative}
-#dan-landing-home.featured-below-fold > .ds-work-section {grid-area:6 / 1}
 #dan-landing-home .ds-work-links {
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
@@ -119,18 +121,18 @@
   min-block-size:calc(clamp(28rem,70cqw,52rem) * var(--work-desktop-height,1));
   padding:var(--work-card-padding);
   color:var(--dan-ink);
-  background:var(--work-card-surface);
   touch-action:manipulation;
 }
+/* One face paints the resting card and its raised edge throughout the move. */
 #dan-landing-home .ds-work-card::before {
   content:"";
   position:absolute;
   inset:0;
   inset-block-start:calc(-1 * var(--work-card-rise));
   z-index:-1;
-  background:var(--work-card-surface);
+  background-color:var(--work-card-surface);
   pointer-events:none;
-  transition:inset-block-start var(--work-card-motion);
+  transition:inset-block-start var(--work-card-motion),background-color var(--work-card-motion);
 }
 #dan-landing-home .ds-work-card-number {
   align-self:start;
@@ -181,9 +183,7 @@
 }
 #dan-landing-home .ds-work-card :is(.ds-work-card-number,.ds-work-card-title,.ds-work-card-description,.ds-work-card-arrow) {
   color:var(--work-card-highlight-color,var(--work-card-element-color));
-}
-#dan-landing-home .ds-work-card :is(.ds-work-card-number,.ds-work-card-title) {
-  transition:transform var(--work-card-motion);
+  transition:transform var(--work-card-motion),color var(--work-card-motion);
 }
 #dan-landing-home .ds-work-card:is(:focus-visible,:active,.is-work-pressed) {
   --work-card-surface:var(--dan-ink);
@@ -239,6 +239,12 @@
   line-height:1.1;
   letter-spacing:-.04em;
   overflow-wrap:anywhere;
+}
+#dan-landing-home .ds-work-heading {
+  position:relative;
+  z-index:0;
+  transform:scale(var(--work-heading-scale,1));
+  transform-origin:var(--work-heading-origin-x,center) var(--work-heading-origin-y,bottom);
 }
 #dan-landing-home .ds-section-head .ds-featured-phrase {
   vertical-align:baseline;
@@ -422,6 +428,7 @@ html:has(#dan-landing-home) {scrollbar-gutter:stable}
   align-items:center;justify-content:center;padding:4px;border-radius:99px;background:#111;color:#fff;touch-action:none;
 }
 #dan-landing-home .ds-gallery-dots:has(+ .rdp-project-shelf) {margin-top:calc(var(--gallery-dot-gap) + var(--gallery-source-offset,0px))}
+#dan-landing-home .ds-gallery[data-layout=vertical] + .ds-gallery-dots {display:none}
 #dan-landing-home .ds-gallery-dots button {display:grid;place-items:center;width:24px;height:24px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;color:inherit}
 #dan-landing-home .ds-gallery-dots button::after {content:'';width:6px;height:6px;border-radius:50%;background:#929292}
 #dan-landing-home .ds-gallery-dots button:focus-visible {outline:none}

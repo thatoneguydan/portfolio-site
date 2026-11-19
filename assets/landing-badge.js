@@ -30,11 +30,13 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
   let compact=false,firstLayout=true,opened=false,busy=false,closeRequested=false,drag=null,frame=0,lastTime=0,scrollFrame=0,morph=null;
   let scrollTop=0,scrollTilt=0,inlineGeometry=null,lastPointer=null,suppressClickUntil=0,previousOverflow='';
   let morphParts=[],morphGeneration=0,morphing=false,entrance=null,hasEntered=false;
-  let morphStartPose=null,paintedPose={x:0,y:0,rotation:0,parallaxScale:1},dragReturn=null;
+  let morphStartPose=null,paintedPose={x:0,y:0,rotation:0,parallaxScale:1,offsetX:0},dragReturn=null;
+  let fullHoverBounds=null;
   carrier.style.visibility='hidden';
   const motion={x:0,y:0,h:1,vx:0,vy:0,vh:0,tx:0,ty:0,th:1};
   let visible=false,idlePhase=0,idleWeight=0,lastPointerTime=0,hovering=false;
   let idleTarget=0,idleFrom=0,idleTransition=0;
+  const hoverScale=()=>compact||opened?config.badgeHoverScale:1+config.ticketFullHoverGrowth/100;
   const idleEnabled=()=>config.badgeIdleTilt&&config.ticketTilt&&!config.ticketDisabled&&(compact||opened)&&visible&&!document.hidden&&!reduced.matches&&!drag;
   function updateIdleVisibility(){
     if(!visible||document.hidden){
@@ -49,19 +51,36 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
   const rgba=(hex,opacity)=>`rgba(${[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)).join(',')},${clamp(opacity,0,100)/100})`;
   ticket.removeAttribute('role');ticket.removeAttribute('tabindex');
 
+  function hoverOffset(scale,pose){
+    if(!fullHoverBounds||compact||opened||scale<=1)return 0;
+    const {halfWidth,halfHeight,room}=fullHoverBounds;
+    // Project the same corners as CSS uses so a large hover stays visible
+    // even while the card tilts. Leave the stationary hit area in place.
+    const projection=new DOMMatrix();
+    projection.m34=-1/config.ticketPerspective;
+    projection.rotateSelf(0,0,pose.rotation).rotateSelf(pose.x,0,0).rotateSelf(0,pose.y,0);
+    let restRight=0,scaledRight=0;
+    for(const x of [-halfWidth,halfWidth])for(const y of [-halfHeight,halfHeight]){
+      const corner=projection.transformPoint({x,y});
+      restRight=Math.max(restRight,corner.x/corner.w);
+      scaledRight=Math.max(scaledRight,corner.x*scale/(1+(corner.w-1)*scale));
+    }
+    return Math.min(0,Math.max(room,restRight)-scaledRight);
+  }
   function paint(){
     const scale=motion.h;
     const pose=blendIdlePose(motion.x,motion.y,opened?0:scrollTilt,idlePhase,config.badgeIdleAngle,idleWeight);
     pose.rotation=opened?0:config.ticketRotation;
     pose.parallaxScale=Number(carrier.dataset.scale||1);
+    pose.offsetX=hoverOffset(scale,pose);
     if(morphStartPose){
       // Use the size animation's own eased clock, including its pending first frame.
       const progress=morph.effect.getComputedTiming().progress??(morph.playState==='finished'?1:0);
       for(const key of Object.keys(pose))pose[key]=morphStartPose[key]+(pose[key]-morphStartPose[key])*progress;
     }
     paintedPose=pose;
-    const {rotation,x,y,parallaxScale}=pose;
-    ticket.style.transform=`translate(-50%,-50%) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${x}deg) rotateY(${y}deg) scale(${scale})`;
+    const {rotation,x,y,parallaxScale,offsetX}=pose;
+    ticket.style.transform=`translate(-50%,-50%) translateX(${offsetX}px) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${x}deg) rotateY(${y}deg) scale(${scale})`;
     const parallax=config.ticketParallax*parallaxScale;
     const depth=config.ticketTiltMax>0?parallax/config.ticketTiltMax:0;
     const px=clamp(-y*depth,-parallax,parallax),py=clamp(x*depth,-parallax,parallax);
@@ -143,7 +162,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     const horizontal=config.ticketOrientation!=='vertical';
     const photoWidth=width-(horizontal?panel:0);
     const photoHeight=(height-(horizontal?0:panel))*(isCompact?.76:.78);
-    photo.sizes=Math.ceil((Math.max(photoWidth,photoHeight)+2*config.ticketParallax*scale)*config.badgeHoverScale)+'px';
+    photo.sizes=Math.ceil((Math.max(photoWidth,photoHeight)+2*config.ticketParallax*scale)*hoverScale())+'px';
     photo.style.objectPosition=`${config.photoPositionX}% ${config.photoPosition}%`;
     copy.style.padding='0';
     // Type is laid out in canonical design coordinates, then scaled as a plane.
@@ -186,7 +205,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
   function captureLook(){
     const read=(element,properties)=>Object.fromEntries(properties.map(key=>[key,getComputedStyle(element)[key]]));
     const matrix=new DOMMatrixReadOnly(getComputedStyle(carrier).transform);
-    const scale=motion.h*Math.hypot(matrix.a,matrix.b);
+    const carrierScale=Math.hypot(matrix.a,matrix.b),scale=motion.h*carrierScale;
     const look=Object.fromEntries([
       ['ticket',ticket,['width','height','borderRadius','boxShadow']],['surface',surface,['gridTemplateColumns','gridTemplateRows','inset','borderRadius','clipPath']],
       ['photo',photoWindow,['height','top','left','right','borderRadius','clipPath']]
@@ -196,11 +215,11 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     look.copyLayout={transform:scaledTextMatrix(new DOMMatrixReadOnly(getComputedStyle(copyLayout).transform),scale)};
     look.copy={opacity:getComputedStyle(copy).opacity,visibility:'visible'};
     // A swipe turns the carrier around the same center as the painted card.
-    look.pose={...paintedPose,rotation:paintedPose.rotation+Math.atan2(matrix.b,matrix.a)*180/Math.PI,parallaxScale:paintedPose.parallaxScale*scale};
+    look.pose={...paintedPose,rotation:paintedPose.rotation+Math.atan2(matrix.b,matrix.a)*180/Math.PI,parallaxScale:paintedPose.parallaxScale*scale,offsetX:paintedPose.offsetX*carrierScale};
     return look;
   }
   function cancelEntrance(){entrance?.cancel();entrance=null;if(hasEntered)carrier.style.visibility='visible';}
-  function settleHover(){hovering=carrier.matches(':hover');motion.th=!busy&&!morphing&&hovering?config.badgeHoverScale:1;animateMotion();}
+  function settleHover(){hovering=carrier.matches(':hover');motion.th=!busy&&!morphing&&hovering?hoverScale():1;animateMotion();}
   function flip(start,end,from){
     const generation=++morphGeneration;cancelEntrance();
     morphStartPose=null;
@@ -259,12 +278,19 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     const style=getComputedStyle(ticketStage),available=Math.max(1,ticketStage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight));
     inlineGeometry=compact?compactGeometry:fitBadge(config.ticketWidth,config.ticketHeight,available,Infinity,config.ticketRotation,true,fullHeroScale());
     alignFullID();
+    if(!compact){
+      const stage=ticketStage.getBoundingClientRect();
+      const frame=config.ticketBorder?config.ticketBorderWidth*inlineGeometry.scale:0;
+      fullHoverBounds={halfWidth:inlineGeometry.width/2+frame,halfHeight:inlineGeometry.height/2+frame,
+        room:document.documentElement.clientWidth-16-(stage.left+stage.width/2)};
+    }
     // The empty anchor keeps its real geometry while the badge is in the dialog.
     ticketStage.style.setProperty('--badge-anchor-height',inlineGeometry.height+'px');
     if(!opened&&!busy){
       look(compact,inlineGeometry);sizeCarrier(inlineGeometry);
       if(morphLayout)flip(before,carrier.getBoundingClientRect(),from);
     }else if(opened&&!busy){placeExpanded();}
+    if(!busy&&!morphing)motion.th=hovering?hoverScale():1;
     firstLayout=false;scrollTop=hero.getBoundingClientRect().top+window.scrollY;updateScroll();
   }
   function placeExpanded(){
@@ -308,7 +334,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
   closeButton.addEventListener('click',close);
   dialog.addEventListener('cancel',event=>{event.preventDefault();close();});
   dialog.addEventListener('click',event=>{if(event.target===dialog&&performance.now()>=suppressClickUntil)close();});
-  carrier.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch'&&!busy&&!morphing){hovering=true;motion.th=config.badgeHoverScale;animateMotion();}});
+  carrier.addEventListener('pointerenter',event=>{if(event.pointerType!=='touch'&&!busy&&!morphing){hovering=true;motion.th=hoverScale();animateMotion();}});
   carrier.addEventListener('pointerleave',()=>{hovering=false;if(!busy&&!morphing){motion.th=1;animateMotion();}});
   dragPlane.addEventListener('pointerdown',event=>{
     if(!opened||busy||event.button!==0)return;
@@ -347,5 +373,5 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     const animation=carrier.animate(sequence.frames,{duration:sequence.duration,delay:entranceDelay(config.badgeEntrancePosition,lineTimes),easing:'linear',fill:'backwards'});
     entrance=animation;animation.finished.catch(()=>{}).then(()=>{if(entrance===animation)entrance=null;});
   }
-  return {layout,enter,update:()=>{if(!busy&&!morphing)motion.th=hovering?config.badgeHoverScale:1;layout(false);},open,close,destroy(){++morphGeneration;morphStartPose=null;cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();dragReturn?.cancel();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();introObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);unlockOverlayScroll(dialog);dialog.remove();}};
+  return {layout,enter,update:()=>layout(false),open,close,destroy(){++morphGeneration;morphStartPose=null;cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();dragReturn?.cancel();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();introObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);unlockOverlayScroll(dialog);dialog.remove();}};
 }

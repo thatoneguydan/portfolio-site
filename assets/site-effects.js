@@ -1,12 +1,12 @@
 import {installAuthoredEmoji} from './site-emoji.js?v=20261118-perf1';
 import {setPaletteSaturation} from './palette-glyph.js?v=20261117-navlab1';
-import {defaults} from './landing-schema.js?v=20261118-cardedge1';
+import {defaults} from './landing-schema.js?v=20261118-workheading1';
 import {installSettledShelfText} from './settled-text.js';
 import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261118-worklinks2';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-cardedge1';
-import './site-runtime.js?v=20261118-cardedge1';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=20261118-workheading1';
+import './site-runtime.js?v=20261118-workheading1';
 import {installSiteInteractions} from './site-interactions.js?v=20261118-cardnav1';
-import {installProjectViews} from './project-views.js?v=20261118-cardedge1';
+import {installProjectViews} from './project-views.js?v=20261118-workheading1';
 import {installImageViewer} from './image-viewer.js?v=20261118-hero3';
 
 const href='/assets/site-effects.css?v=20261118-hero3';

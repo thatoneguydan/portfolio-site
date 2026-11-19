@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261118-cardedge1';
+import {defaults} from './landing-schema.js?v=20261118-workheading1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
@@ -156,10 +156,10 @@ function position(state){
   let tail=config.projectPanelTailSize,dots,bar,gap;
   if(gallery){
     const cutoff=Math.min(0,sourceRect.bottom-gallery.getBoundingClientRect().bottom);
-    dots=featuredDots(shelf);
+    dots=gallery.dataset.layout==='horizontal'?featuredDots(shelf):null;
     gap=14+tail;
-    // The controls sit between the last visible thumbnail and the panel. Move
-    // the controls and panel together when lower mobile cards are covered.
+    // The horizontal dot bar sits between the thumbnails and the panel.
+    // The stacked gallery reserves clearance directly below its source.
     if(dots){
       state.featuredDotBar=dots;
       bar=dots.getBoundingClientRect();

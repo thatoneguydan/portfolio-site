@@ -3,7 +3,7 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261118-cardedge1';
+    navScript.src = '/assets/redesign-nav.js?v=20261118-workheading1';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -124,7 +124,7 @@
   };
 
   videoCards.forEach(card=>{if(!card.dataset.videoDescription)card.dataset.videoDescription=descriptions[card.dataset.youtubeId]||'';});
-  const openVideoCard = card => {if(!card)return false;import('/assets/project-views.js?v=20261118-cardedge1').then(module=>{module.installProjectViews();module.openProject(card);});return true;};
+  const openVideoCard = card => {if(!card)return false;import('/assets/project-views.js?v=20261118-workheading1').then(module=>{module.installProjectViews();module.openProject(card);});return true;};
 
   videoCards.forEach((card) => {
     card.addEventListener('click', (event) => {
