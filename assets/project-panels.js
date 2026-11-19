@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=public-c9903642b1-6c208b61';
+import {defaults} from './landing-schema.js?v=public-f03679196e-2c1c4830';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;

@@ -1,4 +1,4 @@
-import {siteReady} from './site-runtime.js?v=public-c9903642b1-6c208b61';
+import {siteReady} from './site-runtime.js?v=public-f03679196e-2c1c4830';
 const inline=new URLSearchParams(location.search).get('inlineShelf')==='1'&&parent!==window;
 if(inline){
   document.documentElement.classList.add('contact-inline-embed');document.body.classList.add('contact-inline-embed');

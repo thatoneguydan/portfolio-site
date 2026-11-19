@@ -1,11 +1,11 @@
-import {heroButtonReferenceSize} from './landing-schema.js?v=public-c9903642b1-6c208b61';
+import {heroButtonReferenceSize} from './landing-schema.js?v=public-f03679196e-2c1c4830';
 import {createBadge} from './landing-badge.js?v=20261118-footershadow1';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-hero3';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261119-rotatewidth1';
 import {featuredGalleryLayout,galleryCaptionKind} from './gallery-layout.js?v=20261118-worklinks2';
-import {siteReady} from './site-runtime.js?v=public-c9903642b1-6c208b61';
-import {revealFrames,revealOffset} from './headline-view.js?v=public-c9903642b1-6c208b61';
-import {mountSectionHeading} from './featured-heading.js?v=20261118-idanchor1';
+import {siteReady} from './site-runtime.js?v=public-f03679196e-2c1c4830';
+import {revealFrames,revealOffset} from './headline-view.js?v=public-f03679196e-2c1c4830';
+import {mountSectionHeading} from './featured-heading.js?v=20261119-rotatewidth1';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 (async() => {
   'use strict';
@@ -123,8 +123,12 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     h1.style.fontSize=baseSize+'px';h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
     const lines=[...h1.children];
     h1.classList.remove('ds-long');lines.forEach(el=>{el.style.whiteSpace='nowrap';el.style.width='max-content';});
-    const widths=lines.map(line=>line.getBoundingClientRect().width);
+    rotator?.syncWidth();
+    const rotatingLine=Number(config.rotateTarget.split(':')[0])-1;
+    const extra=rotator?.fitExtraWidth()||0;
+    const widths=lines.map((line,i)=>line.getBoundingClientRect().width+(i===rotatingLine?extra:0));
     const width=Math.max(...widths,1),available=Math.max(1,intro.clientWidth-4);
+    h1.style.setProperty('--rotate-entry-limit',available+'px');
     h1.dataset.longestLine=String(widths.indexOf(Math.max(...widths)));
     const fitted=baseSize*available/width;
     const desired=(compact?fitted:baseSize)*(1+adjustment);
@@ -137,6 +141,7 @@ import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-
     const buttonScale=config.heroCtaScale/100*finalSize/heroButtonReferenceSize;
     cta.style.setProperty('--contact-button-scale',Math.min(buttonScale,intro.clientWidth/260));
     lines.forEach(el=>el.style.removeProperty('width'));
+    rotator?.syncWidth();
   }
   function replay() {
     currentAnimations.forEach(a=>a.cancel());currentAnimations=[];h1.classList.remove('is-revealing');rotator?.reset();if(reduced.matches||!config.animate){h1.removeAttribute('data-headline-pending');rotator?.start();badge.enter([{start:0,end:0}]);return;}

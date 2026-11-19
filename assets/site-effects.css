@@ -3,27 +3,25 @@
 .ds-reveal .ms-emoji {width:1.1em!important;height:1.1em!important}
 
 /* Fancy Text Rotate motion, in the portfolio's existing type and colors. */
-.ds-rotate {--rotate-ink-overhang:.07em;position:relative;display:inline-grid;vertical-align:baseline;white-space:pre}
+.ds-rotate {--rotate-ink-overhang:.07em;position:relative;display:inline-grid;grid-template-columns:minmax(0,1fr);min-width:0;vertical-align:baseline;white-space:pre}
 :is(#dan-landing-home,.ds-authored-reveal) .ds-glyph.ds-rotate {display:inline-grid}
-.ds-rotate-measure {grid-area:1/1;visibility:hidden;white-space:pre;pointer-events:none}
+.ds-rotate-measure {position:absolute;inset:0 auto auto 0;width:max-content;visibility:hidden;white-space:pre;pointer-events:none}
 .ds-rotate-clip {position:absolute;inset:-.18em calc(-1 * var(--rotate-ink-overhang));overflow:hidden;pointer-events:none}
-.ds-rotate-entry {position:absolute;inset:.18em var(--rotate-ink-overhang) auto;display:block;white-space:pre;line-height:inherit}
+.ds-rotate-entry {position:absolute;inset:.18em auto auto var(--rotate-ink-overhang);display:block;width:max-content;white-space:pre;line-height:inherit}
 .ds-rotate-piece {display:inline-block;white-space:pre;will-change:transform,opacity}
 .ds-rotate-measure .ds-rotate-piece {will-change:auto}
 .ds-rotate-word {display:inline-block;white-space:nowrap}
-.ds-rotate-dynamic {grid-template-columns:minmax(0,1fr);min-width:0}
-.ds-rotate-dynamic .ds-rotate-measure {position:absolute;inset:0 auto auto 0;width:max-content;max-width:none}
 .ds-rotate-sizer {grid-area:1/1;display:block;width:0;min-width:0;visibility:hidden;white-space:pre}
-.ds-rotate-dynamic .ds-rotate-entry {right:auto;width:max-content;max-width:none;white-space:pre}
+.ds-rotate-wrap .ds-rotate-entry,#dan-landing-home .ds-long .ds-rotate-entry {max-width:var(--rotate-entry-limit,none);white-space:normal;overflow-wrap:anywhere}
+.ds-rotate-wrap .ds-rotate-word,#dan-landing-home .ds-long .ds-rotate-word {max-width:100%;white-space:normal}
+.ds-rotate-wrap .ds-rotate-piece,#dan-landing-home .ds-long .ds-rotate-piece {max-width:100%;white-space:pre-wrap}
 .ds-authored-reveal .ds-reveal-line {display:block;white-space:nowrap}
 .ds-authored-reveal .ds-word {display:inline-block;max-width:100%;vertical-align:baseline;overflow:hidden;padding:.16em .07em .2em;margin:-.16em -.07em -.2em;clip-path:inset(0)}
 .ds-authored-reveal .ds-glyph {display:inline-block;vertical-align:baseline;white-space:pre}
 .ds-authored-reveal:not(.is-wrapping) .ds-word {max-width:none}
 .ds-authored-reveal.is-wrapping .ds-reveal-line {white-space:normal}
 .ds-authored-reveal.is-wrapping .ds-rotate {max-width:100%;grid-template-columns:minmax(0,1fr);white-space:normal}
-.ds-authored-reveal.is-wrapping .ds-rotate-measure,.ds-authored-reveal.is-wrapping .ds-rotate-entry {white-space:normal}
 #dan-landing-home .ds-long .ds-rotate {max-width:100%;grid-template-columns:minmax(0,1fr);white-space:normal}
-#dan-landing-home .ds-long .ds-rotate-measure,#dan-landing-home .ds-long .ds-rotate-entry {white-space:normal;overflow-wrap:anywhere}
 
 /* Viewport blur sits above page content and below the site navigation and dialogs. */
 .portfolio-page-content {

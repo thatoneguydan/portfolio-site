@@ -1,4 +1,4 @@
-import {replaceProjectContent} from './project-panels.js?v=public-c9903642b1-6c208b61';
+import {replaceProjectContent} from './project-panels.js?v=public-f03679196e-2c1c4830';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const selector='.rdp-project-card,#featured-work .rd-work-card,.rv-video-card[data-youtube-id]';

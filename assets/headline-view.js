@@ -1,6 +1,6 @@
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
-import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261118-hero3';
-import {headlineSettings} from './landing-schema.js?v=public-c9903642b1-6c208b61';
+import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261119-rotatewidth1';
+import {headlineSettings} from './landing-schema.js?v=public-f03679196e-2c1c4830';
 
 export function revealOffset(clipHeight,glyphHeight,fontSize,direction){
   return Math.sign(direction)*(Math.max(clipHeight,glyphHeight)+fontSize*.6+2);
@@ -14,21 +14,24 @@ export function revealFrames(start,duration,unit='%'){
 
 export function mountHeadline(h1,scope,initial,{deferReveal=false}={}){
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let config,signature='',animations=[],rotator=null,fitFrame=0,initialFrame=0;
+  let config,signature='',animations=[],rotator=null,fitFrame=0,initialFrame=0,lastWidth=0;
   h1.setAttribute('data-headline-pending','');h1.classList.add('ds-authored-reveal');h1.dataset.headlineScope=scope;
   function fit(){
     fitFrame=0;if(!config)return;
-    const available=Math.max(1,h1.parentElement.clientWidth-8);
+    lastWidth=h1.parentElement.clientWidth;
+    const available=Math.max(1,lastWidth-8);
     h1.style.fontSize=(scope==='contact'?config.fontSize:Math.min(config.fontSize,Math.max(Math.min(28,config.fontSize),available*.13)))+'px';
     h1.style.fontWeight=config.fontWeight;h1.style.lineHeight=config.lineHeight;
     h1.classList.toggle('is-wrapping',scope!=='contact');
     if(scope==='contact'){
-      rotator?.prepareFit();
       const lines=[...h1.children];lines.forEach(line=>line.style.width='max-content');
-      const widths=lines.map(line=>line.scrollWidth),longest=Math.max(1,...widths);
+      rotator?.syncWidth();
+      const rotatingLine=Number(config.rotateTarget.split(':')[0])-1;
+      const extra=rotator?.fitExtraWidth()||0;
+      const widths=lines.map((line,i)=>line.getBoundingClientRect().width+(i===rotatingLine?extra:0)),longest=Math.max(1,...widths);
       if(longest>available)h1.style.fontSize=Math.max(12,config.fontSize*available/longest)+'px';
       lines.forEach(line=>line.style.removeProperty('width'));
-    }
+    }else h1.style.setProperty('--rotate-entry-limit',Math.max(1,h1.clientWidth-8)+'px');
     rotator?.syncWidth();
   }
   function replay(){
@@ -66,7 +69,7 @@ export function mountHeadline(h1,scope,initial,{deferReveal=false}={}){
         const wrap=document.createElement('span');wrap.className='ds-word';
         if(config.rotateEnabled&&config.rotateTarget===`${index+1}:${wordIndex}`&&rotationWords(config).length){
           const {prefix,suffix}=splitPunctuation(word);appendEmojiText(wrap,prefix);
-          const glyph=document.createElement('span');glyph.className='ds-glyph';wrap.append(glyph);rotator=createTextRotation(glyph,config,{suffix,dynamicWidth:scope==='contact'});
+          const glyph=document.createElement('span');glyph.className='ds-glyph';wrap.append(glyph);rotator=createTextRotation(glyph,config,{suffix,wrapEntries:scope!=='contact'});
         }else for(const char of graphemes(word)){const glyph=document.createElement('span');glyph.className='ds-glyph';appendEmojiText(glyph,char);wrap.append(glyph);}
         wordIndex++;line.append(wrap);
       });
@@ -74,7 +77,7 @@ export function mountHeadline(h1,scope,initial,{deferReveal=false}={}){
     });
     fit();if(animate)replay();else if(!h1.hasAttribute('data-headline-pending'))rotator?.start();
   }
-  const observer=new ResizeObserver(()=>{if(!fitFrame)fitFrame=requestAnimationFrame(fit);});observer.observe(h1.parentElement);
+  const observer=new ResizeObserver(()=>{if(!fitFrame&&h1.parentElement.clientWidth!==lastWidth)fitFrame=requestAnimationFrame(fit);});observer.observe(h1.parentElement);
   update(initial);
   if(!deferReveal)initialFrame=requestAnimationFrame(()=>{initialFrame=0;replay();});
   return {update,replay,destroy(){observer.disconnect();cancelAnimationFrame(initialFrame);cancelAnimationFrame(fitFrame);animations.forEach(a=>a.cancel());rotator?.destroy();}};

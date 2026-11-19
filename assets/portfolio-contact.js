@@ -6,7 +6,7 @@
 
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=public-c9903642b1-6c208b61';
+    navScript.src = '/assets/redesign-nav.js?v=public-f03679196e-2c1c4830';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
@@ -16,7 +16,7 @@
      the redesign body classes are applied asynchronously. */
   if (!isInlineContactShelf && !document.querySelector('script[data-redesign-contact-shelf]')) {
     const shelfScript = document.createElement('script');
-    shelfScript.src = '/assets/redesign-contact-shelf.js?v=public-c9903642b1-6c208b61';
+    shelfScript.src = '/assets/redesign-contact-shelf.js?v=public-f03679196e-2c1c4830';
     shelfScript.dataset.redesignContactShelf = '';
     document.head.append(shelfScript);
   }

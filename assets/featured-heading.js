@@ -1,4 +1,4 @@
-import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261118-hero3';
+import {createTextRotation,rotationWords,splitPunctuation} from './landing-rotate.js?v=20261119-rotatewidth1';
 import {appendEmojiText} from './site-emoji.js?v=20261118-perf1';
 
 function headingRange(config){
@@ -132,7 +132,7 @@ export function mountSectionHeading(heading,section,content,{scope,label,anchore
     phrase.setAttribute('aria-hidden','true');
     heading.append(phrase);
     appendEmojiText(heading,afterText);
-    rotator=createTextRotation(phrase,timing,{suffix,dynamicWidth:true,wrapEntries:true});
+    rotator=createTextRotation(phrase,timing,{suffix,wrapEntries:true});
     syncPhrase();
     observer.observe(heading);
     rotator.start();

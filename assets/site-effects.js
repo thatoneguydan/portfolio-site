@@ -1,15 +1,15 @@
 import {installAuthoredEmoji} from './site-emoji.js?v=20261118-perf1';
 import {setPaletteSaturation} from './palette-glyph.js?v=20261117-navlab1';
-import {defaults} from './landing-schema.js?v=public-c9903642b1-6c208b61';
+import {defaults} from './landing-schema.js?v=public-f03679196e-2c1c4830';
 import {installSettledShelfText} from './settled-text.js';
 import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261118-worklinks2';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=public-c9903642b1-6c208b61';
-import './site-runtime.js?v=public-c9903642b1-6c208b61';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=public-f03679196e-2c1c4830';
+import './site-runtime.js?v=public-f03679196e-2c1c4830';
 import {installSiteInteractions} from './site-interactions.js?v=20261118-cardnav1';
-import {installProjectViews} from './project-views.js?v=public-c9903642b1-6c208b61';
+import {installProjectViews} from './project-views.js?v=public-f03679196e-2c1c4830';
 import {installImageViewer} from './image-viewer.js?v=20261118-hero3';
 
-const href='/assets/site-effects.css?v=20261118-hero3';
+const href='/assets/site-effects.css?v=20261119-rotatewidth1';
 let stylesheet=document.querySelector('link[href^="/assets/site-effects.css"]');
 if(!stylesheet){stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=href;document.head.append(stylesheet);}
 if(!stylesheet.sheet)await new Promise(resolve=>{stylesheet.addEventListener('load',resolve,{once:true});stylesheet.addEventListener('error',resolve,{once:true});});

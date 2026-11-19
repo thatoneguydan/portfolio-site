@@ -53,18 +53,32 @@
   overflow-wrap: anywhere;
 }
 
-/* The hidden entries reserve the widest phrase at the actual line width. The
-   footer and its button keep the same geometry as each new word animates. */
-.rd-footer-cta .ds-footer-phrase {
+/* Keep punctuation in the same inline group without animating its glyph.
+   The phrase's final line meets it even when a long choice has to wrap. */
+.rd-footer-cta .ds-footer-word-run {
+  display: inline-flex;
   max-inline-size: 100%;
-  grid-template-columns: minmax(0, 1fr);
-  white-space: normal;
+  align-items: flex-end;
+  vertical-align: baseline;
 }
 
-.rd-footer-cta .ds-footer-phrase :is(.ds-rotate-measure, .ds-rotate-entry, .ds-rotate-word, .ds-rotate-piece) {
-  max-inline-size: 100%;
+.rd-footer-cta .ds-footer-punctuation {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  white-space: nowrap;
+}
+
+.rd-footer-cta .ds-footer-prefix {
+  align-self: flex-start;
+}
+
+.rd-footer-cta .ds-footer-phrase {
+  min-inline-size: 0;
+  max-inline-size: var(--rotate-entry-limit, 100%);
+  text-align: end;
+  text-wrap: wrap;
   white-space: normal;
-  overflow-wrap: anywhere;
 }
 
 .rd-footer-cta .rd-footer-cta-button,
