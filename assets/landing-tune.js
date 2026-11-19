@@ -2,9 +2,10 @@ import {targetChoices,rotationWords} from './landing-rotate.js?v=20261119-carous
 import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey} from './landing-schema.js?v=20261119-tunefind1';
 import {mountFeaturedRotationEditor} from './featured-heading.js?v=20261119-carousel1';
 import {mountTuneSearch} from '/owner/tune-search.js?v=20261119-tunefind1';
+import {mountTunePublish} from '/owner/tune-publish.js?v=20261119-publish1';
 export function mountTune(api){
   if(!api.owner||document.getElementById('dan-owner-controls'))return;
-  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261119-tunefind1';document.head.append(stylesheet);
+  const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href='/assets/landing-tune.css?v=20261119-publish1';document.head.append(stylesheet);
   const config={...api.getConfig()},baseline={...api.getConfig()};
   let saved={};try{saved=JSON.parse(localStorage.getItem('portfolio-tune-ui-v1')||'{}');}catch{}
   const ownerPortal=document.createElement('div');ownerPortal.id='dan-owner-controls';ownerPortal.dataset.ownerPreview='true';
@@ -36,6 +37,12 @@ export function mountTune(api){
   ownerPortal.innerHTML=`<button class="ds-config-launch" type="button" aria-label="Tune staging. Drag to move." aria-expanded="false" aria-controls="dan-demo-config"><span class="ds-config-grip" aria-hidden="true">⠿</span><span>Tune</span></button>
   <aside class="ds-config" id="dan-demo-config" aria-label="Staging controls" hidden>
     <div class="ds-config-header"><h2>Tune the website</h2><button type="button" aria-label="Close staging controls" data-close-config>×</button></div>
+    <details class="ds-publish"><summary>Publish <span data-publish-summary></span></summary>
+      <p class="ds-control-help">Publish your saved staging settings to dantylersmith.com. Both mobile profiles are checked before and after deployment.</p>
+      <div class="ds-config-buttons"><button type="button" data-publish disabled>Publish to live</button><button type="button" data-publish-refresh>Check status</button></div>
+      <p class="ds-publish-status" data-publish-status role="status">Checking the last publish…</p>
+      <a data-publish-run hidden target="_blank" rel="noopener">View release checks ↗</a>
+    </details>
     ${headlineEditor('','Home headline')}
     <details><summary>Home layout &amp; action button</summary>
       <div data-controls="heroLayout"></div>
@@ -128,7 +135,7 @@ export function mountTune(api){
   const configPanel=ownerPortal.querySelector('.ds-config'),configLauncher=ownerPortal.querySelector('.ds-config-launch');
   const ownerPreview=true;
   let placementFrame=0,launcherPosition=saved.launcherPosition||null,drag=null,suppressToggleUntil=0,liveTimer=0;
-  let saveTimer=0,pending=null,saving=false,lastQueued=JSON.stringify(config);
+  let saveTimer=0,pending=null,saveRequest=null,lastSaved=JSON.stringify(config),lastQueued=lastSaved;
   const status=configPanel.querySelector('.ds-config-status');
   const search=mountTuneSearch(configPanel,schedulePlacement);
   const refreshFeaturedRotation=mountFeaturedRotationEditor(configPanel.querySelector('[data-featured-rotation-editor]'),config,changes=>{
@@ -145,14 +152,27 @@ export function mountTune(api){
     search.refresh();
   }
   async function flush(){
-    clearTimeout(saveTimer);if(saving||!pending)return;
-    saving=true;const snapshot=pending;pending=null;status.textContent='Saving to staging…';
-    try{
-      const response=await fetch('/api/tune',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({config:snapshot,revision:api.revision})});
-      const data=await response.json();if(!response.ok)throw new Error(data.error||'Could not save settings.');
-      api.revision=data.revision;status.textContent='Saved to staging.';
-    }catch(error){status.textContent=error.message;}
-    finally{saving=false;if(pending)saveTimer=setTimeout(flush,650);}
+    clearTimeout(saveTimer);if(saveRequest||!pending)return saveRequest;
+    const snapshot=pending;pending=null;status.textContent='Saving to staging…';
+    const request=(async()=>{
+      try{
+        const response=await fetch('/api/tune',{method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({config:snapshot,revision:api.revision})});
+        const data=await response.json();if(!response.ok)throw new Error(data.error||'Could not save settings.');
+        api.revision=data.revision;lastSaved=JSON.stringify(snapshot);status.textContent='Saved to staging.';
+      }catch(error){status.textContent=error.message;return error;}
+    })();
+    saveRequest=request;
+    try{return await request;}
+    finally{saveRequest=null;if(pending)saveTimer=setTimeout(flush,650);}
+  }
+  async function saveForPublish(){
+    if(saveRequest)await saveRequest;
+    while(pending||JSON.stringify(config)!==lastSaved){
+      pending={...config};
+      const error=await flush();
+      if(error)throw error;
+    }
+    return api.revision;
   }
   function persist(){
     try{localStorage.setItem('portfolio-tune-ui-v1',JSON.stringify({controlsOpen:!configPanel.hidden,launcherPosition}));}catch{}
@@ -399,4 +419,5 @@ export function mountTune(api){
   configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.value=config[input.name]);
   configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.maxLength=2000);
   renderControls();schedulePlacement();status.textContent='Changes save automatically to staging.';
+  mountTunePublish(configPanel.querySelector('.ds-publish'),saveForPublish,schedulePlacement);
 }
