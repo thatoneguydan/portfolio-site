@@ -1,6 +1,17 @@
 /* Use the site's own press feedback while retaining keyboard focus indicators. */
 :root {-webkit-tap-highlight-color:transparent}
 
+/* Join the wave tiles to the solid middle inside their opaque edge. */
+:is(.ds-carousel-section,.rc-inline-contact-shell)::before {
+  --wave-tile:calc(2 * var(--surface-wave-height,0px));
+  --wave-join:calc(1.5 * var(--surface-wave-height,0px));
+  --wave-length:var(--surface-wave-length,23px);
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' preserveAspectRatio='none'%3E%3Cpath d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V200H0Z'/%3E%3C/svg%3E") center top / var(--wave-length) var(--wave-tile) repeat-x,
+    linear-gradient(transparent var(--wave-join),#000 var(--wave-join) calc(100% - var(--wave-join)),transparent calc(100% - var(--wave-join))),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' preserveAspectRatio='none'%3E%3Cpath transform='translate(0 200) scale(1 -1)' d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V200H0Z'/%3E%3C/svg%3E") center bottom / var(--wave-length) var(--wave-tile) repeat-x;
+}
+
 /* Author-provided emoji, independent of the visitor's installed emoji font. */
 :is(img,svg).ms-emoji {display:inline-block!important;width:1.15em!important;height:1.15em!important;max-width:none!important;min-width:0;object-fit:contain;vertical-align:-.2em;margin:0 .025em;border:0!important;border-radius:0!important;box-shadow:none!important;transform:none;pointer-events:none;user-select:none}
 .ds-reveal .ms-emoji {width:1.1em!important;height:1.1em!important}

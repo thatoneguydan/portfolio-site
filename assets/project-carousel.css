@@ -1,4 +1,68 @@
 /* Shared Featured and Video carousel presentation. */
+@property --carousel-page-width {
+  syntax:"<length>";
+  inherits:true;
+  initial-value:0px;
+}
+.portfolio-page-content:has(.ds-carousel-section) {container-type:inline-size}
+.site-main:has(.ds-carousel-section) {
+  --carousel-page-width:100cqw;
+  --carousel-band-padding:clamp(24px,4vw,52px);
+}
+.ds-carousel-section {
+  --carousel-bleed:calc((100% - var(--carousel-page-width)) / 2);
+  --carousel-edge-padding:calc(var(--carousel-band-padding) + var(--surface-wave-height,0px));
+  position:relative;
+  isolation:isolate;
+  padding-block:calc(var(--carousel-leading-gap,0px) + var(--carousel-edge-padding)) var(--carousel-edge-padding);
+}
+.ds-carousel-section::before {
+  content:"";
+  position:absolute;
+  inset-block:var(--carousel-leading-gap,0px) 0;
+  inset-inline:var(--carousel-bleed) calc(var(--carousel-bleed) - var(--page-content-gutter,0px));
+  z-index:-1;
+  background:var(--carousel-background,#f5f5f2);
+  pointer-events:none;
+}
+.ds-carousel-section > :is(.ds-section-head,.rv-carousel-flavor) {color:var(--carousel-ink,#111)}
+[data-carousel-scope=featured] {
+  --carousel-background:var(--featured-carousel-bg);
+  --carousel-ink:var(--featured-carousel-ink);
+  --surface-wave-length:var(--featured-carousel-wave-length);
+  --surface-wave-height:var(--featured-carousel-wave-height);
+}
+[data-carousel-scope=videoClient] {
+  --carousel-background:var(--video-client-carousel-bg);
+  --carousel-ink:var(--video-client-carousel-ink);
+  --surface-wave-length:var(--video-client-carousel-wave-length);
+  --surface-wave-height:var(--video-client-carousel-wave-height);
+}
+[data-carousel-scope=videoEssays] {
+  --carousel-background:var(--video-essays-carousel-bg);
+  --carousel-ink:var(--video-essays-carousel-ink);
+  --surface-wave-length:var(--video-essays-carousel-wave-length);
+  --surface-wave-height:var(--video-essays-carousel-wave-height);
+}
+[data-carousel-scope=videoShort] {
+  --carousel-background:var(--video-short-carousel-bg);
+  --carousel-ink:var(--video-short-carousel-ink);
+  --surface-wave-length:var(--video-short-carousel-wave-length);
+  --surface-wave-height:var(--video-short-carousel-wave-height);
+}
+[data-carousel-scope=videoPromos] {
+  --carousel-background:var(--video-promos-carousel-bg);
+  --carousel-ink:var(--video-promos-carousel-ink);
+  --surface-wave-length:var(--video-promos-carousel-wave-length);
+  --surface-wave-height:var(--video-promos-carousel-wave-height);
+}
+[data-carousel-scope=videoGaming] {
+  --carousel-background:var(--video-gaming-carousel-bg);
+  --carousel-ink:var(--video-gaming-carousel-ink);
+  --surface-wave-length:var(--video-gaming-carousel-wave-length);
+  --surface-wave-height:var(--video-gaming-carousel-wave-height);
+}
+
 :is(#dan-landing-home,.ds-carousel-section) .ds-gallery{display:flex;gap:10px;width:100%;height:320px}
 :is(#dan-landing-home,.ds-carousel-section) .ds-gallery > .ds-panel{position:relative;display:block;min-width:0;flex:1 1 0;overflow:hidden;border-radius:16px;isolation:isolate;background:var(--dan-ink,#111);transition:flex-grow .6s linear(0,.292893 5%,.5 10%,.646447 15%,.75 20%,.823223 25%,.875 30%,.911612 35%,.9375 40%,.955806 45%,.96875 50%,.977903 55%,.984375 60%,.988951 65%,.992188 70%,.994476 75%,.996094 80%,.997238 85%,.998047 90%,.998619 95%,1);color:var(--dan-paper,#f5f5f2)}
 :is(#dan-landing-home,.ds-carousel-section) .ds-gallery > .ds-panel[data-focused=true]{flex-grow:4.333333}

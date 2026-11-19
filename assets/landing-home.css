@@ -34,7 +34,6 @@
     #dan-landing-home .ds-ticket[data-orientation=vertical] .ds-ticket-copy{padding:32px 24px 30px;justify-content:flex-start}
     #dan-landing-home .ds-ticket[data-disabled=true]{opacity:.6}
     #dan-landing-home .ds-ticket::after{content:"";position:absolute;inset:0;z-index:4;border:var(--ticket-border-width,1px) solid var(--ticket-border-color,rgba(245,245,242,.16));border-radius:inherit;pointer-events:none}
-    #dan-landing-home .ds-featured{padding-top:15px}
 /* The site owns the header, page gutters, type family, project shelves and footer. */
 #dan-landing-home {isolation:auto; font-family:inherit}
 @property --work-page-width {
@@ -48,7 +47,7 @@
 .landing-refresh .site-main:has(> #dan-landing-home) {--work-page-width:100cqw}
 #dan-landing-home .ds-hero {--hero-base-top:clamp(52px,6vw,90px);--hero-column-gap:clamp(28px,3vw,48px);padding:calc(var(--hero-base-top) * var(--hero-top-space,1)) 0 clamp(62px,7vw,110px);gap:var(--hero-column-gap)}
 #dan-landing-home .ds-intro {container-type:inline-size}
-#dan-landing-home .ds-featured {padding:0}
+#dan-landing-home {--featured-surface-padding:calc(var(--carousel-band-padding,24px) + var(--featured-carousel-wave-height,0px))}
 #dan-landing-home .ds-work-group {
   margin-block-start:calc(clamp(64px,7vw,112px) * var(--work-section-margin-before,1));
 }
@@ -260,11 +259,12 @@
    fixed hero inset and consumes the original gap as its height animates. */
 #dan-landing-home .ds-hero {padding-bottom:0}
 #dan-landing-home .ds-featured,#dan-landing-home.featured-below-fold::after,#dan-landing-home .ds-hero.is-centered {--hero-base-clearance:clamp(62px,7vw,110px);--featured-gap:calc(var(--hero-base-clearance) * var(--hero-featured-spacing,1))}
-#dan-landing-home .ds-featured {padding-top:var(--featured-gap)}
+#dan-landing-home .ds-featured {--carousel-leading-gap:var(--featured-gap)}
 @container (max-width:640px) {
   #dan-landing-home .ds-featured,#dan-landing-home.featured-below-fold::after,#dan-landing-home .ds-hero.is-centered {--hero-base-clearance:52px}
 }
 #dan-landing-home .rc-inline-contact-shelf + .ds-featured {transition:padding-top 460ms cubic-bezier(.2,.72,.2,1)}
+#dan-landing-home .rc-inline-contact-shelf + .ds-featured::before {transition:inset-block-start 460ms cubic-bezier(.2,.72,.2,1)}
 #dan-landing-home .rc-inline-contact-shelf.is-open + .ds-featured {--featured-gap:calc(var(--hero-base-clearance) * max(0,var(--hero-featured-spacing,1) - 1))}
 /* The invisible first-screen track spans the hero, contact shelf, slow-load
    notice and gap. Only the gap can stretch. Opening the real shelf naturally
@@ -277,8 +277,8 @@
 }
 #dan-landing-home.featured-below-fold::before {
   content:"";grid-area:1 / 1 / 5 / 2;visibility:hidden;pointer-events:none;
-  min-height:calc(100vh - var(--landing-document-top,0px) + var(--featured-anchor-offset,0px) - var(--featured-anchor-height,0px));
-  min-height:calc(100dvh - var(--landing-document-top,0px) + var(--featured-anchor-offset,0px) - var(--featured-anchor-height,0px));
+  min-height:calc(100vh - var(--landing-document-top,0px) + var(--featured-anchor-offset,0px) - var(--featured-anchor-height,0px) - var(--featured-surface-padding));
+  min-height:calc(100dvh - var(--landing-document-top,0px) + var(--featured-anchor-offset,0px) - var(--featured-anchor-height,0px) - var(--featured-surface-padding));
 }
 #dan-landing-home.featured-below-fold > .ds-hero {grid-area:1 / 1}
 #dan-landing-home.featured-below-fold > .rc-inline-contact-shelf {grid-area:2 / 1}
@@ -288,14 +288,15 @@
   transition:min-height 460ms cubic-bezier(.2,.72,.2,1);
 }
 #dan-landing-home.featured-below-fold:has(> .rc-inline-contact-shelf.is-open)::after {min-height:max(0px,calc(var(--hero-base-clearance) * max(0,var(--hero-featured-spacing,1) - 1) + var(--featured-gap-adjustment)))}
-#dan-landing-home.featured-below-fold .ds-featured {grid-area:5 / 1;padding-top:0}
+#dan-landing-home.featured-below-fold .ds-featured {grid-area:5 / 1;--carousel-leading-gap:0px}
 /* Keep normal total hero space, sharing it above and below the composition.
    With the bottom anchor enabled the hero also absorbs any extra fold space. */
 #dan-landing-home .ds-hero.is-centered {
-  padding-block:max(0px,calc((var(--hero-base-top) * var(--hero-top-space,1) + var(--featured-gap) + var(--featured-gap-adjustment,0px)) / 2));
+  --hero-total-space:max(0px,calc(var(--hero-base-top) * var(--hero-top-space,1) + var(--featured-gap) + var(--featured-gap-adjustment,0px)));
+  padding-block:calc((var(--hero-total-space) + var(--featured-surface-padding)) / 2) max(0px,calc((var(--hero-total-space) - var(--featured-surface-padding)) / 2));
   align-content:center;
 }
-#dan-landing-home:has(> .ds-hero.is-centered) > .ds-featured {padding-top:0}
+#dan-landing-home:has(> .ds-hero.is-centered) > .ds-featured {--carousel-leading-gap:0px}
 #dan-landing-home.featured-below-fold:has(> .ds-hero.is-centered) {
   grid-template-rows:minmax(max-content,1fr) max-content max-content 0px max-content;
 }

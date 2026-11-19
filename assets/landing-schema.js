@@ -230,7 +230,7 @@ export const defaults = {
   "workSectionHeadingScrollGrowth": 60,
   "workSectionHeadingAlign": "center",
   "workSectionHeadingAnchor": "bottom",
-  "workSectionBackground": "#f5f5f2",
+  "workSectionBackground": "#80aafa",
   "workSectionWaveEnabled": false,
   "workSectionWaveLength": 320,
   "workSectionWaveHeight": 36,
@@ -644,6 +644,11 @@ export const videoCarouselCategories = [
   {scope:'videoGaming', label:'Long-Form Gaming', flavor:'A sample from a 100+ video channel I produced end to end—from capture and lighting to edit, thumbnail, and publishing.'}
 ];
 const rotatingSectionScopes=['featured',...videoCarouselCategories.map(category=>category.scope)];
+// Tints of the waving hand, smiling face, and the four palette dots.
+const carouselBackgrounds={
+  featured:'#fdca61',videoClient:'#fdab81',videoEssays:'#e39af7',
+  videoShort:'#f984b4',videoPromos:'#6ee7d2',videoGaming:'#7abcf8'
+};
 for(const {scope,label,flavor,orientation='landscape'} of videoCarouselCategories){
   for(const [suffix,value] of Object.entries({
     Heading:label,HeadingSize:40,HeadingWeight:700,HeadingGap:18,HeadingScrollGrowth:0,HeadingAlign:'left',
@@ -660,6 +665,18 @@ for(const scope of rotatingSectionScopes){
   controlGroups[scope+'Orientation']=[['select',scope+'Orientation','Content orientation',[
     ['landscape','Landscape'],['portrait','Portrait']
   ]]];
+  Object.assign(defaults,{
+    [scope+'Background']:carouselBackgrounds[scope],
+    [scope+'WaveEnabled']:true,
+    [scope+'WaveLength']:23,
+    [scope+'WaveHeight']:3
+  });
+  controlGroups[scope+'Surface']=[
+    ['color',scope+'Background','Background color'],
+    ['check',scope+'WaveEnabled','Waves at the top and bottom'],
+    ['range',scope+'WaveLength','Wave length',16,4000,1,'px'],
+    ['range',scope+'WaveHeight','Wave height',0,1000,1,'px']
+  ];
 }
 
 function luminance(color) {
@@ -671,11 +688,25 @@ function luminance(color) {
 }
 const workHeadingDark='#111111',workHeadingLight='#f5f5f2';
 const headingContrastMidpoint=Math.sqrt((luminance(workHeadingDark)+.05)*(luminance(workHeadingLight)+.05))-.05;
+const surfaceInk=color=>luminance(color)<headingContrastMidpoint?workHeadingLight:workHeadingDark;
+
+export function carouselProperties(config) {
+  const properties={};
+  for(const scope of rotatingSectionScopes){
+    const prefix='--'+scope.replace(/[A-Z]/g,char=>'-'+char.toLowerCase())+'-carousel-';
+    const background=config[scope+'Background'];
+    properties[prefix+'bg']=background;
+    properties[prefix+'ink']=surfaceInk(background);
+    properties[prefix+'wave-length']=config[scope+'WaveLength']+'px';
+    properties[prefix+'wave-height']=(config[scope+'WaveEnabled']?config[scope+'WaveHeight']:0)+'px';
+  }
+  return properties;
+}
 
 export function workSectionProperties(config) {
   return {
     '--work-section-background': config.workSectionBackground,
-    '--work-section-heading-ink': luminance(config.workSectionBackground)<headingContrastMidpoint?workHeadingLight:workHeadingDark,
+    '--work-section-heading-ink': surfaceInk(config.workSectionBackground),
     '--work-section-wave-length': config.workSectionWaveLength + 'px',
     '--work-section-wave-height': (config.workSectionWaveEnabled ? config.workSectionWaveHeight : 0) + 'px',
     '--work-section-margin-before': config.workSectionMarginBefore / 100,

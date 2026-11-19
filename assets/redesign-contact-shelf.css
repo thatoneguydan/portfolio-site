@@ -13,20 +13,14 @@
 .rc-inline-contact-shell {
   position:relative;isolation:isolate;
   --contact-shelf-rise:var(--contact-shelf-wave-height,3px);
+  --surface-wave-length:var(--contact-shelf-wave-length,23px);
+  --surface-wave-height:var(--contact-shelf-rise);
   padding-block:calc(var(--contact-shelf-rise) + var(--contact-shelf-padding-before,64px)) calc(var(--contact-shelf-rise) + var(--contact-shelf-padding-after,100px));
 }
 .rc-inline-contact-shell::before {
   content:'';position:absolute;inset-block:0;left:var(--contact-shelf-surface-left,0px);
   width:var(--contact-shelf-surface-width,100%);z-index:-1;pointer-events:none;
   background:var(--contact-shelf-background,#eaeae6);
-  /* The two tiles use the footer's curve and join inside the mask's opaque middle. */
-  --contact-wave-length:var(--contact-shelf-wave-length,23px);
-  --contact-wave-tile:calc(2 * var(--contact-shelf-rise));
-  --contact-wave-join:calc(1.5 * var(--contact-shelf-rise));
-  mask:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' preserveAspectRatio='none'%3E%3Cpath d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V200H0Z'/%3E%3C/svg%3E") center top / var(--contact-wave-length) var(--contact-wave-tile) repeat-x,
-    linear-gradient(transparent var(--contact-wave-join),#000 var(--contact-wave-join) calc(100% - var(--contact-wave-join)),transparent calc(100% - var(--contact-wave-join))),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 200' preserveAspectRatio='none'%3E%3Cpath transform='translate(0 200) scale(1 -1)' d='M0 50C8.333 23.82 16.667 0 25 0S41.667 23.82 50 50S66.667 100 75 100S91.667 76.18 100 50V200H0Z'/%3E%3C/svg%3E") center bottom / var(--contact-wave-length) var(--contact-wave-tile) repeat-x;
 }
 .rc-inline-contact-shell > .rc-inline-contact-close {
   --project-close-bg:#111;--project-close-ink:#fff;

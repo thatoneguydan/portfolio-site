@@ -8,9 +8,9 @@
     if(link.sheet)return Promise.resolve();
     return new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true});});
   }
-  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261119-shared-carousel1'),style('/assets/redesign-footer-contact.css?v=20261119-shared-carousel1')]);
-  const runtime=import('/assets/site-runtime.js?v=20261119-shared-carousel1').then(module=>module.siteReady);
-  const scroll=import('/assets/reveal-scroll.js?v=20261119-shared-carousel1');
+  const styles=Promise.all([style('/assets/redesign-contact-shelf.css?v=20261119-carousel-colors1'),style('/assets/redesign-footer-contact.css?v=20261119-shared-carousel1')]);
+  const runtime=import('/assets/site-runtime.js?v=20261119-carousel-colors1').then(module=>module.siteReady);
+  const scroll=import('/assets/reveal-scroll.js?v=20261119-carousel-colors1');
   const controls=import('/assets/filled-controls.js?v=20261117-navlab1');
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   let active=null,sequence=0,footerHeading;

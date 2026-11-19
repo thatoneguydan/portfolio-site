@@ -1,4 +1,5 @@
-import {replaceProjectContent} from './project-panels.js?v=20261119-shared-carousel1';
+import {replaceProjectContent} from './project-panels.js?v=20261119-carousel-colors1';
+import {cancelPendingRevealScroll,restoreProjectThumbnail} from './reveal-scroll.js?v=20261119-carousel-colors1';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const selector='.rdp-project-card,.ds-gallery > .ds-panel,.rv-video-card[data-youtube-id]';
@@ -10,8 +11,9 @@ function setExpanded(card,shelf,expanded){
   if(expanded)card.setAttribute('aria-controls',shelf.id);
   else card.removeAttribute('aria-controls');
 }
-function close(state){
+function close(state,{restore=false}={}){
   if(!state)return;state.cancelInsert?.();state.pendingCard?.removeAttribute('aria-busy');
+  if(restore)restoreProjectThumbnail(state.card);
   setExpanded(state.card,state.shelf,false);
   if(state.shelf.contains(document.activeElement))state.card.focus({preventScroll:true});
   state.shelf.classList.remove('is-open');state.shelf.setAttribute('aria-hidden','true');state.shelf.inert=true;
@@ -59,9 +61,10 @@ function selectFeatured(card){
 }
 const projectHash=card=>'#'+(card.closest('#featured-work')?'featured-':'project-')+slugFor(card);
 export function openProject(card,{hash=true,reveal=hash}={}){
+  cancelPendingRevealScroll();
   if(card.matches('.ds-panel'))selectFeatured(card);
   const category=card.closest('.rv-shelf');if(category){const toggle=category.querySelector('.rv-shelf-toggle');if(toggle?.getAttribute('aria-expanded')!=='true')toggle?.click();}
-  if(active?.card===card&&!active.pendingCard){close(active);if(hash)history.replaceState(null,'',location.pathname+location.search);return;}
+  if(active?.card===card&&!active.pendingCard){close(active,{restore:reveal});if(hash)history.replaceState(null,'',location.pathname+location.search);return;}
   if(!card.id)card.id='project-source-'+(++serial);
   const title=titleFor(card);
   const gallery=card.closest('.ds-gallery[data-layout=horizontal]');
@@ -82,7 +85,7 @@ export function openProject(card,{hash=true,reveal=hash}={}){
   const clip=document.createElement('div');clip.className='portfolio-panel-clip';
   clip.append(contentFor(card,title));shelf.append(clip);
   active={card,shelf};setExpanded(card,shelf,true);active.cancelInsert=insert(card,shelf);
-  shelf.addEventListener('portfolio-panel-close',()=>{if(active?.shelf===shelf){close(active);history.replaceState(null,'',location.pathname+location.search);}});
+  shelf.addEventListener('portfolio-panel-close',()=>{if(active?.shelf===shelf){close(active,{restore:true});history.replaceState(null,'',location.pathname+location.search);}});
   if(hash)history.replaceState(null,'',location.pathname+location.search+projectHash(card));
 }
 export function installProjectViews(){

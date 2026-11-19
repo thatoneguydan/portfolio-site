@@ -1,7 +1,7 @@
-import {defaults} from './landing-schema.js?v=20261119-shared-carousel1';
+import {defaults} from './landing-schema.js?v=20261119-carousel-colors1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
-import {scrollToReveal} from './reveal-scroll.js?v=20261119-shared-carousel1';
+import {revealProjectThumbnail} from './reveal-scroll.js?v=20261119-carousel-colors1';
 let config={...defaults,...window.portfolioLandingConfig},installed=false,trackFrame=0,trackUntil=0;
 const panels=new Set(),reduced=matchMedia('(prefers-reduced-motion:reduce)');
 const rgba=(hex,opacity)=>`rgba(${hex.match(/\w\w/g).map(s=>parseInt(s,16))},${opacity/100})`;
@@ -207,11 +207,9 @@ function finishClose(state){
   Promise.resolve(state.closeMask).then(()=>{if(!state.open)state.shelf.dispatchEvent(new CustomEvent('portfolio-panel-closed'));});
 }
 function revealProject(state){
-  const {shelf,source,stacked,clearance}=state;
+  const {shelf,source}=state;
   if(!source||!state.open)return;
-  const top=shelf.getBoundingClientRect().top;
-  const remainingClearance=stacked?clearance-(parseFloat(getComputedStyle(shelf).marginTop)||0):0;
-  scrollToReveal(shelf,source,{revealTop:top+remainingClearance,keepPanelVisible:true});
+  revealProjectThumbnail(shelf,source);
 }
 function measure(state){
   if(!state.shelf.isConnected){dispose(state);return;}

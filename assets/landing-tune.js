@@ -1,5 +1,5 @@
 import {targetChoices,rotationWords} from './landing-rotate.js?v=20261119-carousel1';
-import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey,videoCarouselCategories} from './landing-schema.js?v=20261119-shared-carousel1';
+import {controlGroups,normalizeSettings,headlineScopes,headlineSettings,scopedKey,videoCarouselCategories} from './landing-schema.js?v=20261119-carousel-colors1';
 import {mountSectionRotationEditor} from './featured-heading.js?v=20261119-shared-carousel1';
 import {mountTuneSearch} from '/owner/tune-search.js?v=20261119-tunefind1';
 import {mountTunePublish} from '/owner/tune-publish.js?v=20261119-publish2';
@@ -34,6 +34,7 @@ export function mountTune(api){
         ${hasRotation?`<details><summary>Rotating text</summary><div data-controls="${scope}Rotation"></div><div data-section-rotation-editor="${scope}"></div></details>`:''}
       </details>`;
   }
+  const carouselSurfaceEditor=scope=>`<details><summary>Background &amp; waves</summary><div data-controls="${scope}Surface"></div></details>`;
   function videoCategoryEditor({scope,label}){
     return `<details><summary>${label}</summary>
       <div data-controls="${scope}Orientation"></div>
@@ -41,6 +42,7 @@ export function mountTune(api){
       <details><summary>Flavor text</summary><div data-controls="${scope}Flavor"></div>
         <div class="ds-edit-fields"><label>Flavor text<textarea name="${scope}FlavorText" aria-label="${label} flavor text"></textarea></label></div>
       </details>
+      ${carouselSurfaceEditor(scope)}
     </details>`;
   }
   ownerPortal.innerHTML=`<button class="ds-config-launch" type="button" aria-label="Tune staging. Drag to move." aria-expanded="false" aria-controls="dan-demo-config"><span class="ds-config-grip" aria-hidden="true">⠿</span><span>Tune</span></button>
@@ -92,6 +94,7 @@ export function mountTune(api){
       <details><summary>Featured work</summary>
         <div data-controls="featuredOrientation"></div>
         ${sectionHeadingEditor('featured','Featured work',true)}
+        ${carouselSurfaceEditor('featured')}
         <details><summary>Placement below the hero</summary>${selectControls('heroLayout','heroFeaturedSpacing','heroFeaturedBelowFold','heroFeaturedAnchorOffset')}</details>
       </details>
       <details><summary>Video categories</summary>${videoCarouselCategories.map(videoCategoryEditor).join('')}</details>
@@ -196,7 +199,7 @@ export function mountTune(api){
     return api.revision;
   }
   function persist(){
-    try{localStorage.setItem('portfolio-tune-ui-v1',JSON.stringify({controlsOpen:!configPanel.hidden,launcherPosition}));}catch{}
+    try{localStorage.setItem('portfolio-tune-ui-v1',JSON.stringify({launcherPosition}));}catch{}
     const serialized=JSON.stringify(config);
     if(serialized!==lastQueued){lastQueued=serialized;pending={...config};clearTimeout(saveTimer);saveTimer=setTimeout(flush,800);status.textContent='Changes apply now and save automatically.';}
   }
@@ -226,9 +229,8 @@ export function mountTune(api){
     output.textContent=n===0?'Before line 1':n===config.lineCount+1?'After last line':Number.isInteger(n)?'With line '+n:n<1?'Before line 1':n>config.lineCount?'During line '+config.lineCount:`Between lines ${Math.floor(n)}–${Math.ceil(n)}`;
   }
   function optionDisabled(key) {
-    if(key==='contactShelfWaveLength'||key==='contactShelfWaveHeight')return !config.contactShelfWaveEnabled;
-    if(key==='footerWaveLength'||key==='footerWaveHeight')return !config.footerWaveEnabled;
-    if(key==='workSectionWaveLength'||key==='workSectionWaveHeight')return !config.workSectionWaveEnabled;
+    const wave=key.match(/^(.*Wave)(?:Length|Height)$/);
+    if(wave)return !config[wave[1]+'Enabled'];
     if(key==='heroFeaturedAnchorOffset')return !config.heroFeaturedBelowFold;
     if(key==='galleryHeight')return config.galleryAdaptive;
     if(key==='verticalGalleryHeight')return config.verticalGalleryAdaptive;
@@ -439,8 +441,8 @@ export function mountTune(api){
   addEventListener('resize',schedulePlacement);
   window.visualViewport?.addEventListener('resize',schedulePlacement);
   window.visualViewport?.addEventListener('scroll',schedulePlacement);
-  const refreshing=performance.getEntriesByType('navigation')[0]?.type==='reload';
-  configPanel.hidden=!(refreshing||location.hash==='#tune'||saved.controlsOpen);
+  const navigationType=performance.getEntriesByType('navigation')[0]?.type;
+  configPanel.hidden=location.hash!=='#tune'||navigationType==='reload'||navigationType==='back_forward';
   configLauncher.setAttribute('aria-expanded',String(!configPanel.hidden));
   configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.value=config[input.name]);
   configPanel.querySelectorAll('.ds-edit-fields input,.ds-edit-fields textarea').forEach(input=>input.maxLength=2000);
