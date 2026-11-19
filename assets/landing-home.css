@@ -278,7 +278,6 @@
 }
 
 /* Responsive ID badge */
-html:has(#dan-landing-home) {scrollbar-gutter:stable}
 #dan-landing-home .ds-hero {grid-template-columns:minmax(0,var(--hero-text-track,1.08fr)) minmax(0,var(--hero-id-track,1fr));align-items:center;min-height:0}
 #dan-landing-home .ds-intro {max-width:none}
 #dan-landing-home .ds-ticket-stage {width:100%;max-width:none;min-height:0;align-self:center;justify-self:stretch;padding:26px 16px}

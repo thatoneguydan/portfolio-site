@@ -3,7 +3,7 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20261119-rotatewidth1';
+    navScript.src = '/assets/redesign-nav.js?v=20261119-mobilescroll1';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }

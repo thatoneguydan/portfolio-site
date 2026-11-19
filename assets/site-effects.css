@@ -75,14 +75,15 @@ html.portfolio-js [data-headline-pending] {visibility:hidden}
 * {scrollbar-width:thin;scrollbar-color:#92928b transparent}
 html {background-color:#f5f5f2}
 @supports selector(::-webkit-scrollbar) {
-  :where(*:not(html,body)) {scrollbar-color:auto;scrollbar-width:auto}
-  :where(*:not(html,body))::-webkit-scrollbar {width:9px;height:9px;background:transparent}
-  :where(*:not(html,body))::-webkit-scrollbar-track,:where(*:not(html,body))::-webkit-scrollbar-corner {background:transparent}
-  :where(*:not(html,body))::-webkit-scrollbar-thumb {background:#92928b;border:2px solid transparent;background-clip:padding-box;border-radius:20px}
-  :where(*:not(html,body))::-webkit-scrollbar-button {display:none}
+  :where(*:not(html,body,.portfolio-scroll-probe)) {scrollbar-color:auto;scrollbar-width:auto}
+  :where(*:not(html,body,.portfolio-scroll-probe))::-webkit-scrollbar {width:9px;height:9px;background:transparent}
+  :where(*:not(html,body,.portfolio-scroll-probe))::-webkit-scrollbar-track,:where(*:not(html,body,.portfolio-scroll-probe))::-webkit-scrollbar-corner {background:transparent}
+  :where(*:not(html,body,.portfolio-scroll-probe))::-webkit-scrollbar-thumb {background:#92928b;border:2px solid transparent;background-clip:padding-box;border-radius:20px}
+  :where(*:not(html,body,.portfolio-scroll-probe))::-webkit-scrollbar-button {display:none}
 }
 .portfolio-scroll-rail {display:none}
-@media screen and (forced-colors:none){
+.portfolio-scroll-probe {position:fixed;inset:0 auto auto 0;inline-size:64px;block-size:64px;overflow:hidden scroll;visibility:hidden;pointer-events:none}
+@media screen and (width > 720px) and (hover: hover) and (pointer: fine) and (forced-colors: none){
   html[data-page-scroll-rail] {scrollbar-width:none;scrollbar-gutter:auto;--page-content-gutter:var(--page-rail-space)}
   html[data-page-scroll-rail]::-webkit-scrollbar {display:none}
   html[data-page-scroll-rail] > body {padding-inline-end:var(--page-rail-space)}

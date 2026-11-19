@@ -26,12 +26,12 @@ function installLogoInkAlignment(){
   addEventListener('resize',()=>cells.forEach(align),{passive:true});
 }
 
-// Keep window as the sole scroll owner. On systems with a classic gutter, put
-// the thumb over the page so imagery, the footer and the blur continue behind it.
+// A desktop with a classic scrollbar can draw its thumb over the page.
+// Touch and compact layouts keep their platform's native scrollbar.
 function installPageScrollbar(){
   const root=document.documentElement,body=document.body;
-  const embedded=window.parent!==window&&new URLSearchParams(location.search).get('inlineShelf')==='1';
-  const nativeOnly=matchMedia('(forced-colors: active), print');
+  if(window.parent!==window&&new URLSearchParams(location.search).get('inlineShelf')==='1')return;
+  const desktop=matchMedia('screen and (width > 720px) and (hover: hover) and (pointer: fine) and (forced-colors: none)');
   const timeline=CSS.supports('animation-timeline: scroll(root block)');
   let rail,thumb,scrollRange=0,thumbTravel=0,grab=null;
 
@@ -43,9 +43,7 @@ function installPageScrollbar(){
     if(rail.getAttribute('aria-valuenow')!==percent)rail.setAttribute('aria-valuenow',percent);
     if(!timeline)thumb.style.transform='translateY('+progress*thumbTravel+'px)';
   }
-  function mount(gutter){
-    root.style.setProperty('--page-rail-space',gutter+'px');
-    root.dataset.pageScrollRail='';
+  function mount(){
     rail=document.createElement('div');rail.className='portfolio-scroll-rail';rail.tabIndex=0;
     rail.setAttribute('role','scrollbar');rail.setAttribute('aria-label','Scroll page');
     rail.setAttribute('aria-orientation','vertical');
@@ -80,20 +78,22 @@ function installPageScrollbar(){
       if(destination!==undefined&&!event.altKey&&!event.metaKey&&!event.ctrlKey){event.preventDefault();jump(destination);}
     });
     addEventListener('scroll',syncValue,{passive:true});
+    addEventListener('resize',measure,{passive:true});
+    const size=new ResizeObserver(measure);
+    size.observe(root);size.observe(body);
     // The shared modal lock changes the root overflow without changing its size.
     let overflow=root.style.overflowY;
     new MutationObserver(()=>{
-      if(overflow===root.style.overflowY)return;
-      overflow=root.style.overflowY;measure();
+      const next=root.style.overflowY;
+      if(overflow===next)return;
+      overflow=next;measure();
     }).observe(root,{attributes:true,attributeFilter:['style']});
   }
   function measure(){
-    const gutter=innerWidth-root.clientWidth;
-    if(!rail&&!embedded&&!nativeOnly.matches&&gutter>0)mount(gutter);
-    if(!rail)return;
+    if(!rail||!root.hasAttribute('data-page-scroll-rail'))return;
     const height=root.clientHeight,total=root.scrollHeight;
     scrollRange=Math.max(0,total-height);
-    rail.hidden=!scrollRange||nativeOnly.matches||['hidden','clip'].includes(getComputedStyle(root).overflowY);
+    rail.hidden=!scrollRange||['hidden','clip'].includes(getComputedStyle(root).overflowY);
     if(rail.hidden){grab=null;return;}
     const thumbHeight=Math.min(height,Math.max(28,height*height/total));
     thumbTravel=height-thumbHeight;
@@ -101,10 +101,30 @@ function installPageScrollbar(){
     rail.style.setProperty('--thumb-travel',thumbTravel+'px');
     syncValue();
   }
-  const size=new ResizeObserver(measure);
-  size.observe(root);size.observe(body);
-  addEventListener('resize',measure,{passive:true});
-  nativeOnly.addEventListener('change',measure);measure();
+  function refreshMode(){
+    let gutter=0;
+    if(desktop.matches){
+      // The mobile viewport can change independently of the document width.
+      // Measure a real classic scrollbar inside a fixed, out-of-flow box.
+      const probe=document.createElement('div');
+      probe.className='portfolio-scroll-probe';
+      body.append(probe);
+      gutter=probe.offsetWidth-probe.clientWidth;
+      probe.remove();
+    }
+    if(gutter>0){
+      if(!rail)mount();
+      root.style.setProperty('--page-rail-space',gutter+'px');
+      root.dataset.pageScrollRail='';
+      measure();
+    }else if(rail){
+      delete root.dataset.pageScrollRail;
+      root.style.removeProperty('--page-rail-space');
+      rail.hidden=true;
+      grab=null;
+    }
+  }
+  desktop.addEventListener('change',refreshMode);refreshMode();
 }
 export function installSiteInteractions(){
   if(window.__portfolioInteractions)return;window.__portfolioInteractions=true;

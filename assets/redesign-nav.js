@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   // Shared authored emoji and portfolio hover treatment, including project shelves.
-  import('/assets/site-effects.js?v=20261119-rotatewidth1').catch(()=>{});
+  import('/assets/site-effects.js?v=20261119-mobilescroll1').catch(()=>{});
   import('/assets/site-runtime.js?v=20261119-rotatewidth1').catch(()=>{});
 
   /* Use the original portfolio favicon as a real asset on every redesign route. */
