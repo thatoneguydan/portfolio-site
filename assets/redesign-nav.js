@@ -1,5 +1,8 @@
 (() => {
   'use strict';
+  // Shared authored emoji and portfolio hover treatment, including project shelves.
+  import('/assets/site-effects.js?v=public-c9903642b1-6c208b61').catch(()=>{});
+  import('/assets/site-runtime.js?v=public-c9903642b1-6c208b61').catch(()=>{});
 
   /* Use the original portfolio favicon as a real asset on every redesign route. */
   const faviconHref = '/favicon.ico?v=20260910-original';
@@ -28,13 +31,13 @@
   if (!document.querySelector(`link[href^="${stylesheetPath}"]`)) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `${stylesheetPath}?v=20260909-a`;
+    link.href = `${stylesheetPath}?v=20261118-optical1`;
     document.head.append(link);
   }
 
   if (!document.querySelector('script[data-redesign-contact-shelf]')) {
     const contactShelfScript = document.createElement('script');
-    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=20260911-e';
+    contactShelfScript.src = '/assets/redesign-contact-shelf.js?v=public-c9903642b1-6c208b61';
     contactShelfScript.dataset.redesignContactShelf = '';
     document.head.append(contactShelfScript);
   }
@@ -45,10 +48,8 @@
   if (document.body.classList.contains('video-redesign')) {
     document.querySelector('.rv-intro .rd-eyebrow')?.remove();
     document.querySelector('.rv-shelves-head')?.remove();
-    const title = document.querySelector('.rv-intro h1');
     const intro = document.querySelector('.rv-intro-copy');
     const clientShelfTitle = document.querySelector('#freelance .rv-shelf-copy h2');
-    if (title) title.textContent = 'Video that holds attention.';
     if (intro) intro.textContent = 'Editing, essays, short-form, and channel work. A selection spanning client stories, long-form editorial, social video, and gaming content.';
     if (clientShelfTitle) clientShelfTitle.textContent = 'Client Work';
 
@@ -72,9 +73,7 @@
   }
 
   if (document.body.classList.contains('discipline-photo')) {
-    const title = document.querySelector('.rdp-intro h1');
     const intro = document.querySelector('.rdp-intro-copy');
-    if (title) title.textContent = 'Portraits, places, and light.';
     if (intro) intro.textContent = 'Portraits, events, travel, and experiments. Client work and personal projects shaped by color, light, and atmosphere.';
   }
 
@@ -92,9 +91,45 @@
     toggle.setAttribute('aria-label', 'Open navigation');
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-controls', nav.id);
-    toggle.innerHTML = '<span></span><span></span><span></span>';
     header.insertBefore(toggle, nav);
   }
+
+  // EasyUI HamburgerMenu: rounded 24px strokes and springSnappy physics.
+  // Adapted without adding a React runtime. See THIRD-PARTY-NOTICES.txt.
+  toggle.innerHTML = '<span class="ds-hamburger" aria-hidden="true"><span></span><span></span><span></span></span>';
+  const lines = [...toggle.querySelectorAll('.ds-hamburger > span')];
+  const menuReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let menuProgress = 0, menuVelocity = 0, menuTarget = 0, menuFrame = 0, menuTime = 0;
+  const paintMenu = () => {
+    const gap = 24 * .28 * (1 - menuProgress);
+    lines[0].style.transform = `translateY(${-gap}px) rotate(${45 * menuProgress}deg)`;
+    lines[1].style.transform = `scaleX(${1 - .7 * menuProgress})`;
+    lines[1].style.opacity = 1 - menuProgress;
+    lines[2].style.transform = `translateY(${gap}px) rotate(${-45 * menuProgress}deg)`;
+  };
+  const tickMenu = now => {
+    menuFrame = 0;
+    const elapsed = Math.min(.04, (now - menuTime) / 1000);
+    menuTime = now;
+    const steps = Math.max(1, Math.ceil(elapsed * 240)), dt = elapsed / steps;
+    for (let i = 0; i < steps; i++) {
+      menuVelocity += ((menuTarget - menuProgress) * 380 - menuVelocity * 30) / .5 * dt;
+      menuProgress += menuVelocity * dt;
+    }
+    if (Math.abs(menuTarget - menuProgress) + Math.abs(menuVelocity) < .0005) {
+      menuProgress = menuTarget; menuVelocity = 0;
+    } else menuFrame = requestAnimationFrame(tickMenu);
+    paintMenu();
+  };
+  const morphMenu = open => {
+    menuTarget = open ? 1 : 0;
+    if (menuReducedMotion.matches) {
+      cancelAnimationFrame(menuFrame); menuFrame = 0; menuProgress = menuTarget; menuVelocity = 0; paintMenu();
+    } else if (!menuFrame && menuProgress !== menuTarget) {
+      menuTime = performance.now(); menuFrame = requestAnimationFrame(tickMenu);
+    }
+  };
+  paintMenu();
 
   header.classList.add('has-nav-toggle');
   const mobile = window.matchMedia('(max-width: 720px)');
@@ -104,6 +139,7 @@
     header.classList.toggle('nav-open', shouldOpen);
     toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
     toggle.setAttribute('aria-label', shouldOpen ? 'Close navigation' : 'Open navigation');
+    morphMenu(shouldOpen);
     if (restoreFocus) toggle.focus();
   };
 
@@ -222,3 +258,4 @@
     });
   }
 })();
+

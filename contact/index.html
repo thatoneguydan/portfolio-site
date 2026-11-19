@@ -9,13 +9,23 @@
 <meta property="og:description" content="Get in touch about a project, ongoing creative work, or a role in video, design, photography, and visual storytelling.">
 <meta property="og:image" content="/assets/media/4d9f65ebcd7095fda7bca41dce9cd3e7f309222f4eca92bf3c7b526cf9ef6af3.png">
 <link rel="canonical" href="/contact">
+<link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <link rel="stylesheet" href="/assets/clean-site.css?v=0f5f0392c30d3d9a">
-<link rel="stylesheet" href="/assets/redesign-home.css?v=20260911-header-stable">
-<link rel="stylesheet" href="/assets/redesign-header-stable.css?v=20260911-a">
-<link rel="stylesheet" href="/assets/redesign-nav.css?v=20260911-a">
-<link rel="stylesheet" href="/assets/redesign-contact.css?v=20260910-b">
+<link rel="stylesheet" href="/assets/redesign-home.css?v=20261118-cardnav1">
+<link rel="stylesheet" href="/assets/redesign-header-stable.css?v=20261118-workheading1">
+<link rel="stylesheet" href="/assets/redesign-nav.css?v=20261118-cardedge1">
+<link rel="stylesheet" href="/assets/redesign-contact.css?v=20261118-sizing1">
 <link rel="stylesheet" href="/assets/redesign-page-intro.css?v=20260911-b">
 <meta name="generator" content="portfolio-redesign-prototype">
+<script>if(new URLSearchParams(location.search).get('inlineShelf')==='1')document.documentElement.classList.add('contact-inline-embed');</script>
+<style>:root{--footer-height-scale:0.6;--footer-heading-scale:0.56;--footer-heading-weight:400;--footer-button-scale:0.7;--footer-wave-length:23px;--footer-wave-height:3px;--work-section-background:#901d1d;--work-section-heading-ink:#f5f5f2;--work-section-wave-length:23px;--work-section-wave-height:3px;--work-section-margin-before:1;--work-section-padding-before:1.6;--work-section-padding-after:1.6;--work-video-background:#f5f5f2;--work-design-background:#f5f5f2;--work-photo-background:#f5f5f2}</style>
+<link rel="stylesheet" href="/assets/site-effects.css?v=20261118-hero3">
+<link rel="stylesheet" href="/assets/project-panels.css?v=20261118-tune2">
+<script>document.documentElement.classList.add('portfolio-js')</script><noscript><style>[data-headline-pending]{visibility:visible!important}</style></noscript>
+<link rel="modulepreload" href="/assets/site-runtime.js?v=public-c9903642b1-6c208b61">
+<link rel="modulepreload" href="/assets/site-emoji.js?v=20261118-perf1">
+<link rel="modulepreload" href="/assets/landing-schema.js?v=public-c9903642b1-6c208b61">
+<link rel="modulepreload" href="/assets/headline-view.js?v=public-c9903642b1-6c208b61">
 </head>
 <body class="home-redesign contact-redesign">
 <header class="site-header">
@@ -23,12 +33,13 @@
   <nav class="site-nav" aria-label="Primary"><a href="/video">Video</a><a href="/design">Design</a><a href="/photo">Photo</a><a href="/contact" aria-current="page">Contact</a></nav>
 </header>
 
+<div class="portfolio-page-content">
 <main class="site-main">
   <section class="rc-contact">
     <div class="rc-contact-copy">
       <div>
         <p class="rd-eyebrow">Contact</p>
-        <h1>Let's make something worth looking at.</h1>
+        <h1 data-headline-pending>Let's make<br>something<br>worth<br>looking at.</h1>
         <p class="rc-contact-lede">Whether you need help with a single project, ongoing creative support, or someone to join your team, tell me what you're working toward and where I could help.</p>
       </div>
 
@@ -43,7 +54,7 @@
       <form class="contact-form" data-portfolio-contact data-contact-endpoint="https://dantylersmith.com/api/contact" data-turnstile-sitekey="0x4AAAAAAEtIIAXkhptRjw-6">
         <div class="form-field"><label for="contact-field1">Your name *</label><input id="contact-field1" type="text" name="field1" placeholder="Name" autocomplete="name" required></div>
         <div class="form-field"><label for="contact-email">Your email *</label><input id="contact-email" type="email" name="email" placeholder="Email" autocomplete="email" required></div>
-        <div class="form-field"><label for="contact-field2">Message *</label><textarea id="contact-field2" name="field2" placeholder="A project, ongoing support, a role on your team—whatever context is useful…" required></textarea></div>
+        <div class="form-field"><label for="contact-field2">Message *</label><textarea id="contact-field2" name="field2" placeholder="A project, an idea, an role on your team? I'm all ears!" required></textarea></div>
         <div hidden aria-hidden="true"><label for="contact-website">Website</label><input id="contact-website" type="text" name="website" autocomplete="off" tabindex="-1"></div>
         <div data-contact-turnstile></div>
         <button class="portfolio-button" type="submit">Start the conversation</button>
@@ -52,6 +63,7 @@
     </div>
   </section>
 </main>
+</div>
 <script>
 (() => {
   const keys = [29, 71, 43, 97, 13, 53, 83];
@@ -66,6 +78,8 @@
   node.href = `tel:+${digits.length === 10 ? '1' : ''}${digits}`;
 })();
 </script>
-<script src="/assets/portfolio-contact.js?v=20260911-header-stable" defer></script>
+<script src="/assets/portfolio-contact.js?v=public-c9903642b1-6c208b61" defer></script>
+<script type="module" src="/assets/site-effects.js?v=public-c9903642b1-6c208b61"></script>
+<script type="module" src="/assets/contact-ready.js?v=public-c9903642b1-6c208b61"></script>
 </body>
 </html>

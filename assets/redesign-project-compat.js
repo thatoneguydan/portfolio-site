@@ -2,6 +2,12 @@
   'use strict';
 
   if (document.body.classList.contains('project-redesign')) return;
+  if (window.portfolioStandaloneProject && document.body.classList.contains('project-compat-redesign')) {
+    // The authored project shell is already laid out. Activate shared chrome
+    // at its original lifecycle point so the legacy page keeps its navigation.
+    document.body.classList.add('home-redesign', 'project-redesign');
+    return;
+  }
 
   const designRoutes = new Set([
     '/couch-of-games-logo-brand-identity',
@@ -60,7 +66,7 @@
   };
 
   ensureStylesheet('/assets/redesign-production-baseline.css?v=20260909-a');
-  ensureStylesheet('/assets/redesign-home.css?v=20260908-production-baseline');
+  ensureStylesheet('/assets/redesign-home.css?v=20261118-cardnav1');
   ensureStylesheet('/assets/redesign-project.css?v=20260909-b');
   ensureStylesheet('/assets/redesign-project-compat.css?v=20260910-clean');
 

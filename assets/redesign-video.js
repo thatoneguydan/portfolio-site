@@ -3,20 +3,10 @@
 
   if (!document.querySelector('script[data-redesign-nav]')) {
     const navScript = document.createElement('script');
-    navScript.src = '/assets/redesign-nav.js?v=20260910-live';
+    navScript.src = '/assets/redesign-nav.js?v=public-c9903642b1-6c208b61';
     navScript.dataset.redesignNav = '';
     document.head.append(navScript);
   }
-
-  const ensureStylesheet = (href) => {
-    if (document.querySelector(`link[href^="${href.split('?')[0]}"]`)) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    document.head.append(link);
-  };
-
-  ensureStylesheet('/assets/redesign-video-refine.css?v=20260909-b');
 
   const descriptions = {
     o8DPtyrcZ5o: "This was an edit for LifeBUILDERS Detroit. Their goal was to showcase the fun energy of camp, explore it's lasting impact, and offer people a chance to donate.",
@@ -68,11 +58,21 @@
     dialogDescription = dialogInfo.querySelector('.rv-dialog-description');
   }
 
+  function loadThumbnails(shelf) {
+    for (const image of shelf.querySelectorAll('img[data-video-thumb]')) {
+      const fallback = image.dataset.videoThumb;
+      image.removeAttribute('data-video-thumb');
+      image.decoding = 'async';
+      image.addEventListener('error', () => { image.src = fallback; }, { once: true });
+      image.src = fallback.replace('/hqdefault.jpg', '/maxresdefault.jpg');
+    }
+  }
   const setShelfOpen = (shelf, shouldOpen) => {
     const toggle = shelf.querySelector('.rv-shelf-toggle');
     const panel = shelf.querySelector('.rv-shelf-panel');
     if (!toggle || !panel) return;
 
+    if (shouldOpen) loadThumbnails(shelf);
     if (panel.hidden) panel.hidden = false;
     toggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
     panel.classList.toggle('is-open', shouldOpen);
@@ -91,6 +91,9 @@
     const toggle = shelf.querySelector('.rv-shelf-toggle');
     const panel = shelf.querySelector('.rv-shelf-panel');
     if (panel) panel.hidden = false;
+    for (const event of ['pointerenter', 'focus', 'pointerdown']) {
+      toggle?.addEventListener(event, () => loadThumbnails(shelf), { once: true, passive: true });
+    }
 
     toggle?.addEventListener('click', () => {
       const isOpen = toggle.getAttribute('aria-expanded') === 'true';
@@ -116,41 +119,12 @@
     }
   });
 
-  document.querySelectorAll('.rv-video-thumb img').forEach((image) => {
-    const fallback = image.src;
-    if (!fallback.includes('/hqdefault.jpg')) return;
-    image.addEventListener('error', () => {
-      if (image.src !== fallback) image.src = fallback;
-    }, { once: true });
-    image.src = fallback.replace('/hqdefault.jpg', '/maxresdefault.jpg');
-    image.decoding = 'async';
-  });
-
   const resetPlayer = () => {
     if (frame) frame.src = '';
   };
 
-  const openVideoCard = (card) => {
-    if (!card || !dialog || !frame || typeof dialog.showModal !== 'function') return false;
-
-    const id = card.getAttribute('data-youtube-id');
-    const title = card.getAttribute('data-video-title') || 'Video';
-    const kicker = card.querySelector('.rv-video-kicker')?.textContent?.trim() || 'Video';
-    if (!id) return false;
-
-    const containingShelf = card.closest('.rv-shelf');
-    if (containingShelf) openOnly(containingShelf, false);
-
-    if (dialogTitle) dialogTitle.textContent = kicker;
-    if (dialogKicker) dialogKicker.textContent = kicker;
-    if (dialogInfoTitle) dialogInfoTitle.textContent = title;
-    if (dialogDescription) dialogDescription.textContent = card.getAttribute('data-video-description') || '';
-
-    frame.title = title;
-    frame.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;
-    if (!dialog.open) dialog.showModal();
-    return true;
-  };
+  videoCards.forEach(card=>{if(!card.dataset.videoDescription)card.dataset.videoDescription=descriptions[card.dataset.youtubeId]||'';});
+  const openVideoCard = card => {if(!card)return false;import('/assets/project-views.js?v=public-c9903642b1-6c208b61').then(module=>{module.installProjectViews();module.openProject(card);});return true;};
 
   videoCards.forEach((card) => {
     card.addEventListener('click', (event) => {
@@ -181,3 +155,4 @@
 
   dialog?.addEventListener('close', resetPlayer);
 })();
+
