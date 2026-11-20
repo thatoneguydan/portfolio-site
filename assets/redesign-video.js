@@ -1,5 +1,5 @@
-import {siteReady} from './site-runtime.js?v=20261120-video-curation1';
-import {mountProjectCarousel} from './project-carousel.js?v=20261119-mobile-polish1';
+import {siteReady} from './site-runtime.js?v=20261120-portrait-carousel1';
+import {mountProjectCarousel} from './project-carousel.js?v=20261120-portrait-carousel1';
 import {mountSectionHeading} from './featured-heading.js?v=20261119-shared-carousel1';
 import {installProjectViews,openProject} from './project-views.js?v=20261120-video-curation1';
 

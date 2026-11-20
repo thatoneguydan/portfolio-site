@@ -124,7 +124,7 @@ export function mountTune(api){
     </details>
     <details><summary>Page headlines</summary>${['video','design','photo','contact'].map(scope=>headlineEditor(scope,scope[0].toUpperCase()+scope.slice(1)+' headline')).join('')}</details>
     <details><summary>Projects &amp; galleries</summary>
-      <details><summary>Thumbnails & captions</summary><details><summary>Caption blur</summary><div data-controls="portfolioEffects"></div></details><details><summary>Design inner shadow</summary><div data-controls="designShadow"></div></details></details>
+      <details><summary>Thumbnails & captions</summary><details><summary>Caption blur</summary><div data-controls="portfolioEffects"></div></details><details><summary>Design &amp; video inner shadow</summary><div data-controls="designShadow"></div></details></details>
       <details><summary>Project panels</summary>
         <details><summary>Surface & tail</summary><div data-controls="projectPanel"></div></details>
         <details><summary>Text & content spacing</summary><div data-controls="projectText"></div></details><details><summary>Drop shadow</summary><div data-controls="projectShadow"></div></details>

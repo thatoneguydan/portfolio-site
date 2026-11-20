@@ -35,7 +35,7 @@
     #dan-landing-home .ds-ticket[data-disabled=true]{opacity:.6}
     #dan-landing-home .ds-ticket::after{content:"";position:absolute;inset:0;z-index:4;border:var(--ticket-border-width,1px) solid var(--ticket-border-color,rgba(245,245,242,.16));border-radius:inherit;pointer-events:none}
 /* The site owns the header, page gutters, type family, project shelves and footer. */
-#dan-landing-home {isolation:auto; font-family:inherit}
+#dan-landing-home .ds-featured {isolation:auto}
 @property --work-page-width {
   syntax:"<length>";
   inherits:true;
