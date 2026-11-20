@@ -637,17 +637,18 @@ controlGroups.workSectionHeading=controlGroups.featuredHeading.map(([type,key,la
 controlGroups.workSectionHeading.push(['select','workSectionHeadingAnchor','Growth anchor',['top','bottom']]);
 
 export const videoCarouselCategories = [
-  {scope:'videoClient', label:'Client Video & Editing', flavor:'Story-led edits for nonprofits, businesses, and community organizations.'},
+  {scope:'videoClient', label:'Client Work', flavor:'Story-led edits for businesses, nonprofits, and community organizations.'},
+  // Keep the saved scope for the section that previously held Long-Form Gaming.
+  {scope:'videoGaming', label:'Short-Form Client Work', flavor:'Vertical edits for clients, from product demos and marketing spots to nonprofit stories.', orientation:'portrait'},
   {scope:'videoEssays', label:'Video Essays', flavor:'Long-form essays that turn games and media habits into approachable stories about behavior, nostalgia, and attention.'},
   {scope:'videoShort', label:'Short-Form Video', flavor:'Vertical edits built around fast hooks, clean pacing, and moments worth stopping for.', orientation:'portrait'},
-  {scope:'videoPromos', label:'Promos & Experiments', flavor:'Promotional and experimental work that sits outside the usual buckets.'},
-  {scope:'videoGaming', label:'Long-Form Gaming', flavor:'A sample from a 100+ video channel I produced end to end—from capture and lighting to edit, thumbnail, and publishing.'}
+  {scope:'videoPromos', label:'Experiments & Personal', flavor:'Creative experiments and personal projects, from a student conference promo to a gaming playthrough.'}
 ];
 const rotatingSectionScopes=['featured',...videoCarouselCategories.map(category=>category.scope)];
 // Tints of the waving hand, smiling face, and the four palette dots.
 const carouselBackgrounds={
-  featured:'#fdca61',videoClient:'#fdab81',videoEssays:'#e39af7',
-  videoShort:'#f984b4',videoPromos:'#007660',videoGaming:'#7abcf8'
+  featured:'#fdca61',videoClient:'#fdab81',videoGaming:'#e39af7',
+  videoEssays:'#f984b4',videoShort:'#007660',videoPromos:'#7abcf8'
 };
 for(const {scope,label,flavor,orientation='landscape'} of videoCarouselCategories){
   for(const [suffix,value] of Object.entries({

@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=20261119-opaque-wave1';
+import {defaults} from './landing-schema.js?v=20261120-video-curation1';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 import {revealProjectThumbnail} from './reveal-scroll.js?v=20261119-carousel-colors1';
