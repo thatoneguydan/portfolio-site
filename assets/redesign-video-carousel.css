@@ -1,5 +1,9 @@
 .video-redesign .site-main {padding-bottom:0}
-.video-redesign .rd-footer-cta {--footer-wave-backdrop:var(--video-gaming-carousel-bg)}
+.video-redesign .rd-footer-cta {--footer-wave-backdrop:var(--video-promos-carousel-bg)}
+
+/* The wave surfaces share one paint context beneath the page content. Keep
+   each band unisolated so an open panel's shadow can reach the next surface. */
+.video-redesign .portfolio-page-content {isolation:isolate}
 
 .rv-carousels {
   container-type:inline-size;
@@ -14,6 +18,7 @@
 .rv-carousels > [data-carousel-scope=videoGaming] + .ds-carousel-section {--carousel-prev-background:var(--video-gaming-carousel-bg)}
 .rv-carousels > .ds-carousel-section {
   min-width:0;
+  isolation:auto;
   scroll-margin-block-start:104px;
 }
 .rv-carousel-flavor {
@@ -39,12 +44,6 @@
   :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) > .ds-panel[data-focused=true] {height:auto;aspect-ratio:16/9}
   :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout])[data-orientation=portrait] > .ds-panel {height:150px}
   :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout])[data-orientation=portrait] > .ds-panel[data-focused=true] {height:auto;aspect-ratio:4/5}
-  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) .ds-gallery-image {width:100%}
-  :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout])[data-orientation=portrait] .ds-panel[data-video-portrait=true] .ds-gallery-image {
-    --portrait-media-height:max(100%,calc(100cqi * 16 / 9));
-    top:calc((100% - var(--portrait-media-height)) / 2);
-    height:var(--portrait-media-height);
-  }
   :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) .ds-caption {opacity:1;transform:none;width:calc(100% - 40px)}
   :is(#dan-landing-home,.ds-carousel-section) .ds-gallery:not([data-layout]) .ds-panel-gradient {opacity:1}
 }

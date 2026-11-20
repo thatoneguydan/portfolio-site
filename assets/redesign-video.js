@@ -1,7 +1,7 @@
-import {siteReady} from './site-runtime.js?v=public-bbcdffe8d1-86b4d982';
-import {mountProjectCarousel} from './project-carousel.js?v=20261119-mobile-polish1';
+import {siteReady} from './site-runtime.js?v=public-19c7b55447-48419883';
+import {mountProjectCarousel} from './project-carousel.js?v=20261120-portrait-carousel1';
 import {mountSectionHeading} from './featured-heading.js?v=20261119-shared-carousel1';
-import {installProjectViews,openProject} from './project-views.js?v=public-bbcdffe8d1-86b4d982';
+import {installProjectViews,openProject} from './project-views.js?v=public-19c7b55447-48419883';
 
 const sections=[...document.querySelectorAll('.rv-carousels > [data-carousel-scope]')];
 if(sections.length){
@@ -39,7 +39,7 @@ if(sections.length){
 
   installProjectViews();
   const slug=location.hash.slice(1);
-  const category=sections.find(section=>section.id===slug);
+  const category=sections.find(section=>section.id===slug||section.dataset.legacyAnchor===slug);
   const videoID=new URLSearchParams(location.search).get('play');
   if(videoID&&!slug.startsWith('project-')){
     const card=[...document.querySelectorAll('.rv-carousels [data-youtube-id]')]

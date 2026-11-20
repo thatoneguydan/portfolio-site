@@ -1,12 +1,12 @@
 import {installAuthoredEmoji} from './site-emoji.js?v=20261118-perf1';
 import {setPaletteSaturation} from './palette-glyph.js?v=20261117-navlab1';
-import {defaults} from './landing-schema.js?v=public-bbcdffe8d1-86b4d982';
+import {defaults} from './landing-schema.js?v=public-19c7b55447-48419883';
 import {installSettledShelfText} from './settled-text.js';
-import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261119-shared-carousel1';
-import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=public-bbcdffe8d1-86b4d982';
-import './site-runtime.js?v=public-bbcdffe8d1-86b4d982';
-import {installSiteInteractions} from './site-interactions.js?v=public-bbcdffe8d1-86b4d982';
-import {installProjectViews} from './project-views.js?v=public-bbcdffe8d1-86b4d982';
+import {captionBlurGeometry,captionShadeGradient} from './gallery-layout.js?v=20261120-portrait-carousel1';
+import {installProjectPanels,applyProjectConfig} from './project-panels.js?v=public-19c7b55447-48419883';
+import './site-runtime.js?v=public-19c7b55447-48419883';
+import {installSiteInteractions} from './site-interactions.js?v=public-19c7b55447-48419883';
+import {installProjectViews} from './project-views.js?v=public-19c7b55447-48419883';
 import {installImageViewer} from './image-viewer.js?v=20261118-hero3';
 
 const href='/assets/site-effects.css?v=20261119-opaque-wave1';
@@ -128,8 +128,11 @@ function captionVisible(card){
   return !!card.querySelector('.rdp-project-meta')&&(card.matches(':hover,:focus-visible')||matchMedia('(hover:none)').matches);
 }
 function innerShadow(card){
-  const design=!!card.closest('.discipline-design')||(card.matches('.ds-panel')&&/^DESIGN\b/i.test(card.querySelector('small')?.textContent.trim()||''));
-  const media=card.matches('.ds-panel')?card:card.querySelector('.rdp-project-media');if(!design||!media)return;
+  const carousel=card.matches('.ds-panel');
+  const video=card.matches('[data-youtube-id],[data-video-id]');
+  const design=!!card.closest('.discipline-design')||(carousel&&/^DESIGN\b/i.test(card.querySelector('small')?.textContent.trim()||''));
+  if(!video&&!design)return;
+  const media=carousel?card:card.querySelector('.rdp-project-media');if(!media)return;
   let layer=media.querySelector(':scope > .portfolio-thumbnail-shadow');
   if(!layer){layer=document.createElement('span');layer.className='portfolio-thumbnail-shadow';layer.setAttribute('aria-hidden','true');media.append(layer);}
   layer.hidden=!config.designInnerShadow;

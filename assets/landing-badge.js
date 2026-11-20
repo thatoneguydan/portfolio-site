@@ -3,6 +3,8 @@ import {appendEmojiText} from './site-emoji.js?v=20261118-perf1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 import {lockOverlayScroll,unlockOverlayScroll} from './overlay-scroll.js?v=20261118-perf1';
 
+const tapHintPeriod=3000;
+
 export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,fullHeroScale}){
   const hero=root.querySelector('.ds-hero');
   const actionRow=intro.querySelector('.ds-intro-actions');
@@ -37,14 +39,31 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
   const motion={x:0,y:0,h:1,vx:0,vy:0,vh:0,tx:0,ty:0,th:1};
   let visible=false,idlePhase=0,idleWeight=0,lastPointerTime=0,hovering=false;
   let idleTarget=0,idleFrom=0,idleTransition=0;
+  let tapHintTimer=0,tapHintOffset=0,tapHintVelocity=0;
   const hoverScale=()=>compact||opened?config.badgeHoverScale:1+config.ticketFullHoverGrowth/100;
   const idleEnabled=()=>config.badgeIdleTilt&&config.ticketTilt&&!config.ticketDisabled&&(compact||opened)&&visible&&!document.hidden&&!reduced.matches&&!drag;
+  const tapHintEnabled=()=>compact&&hasEntered&&visible&&!document.hidden&&!reduced.matches&&!config.ticketDisabled&&!opened&&!busy&&!morphing&&!entrance;
+  function clearTapHint(){
+    clearTimeout(tapHintTimer);tapHintTimer=0;
+    tapHintOffset=tapHintVelocity=0;
+  }
+  function scheduleTapHint(){
+    if(!tapHintEnabled()){clearTapHint();return;}
+    if(!tapHintTimer)tapHintTimer=setTimeout(()=>{
+      tapHintTimer=0;
+      if(!tapHintEnabled())return;
+      tapHintVelocity=-1.6*inlineGeometry.width;
+      animateMotion();
+      scheduleTapHint();
+    },tapHintPeriod);
+  }
   function updateIdleVisibility(){
     if(!visible||document.hidden){
       const pose=blendIdlePose(motion.x,motion.y,opened?0:scrollTilt,idlePhase,config.badgeIdleAngle,idleWeight);
       motion.x=motion.tx=pose.x;motion.y=motion.ty=pose.y;motion.vx=motion.vy=0;
       idleWeight=idleFrom=idleTarget=0;idleTransition=performance.now();
     }
+    scheduleTapHint();
     animateMotion();
   }
   const visibilityObserver=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;updateIdleVisibility();});
@@ -81,7 +100,8 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     }
     paintedPose=pose;
     const {rotation,x,y,parallaxScale,offsetX}=pose;
-    motionLayer.style.transform=`translateX(${offsetX}px) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${x}deg) rotateY(${y}deg) scale(${scale})`;
+    // Translation is outside the tilt, scale and parallax. The carrier's hit area stays still.
+    motionLayer.style.transform=`translate(${offsetX}px,${tapHintOffset}px) perspective(${config.ticketPerspective}px) rotate(${rotation}deg) rotateX(${x}deg) rotateY(${y}deg) scale(${scale})`;
     const parallax=config.ticketParallax*parallaxScale;
     const depth=config.ticketTiltMax>0?parallax/config.ticketTiltMax:0;
     const px=clamp(-y*depth,-parallax,parallax),py=clamp(x*depth,-parallax,parallax);
@@ -103,14 +123,22 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     const elapsed=clamp((now-idleTransition)/(idleTarget?config.badgeIdleEase:Math.min(400,config.badgeIdleEase)),0,1);
     const ease=elapsed*elapsed*(3-2*elapsed);
     idleWeight=idleFrom+(idleTarget-idleFrom)*ease;
-    for(let step=0;step<3;step++)for(const axis of ['x','y','h']){
-      const velocity='v'+axis,target='t'+axis;
-      motion[velocity]+=(220*(motion[target]-motion[axis])-24*motion[velocity])/.6*(dt/3);
-      motion[axis]+=motion[velocity]*(dt/3);
+    const stepTime=dt/3;
+    for(let step=0;step<3;step++){
+      for(const axis of ['x','y','h']){
+        const velocity='v'+axis,target='t'+axis;
+        motion[velocity]+=(220*(motion[target]-motion[axis])-24*motion[velocity])/.6*stepTime;
+        motion[axis]+=motion[velocity]*stepTime;
+      }
+      if(tapHintOffset||tapHintVelocity){
+        tapHintVelocity-= (205*tapHintOffset+16*tapHintVelocity)*stepTime;
+        tapHintOffset+=tapHintVelocity*stepTime;
+      }
     }
+    if(Math.abs(tapHintOffset)<.02&&Math.abs(tapHintVelocity)<.35)tapHintOffset=tapHintVelocity=0;
     paint();
     const resting=['x','y','h'].every(axis=>Math.abs(motion['t'+axis]-motion[axis])+Math.abs(motion['v'+axis])<.008);
-    if(resting&&!idle&&idleWeight<.001&&!morphStartPose){for(const axis of ['x','y','h']){motion[axis]=motion['t'+axis];motion['v'+axis]=0;}idleWeight=0;paint();frame=0;lastTime=0;}
+    if(resting&&!idle&&idleWeight<.001&&!morphStartPose&&!tapHintOffset&&!tapHintVelocity){for(const axis of ['x','y','h']){motion[axis]=motion['t'+axis];motion['v'+axis]=0;}idleWeight=0;paint();frame=0;lastTime=0;}
     else frame=requestAnimationFrame(tick);
   }
   function animateMotion(){
@@ -216,19 +244,21 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     look.copy={opacity:getComputedStyle(copy).opacity,visibility:'visible'};
     // A swipe turns the carrier around the same center as the painted card.
     look.pose={...paintedPose,rotation:paintedPose.rotation+Math.atan2(matrix.b,matrix.a)*180/Math.PI,parallaxScale:paintedPose.parallaxScale*scale,offsetX:paintedPose.offsetX*carrierScale};
+    look.tapHintOffset=tapHintOffset;
     return look;
   }
   function cancelEntrance(){entrance?.cancel();entrance=null;if(hasEntered)carrier.style.visibility='visible';}
   function settleHover(){hovering=carrier.matches(':hover');motion.th=!busy&&!morphing&&hovering?hoverScale():1;animateMotion();}
   function flip(start,end,from){
     const generation=++morphGeneration;cancelEntrance();
+    clearTapHint();
     morphStartPose=null;
     morphParts.forEach(a=>a.cancel());morphParts=[];motion.h=motion.th=1;motion.vh=0;paint();
     if(reduced.matches){morphing=false;return Promise.resolve();}
     end=carrier.getBoundingClientRect();
     morphing=true;
     const to=captureLook();
-    const dx=start.left+start.width/2-end.left-end.width/2,dy=start.top+start.height/2-end.top-end.height/2;
+    const dx=start.left+start.width/2-end.left-end.width/2,dy=start.top+start.height/2-end.top-end.height/2+from.tapHintOffset;
     // One direct physical size interpolation prevents the old size*scale bulge.
     const options={duration:config.badgeMorphDuration,easing:'cubic-bezier(.2,.85,.2,1)',fill:'backwards'};
     morph=carrier.animate([
@@ -237,7 +267,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
     ],options);
     morphParts=[morph,...[[ticket,'ticket'],[surface,'surface'],[photoWindow,'photo'],[nameLayout,'name'],[badgeNameLayout,'badgeName'],[copyLayout,'copyLayout'],[copy,'copy']].map(([el,key])=>el.animate([from[key],to[key]],options))];
     morphStartPose=from.pose;paint();animateMotion();
-    return Promise.all(morphParts.map(a=>a.finished.catch(()=>{}))).then(()=>{if(generation===morphGeneration){morphStartPose=null;morphing=false;paint();settleHover();}});
+    return Promise.all(morphParts.map(a=>a.finished.catch(()=>{}))).then(()=>{if(generation===morphGeneration){morphStartPose=null;morphing=false;paint();settleHover();scheduleTapHint();}});
   }
   function alignFullID(){
     if(compact||!inlineAnchor)return;
@@ -299,6 +329,7 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
       if(morphLayout)flip(before,carrier.getBoundingClientRect(),from);
     }else if(opened&&!busy){placeExpanded();}
     if(!busy&&!morphing)motion.th=hovering?hoverScale():1;
+    scheduleTapHint();
     firstLayout=false;scrollTop=hero.getBoundingClientRect().top+window.scrollY;updateScroll();
   }
   function placeExpanded(){
@@ -373,13 +404,16 @@ export function createBadge({root,intro,h1,ticket,ticketStage,config,fitText,ful
   document.addEventListener('pointerleave',()=>{lastPointer=null;targets();});
   window.addEventListener('scroll',()=>{if(!scrollFrame)scrollFrame=requestAnimationFrame(updateScroll);},{passive:true});
   window.visualViewport?.addEventListener('resize',()=>{if(opened&&!busy)placeExpanded();});
-  reduced.addEventListener('change',targets);
+  function motionPreferenceChanged(){scheduleTapHint();targets();}
+  reduced.addEventListener('change',motionPreferenceChanged);
   function enter(lineTimes){
-    cancelEntrance();hasEntered=true;carrier.style.visibility='visible';
-    if(!config.badgeEntrance||reduced.matches||opened||busy)return;
-    const sequence=badgeEntranceFrames(config);
-    const animation=carrier.animate(sequence.frames,{duration:sequence.duration,delay:entranceDelay(config.badgeEntrancePosition,lineTimes),easing:'linear',fill:'backwards'});
-    entrance=animation;animation.finished.catch(()=>{}).then(()=>{if(entrance===animation)entrance=null;});
+    cancelEntrance();clearTapHint();hasEntered=true;carrier.style.visibility='visible';paint();
+    if(config.badgeEntrance&&!reduced.matches&&!opened&&!busy){
+      const sequence=badgeEntranceFrames(config);
+      const animation=carrier.animate(sequence.frames,{duration:sequence.duration,delay:entranceDelay(config.badgeEntrancePosition,lineTimes),easing:'linear',fill:'backwards'});
+      entrance=animation;animation.finished.catch(()=>{}).then(()=>{if(entrance===animation){entrance=null;scheduleTapHint();}});
+    }
+    scheduleTapHint();
   }
-  return {layout,enter,update:()=>layout(false),open,close,destroy(){++morphGeneration;morphStartPose=null;cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();dragReturn?.cancel();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();introObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);unlockOverlayScroll(dialog);dialog.remove();}};
+  return {layout,enter,update:()=>layout(false),open,close,destroy(){++morphGeneration;morphStartPose=null;cancelAnimationFrame(frame);cancelAnimationFrame(scrollFrame);cancelEntrance();clearTapHint();dragReturn?.cancel();morphParts.forEach(a=>a.cancel());visibilityObserver.disconnect();introObserver.disconnect();document.removeEventListener('visibilitychange',updateIdleVisibility);reduced.removeEventListener('change',motionPreferenceChanged);unlockOverlayScroll(dialog);dialog.remove();}};
 }

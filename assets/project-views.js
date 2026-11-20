@@ -1,4 +1,4 @@
-import {replaceProjectContent} from './project-panels.js?v=public-bbcdffe8d1-86b4d982';
+import {replaceProjectContent} from './project-panels.js?v=public-19c7b55447-48419883';
 import {cancelPendingRevealScroll,restoreProjectThumbnail} from './reveal-scroll.js?v=20261119-carousel-colors1';
 let installed=false,active=null,serial=0,touchExpand=null;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)');

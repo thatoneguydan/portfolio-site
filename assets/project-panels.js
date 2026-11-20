@@ -1,4 +1,4 @@
-import {defaults} from './landing-schema.js?v=public-bbcdffe8d1-86b4d982';
+import {defaults} from './landing-schema.js?v=public-19c7b55447-48419883';
 import {panelTailCenter,panelSurfacePath,neighborMaskBounds} from './project-panel-math.js?v=20261117-navlab1';
 import {filledControlIcon} from './filled-controls.js?v=20261117-navlab1';
 import {revealProjectThumbnail} from './reveal-scroll.js?v=20261119-carousel-colors1';

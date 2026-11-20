@@ -1,4 +1,4 @@
-import {featuredGalleryLayout,galleryCaptionKind,gallerySettings} from './gallery-layout.js?v=20261119-shared-carousel1';
+import {featuredGalleryLayout,galleryCaptionKind,gallerySettings} from './gallery-layout.js?v=20261120-portrait-carousel1';
 import {bindDotScrubber,createDotIndicator} from './dot-indicator.js?v=20261118-hero3';
 
 export function usesCompactNavigation(){

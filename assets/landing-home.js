@@ -1,10 +1,10 @@
-import {heroButtonReferenceSize} from './landing-schema.js?v=public-bbcdffe8d1-86b4d982';
-import {createBadge} from './landing-badge.js?v=20261119-tunefind1';
+import {heroButtonReferenceSize} from './landing-schema.js?v=public-19c7b55447-48419883';
+import {createBadge} from './landing-badge.js?v=20261120-video-curation1';
 import {appendEmojiText,graphemes} from './site-emoji.js?v=20261118-perf1';
 import {headlineLines,rotationWords,splitPunctuation,createTextRotation,accessibleHeadline} from './landing-rotate.js?v=20261119-carousel1';
-import {mountProjectCarousel,usesCompactNavigation} from './project-carousel.js?v=20261119-mobile-polish1';
-import {siteReady} from './site-runtime.js?v=public-bbcdffe8d1-86b4d982';
-import {revealFrames,revealOffset} from './headline-view.js?v=public-bbcdffe8d1-86b4d982';
+import {mountProjectCarousel,usesCompactNavigation} from './project-carousel.js?v=20261120-portrait-carousel1';
+import {siteReady} from './site-runtime.js?v=public-19c7b55447-48419883';
+import {revealFrames,revealOffset} from './headline-view.js?v=public-19c7b55447-48419883';
 import {mountSectionHeading} from './featured-heading.js?v=20261119-shared-carousel1';
 (async() => {
   'use strict';
